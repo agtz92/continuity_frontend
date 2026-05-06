@@ -9,9 +9,18 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { supabase } from "./supabase";
 
-const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8000/graphql/",
-});
+const isLocal =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1");
+
+const graphqlUrl =
+  process.env.NEXT_PUBLIC_GRAPHQL_URL ||
+  (isLocal
+    ? "http://localhost:8000/graphql/"
+    : "https://continuity-backend.onrender.com/graphql/");
+
+const httpLink = new HttpLink({ uri: graphqlUrl });
 
 const authLink = setContext(async (_, { headers }) => {
   const {
