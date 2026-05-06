@@ -40,7 +40,7 @@ export function ProjectModal({
   const [description, setDescription] = useState(project?.description || "");
   const [why, setWhy] = useState(project?.why || "");
   const [nextStep, setNextStep] = useState(project?.nextStep || "");
-  const [status, setStatus] = useState(project?.status || "idea");
+  const [status, setStatus] = useState<string>(project?.status || "idea");
   const [priority, setPriority] = useState<Priority>(project?.priority || "medium");
   const [categoryId, setCategoryId] = useState<string | null>(
     project?.categoryId ?? null
