@@ -10,6 +10,8 @@ export const DASHBOARD_QUERY = gql`
         why
         nextStep
         status
+        priority
+        categoryId
         lastActivity
         created
       }
@@ -35,6 +37,12 @@ export const DASHBOARD_QUERY = gql`
         note
         date
       }
+      categories {
+        id
+        name
+        color
+        created
+      }
       lastBackup
     }
   }
@@ -49,6 +57,8 @@ export const CREATE_PROJECT = gql`
       why
       nextStep
       status
+      priority
+      categoryId
       lastActivity
       created
     }
@@ -64,9 +74,39 @@ export const UPDATE_PROJECT = gql`
       why
       nextStep
       status
+      priority
+      categoryId
       lastActivity
       created
     }
+  }
+`;
+
+export const CREATE_CATEGORY = gql`
+  mutation CreateCategory($data: CategoryInput!) {
+    createCategory(data: $data) {
+      id
+      name
+      color
+      created
+    }
+  }
+`;
+
+export const UPDATE_CATEGORY = gql`
+  mutation UpdateCategory($id: ID!, $data: CategoryInput!) {
+    updateCategory(id: $id, data: $data) {
+      id
+      name
+      color
+      created
+    }
+  }
+`;
+
+export const DELETE_CATEGORY = gql`
+  mutation DeleteCategory($id: ID!) {
+    deleteCategory(id: $id)
   }
 `;
 

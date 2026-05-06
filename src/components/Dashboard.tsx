@@ -23,15 +23,18 @@ import {
   Upload,
   Database,
   LogOut,
+  Search,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import {
   ADD_UPDATE,
+  CREATE_CATEGORY,
   CREATE_IDEA,
   CREATE_PROJECT,
   CREATE_TASK,
   DASHBOARD_QUERY,
+  DELETE_CATEGORY,
   DELETE_IDEA,
   DELETE_PROJECT,
   DELETE_TASK,
@@ -42,15 +45,29 @@ import {
   UPDATE_TASK,
 } from "@/lib/graphql";
 import type {
+  Category,
   DashboardData,
   Idea,
+  Priority,
   Project,
   ProjectStatus,
   Task,
   UpdateEntry,
 } from "@/lib/types";
-import { IdeaModal, ProjectModal, TaskModal, UpdateModal } from "./modals";
+import {
+  categoryColorClass,
+  priorityMeta,
+  priorityRank,
+} from "@/lib/types";
+import {
+  CategoryManagementModal,
+  IdeaModal,
+  ProjectModal,
+  TaskModal,
+  UpdateModal,
+} from "./modals";
 import { Modal } from "./ui";
+import { Tags } from "lucide-react";
 
 type View = "today" | "projects" | "tasks" | "ideas" | "log";
 
@@ -97,6 +114,23 @@ const daysSince = (dateStr?: string | null) => {
   );
 };
 
+const todayLocalISODate = () => {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+};
+
+const dueDateOnly = (dateStr: string) => dateStr.slice(0, 10);
+
+const isDueToday = (dateStr?: string | null) => {
+  if (!dateStr) return false;
+  return dueDateOnly(dateStr) === todayLocalISODate();
+};
+
+const isOverdue = (dateStr?: string | null) => {
+  if (!dateStr) return false;
+  return dueDateOnly(dateStr) < todayLocalISODate();
+};
+
 export default function Dashboard() {
   const { data, loading, error, refetch } = useQuery<{ dashboard: DashboardData }>(
     DASHBOARD_QUERY,
@@ -115,6 +149,8 @@ export default function Dashboard() {
   const [deleteIdeaM] = useMutation(DELETE_IDEA, refetchAfter);
   const [promoteIdeaM] = useMutation(PROMOTE_IDEA, refetchAfter);
   const [addUpdateM] = useMutation(ADD_UPDATE, refetchAfter);
+  const [createCategoryM] = useMutation(CREATE_CATEGORY, refetchAfter);
+  const [deleteCategoryM] = useMutation(DELETE_CATEGORY, refetchAfter);
   const [markBackupM] = useMutation(MARK_BACKUP);
 
   const [view, setView] = useState<View>("today");
@@ -123,6 +159,11 @@ export default function Dashboard() {
   const [showIdeaModal, setShowIdeaModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+  const [projectSearch, setProjectSearch] = useState("");
+  const [taskSearch, setTaskSearch] = useState("");
+  const [ideaSearch, setIdeaSearch] = useState("");
+  const [logSearch, setLogSearch] = useState("");
   const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
   const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -131,6 +172,11 @@ export default function Dashboard() {
   const projects = data?.dashboard.projects ?? [];
   const tasks = data?.dashboard.tasks ?? [];
   const ideas = data?.dashboard.ideas ?? [];
+  const categories = data?.dashboard.categories ?? [];
+  const categoryById = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.id, c])),
+    [categories]
+  );
   const updates = useMemo<UpdateEntry[]>(() => {
     const list = data?.dashboard.updates ?? [];
     return [...list].sort(
@@ -155,10 +201,9 @@ export default function Dashboard() {
       task?: Task;
       project?: Project;
     }> = [];
-    const now = new Date();
 
     tasks
-      .filter((t) => !t.done && t.dueDate && new Date(t.dueDate) < now)
+      .filter((t) => !t.done && isOverdue(t.dueDate))
       .forEach((t) =>
         focus.push({
           type: "overdue",
@@ -168,10 +213,7 @@ export default function Dashboard() {
       );
 
     tasks
-      .filter((t) => {
-        if (t.done || !t.dueDate) return false;
-        return new Date(t.dueDate).toDateString() === now.toDateString();
-      })
+      .filter((t) => !t.done && isDueToday(t.dueDate))
       .forEach((t) =>
         focus.push({
           type: "today",
@@ -211,6 +253,8 @@ export default function Dashboard() {
     why: string;
     nextStep: string;
     status: string;
+    priority: Priority;
+    categoryId: string | null;
   }) => {
     const data = {
       name: p.name,
@@ -218,6 +262,8 @@ export default function Dashboard() {
       why: p.why,
       nextStep: p.nextStep,
       status: p.status,
+      priority: p.priority,
+      categoryId: p.categoryId,
     };
     if (p.id) {
       await updateProjectM({ variables: { id: p.id, data } });
@@ -226,6 +272,16 @@ export default function Dashboard() {
     }
     setShowProjectModal(false);
     setEditingProject(null);
+  };
+
+  const handleCreateCategory = async (input: { name: string; color: string }) => {
+    const res = await createCategoryM({ variables: { data: input } });
+    return (res.data?.createCategory as Category | undefined) ?? null;
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm("Delete this category? Projects in it will become uncategorized.")) return;
+    await deleteCategoryM({ variables: { id } });
   };
 
   const handleSaveTask = async (t: {
@@ -436,6 +492,14 @@ export default function Dashboard() {
             </div>
             <div className="flex gap-2 text-xs items-center flex-wrap">
               <button
+                onClick={() => setShowCategoriesModal(true)}
+                className="px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
+                title="Manage categories"
+              >
+                <Tags size={14} />
+                <span>Categories</span>
+              </button>
+              <button
                 onClick={() => setShowBackupModal(true)}
                 className={`px-3 py-2 rounded-lg border flex items-center gap-2 transition-colors ${
                   backupOverdue && hasData
@@ -579,7 +643,7 @@ export default function Dashboard() {
                         item.type === "overdue"
                           ? "bg-red-500/5 border-red-500/30"
                           : item.type === "today"
-                          ? "bg-blue-500/5 border-blue-500/30"
+                          ? "bg-orange-500/5 border-orange-500/30"
                           : item.type === "stalled"
                           ? "bg-amber-500/5 border-amber-500/30"
                           : "bg-zinc-900 border-zinc-800"
@@ -591,7 +655,7 @@ export default function Dashboard() {
                             item.type === "overdue"
                               ? "bg-red-400"
                               : item.type === "today"
-                              ? "bg-blue-400"
+                              ? "bg-orange-400"
                               : item.type === "stalled"
                               ? "bg-amber-400"
                               : "bg-emerald-400"
@@ -604,7 +668,7 @@ export default function Dashboard() {
                                 item.type === "overdue"
                                   ? "text-red-400"
                                   : item.type === "today"
-                                  ? "text-blue-400"
+                                  ? "text-orange-400"
                                   : item.type === "stalled"
                                   ? "text-amber-400"
                                   : "text-emerald-400"
@@ -660,6 +724,12 @@ export default function Dashboard() {
                       const projectTasks = tasks.filter((t) => t.projectId === p.id);
                       const done = projectTasks.filter((t) => t.done).length;
                       const days = daysSince(p.lastActivity) ?? 0;
+                      const todayCount = projectTasks.filter(
+                        (t) => !t.done && isDueToday(t.dueDate)
+                      ).length;
+                      const overdueCount = projectTasks.filter(
+                        (t) => !t.done && isOverdue(t.dueDate)
+                      ).length;
                       return (
                         <button
                           key={p.id}
@@ -667,9 +737,43 @@ export default function Dashboard() {
                             setSelectedProject(p);
                             setView("projects");
                           }}
-                          className="text-left bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-all"
+                          className={`text-left bg-zinc-900 border rounded-xl p-4 hover:border-zinc-700 transition-all ${
+                            overdueCount > 0
+                              ? "border-red-500/40"
+                              : todayCount > 0
+                              ? "border-orange-500/40"
+                              : "border-zinc-800"
+                          }`}
                         >
-                          <div className="font-semibold mb-1 truncate">{p.name}</div>
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span title={priorityMeta(p.priority).label}>
+                              {priorityMeta(p.priority).emoji}
+                            </span>
+                            <span className="font-semibold truncate flex-1">
+                              {p.name}
+                            </span>
+                            {overdueCount > 0 && (
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 shrink-0">
+                                {overdueCount} overdue
+                              </span>
+                            )}
+                            {todayCount > 0 && (
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40 shrink-0">
+                                {todayCount} today
+                              </span>
+                            )}
+                          </div>
+                          {p.categoryId && categoryById[p.categoryId] && (
+                            <span
+                              className={`inline-block text-xs px-2 py-0.5 rounded border mb-2 ${
+                                categoryColorClass(
+                                  categoryById[p.categoryId].color
+                                ).chip
+                              }`}
+                            >
+                              {categoryById[p.categoryId].name}
+                            </span>
+                          )}
                           {p.nextStep && (
                             <div className="text-sm text-zinc-400 mb-3 line-clamp-2">
                               → {p.nextStep}
@@ -695,17 +799,32 @@ export default function Dashboard() {
         {/* PROJECTS */}
         {view === "projects" && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
               <h2 className="text-lg font-semibold">All Projects</h2>
-              <button
-                onClick={() => {
-                  setEditingProject(null);
-                  setShowProjectModal(true);
-                }}
-                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2"
-              >
-                <Plus size={16} /> New Project
-              </button>
+              <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
+                <div className="relative flex-1">
+                  <Search
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                  />
+                  <input
+                    type="text"
+                    value={projectSearch}
+                    onChange={(e) => setProjectSearch(e.target.value)}
+                    placeholder="Search by name, description, category..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingProject(null);
+                    setShowProjectModal(true);
+                  }}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+                >
+                  <Plus size={16} /> New
+                </button>
+              </div>
             </div>
 
             {projects.length === 0 ? (
@@ -721,9 +840,34 @@ export default function Dashboard() {
                   Add your first project
                 </button>
               </div>
-            ) : (
+            ) : (() => {
+              const q = projectSearch.trim().toLowerCase();
+              const filtered = q
+                ? projects.filter((p) => {
+                    const cat = p.categoryId
+                      ? categoryById[p.categoryId]?.name ?? ""
+                      : "";
+                    return (
+                      p.name.toLowerCase().includes(q) ||
+                      p.description.toLowerCase().includes(q) ||
+                      p.nextStep.toLowerCase().includes(q) ||
+                      p.why.toLowerCase().includes(q) ||
+                      cat.toLowerCase().includes(q)
+                    );
+                  })
+                : projects;
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+                    No projects match &ldquo;{projectSearch}&rdquo;
+                  </div>
+                );
+              }
+
+              return (
               <div className="grid gap-3">
-                {[...projects]
+                {[...filtered]
                   .sort((a, b) => {
                     const order: Record<string, number> = {
                       active: 0,
@@ -739,6 +883,12 @@ export default function Dashboard() {
                     const projectTasks = tasks.filter((t) => t.projectId === p.id);
                     const done = projectTasks.filter((t) => t.done).length;
                     const total = projectTasks.length;
+                    const todayCount = projectTasks.filter(
+                      (t) => !t.done && isDueToday(t.dueDate)
+                    ).length;
+                    const overdueCount = projectTasks.filter(
+                      (t) => !t.done && isOverdue(t.dueDate)
+                    ).length;
                     const StatusIcon = statusConfig[p.status]?.icon || Activity;
                     const days = daysSince(p.lastActivity) ?? 0;
                     const isStalled =
@@ -765,6 +915,12 @@ export default function Dashboard() {
                             />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span
+                                  className="text-sm"
+                                  title={`Priority: ${priorityMeta(p.priority).label}`}
+                                >
+                                  {priorityMeta(p.priority).emoji}
+                                </span>
                                 <span className="font-semibold">{p.name}</span>
                                 <span
                                   className={`text-xs px-2 py-0.5 rounded border flex items-center gap-1 ${statusConfig[p.status]?.color}`}
@@ -772,6 +928,27 @@ export default function Dashboard() {
                                   <StatusIcon size={10} />
                                   {statusConfig[p.status]?.label}
                                 </span>
+                                {p.categoryId && categoryById[p.categoryId] && (
+                                  <span
+                                    className={`text-xs px-2 py-0.5 rounded border ${
+                                      categoryColorClass(
+                                        categoryById[p.categoryId].color
+                                      ).chip
+                                    }`}
+                                  >
+                                    {categoryById[p.categoryId].name}
+                                  </span>
+                                )}
+                                {overdueCount > 0 && (
+                                  <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40">
+                                    {overdueCount} overdue
+                                  </span>
+                                )}
+                                {todayCount > 0 && (
+                                  <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40">
+                                    {todayCount} today
+                                  </span>
+                                )}
                                 {isStalled && (
                                   <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                                     {days}d idle
@@ -950,32 +1127,68 @@ export default function Dashboard() {
                     );
                   })}
               </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
         {/* TASKS */}
         {view === "tasks" && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
               <h2 className="text-lg font-semibold">All Tasks</h2>
-              <button
-                onClick={() => {
-                  setEditingTask(null);
-                  setShowTaskModal(true);
-                }}
-                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2"
-              >
-                <Plus size={16} /> New Task
-              </button>
+              <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
+                <div className="relative flex-1">
+                  <Search
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                  />
+                  <input
+                    type="text"
+                    value={taskSearch}
+                    onChange={(e) => setTaskSearch(e.target.value)}
+                    placeholder="Search tasks or project..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingTask(null);
+                    setShowTaskModal(true);
+                  }}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+                >
+                  <Plus size={16} /> New
+                </button>
+              </div>
             </div>
             {tasks.length === 0 ? (
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
                 No tasks yet.
               </div>
-            ) : (
+            ) : (() => {
+              const q = taskSearch.trim().toLowerCase();
+              const filteredTasks = q
+                ? tasks.filter((t) => {
+                    const proj = projects.find((p) => p.id === t.projectId);
+                    return (
+                      t.title.toLowerCase().includes(q) ||
+                      (proj?.name.toLowerCase().includes(q) ?? false)
+                    );
+                  })
+                : tasks;
+
+              if (filteredTasks.length === 0) {
+                return (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+                    No tasks match &ldquo;{taskSearch}&rdquo;
+                  </div>
+                );
+              }
+
+              return (
               <div className="space-y-2">
-                {[...tasks]
+                {[...filteredTasks]
                   .sort((a, b) => {
                     if (a.done !== b.done) return a.done ? 1 : -1;
                     if (a.dueDate && b.dueDate)
@@ -988,13 +1201,17 @@ export default function Dashboard() {
                   })
                   .map((t) => {
                     const proj = projects.find((p) => p.id === t.projectId);
-                    const overdue =
-                      !t.done && t.dueDate && new Date(t.dueDate) < new Date();
+                    const overdue = !t.done && isOverdue(t.dueDate);
+                    const dueToday = !t.done && isDueToday(t.dueDate);
                     return (
                       <div
                         key={t.id}
                         className={`bg-zinc-900 border rounded-lg p-3 flex items-center gap-3 group ${
-                          overdue ? "border-red-500/30" : "border-zinc-800"
+                          overdue
+                            ? "border-red-500/30"
+                            : dueToday
+                            ? "border-orange-500/30"
+                            : "border-zinc-800"
                         }`}
                       >
                         <button
@@ -1018,8 +1235,18 @@ export default function Dashboard() {
                           <div className="text-xs text-zinc-500 flex gap-2 mt-0.5">
                             {proj && <span>{proj.name}</span>}
                             {t.dueDate && (
-                              <span className={overdue ? "text-red-400" : ""}>
-                                · {new Date(t.dueDate).toLocaleDateString()}
+                              <span
+                                className={
+                                  overdue
+                                    ? "text-red-400"
+                                    : dueToday
+                                    ? "text-orange-400"
+                                    : ""
+                                }
+                              >
+                                · {dueToday
+                                  ? "Due today"
+                                  : new Date(t.dueDate).toLocaleDateString()}
                               </span>
                             )}
                           </div>
@@ -1034,21 +1261,37 @@ export default function Dashboard() {
                     );
                   })}
               </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
         {/* IDEAS */}
         {view === "ideas" && (
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
               <h2 className="text-lg font-semibold">Ideas Parking Lot</h2>
-              <button
-                onClick={() => setShowIdeaModal(true)}
-                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium text-sm flex items-center gap-2"
-              >
-                <Plus size={16} /> Capture Idea
-              </button>
+              <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
+                <div className="relative flex-1">
+                  <Search
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                  />
+                  <input
+                    type="text"
+                    value={ideaSearch}
+                    onChange={(e) => setIdeaSearch(e.target.value)}
+                    placeholder="Search ideas..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+                  />
+                </div>
+                <button
+                  onClick={() => setShowIdeaModal(true)}
+                  className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+                >
+                  <Plus size={16} /> Capture
+                </button>
+              </div>
             </div>
             <p className="text-sm text-zinc-500 mb-4">
               Park new ideas here so you don&apos;t abandon current projects. Promote them when you&apos;re ready.
@@ -1057,9 +1300,28 @@ export default function Dashboard() {
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
                 No ideas captured yet.
               </div>
-            ) : (
+            ) : (() => {
+              const q = ideaSearch.trim().toLowerCase();
+              const filteredIdeas = q
+                ? ideas.filter(
+                    (i) =>
+                      i.title.toLowerCase().includes(q) ||
+                      i.description.toLowerCase().includes(q) ||
+                      i.why.toLowerCase().includes(q)
+                  )
+                : ideas;
+
+              if (filteredIdeas.length === 0) {
+                return (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+                    No ideas match &ldquo;{ideaSearch}&rdquo;
+                  </div>
+                );
+              }
+
+              return (
               <div className="grid sm:grid-cols-2 gap-3">
-                {ideas.map((i) => (
+                {filteredIdeas.map((i) => (
                   <div
                     key={i.id}
                     className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4"
@@ -1090,21 +1352,57 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
         {/* LOG */}
         {view === "log" && (
           <div>
-            <h2 className="text-lg font-semibold mb-4">Activity Log</h2>
+            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+              <h2 className="text-lg font-semibold">Activity Log</h2>
+              <div className="relative flex-1 sm:max-w-md sm:ml-auto">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                />
+                <input
+                  type="text"
+                  value={logSearch}
+                  onChange={(e) => setLogSearch(e.target.value)}
+                  placeholder="Search log entries or project..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+                />
+              </div>
+            </div>
             {updates.length === 0 ? (
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
                 No activity logged yet. Log updates from your projects to track momentum.
               </div>
-            ) : (
+            ) : (() => {
+              const q = logSearch.trim().toLowerCase();
+              const filteredUpdates = q
+                ? updates.filter((u) => {
+                    const proj = projects.find((p) => p.id === u.projectId);
+                    return (
+                      u.note.toLowerCase().includes(q) ||
+                      (proj?.name.toLowerCase().includes(q) ?? false)
+                    );
+                  })
+                : updates;
+
+              if (filteredUpdates.length === 0) {
+                return (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+                    No log entries match &ldquo;{logSearch}&rdquo;
+                  </div>
+                );
+              }
+
+              return (
               <div className="space-y-2">
-                {updates.map((u) => {
+                {filteredUpdates.map((u) => {
                   const proj = projects.find((p) => p.id === u.projectId);
                   return (
                     <div
@@ -1130,7 +1428,8 @@ export default function Dashboard() {
                   );
                 })}
               </div>
-            )}
+              );
+            })()}
           </div>
         )}
       </div>
@@ -1138,11 +1437,21 @@ export default function Dashboard() {
       {showProjectModal && (
         <ProjectModal
           project={editingProject}
+          categories={categories}
           onSave={handleSaveProject}
+          onCreateCategory={handleCreateCategory}
           onClose={() => {
             setShowProjectModal(false);
             setEditingProject(null);
           }}
+        />
+      )}
+
+      {showCategoriesModal && (
+        <CategoryManagementModal
+          categories={categories}
+          onDelete={handleDeleteCategory}
+          onClose={() => setShowCategoriesModal(false)}
         />
       )}
 
