@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
+import { toast } from "@/lib/toast";
 import {
   ADD_UPDATE,
   CREATE_CATEGORY,
@@ -265,23 +266,35 @@ export default function Dashboard() {
       priority: p.priority,
       categoryId: p.categoryId,
     };
-    if (p.id) {
-      await updateProjectM({ variables: { id: p.id, data } });
-    } else {
-      await createProject({ variables: { data } });
+    try {
+      if (p.id) {
+        await updateProjectM({ variables: { id: p.id, data } });
+      } else {
+        await createProject({ variables: { data } });
+      }
+    } catch {
+      return; // errorLink already toasted; keep the modal open for retry
     }
     setShowProjectModal(false);
     setEditingProject(null);
   };
 
   const handleCreateCategory = async (input: { name: string; color: string }) => {
-    const res = await createCategoryM({ variables: { data: input } });
-    return (res.data?.createCategory as Category | undefined) ?? null;
+    try {
+      const res = await createCategoryM({ variables: { data: input } });
+      return (res.data?.createCategory as Category | undefined) ?? null;
+    } catch {
+      return null;
+    }
   };
 
   const handleDeleteCategory = async (id: string) => {
     if (!confirm("Delete this category? Projects in it will become uncategorized.")) return;
-    await deleteCategoryM({ variables: { id } });
+    try {
+      await deleteCategoryM({ variables: { id } });
+    } catch {
+      /* toasted globally */
+    }
   };
 
   const handleSaveTask = async (t: {
@@ -297,43 +310,75 @@ export default function Dashboard() {
       dueDate: t.dueDate,
       done: t.done,
     };
-    if (t.id) {
-      await updateTaskM({ variables: { id: t.id, data } });
-    } else {
-      await createTask({ variables: { data } });
+    try {
+      if (t.id) {
+        await updateTaskM({ variables: { id: t.id, data } });
+      } else {
+        await createTask({ variables: { data } });
+      }
+    } catch {
+      return;
     }
     setShowTaskModal(false);
     setEditingTask(null);
   };
 
   const handleToggleTask = async (t: Task) => {
-    await toggleTaskM({ variables: { id: t.id } });
+    try {
+      await toggleTaskM({ variables: { id: t.id } });
+    } catch {
+      /* toasted globally */
+    }
   };
 
   const handleDeleteTask = async (id: string) => {
-    await deleteTaskM({ variables: { id } });
+    try {
+      await deleteTaskM({ variables: { id } });
+    } catch {
+      /* toasted globally */
+    }
   };
 
   const handleDeleteProject = async (id: string) => {
     if (!confirm("Delete this project and all its tasks?")) return;
-    await deleteProjectM({ variables: { id } });
+    try {
+      await deleteProjectM({ variables: { id } });
+    } catch {
+      /* toasted globally */
+    }
   };
 
   const handleSaveIdea = async (i: { title: string; description: string }) => {
-    await createIdea({ variables: { data: { ...i, why: "" } } });
+    try {
+      await createIdea({ variables: { data: { ...i, why: "" } } });
+    } catch {
+      return;
+    }
     setShowIdeaModal(false);
   };
 
   const handleDeleteIdea = async (id: string) => {
-    await deleteIdeaM({ variables: { id } });
+    try {
+      await deleteIdeaM({ variables: { id } });
+    } catch {
+      /* toasted globally */
+    }
   };
 
   const handlePromoteIdea = async (id: string) => {
-    await promoteIdeaM({ variables: { id } });
+    try {
+      await promoteIdeaM({ variables: { id } });
+    } catch {
+      /* toasted globally */
+    }
   };
 
   const handleAddUpdate = async (projectId: string, note: string) => {
-    await addUpdateM({ variables: { projectId, note } });
+    try {
+      await addUpdateM({ variables: { projectId, note } });
+    } catch {
+      return;
+    }
     setShowUpdateModal(false);
   };
 
@@ -357,19 +402,31 @@ export default function Dashboard() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    await markBackupM();
+    try {
+      await markBackupM();
+      toast.success("Backup exported.");
+    } catch {
+      // markBackup failed but the file already downloaded — don't claim success
+    }
     refetch();
   };
 
   const importData = async (file: File, mode: "merge" | "replace") => {
+    let parsed: { version?: number; projects?: Project[]; tasks?: Task[]; ideas?: Idea[]; updates?: UpdateEntry[] };
     try {
       const text = await file.text();
-      const parsed = JSON.parse(text);
-      if (!parsed.version || !Array.isArray(parsed.projects)) {
-        alert("Invalid backup file. Expected a Continuity export.");
-        return;
-      }
+      parsed = JSON.parse(text);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(`Could not read backup file: ${msg}`);
+      return;
+    }
+    if (!parsed.version || !Array.isArray(parsed.projects)) {
+      toast.error("Invalid backup file. Expected a Continuity export.");
+      return;
+    }
 
+    try {
       if (mode === "replace") {
         await Promise.all(projects.map((p) => deleteProjectM({ variables: { id: p.id } })));
         await Promise.all(tasks.map((t) => deleteTaskM({ variables: { id: t.id } })));
@@ -419,12 +476,13 @@ export default function Dashboard() {
         }
       }
       await refetch();
-      alert(
+      toast.success(
         `Imported ${parsed.projects?.length || 0} projects, ${parsed.tasks?.length || 0} tasks, ${parsed.ideas?.length || 0} ideas, ${parsed.updates?.length || 0} updates.`
       );
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      alert(`Import failed: ${msg}`);
+    } catch {
+      // The errorLink already toasted whichever mutation failed; refresh to
+      // reflect whatever did make it through.
+      refetch();
     }
   };
 
