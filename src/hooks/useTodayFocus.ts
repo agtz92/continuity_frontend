@@ -86,6 +86,18 @@ export function useTodayFocus({
     return { overdue, dueToday, total: overdue + dueToday };
   }, [tasks]);
 
+  const todayEffortHours = useMemo(() => {
+    const sum = tasks
+      .filter(
+        (t) =>
+          !t.done &&
+          (isOverdue(t.dueDate) || isDueToday(t.dueDate)) &&
+          t.effortHours != null
+      )
+      .reduce((acc, t) => acc + (t.effortHours as number), 0);
+    return Math.round(sum * 10) / 10;
+  }, [tasks]);
+
   const doneTodayItems = useMemo(() => {
     const items: DoneItem[] = [];
     tasks
@@ -109,6 +121,15 @@ export function useTodayFocus({
     return items.sort((a, b) => b.time - a.time);
   }, [tasks, updates]);
 
+  const doneTodayEffortHours = useMemo(() => {
+    const sum = tasks
+      .filter(
+        (t) => t.done && isCompletedToday(t.completedAt) && t.effortHours != null
+      )
+      .reduce((acc, t) => acc + (t.effortHours as number), 0);
+    return Math.round(sum * 10) / 10;
+  }, [tasks]);
+
   const launchedWithOpenTasks = useMemo(
     () =>
       projects
@@ -126,7 +147,9 @@ export function useTodayFocus({
     stalled,
     todayFocus,
     todayTaskCounts,
+    todayEffortHours,
     doneTodayItems,
+    doneTodayEffortHours,
     launchedWithOpenTasks,
   };
 }

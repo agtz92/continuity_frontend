@@ -176,6 +176,10 @@ export default function Dashboard() {
             }}
             onJumpToTasks={() => setView("tasks")}
             onToggleTask={toggleTask}
+            onEditTask={(task) => {
+              setEditingTask(task);
+              setShowTaskModal(true);
+            }}
           />
         )}
 

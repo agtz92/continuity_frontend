@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlus, CheckCircle2, X } from "lucide-react";
+import { CalendarPlus, CheckCircle2, Clock, X } from "lucide-react";
 import type { Project, Task } from "@/lib/types";
 import { isDueToday, isOverdue } from "@/lib/date";
 
@@ -49,8 +49,16 @@ export function TaskRow({
         className={`flex-1 min-w-0 ${onEdit ? "cursor-pointer" : ""}`}
         onClick={onEdit ? () => onEdit(t) : undefined}
       >
-        <div className={t.done ? "line-through text-zinc-500" : "text-zinc-100"}>
-          {t.title}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={t.done ? "line-through text-zinc-500" : "text-zinc-100"}>
+            {t.title}
+          </span>
+          {t.effortHours != null && (
+            <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+              <Clock size={10} />
+              {t.effortHours}h
+            </span>
+          )}
         </div>
         <div className="text-xs text-zinc-500 flex flex-wrap items-center gap-x-2 mt-0.5">
           {project && <span>{project.name}</span>}
@@ -79,7 +87,6 @@ export function TaskRow({
               <CalendarPlus size={12} /> Add date
             </button>
           ) : null}
-          {t.effortHours != null && <span>· {t.effortHours}h</span>}
         </div>
       </div>
       <button

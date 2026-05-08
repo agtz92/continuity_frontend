@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Minus, Plus } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import type { Project, Task } from "@/lib/types";
@@ -53,6 +54,13 @@ export function TaskModal({
     });
   };
 
+  const adjustEffort = (delta: number) => {
+    const current = parseFloat(effortHours);
+    const base = Number.isFinite(current) ? current : 0;
+    const next = Math.max(0, Math.round((base + delta) * 2) / 2);
+    setEffortHours(String(next));
+  };
+
   return (
     <Modal title={task?.id ? "Edit Task" : "New Task"} onClose={onClose}>
       <div className="space-y-3">
@@ -87,15 +95,33 @@ export function TaskModal({
           />
         </Field>
         <Field label="Effort (hours)">
-          <input
-            type="number"
-            step="0.5"
-            min="0"
-            value={effortHours}
-            onChange={(e) => setEffortHours(e.target.value)}
-            placeholder="e.g. 2.5"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
-          />
+          <div className="flex items-stretch gap-2">
+            <input
+              type="number"
+              step="0.5"
+              min="0"
+              value={effortHours}
+              onChange={(e) => setEffortHours(e.target.value)}
+              placeholder="e.g. 2.5"
+              className="no-spinner flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => adjustEffort(-0.5)}
+              className="px-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300"
+              aria-label="Decrease effort"
+            >
+              <Minus size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustEffort(0.5)}
+              className="px-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300"
+              aria-label="Increase effort"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
         </Field>
         <div className="flex gap-2 pt-2">
           <button

@@ -5,7 +5,9 @@ import {
   Bell,
   CheckCircle2,
   ChevronRight,
+  Clock,
   Database,
+  Edit2,
   Rocket,
   Sparkles,
   Target,
@@ -32,6 +34,7 @@ export function TodayView({
   onJumpToProject,
   onJumpToTasks,
   onToggleTask,
+  onEditTask,
 }: {
   projects: Project[];
   tasks: Task[];
@@ -45,9 +48,17 @@ export function TodayView({
   onJumpToProject: (p: Project) => void;
   onJumpToTasks: () => void;
   onToggleTask: (t: Task) => void | Promise<void>;
+  onEditTask: (t: Task) => void;
 }) {
-  const { stalled, todayFocus, todayTaskCounts, doneTodayItems, launchedWithOpenTasks } =
-    useTodayFocus({ projects, tasks, updates });
+  const {
+    stalled,
+    todayFocus,
+    todayTaskCounts,
+    todayEffortHours,
+    doneTodayItems,
+    doneTodayEffortHours,
+    launchedWithOpenTasks,
+  } = useTodayFocus({ projects, tasks, updates });
 
   const [showTodayFocus, setShowTodayFocus] = useState(true);
   const [showDoneToday, setShowDoneToday] = useState(true);
@@ -116,18 +127,29 @@ export function TodayView({
         title="Today's Focus"
         rightSlot={
           todayTaskCounts.total > 0 ? (
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-200 shadow-sm shadow-orange-500/10"
-              title={`${todayTaskCounts.dueToday} due today · ${todayTaskCounts.overdue} overdue`}
-            >
-              <Target size={11} className="text-orange-300" />
-              <span>
-                {todayTaskCounts.total}{" "}
-                {todayTaskCounts.total === 1 ? "task" : "tasks"}
+            <span className="inline-flex items-center gap-2 flex-wrap">
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-200 shadow-sm shadow-orange-500/10"
+                title={`${todayTaskCounts.dueToday} due today · ${todayTaskCounts.overdue} overdue`}
+              >
+                <Target size={11} className="text-orange-300" />
+                <span>
+                  {todayTaskCounts.total}{" "}
+                  {todayTaskCounts.total === 1 ? "task" : "tasks"}
+                </span>
+                {todayTaskCounts.overdue > 0 && (
+                  <span className="text-red-300 font-semibold">
+                    · {todayTaskCounts.overdue} overdue
+                  </span>
+                )}
               </span>
-              {todayTaskCounts.overdue > 0 && (
-                <span className="text-red-300 font-semibold">
-                  · {todayTaskCounts.overdue} overdue
+              {todayEffortHours > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-blue-500/15 text-blue-200 border-blue-500/40"
+                  title="Total estimated hours for tasks due today + overdue"
+                >
+                  <Clock size={11} className="text-blue-300" />
+                  {todayEffortHours}h total
                 </span>
               )}
             </span>
@@ -171,7 +193,10 @@ export function TodayView({
                           : "bg-emerald-400"
                       }`}
                     />
-                    <div className="flex-1 min-w-0">
+                    <div
+                      className={`flex-1 min-w-0 ${item.task ? "cursor-pointer" : ""}`}
+                      onClick={item.task ? () => onEditTask(item.task!) : undefined}
+                    >
                       <div className="flex items-center gap-2 mb-1">
                         <span
                           className={`text-xs uppercase tracking-wider font-medium ${
@@ -208,12 +233,20 @@ export function TodayView({
                           </span>
                         )}
                       </div>
-                      <div className="text-zinc-100">
-                        {item.task
-                          ? item.task.title
-                          : item.type === "stalled" && item.project
-                          ? `${item.project.name} — ${daysSince(item.project.lastActivity)} days idle`
-                          : item.project?.nextStep}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-zinc-100">
+                          {item.task
+                            ? item.task.title
+                            : item.type === "stalled" && item.project
+                            ? `${item.project.name} — ${daysSince(item.project.lastActivity)} days idle`
+                            : item.project?.nextStep}
+                        </span>
+                        {item.task?.effortHours != null && (
+                          <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                            <Clock size={10} />
+                            {item.task.effortHours}h
+                          </span>
+                        )}
                       </div>
                     </div>
                     {item.task && (
@@ -301,6 +334,15 @@ export function TodayView({
                     {logCount} {logCount === 1 ? "log" : "logs"}
                   </button>
                 )}
+                {doneTodayEffortHours > 0 && (
+                  <span
+                    className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-blue-500/15 text-blue-200 border border-blue-500/40"
+                    title="Total estimated hours worked on completed tasks today"
+                  >
+                    <Clock size={11} />
+                    {doneTodayEffortHours}h worked
+                  </span>
+                )}
               </>
             }
           >
@@ -330,10 +372,26 @@ export function TodayView({
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-zinc-300 line-through decoration-emerald-500/40 break-words">
-                            {t.title}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm text-zinc-300 line-through decoration-emerald-500/40 break-words">
+                              {t.title}
+                            </span>
+                            {t.effortHours != null && (
+                              <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                                <Clock size={10} />
+                                {t.effortHours}h
+                              </span>
+                            )}
                           </div>
                         </div>
+                        <button
+                          onClick={() => onEditTask(t)}
+                          className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                          title="Edit"
+                          aria-label="Edit task"
+                        >
+                          <Edit2 size={14} />
+                        </button>
                         <button
                           onClick={() => onToggleTask(t)}
                           className="text-zinc-600 hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"

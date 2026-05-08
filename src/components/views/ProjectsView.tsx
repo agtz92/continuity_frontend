@@ -5,6 +5,7 @@ import {
   Activity,
   CheckCircle2,
   ChevronRight,
+  Clock,
   Edit2,
   Plus,
   Search,
@@ -281,6 +282,10 @@ export function ProjectsView({
                 const overdueCount = projectTasks.filter(
                   (t) => !t.done && isOverdue(t.dueDate)
                 ).length;
+                const pendingEffortRaw = projectTasks
+                  .filter((t) => !t.done && t.effortHours != null)
+                  .reduce((sum, t) => sum + (t.effortHours as number), 0);
+                const pendingEffort = Math.round(pendingEffortRaw * 10) / 10;
                 const StatusIcon = statusConfig[p.status]?.icon || Activity;
                 const days = daysSince(p.lastActivity) ?? 0;
                 const isStalled =
@@ -344,6 +349,15 @@ export function ProjectsView({
                             {isStalled && (
                               <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                                 {days}d idle
+                              </span>
+                            )}
+                            {pendingEffort > 0 && (
+                              <span
+                                className="text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 inline-flex items-center gap-1"
+                                title="Sum of effort hours of pending tasks"
+                              >
+                                <Clock size={10} />
+                                {pendingEffort}h pending
                               </span>
                             )}
                           </div>
@@ -434,7 +448,8 @@ export function ProjectsView({
                                     </span>
                                   )}
                                   {t.effortHours != null && (
-                                    <span className="text-xs text-zinc-500">
+                                    <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                                      <Clock size={10} />
                                       {t.effortHours}h
                                     </span>
                                   )}
