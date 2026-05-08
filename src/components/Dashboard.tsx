@@ -542,12 +542,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex items-start justify-between mb-2 flex-wrap gap-3">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
                 Continuity
               </h1>
               <p className="text-zinc-400 text-sm mt-1">
@@ -561,35 +561,37 @@ export default function Dashboard() {
             <div className="flex gap-2 text-xs items-center flex-wrap">
               <button
                 onClick={() => setShowCategoriesModal(true)}
-                className="px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
+                className="px-2 sm:px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
                 title="Manage categories"
+                aria-label="Manage categories"
               >
                 <Tags size={14} />
-                <span>Categories</span>
+                <span className="hidden sm:inline">Categories</span>
               </button>
               <button
                 onClick={() => setShowBackupModal(true)}
-                className={`px-3 py-2 rounded-lg border flex items-center gap-2 transition-colors ${
+                className={`px-2 sm:px-3 py-2 rounded-lg border flex items-center gap-2 transition-colors ${
                   backupOverdue && hasData
                     ? "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20"
                     : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
                 }`}
+                aria-label="Backup"
               >
                 <Database size={14} />
-                <span>Backup</span>
+                <span className="hidden sm:inline">Backup</span>
               </button>
-              <div className="px-3 py-2 bg-zinc-900 rounded-lg border border-zinc-800">
-                <div className="text-zinc-500">Active</div>
-                <div className="text-emerald-400 font-bold text-lg">{activeCount}</div>
+              <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-zinc-900 rounded-lg border border-zinc-800 leading-tight">
+                <div className="text-zinc-500 text-[10px] sm:text-xs">Active</div>
+                <div className="text-emerald-400 font-bold text-base sm:text-lg">{activeCount}</div>
               </div>
-              <div className="px-3 py-2 bg-zinc-900 rounded-lg border border-zinc-800">
-                <div className="text-zinc-500">Launched</div>
-                <div className="text-blue-400 font-bold text-lg">{launchedCount}</div>
+              <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-zinc-900 rounded-lg border border-zinc-800 leading-tight">
+                <div className="text-zinc-500 text-[10px] sm:text-xs">Launched</div>
+                <div className="text-blue-400 font-bold text-base sm:text-lg">{launchedCount}</div>
               </div>
               {stalled.length > 0 && (
-                <div className="px-3 py-2 bg-amber-500/10 rounded-lg border border-amber-500/30">
-                  <div className="text-amber-500/80">Stalled</div>
-                  <div className="text-amber-400 font-bold text-lg">{stalled.length}</div>
+                <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-amber-500/10 rounded-lg border border-amber-500/30 leading-tight">
+                  <div className="text-amber-500/80 text-[10px] sm:text-xs">Stalled</div>
+                  <div className="text-amber-400 font-bold text-base sm:text-lg">{stalled.length}</div>
                 </div>
               )}
               <button
@@ -604,7 +606,7 @@ export default function Dashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-zinc-900 p-1 rounded-lg border border-zinc-800 w-fit">
+        <div className="flex gap-1 mb-6 bg-zinc-900 p-1 rounded-lg border border-zinc-800 w-full sm:w-fit overflow-x-auto">
           {(
             [
               { id: "today", label: "Today", icon: Target },
@@ -619,7 +621,7 @@ export default function Dashboard() {
               <button
                 key={t.id}
                 onClick={() => setView(t.id)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-2.5 sm:px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-1 sm:flex-none whitespace-nowrap ${
                   view === t.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
@@ -1125,7 +1127,8 @@ export default function Dashboard() {
                                           e.stopPropagation();
                                           handleDeleteTask(t.id);
                                         }}
-                                        className="text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                        aria-label="Delete task"
                                       >
                                         <X size={14} />
                                       </button>
@@ -1158,15 +1161,15 @@ export default function Dashboard() {
                                   .map((u) => (
                                     <div
                                       key={u.id}
-                                      className="text-sm text-zinc-400 flex gap-2"
+                                      className="text-sm text-zinc-400 flex flex-col sm:flex-row gap-0.5 sm:gap-2"
                                     >
-                                      <span className="text-zinc-600 text-xs shrink-0 w-20">
+                                      <span className="text-zinc-600 text-xs shrink-0 sm:w-20">
                                         {new Date(u.date).toLocaleDateString("en-US", {
                                           month: "short",
                                           day: "numeric",
                                         })}
                                       </span>
-                                      <span>{u.note}</span>
+                                      <span className="break-words min-w-0">{u.note}</span>
                                     </div>
                                   ))}
                                 {updates.filter((u) => u.projectId === p.id).length ===
@@ -1331,7 +1334,8 @@ export default function Dashboard() {
                         </div>
                         <button
                           onClick={() => handleDeleteTask(t.id)}
-                          className="text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                          aria-label="Delete task"
                         >
                           <X size={16} />
                         </button>
@@ -1485,22 +1489,22 @@ export default function Dashboard() {
                   return (
                     <div
                       key={u.id}
-                      className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex gap-3"
+                      className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3"
                     >
-                      <div className="text-xs text-zinc-500 shrink-0 w-24">
+                      <div className="text-xs text-zinc-500 shrink-0 sm:w-24">
                         {new Date(u.date).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
                         })}
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         {proj && (
                           <div className="text-xs text-emerald-400 mb-0.5">
                             {proj.name}
                           </div>
                         )}
-                        <div className="text-sm text-zinc-200">{u.note}</div>
+                        <div className="text-sm text-zinc-200 break-words">{u.note}</div>
                       </div>
                     </div>
                   );

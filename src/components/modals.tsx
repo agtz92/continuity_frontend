@@ -112,7 +112,7 @@ export function ProjectModal({
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
           />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Status">
             <select
               value={status}
