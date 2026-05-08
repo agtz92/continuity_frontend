@@ -24,6 +24,7 @@ import {
   Database,
   LogOut,
   Search,
+  Sparkles,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
@@ -142,6 +143,13 @@ const daysOverdue = (dateStr?: string | null): number | null => {
   return diff > 0 ? diff : null;
 };
 
+const isCompletedToday = (dateStr?: string | null) => {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const localISO = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return localISO === todayLocalISODate();
+};
+
 export default function Dashboard() {
   const { data, loading, error, refetch } = useQuery<{ dashboard: DashboardData }>(
     DASHBOARD_QUERY,
@@ -248,6 +256,45 @@ export default function Dashboard() {
 
     return focus.slice(0, 6);
   }, [projects, tasks, stalled]);
+
+  const doneTodayItems = useMemo(() => {
+    type DoneItem =
+      | { kind: "task"; time: number; task: Task }
+      | { kind: "log"; time: number; update: UpdateEntry };
+    const items: DoneItem[] = [];
+    tasks
+      .filter((t) => t.done && isCompletedToday(t.completedAt))
+      .forEach((t) =>
+        items.push({
+          kind: "task",
+          time: t.completedAt ? new Date(t.completedAt).getTime() : 0,
+          task: t,
+        })
+      );
+    updates
+      .filter((u) => isCompletedToday(u.date))
+      .forEach((u) =>
+        items.push({
+          kind: "log",
+          time: new Date(u.date).getTime(),
+          update: u,
+        })
+      );
+    return items.sort((a, b) => b.time - a.time);
+  }, [tasks, updates]);
+
+  const launchedWithOpenTasks = useMemo(
+    () =>
+      projects
+        .filter((p) => p.status === "launched")
+        .map((p) => {
+          const projectTasks = tasks.filter((t) => t.projectId === p.id);
+          const openCount = projectTasks.filter((t) => !t.done).length;
+          return { project: p, projectTasks, openCount };
+        })
+        .filter((x) => x.openCount > 0),
+    [projects, tasks]
+  );
 
   const activeCount = projects.filter((p) => p.status === "active").length;
   const launchedCount = projects.filter((p) => p.status === "launched").length;
@@ -791,6 +838,103 @@ export default function Dashboard() {
               )}
             </div>
 
+            {doneTodayItems.length > 0 && (() => {
+              const taskCount = doneTodayItems.filter((i) => i.kind === "task").length;
+              const logCount = doneTodayItems.filter((i) => i.kind === "log").length;
+              return (
+                <div>
+                  <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 flex-wrap">
+                    <Sparkles size={18} className="text-emerald-400" />
+                    Done today
+                    {taskCount > 0 && (
+                      <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5 flex items-center gap-1">
+                        <CheckCircle2 size={11} />
+                        {taskCount} {taskCount === 1 ? "task" : "tasks"}
+                      </span>
+                    )}
+                    {logCount > 0 && (
+                      <span className="text-xs font-normal text-blue-300 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5 flex items-center gap-1">
+                        <TrendingUp size={11} />
+                        {logCount} {logCount === 1 ? "log" : "logs"}
+                      </span>
+                    )}
+                  </h2>
+                  <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 sm:p-4">
+                    <div className="space-y-2">
+                      {doneTodayItems.map((item) => {
+                        if (item.kind === "task") {
+                          const t = item.task;
+                          const proj = projects.find((p) => p.id === t.projectId);
+                          return (
+                            <div
+                              key={`task-${t.id}`}
+                              className="flex items-start gap-2 group border-l-2 border-emerald-500/40 pl-2.5"
+                            >
+                              <CheckCircle2
+                                size={16}
+                                className="text-emerald-400 shrink-0 mt-0.5"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                  <span className="text-[10px] uppercase tracking-wider font-medium text-emerald-400">
+                                    Task
+                                  </span>
+                                  {proj && (
+                                    <span className="text-xs text-zinc-500">
+                                      · {proj.name}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-sm text-zinc-300 line-through decoration-emerald-500/40 break-words">
+                                  {t.title}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => handleToggleTask(t)}
+                                className="text-zinc-600 hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                title="Undo"
+                                aria-label="Undo completion"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          );
+                        }
+                        const u = item.update;
+                        const proj = projects.find((p) => p.id === u.projectId);
+                        return (
+                          <div
+                            key={`log-${u.id}`}
+                            className="flex items-start gap-2 border-l-2 border-blue-500/40 pl-2.5"
+                          >
+                            <TrendingUp
+                              size={16}
+                              className="text-blue-400 shrink-0 mt-0.5"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                <span className="text-[10px] uppercase tracking-wider font-medium text-blue-400">
+                                  Log
+                                </span>
+                                {proj && (
+                                  <span className="text-xs text-zinc-500">
+                                    · {proj.name}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-zinc-300 break-words">
+                                {u.note}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {projects.filter((p) => p.status === "active").length > 0 && (
               <div>
                 <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -870,6 +1014,86 @@ export default function Dashboard() {
                         </button>
                       );
                     })}
+                </div>
+              </div>
+            )}
+
+            {launchedWithOpenTasks.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Rocket size={18} className="text-blue-400" />
+                  Launched · still has tasks
+                  <span className="text-xs font-normal text-blue-400/80 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
+                    {launchedWithOpenTasks.length}
+                  </span>
+                </h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {launchedWithOpenTasks.map(({ project: p, projectTasks, openCount }) => {
+                    const done = projectTasks.filter((t) => t.done).length;
+                    const todayCount = projectTasks.filter(
+                      (t) => !t.done && isDueToday(t.dueDate)
+                    ).length;
+                    const overdueCount = projectTasks.filter(
+                      (t) => !t.done && isOverdue(t.dueDate)
+                    ).length;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          setSelectedProject(p);
+                          setView("projects");
+                        }}
+                        className={`text-left bg-blue-500/5 border rounded-xl p-4 hover:border-blue-500/40 transition-all ${
+                          overdueCount > 0
+                            ? "border-red-500/40"
+                            : todayCount > 0
+                            ? "border-orange-500/40"
+                            : "border-blue-500/20"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <Rocket size={14} className="text-blue-400 shrink-0" />
+                          <span className="font-semibold truncate flex-1">
+                            {p.name}
+                          </span>
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 shrink-0">
+                            {openCount} open
+                          </span>
+                          {overdueCount > 0 && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 shrink-0">
+                              {overdueCount} overdue
+                            </span>
+                          )}
+                          {todayCount > 0 && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40 shrink-0">
+                              {todayCount} today
+                            </span>
+                          )}
+                        </div>
+                        {p.categoryId && categoryById[p.categoryId] && (
+                          <span
+                            className={`inline-block text-xs px-2 py-0.5 rounded border mb-2 ${
+                              categoryColorClass(
+                                categoryById[p.categoryId].color
+                              ).chip
+                            }`}
+                          >
+                            {categoryById[p.categoryId].name}
+                          </span>
+                        )}
+                        {p.nextStep && (
+                          <div className="text-sm text-zinc-400 mb-3 line-clamp-2">
+                            → {p.nextStep}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between text-xs text-zinc-500">
+                          <span>
+                            {done}/{projectTasks.length} tasks
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
