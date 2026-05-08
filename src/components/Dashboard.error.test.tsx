@@ -27,7 +27,7 @@ import userEvent from "@testing-library/user-event";
 import { MockedProvider, type MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import Dashboard from "./Dashboard";
-import { IdeaModal } from "./modals";
+import { IdeaModal } from "./ideas/IdeaModal";
 import { CREATE_IDEA, DASHBOARD_QUERY } from "@/lib/graphql";
 
 const emptyDashboard = {
@@ -94,22 +94,25 @@ describe("Dashboard mutation error handling (integration)", () => {
 });
 
 describe("IdeaModal contract (isolated)", () => {
-  it("calls onSave with the trimmed title and current description", async () => {
+  it("calls onSave with the trimmed title and current notes/why", async () => {
     const user = userEvent.setup();
     const onSave = vi.fn();
     const onClose = vi.fn();
 
     render(<IdeaModal onSave={onSave} onClose={onClose} />);
 
-    const [titleInput, descriptionInput] = screen.getAllByRole("textbox");
+    const [titleInput, whyInput, notesInput] = screen.getAllByRole("textbox");
     await user.type(titleInput, "  Spark idea  ");
-    await user.type(descriptionInput, "details");
+    await user.type(whyInput, "matters because");
+    await user.type(notesInput, "details");
     await user.click(screen.getByRole("button", { name: /^capture$/i }));
 
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave).toHaveBeenCalledWith({
+      id: undefined,
       title: "Spark idea",
       description: "details",
+      why: "matters because",
     });
     // Modal does NOT close itself — closing is the parent's job. This is
     // what makes the Dashboard's try/catch pattern sound: on error, the
