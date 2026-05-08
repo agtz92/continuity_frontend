@@ -44,6 +44,7 @@ export function ProjectsView({
   onAddTaskToProject,
   onLogUpdate,
   onToggleTask,
+  onEditTask,
   onDeleteTask,
 }: {
   projects: Project[];
@@ -59,6 +60,7 @@ export function ProjectsView({
   onAddTaskToProject: (projectId: string) => void;
   onLogUpdate: (p: Project) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
+  onEditTask: (t: Task) => void;
   onDeleteTask: (id: string) => void | Promise<void>;
 }) {
   const [projectSearch, setProjectSearch] = useState("");
@@ -431,6 +433,21 @@ export function ProjectsView({
                                       {new Date(t.dueDate).toLocaleDateString()}
                                     </span>
                                   )}
+                                  {t.effortHours != null && (
+                                    <span className="text-xs text-zinc-500">
+                                      {t.effortHours}h
+                                    </span>
+                                  )}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onEditTask(t);
+                                    }}
+                                    className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                    aria-label="Edit task"
+                                  >
+                                    <Edit2 size={14} />
+                                  </button>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();

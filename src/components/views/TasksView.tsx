@@ -136,6 +136,7 @@ export function TasksView({
             onToggle={onToggleTask}
             onDelete={onDeleteTask}
             onSchedule={opts?.canSchedule ? onEditTask : undefined}
+            onEdit={onEditTask}
           />
         );
 
