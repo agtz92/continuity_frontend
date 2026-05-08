@@ -6,14 +6,18 @@ import { Field } from "../ui/Field";
 
 export function UpdateModal({
   projectName,
+  initialNote = "",
+  isEdit = false,
   onSave,
   onClose,
 }: {
   projectName: string;
+  initialNote?: string;
+  isEdit?: boolean;
   onSave: (note: string) => void | Promise<void>;
   onClose: () => void;
 }) {
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(initialNote);
 
   const handleSubmit = () => {
     if (!note.trim()) return;
@@ -21,7 +25,10 @@ export function UpdateModal({
   };
 
   return (
-    <Modal title={`Log update — ${projectName}`} onClose={onClose}>
+    <Modal
+      title={`${isEdit ? "Edit log entry" : "Log update"} — ${projectName}`}
+      onClose={onClose}
+    >
       <div className="flex flex-col gap-3 flex-1 min-h-0">
         <Field label="What happened?" grow>
           <textarea
@@ -37,7 +44,7 @@ export function UpdateModal({
             onClick={handleSubmit}
             className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
           >
-            Log it
+            {isEdit ? "Save" : "Log it"}
           </button>
           <button
             onClick={onClose}

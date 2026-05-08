@@ -19,6 +19,7 @@ export function TaskModal({
     projectId: string | null;
     dueDate: string | null;
     done: boolean;
+    effortHours: number | null;
   }) => void | Promise<void>;
   onClose: () => void;
 }) {
@@ -35,15 +36,20 @@ export function TaskModal({
   const [title, setTitle] = useState(task?.title || "");
   const [projectId, setProjectId] = useState(task?.projectId || "");
   const [dueDate, setDueDate] = useState(isoToInputDate(task?.dueDate));
+  const [effortHours, setEffortHours] = useState(
+    task?.effortHours != null ? String(task.effortHours) : ""
+  );
 
   const handleSubmit = () => {
     if (!title.trim()) return;
+    const parsedEffort = effortHours.trim() ? parseFloat(effortHours) : NaN;
     onSave({
       id: task?.id,
       title: title.trim(),
       projectId: projectId || null,
       dueDate: dueDate ? inputDateToIso(dueDate) : null,
       done: task?.done || false,
+      effortHours: Number.isFinite(parsedEffort) ? parsedEffort : null,
     });
   };
 
@@ -77,6 +83,17 @@ export function TaskModal({
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          />
+        </Field>
+        <Field label="Effort (hours)">
+          <input
+            type="number"
+            step="0.5"
+            min="0"
+            value={effortHours}
+            onChange={(e) => setEffortHours(e.target.value)}
+            placeholder="e.g. 2.5"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
           />
         </Field>

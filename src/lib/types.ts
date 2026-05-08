@@ -36,6 +36,7 @@ export interface Task {
   done: boolean;
   completedAt: string | null;
   created: string;
+  effortHours: number | null;
 }
 
 export interface Idea {

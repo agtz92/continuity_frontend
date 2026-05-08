@@ -23,6 +23,7 @@ export const DASHBOARD_QUERY = gql`
         done
         completedAt
         created
+        effortHours
       }
       ideas {
         id
@@ -126,6 +127,7 @@ export const CREATE_TASK = gql`
       done
       completedAt
       created
+      effortHours
     }
   }
 `;
@@ -140,6 +142,7 @@ export const UPDATE_TASK = gql`
       done
       completedAt
       created
+      effortHours
     }
   }
 `;
@@ -154,6 +157,7 @@ export const TOGGLE_TASK = gql`
       done
       completedAt
       created
+      effortHours
     }
   }
 `;
@@ -214,6 +218,23 @@ export const ADD_UPDATE = gql`
       note
       date
     }
+  }
+`;
+
+export const UPDATE_UPDATE = gql`
+  mutation UpdateUpdate($id: ID!, $note: String!) {
+    updateUpdate(id: $id, note: $note) {
+      id
+      projectId
+      note
+      date
+    }
+  }
+`;
+
+export const DELETE_UPDATE = gql`
+  mutation DeleteUpdate($id: ID!) {
+    deleteUpdate(id: $id)
   }
 `;
 

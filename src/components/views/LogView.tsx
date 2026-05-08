@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Edit2, Search, X } from "lucide-react";
 import type { Project, UpdateEntry } from "@/lib/types";
 
 export function LogView({
   updates,
   projects,
+  onEditUpdate,
+  onDeleteUpdate,
 }: {
   updates: UpdateEntry[];
   projects: Project[];
+  onEditUpdate: (u: UpdateEntry) => void;
+  onDeleteUpdate: (id: string) => void | Promise<void>;
 }) {
   const [logSearch, setLogSearch] = useState("");
 
@@ -62,7 +66,7 @@ export function LogView({
               return (
                 <div
                   key={u.id}
-                  className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3"
+                  className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
                 >
                   <div className="text-xs text-zinc-500 shrink-0 sm:w-24">
                     {new Date(u.date).toLocaleDateString("en-US", {
@@ -78,6 +82,24 @@ export function LogView({
                       </div>
                     )}
                     <div className="text-sm text-zinc-200 break-words">{u.note}</div>
+                  </div>
+                  <div className="flex items-start gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => onEditUpdate(u)}
+                      className="text-zinc-500 hover:text-emerald-400"
+                      aria-label="Edit log entry"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("Delete this log entry?")) onDeleteUpdate(u.id);
+                      }}
+                      className="text-zinc-500 hover:text-red-400"
+                      aria-label="Delete log entry"
+                    >
+                      <X size={14} />
+                    </button>
                   </div>
                 </div>
               );

@@ -15,12 +15,14 @@ export function TaskRow({
   onToggle,
   onDelete,
   onSchedule,
+  onEdit,
 }: {
   task: Task;
   project: Project | undefined;
   onToggle: (t: Task) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
   onSchedule?: (t: Task) => void;
+  onEdit?: (t: Task) => void;
 }) {
   const overdue = !t.done && isOverdue(t.dueDate);
   const dueToday = !t.done && isDueToday(t.dueDate);
@@ -43,7 +45,10 @@ export function TaskRow({
       >
         <CheckCircle2 size={18} />
       </button>
-      <div className="flex-1 min-w-0">
+      <div
+        className={`flex-1 min-w-0 ${onEdit ? "cursor-pointer" : ""}`}
+        onClick={onEdit ? () => onEdit(t) : undefined}
+      >
         <div className={t.done ? "line-through text-zinc-500" : "text-zinc-100"}>
           {t.title}
         </div>
@@ -65,12 +70,16 @@ export function TaskRow({
             </span>
           ) : onSchedule ? (
             <button
-              onClick={() => onSchedule(t)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSchedule(t);
+              }}
               className="inline-flex items-center gap-1 text-amber-300 hover:text-amber-200 hover:underline"
             >
               <CalendarPlus size={12} /> Add date
             </button>
           ) : null}
+          {t.effortHours != null && <span>· {t.effortHours}h</span>}
         </div>
       </div>
       <button

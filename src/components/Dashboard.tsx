@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
-import type { Idea, Project, Task } from "@/lib/types";
+import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useProjectMutations } from "@/hooks/useProjectMutations";
@@ -44,7 +44,7 @@ export default function Dashboard() {
   const { saveProject, deleteProject: deleteProjectAction } = useProjectMutations();
   const { saveTask, toggleTask, deleteTask } = useTaskMutations();
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
-  const { addUpdate } = useUpdateMutations();
+  const { addUpdate, editUpdate, deleteUpdate } = useUpdateMutations();
   const { createCategory, deleteCategory } = useCategoryMutations();
   const { exportData, importData, daysSinceBackup, backupOverdue } = useBackup({
     snapshot: { projects, tasks, ideas, updates },
@@ -62,6 +62,7 @@ export default function Dashboard() {
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
   const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
+  const [editingUpdate, setEditingUpdate] = useState<UpdateEntry | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const activeCount = projects.filter((p) => p.status === "active").length;
@@ -95,9 +96,15 @@ export default function Dashboard() {
     }
   };
 
-  const handleAddUpdate = async (projectId: string, note: string) => {
-    if (await addUpdate(projectId, note)) {
+  const handleSaveUpdate = async (note: string) => {
+    const ok = editingUpdate
+      ? await editUpdate(editingUpdate.id, note)
+      : selectedProject
+      ? await addUpdate(selectedProject.id, note)
+      : false;
+    if (ok) {
       setShowUpdateModal(false);
+      setEditingUpdate(null);
     }
   };
 
@@ -199,9 +206,14 @@ export default function Dashboard() {
             }}
             onLogUpdate={(p) => {
               setSelectedProject(p);
+              setEditingUpdate(null);
               setShowUpdateModal(true);
             }}
             onToggleTask={toggleTask}
+            onEditTask={(task) => {
+              setEditingTask(task);
+              setShowTaskModal(true);
+            }}
             onDeleteTask={deleteTask}
           />
         )}
@@ -242,7 +254,20 @@ export default function Dashboard() {
         )}
 
         {/* LOG */}
-        {view === "log" && <LogView updates={updates} projects={projects} />}
+        {view === "log" && (
+          <LogView
+            updates={updates}
+            projects={projects}
+            onEditUpdate={(u) => {
+              const proj = projects.find((p) => p.id === u.projectId);
+              if (!proj) return;
+              setSelectedProject(proj);
+              setEditingUpdate(u);
+              setShowUpdateModal(true);
+            }}
+            onDeleteUpdate={deleteUpdate}
+          />
+        )}
       </div>
 
       {showProjectModal && (
@@ -294,8 +319,13 @@ export default function Dashboard() {
       {showUpdateModal && selectedProject && (
         <UpdateModal
           projectName={selectedProject.name}
-          onSave={(note) => handleAddUpdate(selectedProject.id, note)}
-          onClose={() => setShowUpdateModal(false)}
+          initialNote={editingUpdate?.note ?? ""}
+          isEdit={!!editingUpdate}
+          onSave={handleSaveUpdate}
+          onClose={() => {
+            setShowUpdateModal(false);
+            setEditingUpdate(null);
+          }}
         />
       )}
 

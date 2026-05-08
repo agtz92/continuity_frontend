@@ -24,12 +24,14 @@ export function useTaskMutations() {
     projectId: string | null;
     dueDate: string | null;
     done: boolean;
+    effortHours: number | null;
   }): Promise<boolean> => {
     const data = {
       title: t.title,
       projectId: t.projectId,
       dueDate: t.dueDate,
       done: t.done,
+      effortHours: t.effortHours,
     };
     try {
       if (t.id) {

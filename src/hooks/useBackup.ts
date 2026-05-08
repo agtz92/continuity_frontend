@@ -130,6 +130,7 @@ export function useBackup({
               projectId: t.projectId ? idMap[t.projectId] || null : null,
               dueDate: t.dueDate,
               done: !!t.done,
+              effortHours: t.effortHours ?? null,
             },
           },
         });
