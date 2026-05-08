@@ -132,6 +132,16 @@ const isOverdue = (dateStr?: string | null) => {
   return dueDateOnly(dateStr) < todayLocalISODate();
 };
 
+const daysOverdue = (dateStr?: string | null): number | null => {
+  if (!dateStr) return null;
+  const due = new Date(dueDateOnly(dateStr) + "T00:00:00");
+  const today = new Date(todayLocalISODate() + "T00:00:00");
+  const diff = Math.floor(
+    (today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  return diff > 0 ? diff : null;
+};
+
 export default function Dashboard() {
   const { data, loading, error, refetch } = useQuery<{ dashboard: DashboardData }>(
     DASHBOARD_QUERY,
@@ -740,6 +750,16 @@ export default function Dashboard() {
                                 ? "Stalled"
                                 : "Next step"}
                             </span>
+                            {item.type === "overdue" &&
+                              item.task?.dueDate &&
+                              (() => {
+                                const n = daysOverdue(item.task.dueDate);
+                                return n !== null ? (
+                                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/25 text-red-200 border border-red-500/50">
+                                    {n}d late
+                                  </span>
+                                ) : null;
+                              })()}
                             {item.project && (
                               <span className="text-xs text-zinc-500">
                                 · {item.project.name}
