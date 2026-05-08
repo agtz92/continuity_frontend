@@ -25,6 +25,8 @@ import {
   LogOut,
   Search,
   Sparkles,
+  Clock,
+  CalendarPlus,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
@@ -181,6 +183,15 @@ export default function Dashboard() {
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
   const [projectSearch, setProjectSearch] = useState("");
   const [taskSearch, setTaskSearch] = useState("");
+  const [showTodayFocus, setShowTodayFocus] = useState(true);
+  const [showDoneToday, setShowDoneToday] = useState(true);
+  const [showActiveProjects, setShowActiveProjects] = useState(true);
+  const [showLaunchedWithTasks, setShowLaunchedWithTasks] = useState(true);
+  const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
+  const [showTodayTasks, setShowTodayTasks] = useState(true);
+  const [showUnscheduledTasks, setShowUnscheduledTasks] = useState(false);
+  const [showUpcomingTasks, setShowUpcomingTasks] = useState(false);
+  const [showDoneTasks, setShowDoneTasks] = useState(false);
   const [ideaSearch, setIdeaSearch] = useState("");
   const [logSearch, setLogSearch] = useState("");
   const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
@@ -254,8 +265,14 @@ export default function Dashboard() {
         }
       });
 
-    return focus.slice(0, 6);
+    return { items: focus.slice(0, 6), total: focus.length };
   }, [projects, tasks, stalled]);
+
+  const todayTaskCounts = useMemo(() => {
+    const overdue = tasks.filter((t) => !t.done && isOverdue(t.dueDate)).length;
+    const dueToday = tasks.filter((t) => !t.done && isDueToday(t.dueDate)).length;
+    return { overdue, dueToday, total: overdue + dueToday };
+  }, [tasks]);
 
   const doneTodayItems = useMemo(() => {
     type DoneItem =
@@ -738,11 +755,48 @@ export default function Dashboard() {
             )}
 
             <div>
-              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setShowTodayFocus((s) => !s)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setShowTodayFocus((s) => !s);
+                  }
+                }}
+                aria-expanded={showTodayFocus}
+                className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-zinc-900/40 -mx-1 px-1 py-1"
+              >
+                <ChevronRight
+                  size={16}
+                  className={`text-zinc-500 transition-transform ${
+                    showTodayFocus ? "rotate-90" : ""
+                  }`}
+                />
                 <Target size={18} className="text-emerald-400" />
-                Today&apos;s Focus
-              </h2>
-              {todayFocus.length === 0 ? (
+                <h2 className="text-lg font-semibold">Today&apos;s Focus</h2>
+                {todayTaskCounts.total > 0 && (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-200 shadow-sm shadow-orange-500/10"
+                    title={`${todayTaskCounts.dueToday} due today · ${todayTaskCounts.overdue} overdue`}
+                  >
+                    <Target size={11} className="text-orange-300" />
+                    <span>
+                      {todayTaskCounts.total}{" "}
+                      {todayTaskCounts.total === 1 ? "task" : "tasks"}
+                    </span>
+                    {todayTaskCounts.overdue > 0 && (
+                      <span className="text-red-300 font-semibold">
+                        · {todayTaskCounts.overdue} overdue
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+              {showTodayFocus && (
+                <>
+                  {todayFocus.items.length === 0 ? (
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center">
                   <p className="text-zinc-400 mb-3">Nothing pressing today.</p>
                   <p className="text-sm text-zinc-500">
@@ -752,8 +806,8 @@ export default function Dashboard() {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-3">
-                  {todayFocus.map((item, idx) => (
+                <div className="grid md:grid-cols-2 gap-3">
+                  {todayFocus.items.map((item, idx) => (
                     <div
                       key={idx}
                       className={`p-4 rounded-xl border transition-all hover:border-zinc-700 ${
@@ -836,32 +890,99 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+                  {todayFocus.total > todayFocus.items.length && (
+                    <button
+                      onClick={() => setView("tasks")}
+                      className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 text-sm font-medium transition-colors"
+                    >
+                      View all tasks
+                      <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/30 text-orange-100">
+                        +{todayFocus.total - todayFocus.items.length} more
+                      </span>
+                      <ChevronRight size={14} />
+                    </button>
+                  )}
+                </>
+              )}
             </div>
 
             {doneTodayItems.length > 0 && (() => {
               const taskCount = doneTodayItems.filter((i) => i.kind === "task").length;
               const logCount = doneTodayItems.filter((i) => i.kind === "log").length;
+              const visibleItems =
+                doneTodayFilter === "all"
+                  ? doneTodayItems
+                  : doneTodayItems.filter((i) => i.kind === doneTodayFilter);
+              const toggleFilter = (kind: "task" | "log") =>
+                setDoneTodayFilter((cur) => (cur === kind ? "all" : kind));
               return (
                 <div>
-                  <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 flex-wrap">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setShowDoneToday((s) => !s)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setShowDoneToday((s) => !s);
+                      }
+                    }}
+                    aria-expanded={showDoneToday}
+                    className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-zinc-900/40 -mx-1 px-1 py-1"
+                  >
+                    <ChevronRight
+                      size={16}
+                      className={`text-zinc-500 transition-transform ${
+                        showDoneToday ? "rotate-90" : ""
+                      }`}
+                    />
                     <Sparkles size={18} className="text-emerald-400" />
-                    Done today
+                    <h2 className="text-lg font-semibold">Done today</h2>
                     {taskCount > 0 && (
-                      <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5 flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFilter("task");
+                        }}
+                        aria-pressed={doneTodayFilter === "task"}
+                        title={doneTodayFilter === "task" ? "Show all" : "Show only tasks"}
+                        className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
+                          doneTodayFilter === "task"
+                            ? "bg-emerald-500/25 border border-emerald-500/60 text-emerald-200"
+                            : doneTodayFilter === "log"
+                            ? "bg-emerald-500/5 border border-emerald-500/15 text-emerald-300/50 hover:text-emerald-300"
+                            : "bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+                        }`}
+                      >
                         <CheckCircle2 size={11} />
                         {taskCount} {taskCount === 1 ? "task" : "tasks"}
-                      </span>
+                      </button>
                     )}
                     {logCount > 0 && (
-                      <span className="text-xs font-normal text-blue-300 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5 flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFilter("log");
+                        }}
+                        aria-pressed={doneTodayFilter === "log"}
+                        title={doneTodayFilter === "log" ? "Show all" : "Show only logs"}
+                        className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
+                          doneTodayFilter === "log"
+                            ? "bg-blue-500/25 border border-blue-500/60 text-blue-200"
+                            : doneTodayFilter === "task"
+                            ? "bg-blue-500/5 border border-blue-500/15 text-blue-300/50 hover:text-blue-300"
+                            : "bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20"
+                        }`}
+                      >
                         <TrendingUp size={11} />
                         {logCount} {logCount === 1 ? "log" : "logs"}
-                      </span>
+                      </button>
                     )}
-                  </h2>
+                  </div>
+                  {showDoneToday && (
                   <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 sm:p-4">
                     <div className="space-y-2">
-                      {doneTodayItems.map((item) => {
+                      {visibleItems.map((item) => {
                         if (item.kind === "task") {
                           const t = item.task;
                           const proj = projects.find((p) => p.id === t.projectId);
@@ -931,16 +1052,39 @@ export default function Dashboard() {
                       })}
                     </div>
                   </div>
+                  )}
                 </div>
               );
             })()}
 
             {projects.filter((p) => p.status === "active").length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setShowActiveProjects((s) => !s)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setShowActiveProjects((s) => !s);
+                    }
+                  }}
+                  aria-expanded={showActiveProjects}
+                  className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-zinc-900/40 -mx-1 px-1 py-1"
+                >
+                  <ChevronRight
+                    size={16}
+                    className={`text-zinc-500 transition-transform ${
+                      showActiveProjects ? "rotate-90" : ""
+                    }`}
+                  />
                   <Zap size={18} className="text-emerald-400" />
-                  Active Projects
-                </h2>
+                  <h2 className="text-lg font-semibold">Active Projects</h2>
+                  <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                    {projects.filter((p) => p.status === "active").length}
+                  </span>
+                </div>
+                {showActiveProjects && (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {projects
                     .filter((p) => p.status === "active")
@@ -1015,18 +1159,38 @@ export default function Dashboard() {
                       );
                     })}
                 </div>
+                )}
               </div>
             )}
 
             {launchedWithOpenTasks.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setShowLaunchedWithTasks((s) => !s)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setShowLaunchedWithTasks((s) => !s);
+                    }
+                  }}
+                  aria-expanded={showLaunchedWithTasks}
+                  className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-zinc-900/40 -mx-1 px-1 py-1"
+                >
+                  <ChevronRight
+                    size={16}
+                    className={`text-zinc-500 transition-transform ${
+                      showLaunchedWithTasks ? "rotate-90" : ""
+                    }`}
+                  />
                   <Rocket size={18} className="text-blue-400" />
-                  Launched · still has tasks
+                  <h2 className="text-lg font-semibold">Launched · still has tasks</h2>
                   <span className="text-xs font-normal text-blue-400/80 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
                     {launchedWithOpenTasks.length}
                   </span>
-                </h2>
+                </div>
+                {showLaunchedWithTasks && (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {launchedWithOpenTasks.map(({ project: p, projectTasks, openCount }) => {
                     const done = projectTasks.filter((t) => t.done).length;
@@ -1095,6 +1259,7 @@ export default function Dashboard() {
                     );
                   })}
                 </div>
+                )}
               </div>
             )}
           </div>
@@ -1491,82 +1656,253 @@ export default function Dashboard() {
                 );
               }
 
-              return (
-              <div className="space-y-2">
-                {[...filteredTasks]
-                  .sort((a, b) => {
-                    if (a.done !== b.done) return a.done ? 1 : -1;
-                    if (a.dueDate && b.dueDate)
-                      return (
-                        new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-                      );
-                    if (a.dueDate) return -1;
-                    if (b.dueDate) return 1;
-                    return 0;
-                  })
-                  .map((t) => {
-                    const proj = projects.find((p) => p.id === t.projectId);
-                    const overdue = !t.done && isOverdue(t.dueDate);
-                    const dueToday = !t.done && isDueToday(t.dueDate);
-                    return (
+              const todayBucket = filteredTasks
+                .filter(
+                  (t) =>
+                    !t.done && t.dueDate && (isOverdue(t.dueDate) || isDueToday(t.dueDate))
+                )
+                .sort(
+                  (a, b) =>
+                    new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
+                );
+
+              const unscheduledBucket = filteredTasks
+                .filter((t) => !t.done && !t.dueDate)
+                .sort(
+                  (a, b) =>
+                    new Date(b.created).getTime() - new Date(a.created).getTime()
+                );
+
+              const upcomingBucket = filteredTasks
+                .filter(
+                  (t) =>
+                    !t.done &&
+                    t.dueDate &&
+                    !isOverdue(t.dueDate) &&
+                    !isDueToday(t.dueDate)
+                )
+                .sort(
+                  (a, b) =>
+                    new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
+                );
+
+              const doneBucket = filteredTasks
+                .filter((t) => t.done)
+                .sort((a, b) => {
+                  const ta = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+                  const tb = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+                  return tb - ta;
+                });
+
+              const searching = q.length > 0;
+              const todayOpen = searching || showTodayTasks;
+              const unscheduledOpen = searching || showUnscheduledTasks;
+              const upcomingOpen = searching || showUpcomingTasks;
+              const doneOpen = searching || showDoneTasks;
+
+              const renderRow = (t: Task, opts?: { canSchedule?: boolean }) => {
+                const proj = projects.find((p) => p.id === t.projectId);
+                const overdue = !t.done && isOverdue(t.dueDate);
+                const dueToday = !t.done && isDueToday(t.dueDate);
+                return (
+                  <div
+                    key={t.id}
+                    className={`bg-zinc-900 border rounded-lg p-3 flex items-center gap-3 group ${
+                      overdue
+                        ? "border-red-500/30"
+                        : dueToday
+                        ? "border-orange-500/30"
+                        : "border-zinc-800"
+                    }`}
+                  >
+                    <button
+                      onClick={() => handleToggleTask(t)}
+                      className={
+                        t.done
+                          ? "text-emerald-400"
+                          : "text-zinc-600 hover:text-zinc-400"
+                      }
+                      aria-label={t.done ? "Mark as not done" : "Mark as done"}
+                    >
+                      <CheckCircle2 size={18} />
+                    </button>
+                    <div className="flex-1 min-w-0">
                       <div
-                        key={t.id}
-                        className={`bg-zinc-900 border rounded-lg p-3 flex items-center gap-3 group ${
-                          overdue
-                            ? "border-red-500/30"
-                            : dueToday
-                            ? "border-orange-500/30"
-                            : "border-zinc-800"
-                        }`}
+                        className={
+                          t.done ? "line-through text-zinc-500" : "text-zinc-100"
+                        }
                       >
-                        <button
-                          onClick={() => handleToggleTask(t)}
-                          className={
-                            t.done
-                              ? "text-emerald-400"
-                              : "text-zinc-600 hover:text-zinc-400"
-                          }
-                        >
-                          <CheckCircle2 size={18} />
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <div
+                        {t.title}
+                      </div>
+                      <div className="text-xs text-zinc-500 flex flex-wrap items-center gap-x-2 mt-0.5">
+                        {proj && <span>{proj.name}</span>}
+                        {t.dueDate ? (
+                          <span
                             className={
-                              t.done ? "line-through text-zinc-500" : "text-zinc-100"
+                              overdue
+                                ? "text-red-400"
+                                : dueToday
+                                ? "text-orange-400"
+                                : ""
                             }
                           >
-                            {t.title}
-                          </div>
-                          <div className="text-xs text-zinc-500 flex gap-2 mt-0.5">
-                            {proj && <span>{proj.name}</span>}
-                            {t.dueDate && (
-                              <span
-                                className={
-                                  overdue
-                                    ? "text-red-400"
-                                    : dueToday
-                                    ? "text-orange-400"
-                                    : ""
-                                }
-                              >
-                                · {dueToday
-                                  ? "Due today"
-                                  : new Date(t.dueDate).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => handleDeleteTask(t.id)}
-                          className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                          aria-label="Delete task"
-                        >
-                          <X size={16} />
-                        </button>
+                            · {dueToday
+                              ? "Due today"
+                              : new Date(t.dueDate).toLocaleDateString()}
+                          </span>
+                        ) : opts?.canSchedule ? (
+                          <button
+                            onClick={() => {
+                              setEditingTask(t);
+                              setShowTaskModal(true);
+                            }}
+                            className="inline-flex items-center gap-1 text-amber-300 hover:text-amber-200 hover:underline"
+                          >
+                            <CalendarPlus size={12} /> Add date
+                          </button>
+                        ) : null}
                       </div>
-                    );
-                  })}
-              </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteTask(t.id)}
+                      className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                      aria-label="Delete task"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                );
+              };
+
+              return (
+                <div className="space-y-3">
+                  <div className="border border-zinc-800 rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setShowTodayTasks((s) => !s)}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 bg-zinc-900 hover:bg-zinc-900/70 text-left"
+                      aria-expanded={todayOpen}
+                    >
+                      <ChevronRight
+                        size={16}
+                        className={`text-zinc-500 transition-transform ${
+                          todayOpen ? "rotate-90" : ""
+                        }`}
+                      />
+                      <Target size={14} className="text-orange-400" />
+                      <span className="text-sm font-medium text-zinc-200">
+                        Today &amp; overdue
+                      </span>
+                      <span className="text-xs text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
+                        {todayBucket.length}
+                      </span>
+                    </button>
+                    {todayOpen && (
+                      <div className="p-2 sm:p-3 bg-zinc-950/40 border-t border-zinc-800">
+                        {todayBucket.length === 0 ? (
+                          <div className="text-center text-sm text-zinc-500 py-4">
+                            All clear — nothing due today. ✨
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {todayBucket.map((t) => renderRow(t))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {unscheduledBucket.length > 0 && (
+                    <div className="border border-zinc-800 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setShowUnscheduledTasks((s) => !s)}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 bg-zinc-900 hover:bg-zinc-900/70 text-left"
+                        aria-expanded={unscheduledOpen}
+                      >
+                        <ChevronRight
+                          size={16}
+                          className={`text-zinc-500 transition-transform ${
+                            unscheduledOpen ? "rotate-90" : ""
+                          }`}
+                        />
+                        <CalendarPlus size={14} className="text-amber-400" />
+                        <span className="text-sm font-medium text-zinc-200">
+                          Pick a day
+                        </span>
+                        <span className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
+                          {unscheduledBucket.length}
+                        </span>
+                        <span className="hidden sm:inline text-xs text-zinc-500 ml-1">
+                          — schedule them so they happen
+                        </span>
+                      </button>
+                      {unscheduledOpen && (
+                        <div className="p-2 sm:p-3 space-y-2 bg-zinc-950/40 border-t border-zinc-800">
+                          {unscheduledBucket.map((t) =>
+                            renderRow(t, { canSchedule: true })
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {upcomingBucket.length > 0 && (
+                    <div className="border border-zinc-800 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setShowUpcomingTasks((s) => !s)}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 bg-zinc-900 hover:bg-zinc-900/70 text-left"
+                        aria-expanded={upcomingOpen}
+                      >
+                        <ChevronRight
+                          size={16}
+                          className={`text-zinc-500 transition-transform ${
+                            upcomingOpen ? "rotate-90" : ""
+                          }`}
+                        />
+                        <Clock size={14} className="text-blue-400" />
+                        <span className="text-sm font-medium text-zinc-200">
+                          Upcoming
+                        </span>
+                        <span className="text-xs text-blue-300 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
+                          {upcomingBucket.length}
+                        </span>
+                      </button>
+                      {upcomingOpen && (
+                        <div className="p-2 sm:p-3 space-y-2 bg-zinc-950/40 border-t border-zinc-800">
+                          {upcomingBucket.map((t) => renderRow(t))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {doneBucket.length > 0 && (
+                    <div className="border border-zinc-800 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setShowDoneTasks((s) => !s)}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 bg-zinc-900 hover:bg-zinc-900/70 text-left"
+                        aria-expanded={doneOpen}
+                      >
+                        <ChevronRight
+                          size={16}
+                          className={`text-zinc-500 transition-transform ${
+                            doneOpen ? "rotate-90" : ""
+                          }`}
+                        />
+                        <CheckCircle2 size={14} className="text-emerald-400" />
+                        <span className="text-sm font-medium text-zinc-200">
+                          Completed
+                        </span>
+                        <span className="text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                          {doneBucket.length}
+                        </span>
+                      </button>
+                      {doneOpen && (
+                        <div className="p-2 sm:p-3 space-y-2 bg-zinc-950/40 border-t border-zinc-800">
+                          {doneBucket.map((t) => renderRow(t))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               );
             })()}
           </div>
