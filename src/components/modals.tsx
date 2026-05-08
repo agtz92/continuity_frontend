@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Modal, Field } from "./ui";
-import type { Category, Priority, Project, Task } from "@/lib/types";
+import type { Category, Idea, Priority, Project, Task } from "@/lib/types";
 import {
   CATEGORY_COLORS,
   PRIORITIES,
@@ -78,7 +78,7 @@ export function ProjectModal({
 
   return (
     <Modal title={project?.id ? "Edit Project" : "New Project"} onClose={onClose}>
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3 flex-1 min-h-0">
         <Field label="Name *">
           <input
             value={name}
@@ -93,15 +93,14 @@ export function ProjectModal({
             onChange={(e) => setWhy(e.target.value)}
             rows={2}
             placeholder="Your motivation — comes back when stalled."
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
-        <Field label="Description">
+        <Field label="Description" grow>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[60px]"
           />
         </Field>
         <Field label="Next step">
@@ -378,26 +377,43 @@ export function TaskModal({
 }
 
 export function IdeaModal({
+  idea,
   onSave,
   onClose,
 }: {
-  onSave: (i: { title: string; description: string }) => void | Promise<void>;
+  idea?: Idea | null;
+  onSave: (i: {
+    id?: string;
+    title: string;
+    description: string;
+    why: string;
+  }) => void | Promise<void>;
   onClose: () => void;
 }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(idea?.title ?? "");
+  const [description, setDescription] = useState(idea?.description ?? "");
+  const [why, setWhy] = useState(idea?.why ?? "");
 
   const handleSubmit = () => {
     if (!title.trim()) return;
-    onSave({ title: title.trim(), description });
+    onSave({
+      id: idea?.id,
+      title: title.trim(),
+      description,
+      why,
+    });
   };
 
+  const isEdit = !!idea?.id;
+
   return (
-    <Modal title="Capture Idea" onClose={onClose}>
-      <div className="space-y-3">
-        <p className="text-sm text-zinc-400">
-          Park it here so it doesn't pull you off your current work.
-        </p>
+    <Modal title={isEdit ? "Edit Idea" : "Capture Idea"} onClose={onClose}>
+      <div className="flex flex-col gap-3 flex-1 min-h-0">
+        {!isEdit && (
+          <p className="text-sm text-zinc-400 shrink-0">
+            Park it here so it doesn&apos;t pull you off your current work.
+          </p>
+        )}
         <Field label="Idea *">
           <input
             value={title}
@@ -406,20 +422,28 @@ export function IdeaModal({
             autoFocus
           />
         </Field>
-        <Field label="Notes">
+        <Field label="Why does this matter?">
+          <textarea
+            value={why}
+            onChange={(e) => setWhy(e.target.value)}
+            rows={2}
+            placeholder="Optional motivation — useful when you promote it later."
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
+          />
+        </Field>
+        <Field label="Notes" grow>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
           />
         </Field>
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 pt-2 shrink-0">
           <button
             onClick={handleSubmit}
             className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium text-sm"
           >
-            Capture
+            {isEdit ? "Save" : "Capture"}
           </button>
           <button
             onClick={onClose}
@@ -451,18 +475,17 @@ export function UpdateModal({
 
   return (
     <Modal title={`Log update — ${projectName}`} onClose={onClose}>
-      <div className="space-y-3">
-        <Field label="What happened?">
+      <div className="flex flex-col gap-3 flex-1 min-h-0">
+        <Field label="What happened?" grow>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            rows={3}
             placeholder="e.g., Finished the landing page wireframe"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
             autoFocus
           />
         </Field>
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 pt-2 shrink-0">
           <button
             onClick={handleSubmit}
             className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"

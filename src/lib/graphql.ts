@@ -176,6 +176,18 @@ export const CREATE_IDEA = gql`
   }
 `;
 
+export const UPDATE_IDEA = gql`
+  mutation UpdateIdea($id: ID!, $data: IdeaInput!) {
+    updateIdea(id: $id, data: $data) {
+      id
+      title
+      description
+      why
+      created
+    }
+  }
+`;
+
 export const DELETE_IDEA = gql`
   mutation DeleteIdea($id: ID!) {
     deleteIdea(id: $id)

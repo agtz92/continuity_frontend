@@ -35,6 +35,7 @@ import {
   ADD_UPDATE,
   CREATE_CATEGORY,
   CREATE_IDEA,
+  UPDATE_IDEA,
   CREATE_PROJECT,
   CREATE_TASK,
   DASHBOARD_QUERY,
@@ -186,6 +187,7 @@ export default function Dashboard() {
   const [toggleTaskM] = useMutation(TOGGLE_TASK, refetchAfter);
   const [deleteTaskM] = useMutation(DELETE_TASK, refetchAfter);
   const [createIdea] = useMutation(CREATE_IDEA, refetchAfter);
+  const [updateIdeaM] = useMutation(UPDATE_IDEA, refetchAfter);
   const [deleteIdeaM] = useMutation(DELETE_IDEA, refetchAfter);
   const [promoteIdeaM] = useMutation(PROMOTE_IDEA, refetchAfter);
   const [addUpdateM] = useMutation(ADD_UPDATE, refetchAfter);
@@ -197,6 +199,7 @@ export default function Dashboard() {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showIdeaModal, setShowIdeaModal] = useState(false);
+  const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
@@ -474,13 +477,28 @@ export default function Dashboard() {
     }
   };
 
-  const handleSaveIdea = async (i: { title: string; description: string }) => {
+  const handleSaveIdea = async (i: {
+    id?: string;
+    title: string;
+    description: string;
+    why: string;
+  }) => {
+    const data = {
+      title: i.title,
+      description: i.description,
+      why: i.why,
+    };
     try {
-      await createIdea({ variables: { data: { ...i, why: "" } } });
+      if (i.id) {
+        await updateIdeaM({ variables: { id: i.id, data } });
+      } else {
+        await createIdea({ variables: { data } });
+      }
     } catch {
       return;
     }
     setShowIdeaModal(false);
+    setEditingIdea(null);
   };
 
   const handleDeleteIdea = async (id: string) => {
@@ -2131,19 +2149,35 @@ export default function Dashboard() {
                   >
                     <div className="flex items-start gap-2 mb-2">
                       <Lightbulb className="text-purple-400 shrink-0 mt-0.5" size={16} />
-                      <div className="font-semibold text-purple-100 flex-1">
+                      <div className="font-semibold text-purple-100 flex-1 break-words">
                         {i.title}
                       </div>
                     </div>
-                    {i.description && (
-                      <div className="text-sm text-zinc-400 mb-3">{i.description}</div>
+                    {i.why && (
+                      <div className="text-sm text-purple-200/80 italic mb-2 break-words">
+                        → {i.why}
+                      </div>
                     )}
-                    <div className="flex gap-2">
+                    {i.description && (
+                      <div className="text-sm text-zinc-400 mb-3 break-words">
+                        {i.description}
+                      </div>
+                    )}
+                    <div className="flex gap-2 flex-wrap">
                       <button
                         onClick={() => handlePromoteIdea(i.id)}
                         className="text-xs px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 rounded-md"
                       >
                         Promote to project
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingIdea(i);
+                          setShowIdeaModal(true);
+                        }}
+                        className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-md flex items-center gap-1"
+                      >
+                        <Edit2 size={12} /> Edit
                       </button>
                       <button
                         onClick={() => handleDeleteIdea(i.id)}
@@ -2271,7 +2305,14 @@ export default function Dashboard() {
       )}
 
       {showIdeaModal && (
-        <IdeaModal onSave={handleSaveIdea} onClose={() => setShowIdeaModal(false)} />
+        <IdeaModal
+          idea={editingIdea}
+          onSave={handleSaveIdea}
+          onClose={() => {
+            setShowIdeaModal(false);
+            setEditingIdea(null);
+          }}
+        />
       )}
 
       {showUpdateModal && selectedProject && (
