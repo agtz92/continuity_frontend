@@ -56,10 +56,16 @@ The link is exported as `createErrorLink({ onAuthFailure })` so we can inject a 
 * `does not toast on success` — successful responses don't generate toasts.
 * `emits one toast per GraphQL error in a multi-error response` — every error in the array gets surfaced.
 
-### `src/components/Dashboard.error.test.tsx` — end-to-end mutation behavior
-Renders `<Dashboard />` inside `MockedProvider`, navigates to the Ideas tab, opens the Capture Idea modal, types a title, and submits.
-* `keeps the Capture Idea modal open when createIdea fails` — the mutation mock returns a GraphQLError; the modal title "Capture Idea" must remain visible after the mutation settles. **This pins the `try/catch` behavior added in `Dashboard.tsx`.**
-* `closes the Capture Idea modal when createIdea succeeds` — the success path closes the modal as expected, providing a positive control for the negative test above.
+### `src/components/Dashboard.error.test.tsx` — Dashboard + IdeaModal contract
+This file mixes one end-to-end integration test through the real Dashboard with three isolated tests on the IdeaModal contract that backs it.
+
+**Integration (`Dashboard mutation error handling`)**
+* `keeps the Capture Idea modal open when createIdea fails` — renders `<Dashboard />` inside `MockedProvider`, navigates to the Ideas tab, opens the Capture Idea modal, types a title, submits with a mutation mock that returns a GraphQLError, and asserts the modal title "Capture Idea" is still visible. **This pins the `try/catch` behavior added in `Dashboard.tsx`.**
+
+**Isolated (`IdeaModal contract`)** — these substitute for a positive-path "modal closes on success" integration test, which was flaky under React 19 + `MockedProvider` + `refetchQueries`. Together they pin the contract that makes the Dashboard's try/catch pattern sound:
+* `calls onSave with the trimmed title and current description` — submitting with valid input invokes the parent's onSave callback exactly once, with whitespace stripped from the title. Asserts that IdeaModal does **NOT** close itself — closing is the parent's job, which is what lets `Dashboard.handleSaveIdea` skip `setShowIdeaModal(false)` on error.
+* `does not call onSave when the title is empty`.
+* `does not call onSave when the title is only whitespace`.
 
 > Note: toast emission is **not** verified through the Dashboard test because `MockedProvider` short-circuits the Apollo link chain and bypasses `errorLink`. Toast behavior is covered in `apollo.test.ts`.
 
