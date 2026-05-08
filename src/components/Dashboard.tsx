@@ -145,6 +145,25 @@ const daysOverdue = (dateStr?: string | null): number | null => {
   return diff > 0 ? diff : null;
 };
 
+const statusBorderClass: Record<ProjectStatus, string> = {
+  active: "border-l-emerald-500/60",
+  idea: "border-l-purple-500/60",
+  stalled: "border-l-amber-500/60",
+  paused: "border-l-slate-500/60",
+  launched: "border-l-blue-500/60",
+  archived: "border-l-zinc-600",
+};
+
+const STATUS_FILTER_ORDER: Array<"all" | ProjectStatus> = [
+  "all",
+  "active",
+  "stalled",
+  "idea",
+  "paused",
+  "launched",
+  "archived",
+];
+
 const isCompletedToday = (dateStr?: string | null) => {
   if (!dateStr) return false;
   const d = new Date(dateStr);
@@ -182,6 +201,8 @@ export default function Dashboard() {
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
   const [projectSearch, setProjectSearch] = useState("");
+  const [projectStatusFilter, setProjectStatusFilter] = useState<"all" | ProjectStatus>("active");
+  const [projectCategoryFilter, setProjectCategoryFilter] = useState<string | null>(null);
   const [taskSearch, setTaskSearch] = useState("");
   const [showTodayFocus, setShowTodayFocus] = useState(true);
   const [showDoneToday, setShowDoneToday] = useState(true);
@@ -299,6 +320,37 @@ export default function Dashboard() {
       );
     return items.sort((a, b) => b.time - a.time);
   }, [tasks, updates]);
+
+  const projectStatusCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: projects.length,
+      active: 0,
+      idea: 0,
+      stalled: 0,
+      paused: 0,
+      launched: 0,
+      archived: 0,
+    };
+    const today = todayLocalISODate();
+    for (const p of projects) {
+      counts[p.status] = (counts[p.status] ?? 0) + 1;
+      const lastDay = p.lastActivity ? p.lastActivity.slice(0, 10) : null;
+      const idleDays = lastDay
+        ? Math.floor(
+            (new Date(today + "T00:00:00").getTime() -
+              new Date(lastDay + "T00:00:00").getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        : null;
+      if (
+        ["active", "idea"].includes(p.status) &&
+        (idleDays ?? 0) >= 7
+      ) {
+        counts.stalled = (counts.stalled ?? 0) + 1;
+      }
+    }
+    return counts;
+  }, [projects]);
 
   const launchedWithOpenTasks = useMemo(
     () =>
@@ -1296,6 +1348,79 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {projects.length > 0 && (
+              <div className="mb-4 space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {STATUS_FILTER_ORDER.map((s) => {
+                    const isActive = projectStatusFilter === s;
+                    const count = projectStatusCounts[s] ?? 0;
+                    if (s !== "all" && count === 0) return null;
+                    const cfg = s === "all" ? null : statusConfig[s as ProjectStatus];
+                    const label = s === "all" ? "All" : cfg?.label ?? s;
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setProjectStatusFilter(s)}
+                        aria-pressed={isActive}
+                        className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
+                          isActive
+                            ? s === "all"
+                              ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
+                              : `${cfg?.color} ring-1 ring-current/40`
+                            : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                        }`}
+                      >
+                        <span>{label}</span>
+                        <span
+                          className={`text-[10px] px-1.5 rounded-full ${
+                            isActive ? "bg-black/30" : "bg-zinc-800 text-zinc-500"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {categories.length > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => setProjectCategoryFilter(null)}
+                      aria-pressed={projectCategoryFilter === null}
+                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                        projectCategoryFilter === null
+                          ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                      }`}
+                    >
+                      All categories
+                    </button>
+                    {categories.map((c) => {
+                      const isActive = projectCategoryFilter === c.id;
+                      const cls = categoryColorClass(c.color);
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() =>
+                            setProjectCategoryFilter(isActive ? null : c.id)
+                          }
+                          aria-pressed={isActive}
+                          className={`text-xs px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1.5 ${
+                            isActive
+                              ? `${cls.chip} ring-1 ring-current/40`
+                              : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${cls.dot}`} />
+                          {c.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             {projects.length === 0 ? (
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
                 <p className="text-zinc-400 mb-4">No projects yet.</p>
@@ -1311,42 +1436,78 @@ export default function Dashboard() {
               </div>
             ) : (() => {
               const q = projectSearch.trim().toLowerCase();
-              const filtered = q
-                ? projects.filter((p) => {
-                    const cat = p.categoryId
-                      ? categoryById[p.categoryId]?.name ?? ""
-                      : "";
-                    return (
-                      p.name.toLowerCase().includes(q) ||
-                      p.description.toLowerCase().includes(q) ||
-                      p.nextStep.toLowerCase().includes(q) ||
-                      p.why.toLowerCase().includes(q) ||
-                      cat.toLowerCase().includes(q)
-                    );
-                  })
-                : projects;
+              const matchesSearch = (p: Project) => {
+                if (!q) return true;
+                const cat = p.categoryId
+                  ? categoryById[p.categoryId]?.name ?? ""
+                  : "";
+                return (
+                  p.name.toLowerCase().includes(q) ||
+                  p.description.toLowerCase().includes(q) ||
+                  p.nextStep.toLowerCase().includes(q) ||
+                  p.why.toLowerCase().includes(q) ||
+                  cat.toLowerCase().includes(q)
+                );
+              };
+
+              const matchesStatus = (p: Project) => {
+                if (projectStatusFilter === "all") return true;
+                if (projectStatusFilter === "stalled") {
+                  if (p.status === "stalled") return true;
+                  const idle = daysSince(p.lastActivity) ?? 0;
+                  return ["active", "idea"].includes(p.status) && idle >= 7;
+                }
+                return p.status === projectStatusFilter;
+              };
+
+              const matchesCategory = (p: Project) =>
+                projectCategoryFilter === null ||
+                p.categoryId === projectCategoryFilter;
+
+              const filtered = projects.filter(
+                (p) => matchesSearch(p) && matchesStatus(p) && matchesCategory(p)
+              );
 
               if (filtered.length === 0) {
+                const reason = q
+                  ? `No projects match "${projectSearch}"`
+                  : "No projects match these filters";
                 return (
                   <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
-                    No projects match &ldquo;{projectSearch}&rdquo;
+                    {reason}
                   </div>
                 );
               }
 
+              const urgencyBucket = (p: Project) => {
+                const projectTasks = tasks.filter((t) => t.projectId === p.id);
+                const hasOverdue = projectTasks.some(
+                  (t) => !t.done && isOverdue(t.dueDate)
+                );
+                if (hasOverdue) return 0;
+                const hasToday = projectTasks.some(
+                  (t) => !t.done && isDueToday(t.dueDate)
+                );
+                if (hasToday) return 1;
+                const idle = daysSince(p.lastActivity) ?? 0;
+                if (["active", "idea"].includes(p.status) && idle >= 7) return 2;
+                return 3;
+              };
+
               return (
-              <div className="grid gap-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-min">
                 {[...filtered]
                   .sort((a, b) => {
-                    const order: Record<string, number> = {
-                      active: 0,
-                      idea: 1,
-                      stalled: 2,
-                      paused: 3,
-                      launched: 4,
-                      archived: 5,
-                    };
-                    return (order[a.status] ?? 99) - (order[b.status] ?? 99);
+                    const ba = urgencyBucket(a);
+                    const bb = urgencyBucket(b);
+                    if (ba !== bb) return ba - bb;
+                    const pa = priorityRank(a.priority);
+                    const pb = priorityRank(b.priority);
+                    if (pa !== pb) return pa - pb;
+                    return (
+                      new Date(b.lastActivity).getTime() -
+                      new Date(a.lastActivity).getTime()
+                    );
                   })
                   .map((p) => {
                     const projectTasks = tasks.filter((t) => t.projectId === p.id);
@@ -1367,9 +1528,9 @@ export default function Dashboard() {
                     return (
                       <div
                         key={p.id}
-                        className={`bg-zinc-900 border rounded-xl overflow-hidden transition-all ${
+                        className={`bg-zinc-900 border border-l-4 rounded-xl overflow-hidden transition-all ${statusBorderClass[p.status]} ${
                           isStalled ? "border-amber-500/40" : "border-zinc-800"
-                        } ${isExpanded ? "ring-1 ring-emerald-500/30" : ""}`}
+                        } ${isExpanded ? "ring-1 ring-emerald-500/30 lg:col-span-2" : ""}`}
                       >
                         <div
                           className="p-4 cursor-pointer hover:bg-zinc-900/50"
