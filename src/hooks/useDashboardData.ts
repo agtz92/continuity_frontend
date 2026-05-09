@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { DASHBOARD_QUERY } from "@/lib/graphql";
-import type { Category, DashboardData, UpdateEntry } from "@/lib/types";
+import type { Category, DashboardData, ProjectNote, UpdateEntry } from "@/lib/types";
 
 export function useDashboardData() {
   const { data, loading, error, refetch } = useQuery<{ dashboard: DashboardData }>(
@@ -16,6 +16,20 @@ export function useDashboardData() {
   const ideas = data?.dashboard.ideas ?? [];
   const categories = data?.dashboard.categories ?? [];
   const lastBackup = data?.dashboard.lastBackup ?? null;
+
+  // Notes grouped by project, sorted newest-edited first within each group.
+  const notesByProject = useMemo<Record<string, ProjectNote[]>>(() => {
+    const list: ProjectNote[] = data?.dashboard.projectNotes ?? [];
+    const sorted = [...list].sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
+    const out: Record<string, ProjectNote[]> = {};
+    for (const n of sorted) {
+      (out[n.projectId] ??= []).push(n);
+    }
+    return out;
+  }, [data]);
 
   const categoryById = useMemo<Record<string, Category>>(
     () => Object.fromEntries(categories.map((c) => [c.id, c])),
@@ -40,6 +54,7 @@ export function useDashboardData() {
     updates,
     categories,
     categoryById,
+    notesByProject,
     lastBackup,
     loading,
     initialLoading,

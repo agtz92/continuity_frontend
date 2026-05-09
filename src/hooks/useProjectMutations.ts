@@ -23,7 +23,6 @@ export function useProjectMutations() {
     description: string;
     why: string;
     nextStep: string;
-    notes: string;
     status: string;
     priority: Priority;
     categoryId: string | null;
@@ -33,7 +32,6 @@ export function useProjectMutations() {
       description: p.description,
       why: p.why,
       nextStep: p.nextStep,
-      notes: p.notes,
       status: p.status,
       priority: p.priority,
       categoryId: p.categoryId,

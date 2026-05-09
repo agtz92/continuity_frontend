@@ -21,12 +21,20 @@ export interface Project {
   description: string;
   why: string;
   nextStep: string;
-  notes: string;
   status: ProjectStatus;
   priority: Priority;
   categoryId: string | null;
   lastActivity: string;
   created: string;
+}
+
+export interface ProjectNote {
+  id: string;
+  projectId: string;
+  title: string;
+  body: string;
+  created: string;
+  updatedAt: string;
 }
 
 export interface Task {
@@ -61,6 +69,7 @@ export interface DashboardData {
   ideas: Idea[];
   updates: UpdateEntry[];
   categories: Category[];
+  projectNotes: ProjectNote[];
   lastBackup: string | null;
 }
 

@@ -9,7 +9,6 @@ export const DASHBOARD_QUERY = gql`
         description
         why
         nextStep
-        notes
         status
         priority
         categoryId
@@ -45,8 +44,48 @@ export const DASHBOARD_QUERY = gql`
         color
         created
       }
+      projectNotes {
+        id
+        projectId
+        title
+        body
+        created
+        updatedAt
+      }
       lastBackup
     }
+  }
+`;
+
+export const CREATE_PROJECT_NOTE = gql`
+  mutation CreateProjectNote($data: ProjectNoteInput!) {
+    createProjectNote(data: $data) {
+      id
+      projectId
+      title
+      body
+      created
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_PROJECT_NOTE = gql`
+  mutation UpdateProjectNote($id: ID!, $data: ProjectNoteInput!) {
+    updateProjectNote(id: $id, data: $data) {
+      id
+      projectId
+      title
+      body
+      created
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_PROJECT_NOTE = gql`
+  mutation DeleteProjectNote($id: ID!) {
+    deleteProjectNote(id: $id)
   }
 `;
 
@@ -58,7 +97,6 @@ export const CREATE_PROJECT = gql`
       description
       why
       nextStep
-      notes
       status
       priority
       categoryId
@@ -76,7 +114,6 @@ export const UPDATE_PROJECT = gql`
       description
       why
       nextStep
-      notes
       status
       priority
       categoryId

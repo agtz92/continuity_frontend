@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertCircle } from "lucide-react";
 
 import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
@@ -14,6 +14,7 @@ import { useIdeaMutations } from "@/hooks/useIdeaMutations";
 import { useUpdateMutations } from "@/hooks/useUpdateMutations";
 import { useCategoryMutations } from "@/hooks/useCategoryMutations";
 import { useBackup } from "@/hooks/useBackup";
+import { ProjectDetailModal } from "./projects/ProjectDetailModal";
 import { ProjectModal } from "./projects/ProjectModal";
 import { TaskModal } from "./tasks/TaskModal";
 import { IdeaModal } from "./ideas/IdeaModal";
@@ -39,6 +40,7 @@ export default function Dashboard() {
     updates,
     categories,
     categoryById,
+    notesByProject,
     lastBackup,
     initialLoading,
     error,
@@ -50,8 +52,12 @@ export default function Dashboard() {
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
   const { addUpdate, editUpdate, deleteUpdate } = useUpdateMutations();
   const { createCategory, deleteCategory } = useCategoryMutations();
+  const allProjectNotes = useMemo(
+    () => Object.values(notesByProject).flat(),
+    [notesByProject]
+  );
   const { exportData, importData, daysSinceBackup, backupOverdue } = useBackup({
-    snapshot: { projects, tasks, ideas, updates },
+    snapshot: { projects, tasks, ideas, updates, projectNotes: allProjectNotes },
     lastBackup,
     refetch,
   });
@@ -68,6 +74,8 @@ export default function Dashboard() {
   const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
   const [editingUpdate, setEditingUpdate] = useState<UpdateEntry | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
+  const viewingProject = projects.find((p) => p.id === viewingProjectId) ?? null;
 
   const activeCount = projects.filter((p) => p.status === "active").length;
   const launchedCount = projects.filter((p) => p.status === "launched").length;
@@ -205,6 +213,7 @@ export default function Dashboard() {
             updates={updates}
             categories={categories}
             categoryById={categoryById}
+            notesByProject={notesByProject}
             selectedProject={selectedProject}
             onSelectProject={setSelectedProject}
             onNewProject={() => {
@@ -218,6 +227,7 @@ export default function Dashboard() {
             onDeleteProject={async (id) => {
               await deleteProjectAction(id);
             }}
+            onOpenProject={(p) => setViewingProjectId(p.id)}
             onAddTaskToProject={(projectId) => {
               setEditingTask({ projectId });
               setShowTaskModal(true);
@@ -347,6 +357,57 @@ export default function Dashboard() {
             setShowUpdateModal(false);
             setEditingUpdate(null);
           }}
+        />
+      )}
+
+      {viewingProject && (
+        <ProjectDetailModal
+          project={viewingProject}
+          tasks={tasks}
+          updates={updates}
+          notes={notesByProject[viewingProject.id] ?? []}
+          categories={categories}
+          categoryById={categoryById}
+          onClose={() => setViewingProjectId(null)}
+          onSaveProject={async (patch) => {
+            await saveProject({
+              id: viewingProject.id,
+              name: patch.name ?? viewingProject.name,
+              description:
+                patch.description !== undefined
+                  ? patch.description
+                  : viewingProject.description,
+              why: patch.why !== undefined ? patch.why : viewingProject.why,
+              nextStep:
+                patch.nextStep !== undefined
+                  ? patch.nextStep
+                  : viewingProject.nextStep,
+              status: patch.status ?? viewingProject.status,
+              priority: patch.priority ?? viewingProject.priority,
+              categoryId:
+                patch.categoryId !== undefined
+                  ? patch.categoryId
+                  : viewingProject.categoryId,
+            });
+          }}
+          onDeleteProject={async (id) => {
+            await deleteProjectAction(id);
+          }}
+          onAddTaskToProject={(projectId) => {
+            setEditingTask({ projectId });
+            setShowTaskModal(true);
+          }}
+          onLogUpdate={(p) => {
+            setSelectedProject(p);
+            setEditingUpdate(null);
+            setShowUpdateModal(true);
+          }}
+          onToggleTask={toggleTask}
+          onEditTask={(task) => {
+            setEditingTask(task);
+            setShowTaskModal(true);
+          }}
+          onDeleteTask={deleteTask}
         />
       )}
 

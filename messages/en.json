@@ -11,7 +11,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "close": "Close",
-    "new": "New"
+    "new": "New",
+    "clickToEdit": "Click to edit"
   },
   "dashboard": {
     "header": {
@@ -313,6 +314,11 @@
       "filterStatusAria": "Filter by status",
       "filterCategoryAria": "Filter by category",
       "allCategories": "All categories",
+      "openFullView": "Open project",
+      "detail": {
+        "title": "Project detail",
+        "closeTooltip": "Close (Esc)"
+      },
       "card": {
         "overdueBadge": "{count} overdue",
         "todayBadge": "{count} today",
@@ -376,6 +382,19 @@
     "totalHoursLabel": "{hours}h total",
     "daysAgo": "{days}d ago"
   },
+  "notes": {
+    "newNote": "New note",
+    "untitled": "Untitled note",
+    "empty": "No notes yet. Capture decisions, links, ideas as you work.",
+    "titlePlaceholder": "Title (optional)",
+    "bodyPlaceholder": "Decisions, links, ideas, anything you don't want to forget…",
+    "editorHint": "⌘+Enter to save · Esc to cancel",
+    "deleteConfirm": "Delete this note?",
+    "justNow": "just now",
+    "minutesAgo": "{count, plural, one {# min ago} other {# min ago}}",
+    "hoursAgo": "{count, plural, one {# hr ago} other {# hrs ago}}",
+    "daysAgo": "{count, plural, one {# day ago} other {# days ago}}"
+  },
   "modals": {
     "project": {
       "newTitle": "New Project",
@@ -387,8 +406,6 @@
       "descriptionPlaceholder": "What is this project, in one paragraph.",
       "nextStep": "Next step",
       "nextStepPlaceholder": "The very next concrete action",
-      "notes": "Notes",
-      "notesPlaceholder": "Running thoughts, decisions, links, context you'll want later.",
       "status": "Status",
       "priority": "Priority",
       "category": "Category",

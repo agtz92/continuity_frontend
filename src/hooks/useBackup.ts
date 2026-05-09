@@ -1,10 +1,20 @@
 "use client";
 
 import { useMutation } from "@apollo/client";
-import { DASHBOARD_QUERY, MARK_BACKUP } from "@/lib/graphql";
+import {
+  CREATE_PROJECT_NOTE,
+  DASHBOARD_QUERY,
+  MARK_BACKUP,
+} from "@/lib/graphql";
 import { toast } from "@/lib/toast";
 import { daysSince } from "@/lib/date";
-import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
+import type {
+  Idea,
+  Project,
+  ProjectNote,
+  Task,
+  UpdateEntry,
+} from "@/lib/types";
 import { useProjectMutations } from "./useProjectMutations";
 import { useTaskMutations } from "./useTaskMutations";
 import { useIdeaMutations } from "./useIdeaMutations";
@@ -15,6 +25,7 @@ type Snapshot = {
   tasks: Task[];
   ideas: Idea[];
   updates: UpdateEntry[];
+  projectNotes: ProjectNote[];
 };
 
 export function useBackup({
@@ -34,6 +45,7 @@ export function useBackup({
   const taskMut = useTaskMutations();
   const ideaMut = useIdeaMutations();
   const updateMut = useUpdateMutations();
+  const [createNoteRaw] = useMutation(CREATE_PROJECT_NOTE);
 
   const daysSinceBackup = lastBackup ? daysSince(lastBackup) : null;
   const backupOverdue =
@@ -72,6 +84,7 @@ export function useBackup({
       tasks?: Task[];
       ideas?: Idea[];
       updates?: UpdateEntry[];
+      projectNotes?: ProjectNote[];
     };
     try {
       const text = await file.text();
@@ -115,7 +128,6 @@ export function useBackup({
               description: p.description || "",
               why: p.why || "",
               nextStep: p.nextStep || "",
-              notes: p.notes || "",
               status: p.status || "idea",
             },
           },
@@ -151,9 +163,23 @@ export function useBackup({
           });
         }
       }
+      for (const n of (parsed.projectNotes || []) as ProjectNote[]) {
+        const newProjectId = idMap[n.projectId];
+        if (newProjectId) {
+          await createNoteRaw({
+            variables: {
+              data: {
+                projectId: newProjectId,
+                title: n.title || "",
+                body: n.body || "",
+              },
+            },
+          });
+        }
+      }
       await refetch();
       toast.success(
-        `Imported ${parsed.projects?.length || 0} projects, ${parsed.tasks?.length || 0} tasks, ${parsed.ideas?.length || 0} ideas, ${parsed.updates?.length || 0} updates.`
+        `Imported ${parsed.projects?.length || 0} projects, ${parsed.tasks?.length || 0} tasks, ${parsed.ideas?.length || 0} ideas, ${parsed.updates?.length || 0} updates, ${parsed.projectNotes?.length || 0} notes.`
       );
     } catch {
       // errorLink already toasted whichever mutation failed; refresh state.

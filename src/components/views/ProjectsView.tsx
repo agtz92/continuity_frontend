@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Clock,
   Edit2,
+  Maximize2,
   Plus,
   Search,
   Trash2,
@@ -16,10 +17,13 @@ import { useLocale, useTranslations } from "next-intl";
 import type {
   Category,
   Project,
+  ProjectNote,
   ProjectStatus,
   Task,
   UpdateEntry,
 } from "@/lib/types";
+import { NotesSection } from "@/components/projects/notes/NotesSection";
+import { ProjectSection } from "@/components/projects/ProjectSection";
 import {
   categoryColorClass,
   priorityMeta,
@@ -38,11 +42,13 @@ export function ProjectsView({
   updates,
   categories,
   categoryById,
+  notesByProject,
   selectedProject,
   onSelectProject,
   onNewProject,
   onEditProject,
   onDeleteProject,
+  onOpenProject,
   onAddTaskToProject,
   onLogUpdate,
   onToggleTask,
@@ -54,11 +60,13 @@ export function ProjectsView({
   updates: UpdateEntry[];
   categories: Category[];
   categoryById: Record<string, Category>;
+  notesByProject: Record<string, ProjectNote[]>;
   selectedProject: Project | null;
   onSelectProject: (p: Project | null) => void;
   onNewProject: () => void;
   onEditProject: (p: Project) => void;
   onDeleteProject: (id: string) => void | Promise<void>;
+  onOpenProject: (p: Project) => void;
   onAddTaskToProject: (projectId: string) => void;
   onLogUpdate: (p: Project) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
@@ -431,6 +439,19 @@ export function ProjectsView({
                       );
                       return (
                       <div className="border-t border-zinc-800 p-4 space-y-3">
+                        <div className="flex justify-end -mt-1 -mr-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenProject(p);
+                            }}
+                            className="text-xs px-3 py-1.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 inline-flex items-center gap-1.5 transition-colors"
+                          >
+                            <Maximize2 size={12} />
+                            {t("openFullView")}
+                          </button>
+                        </div>
+
                         {/* Next step — always shown, never collapsible */}
                         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-3 py-2">
                           <div className="text-xs uppercase tracking-wider text-emerald-400 mb-1">
@@ -600,16 +621,20 @@ export function ProjectsView({
                           </div>
                         </ProjectSection>
 
-                        <ProjectSection title={tCard("notes")}>
-                          {p.notes ? (
-                            <div className="text-sm text-zinc-300 whitespace-pre-wrap bg-zinc-950/50 border border-zinc-800 rounded-md p-3 max-h-64 overflow-y-auto">
-                              {p.notes}
-                            </div>
-                          ) : (
-                            <div className="text-sm text-zinc-500 italic">
-                              {tCard("notesEmpty")}
-                            </div>
-                          )}
+                        <ProjectSection
+                          title={tCard("notes")}
+                          rightSlot={
+                            (notesByProject[p.id]?.length ?? 0) > 0 ? (
+                              <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                                {notesByProject[p.id]!.length}
+                              </span>
+                            ) : null
+                          }
+                        >
+                          <NotesSection
+                            projectId={p.id}
+                            notes={notesByProject[p.id] ?? []}
+                          />
                         </ProjectSection>
 
                         <div className="flex gap-2 pt-2">
@@ -645,42 +670,3 @@ export function ProjectsView({
   );
 }
 
-/**
- * Collapsible section inside an expanded project card. Default open; user
- * collapses what they don't care about right now. State is local — resets
- * when the card itself is collapsed.
- */
-function ProjectSection({
-  title,
-  rightSlot,
-  children,
-}: {
-  title: string;
-  rightSlot?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(true);
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((o) => !o);
-        }}
-        className="w-full flex items-center justify-between gap-2 mb-1.5 group"
-        aria-expanded={open}
-      >
-        <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-500 group-hover:text-zinc-300 transition-colors">
-          <ChevronRight
-            size={12}
-            className={`transition-transform ${open ? "rotate-90" : ""}`}
-          />
-          {title}
-        </span>
-        {rightSlot}
-      </button>
-      {open && <div className="pl-[18px]">{children}</div>}
-    </div>
-  );
-}

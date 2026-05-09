@@ -11,7 +11,8 @@
     "edit": "Editar",
     "delete": "Eliminar",
     "close": "Cerrar",
-    "new": "Nuevo"
+    "new": "Nuevo",
+    "clickToEdit": "Click para editar"
   },
   "dashboard": {
     "header": {
@@ -313,6 +314,11 @@
       "filterStatusAria": "Filtrar por estado",
       "filterCategoryAria": "Filtrar por categoría",
       "allCategories": "Todas las categorías",
+      "openFullView": "Abrir proyecto",
+      "detail": {
+        "title": "Detalle del proyecto",
+        "closeTooltip": "Cerrar (Esc)"
+      },
       "card": {
         "overdueBadge": "{count} vencidas",
         "todayBadge": "{count} hoy",
@@ -376,6 +382,19 @@
     "totalHoursLabel": "{hours}h en total",
     "daysAgo": "hace {days}d"
   },
+  "notes": {
+    "newNote": "Nueva nota",
+    "untitled": "Sin título",
+    "empty": "Aún no hay notas. Captura decisiones, links, ideas mientras trabajas.",
+    "titlePlaceholder": "Título (opcional)",
+    "bodyPlaceholder": "Decisiones, links, ideas, lo que no quieras olvidar…",
+    "editorHint": "⌘+Enter para guardar · Esc para cancelar",
+    "deleteConfirm": "¿Eliminar esta nota?",
+    "justNow": "ahora mismo",
+    "minutesAgo": "{count, plural, one {hace # min} other {hace # min}}",
+    "hoursAgo": "{count, plural, one {hace # hr} other {hace # hrs}}",
+    "daysAgo": "{count, plural, one {hace # día} other {hace # días}}"
+  },
   "modals": {
     "project": {
       "newTitle": "Nuevo proyecto",
@@ -387,8 +406,6 @@
       "descriptionPlaceholder": "Qué es este proyecto, en un párrafo.",
       "nextStep": "Próximo paso",
       "nextStepPlaceholder": "La acción concreta que sigue",
-      "notes": "Notas",
-      "notesPlaceholder": "Pensamientos, decisiones, links, contexto que querrás luego.",
       "status": "Estado",
       "priority": "Prioridad",
       "category": "Categoría",
