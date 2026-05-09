@@ -1,18 +1,19 @@
 "use client";
 
 import { PieChart as PieIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { StatusCount, CategoryRow, ProjectStatus } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
-const STATUS_LABELS: Record<ProjectStatus, string> = {
-  idea: "Ideas",
-  active: "Active",
-  stalled: "Stalled",
-  paused: "Paused",
-  launched: "Launched",
-  archived: "Archived",
-};
+const STATUS_ORDER: ProjectStatus[] = [
+  "idea",
+  "active",
+  "stalled",
+  "paused",
+  "launched",
+  "archived",
+];
 
 const STATUS_COLOR: Record<ProjectStatus, string> = {
   idea: "bg-amber-400",
@@ -58,33 +59,30 @@ export function StatusBreakdownPanel({
   statusCounts: StatusCount[];
   categoryBreakdown: CategoryRow[];
 }) {
+  const t = useTranslations("analytics.statusBreakdown");
   const totalProjects = statusCounts.reduce((acc, s) => acc + s.count, 0);
-  const totalCatProjects = categoryBreakdown.reduce(
-    (acc, c) => acc + c.projectCount,
-    0
-  );
 
   return (
     <PanelCard
-      title="By status and category"
+      title={t("title")}
       icon={<PieIcon size={16} className="text-cyan-400" />}
-      subtitle={`${totalProjects} projects`}
+      subtitle={t("subtitle", { count: totalProjects })}
     >
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="space-y-2.5">
           <div className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Status
+            {t("status")}
           </div>
           {statusCounts.length === 0 ? (
-            <div className="text-sm text-zinc-500">No data.</div>
+            <div className="text-sm text-zinc-500">{t("noData")}</div>
           ) : (
-            (Object.keys(STATUS_LABELS) as ProjectStatus[]).map((s) => {
+            STATUS_ORDER.map((s) => {
               const row = statusCounts.find((x) => x.status === s);
               if (!row || row.count === 0) return null;
               return (
                 <Bar
                   key={s}
-                  label={STATUS_LABELS[s]}
+                  label={t(`labels.${s}`)}
                   count={row.count}
                   total={totalProjects}
                   colorClass={STATUS_COLOR[s]}
@@ -95,10 +93,10 @@ export function StatusBreakdownPanel({
         </div>
         <div className="space-y-2.5">
           <div className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Category
+            {t("category")}
           </div>
           {categoryBreakdown.length === 0 ? (
-            <div className="text-sm text-zinc-500">No categories.</div>
+            <div className="text-sm text-zinc-500">{t("noCategories")}</div>
           ) : (
             categoryBreakdown.map((c) => (
               <div
@@ -116,14 +114,14 @@ export function StatusBreakdownPanel({
                   </span>
                 </div>
                 <div className="text-xs text-zinc-400 tabular-nums shrink-0">
-                  {c.projectCount} proj ·{" "}
-                  <span className="text-zinc-300">{c.interactions}</span>{" "}
-                  interactions
+                  {t("rowMeta", {
+                    projects: c.projectCount,
+                    interactions: c.interactions,
+                  })}
                 </div>
               </div>
             ))
           )}
-          {totalCatProjects === 0 ? null : null}
         </div>
       </div>
     </PanelCard>

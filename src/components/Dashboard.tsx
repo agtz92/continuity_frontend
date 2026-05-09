@@ -6,6 +6,7 @@ import { AlertCircle } from "lucide-react";
 import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useLocaleSync } from "@/hooks/useLocaleSync";
 import { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useProjectMutations } from "@/hooks/useProjectMutations";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
@@ -30,6 +31,7 @@ import { ProjectsView } from "./views/ProjectsView";
 import { TodayView } from "./views/TodayView";
 
 export default function Dashboard() {
+  useLocaleSync();
   const {
     projects,
     tasks,

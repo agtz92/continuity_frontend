@@ -1,6 +1,7 @@
 "use client";
 
 import { MoonStar, Lightbulb } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { SleepingProjectRow, StaleIdeaRow } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
@@ -17,17 +18,17 @@ export function SleepingStalePanel({
   sleeping: SleepingProjectRow[];
   stale: StaleIdeaRow[];
 }) {
+  const tSleep = useTranslations("analytics.sleeping");
+  const tStale = useTranslations("analytics.stale");
   return (
     <div className="grid lg:grid-cols-2 gap-4">
       <PanelCard
-        title="Sleeping"
+        title={tSleep("title")}
         icon={<MoonStar size={16} className="text-indigo-400" />}
-        subtitle="Projects with no recent activity (≥7 days)"
+        subtitle={tSleep("subtitle")}
       >
         {sleeping.length === 0 ? (
-          <div className="text-sm text-zinc-500 py-4">
-            Nothing sleeping. Good pace.
-          </div>
+          <div className="text-sm text-zinc-500 py-4">{tSleep("empty")}</div>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {sleeping.map((s) => (
@@ -53,14 +54,12 @@ export function SleepingStalePanel({
       </PanelCard>
 
       <PanelCard
-        title="Stale ideas"
+        title={tStale("title")}
         icon={<Lightbulb size={16} className="text-yellow-400" />}
-        subtitle="Not promoted in ≥30 days"
+        subtitle={tStale("subtitle")}
       >
         {stale.length === 0 ? (
-          <div className="text-sm text-zinc-500 py-4">
-            No stale ideas.
-          </div>
+          <div className="text-sm text-zinc-500 py-4">{tStale("empty")}</div>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {stale.map((s) => (

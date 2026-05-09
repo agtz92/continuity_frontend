@@ -1,0 +1,208 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Saved",
+    "retry": "Retry",
+    "back": "Back",
+    "backToDashboard": "Back to dashboard",
+    "comingSoon": "Coming soon."
+  },
+  "dashboard": {
+    "header": {
+      "active": "Active",
+      "launched": "Launched",
+      "stalled": "Stalled",
+      "thisWeek": "This week",
+      "streak": "Streak",
+      "streakRecord": "Streak · record",
+      "best": "Best",
+      "streakTooltipActive": "Current streak: {current, plural, one {# day} other {# days}} · Best: {best}",
+      "streakTooltipBest": "Best streak: {best, plural, one {# day} other {# days}}. Log activity today to start a new run.",
+      "weekTooltip": "Active on {count} of 7 days this week"
+    }
+  },
+  "tabs": {
+    "today": "Today",
+    "projects": "Projects",
+    "tasks": "Tasks",
+    "ideas": "Ideas",
+    "log": "Log",
+    "analytics": "Analytics"
+  },
+  "accountMenu": {
+    "ariaLabel": "Account menu",
+    "freePlan": "Free plan",
+    "close": "Close",
+    "closeTooltip": "Close (Esc)",
+    "openTooltip": "Account & settings",
+    "groups": {
+      "settings": "Settings",
+      "workspace": "Workspace",
+      "support": "Support"
+    },
+    "items": {
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "billing": "Billing & plan",
+      "plugins": "Plugins",
+      "categories": "Categories",
+      "exportBackup": "Export / backup",
+      "reportBug": "Report a bug",
+      "reddit": "Reddit community",
+      "discord": "Discord support",
+      "signOut": "Sign out"
+    }
+  },
+  "settings": {
+    "nav": {
+      "label": "Settings",
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "billing": "Billing & plan",
+      "plugins": "Plugins"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Your account information.",
+      "email": "Email",
+      "memberSince": "Member since",
+      "language": "Language",
+      "languageHint": "Affects the app interface and any digests/notifications you receive.",
+      "moreSoon": "Editable profile fields are coming soon."
+    },
+    "billing": {
+      "title": "Billing & plan",
+      "description": "Manage your subscription, payment method, and invoices.",
+      "currentPlan": "Current plan",
+      "free": "Free",
+      "freeBlurb": "Unlimited projects, tasks, and ideas while in beta.",
+      "upgrade": "Upgrade",
+      "comingSoonBody": "Paid plans and invoices will live here."
+    },
+    "plugins": {
+      "title": "Plugins",
+      "description": "Connect Continuity with the tools you already use.",
+      "comingSoonBody": "Integrations like GitHub, Linear, Notion, and Slack will live here."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Get nudges on Telegram so a project doesn't quietly die.",
+      "channels": "Channels",
+      "telegram": "Telegram",
+      "whatsappSoon": "WhatsApp coming soon.",
+      "weeklyDigest": "Weekly digest",
+      "weeklyDigestToggle": "Send a weekly summary of my analytics",
+      "day": "Day",
+      "hour": "Hour (local)",
+      "timezone": "Timezone (IANA)",
+      "otherNotifications": "Other notifications",
+      "sleepingAlertsToggle": "Sleeping project alerts (≥7, 14, 30 days idle)",
+      "dueRemindersToggle": "Due-date reminders",
+      "leadTime": "Reminder lead time (hours)",
+      "manualToggle": "Receive admin / manual announcements",
+      "channel": {
+        "connected": "Connected",
+        "waiting": "Waiting for you to press Start in Telegram…",
+        "notConnected": "Not connected",
+        "connect": "Connect",
+        "disconnect": "Disconnect",
+        "disconnectConfirm": "Disconnect Telegram? You can reconnect later.",
+        "disconnected": "Disconnected"
+      }
+    }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "refreshing": "refreshing…",
+    "calculating": "Calculating analytics…",
+    "loadError": "Couldn't load analytics",
+    "cadence": {
+      "title": "Cadence",
+      "currentStreak": "Current streak",
+      "bestStreak": "Best streak",
+      "activeDays": "Active days",
+      "events": "Events"
+    },
+    "activityChart": {
+      "title": "Daily activity",
+      "updates": "Updates",
+      "tasks": "Tasks"
+    },
+    "weekday": {
+      "title": "By weekday",
+      "labels": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      }
+    },
+    "topProjects": {
+      "title": "Most active",
+      "subtitle": "Top 5 by interactions (updates + completed tasks)",
+      "empty": "No activity in this range."
+    },
+    "statusBreakdown": {
+      "title": "By status and category",
+      "subtitle": "{count, plural, one {# project} other {# projects}}",
+      "status": "Status",
+      "category": "Category",
+      "noData": "No data.",
+      "noCategories": "No categories.",
+      "rowMeta": "{projects} proj · {interactions} interactions",
+      "labels": {
+        "idea": "Ideas",
+        "active": "Active",
+        "stalled": "Stalled",
+        "paused": "Paused",
+        "launched": "Launched",
+        "archived": "Archived"
+      }
+    },
+    "backlog": {
+      "title": "Backlog",
+      "subtitle": "{count, plural, one {# open task total} other {# open tasks total}}",
+      "overdue": "Overdue",
+      "dueSoon": "Due soon (7d)",
+      "quickWins": "Quick wins",
+      "quickWinsHint": "Projects with ≤2 open tasks",
+      "almostThere": "Almost there",
+      "almostThereHint": "≥80% complete"
+    },
+    "sleeping": {
+      "title": "Sleeping",
+      "subtitle": "Projects with no recent activity (≥7 days)",
+      "empty": "Nothing sleeping. Good pace."
+    },
+    "stale": {
+      "title": "Stale ideas",
+      "subtitle": "Not promoted in ≥30 days",
+      "empty": "No stale ideas."
+    },
+    "ideaFunnel": {
+      "title": "Idea funnel",
+      "subtitle": "Ideas created vs promoted to projects",
+      "created": "Created",
+      "promoted": "Promoted",
+      "rate": "Rate"
+    },
+    "effort": {
+      "title": "Effort",
+      "subtitle": "{coverage}% coverage (only tasks with logged hours are counted)",
+      "totalHoursSuffix": "hours in range",
+      "empty": "No tasks with logged hours in this range."
+    },
+    "range": {
+      "7d": "7d",
+      "30d": "30d",
+      "90d": "90d",
+      "1y": "1y",
+      "all": "All"
+    }
+  }
+}

@@ -1,13 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { AnalyticsRange } from "@/lib/types";
 
-const RANGES: { value: AnalyticsRange; label: string }[] = [
-  { value: "LAST_7_DAYS", label: "7d" },
-  { value: "LAST_30_DAYS", label: "30d" },
-  { value: "LAST_90_DAYS", label: "90d" },
-  { value: "LAST_365_DAYS", label: "1y" },
-  { value: "ALL_TIME", label: "All" },
+const RANGES: { value: AnalyticsRange; key: "7d" | "30d" | "90d" | "1y" | "all" }[] = [
+  { value: "LAST_7_DAYS", key: "7d" },
+  { value: "LAST_30_DAYS", key: "30d" },
+  { value: "LAST_90_DAYS", key: "90d" },
+  { value: "LAST_365_DAYS", key: "1y" },
+  { value: "ALL_TIME", key: "all" },
 ];
 
 export function RangeSelector({
@@ -17,6 +18,7 @@ export function RangeSelector({
   range: AnalyticsRange;
   onChange: (r: AnalyticsRange) => void;
 }) {
+  const t = useTranslations("analytics.range");
   return (
     <div className="inline-flex gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
       {RANGES.map((r) => (
@@ -29,7 +31,7 @@ export function RangeSelector({
               : "text-zinc-400 hover:text-zinc-200"
           }`}
         >
-          {r.label}
+          {t(r.key)}
         </button>
       ))}
     </div>

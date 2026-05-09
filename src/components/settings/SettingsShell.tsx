@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Bell,
@@ -13,19 +14,20 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLocaleSync } from "@/hooks/useLocaleSync";
 import { TopNav } from "@/components/layout/TopNav";
 
 type NavItem = {
   href: string;
-  label: string;
+  key: "profile" | "notifications" | "billing" | "plugins";
   icon: LucideIcon;
 };
 
 const NAV: NavItem[] = [
-  { href: "/settings/profile", label: "Profile", icon: User },
-  { href: "/settings/notifications", label: "Notifications", icon: Bell },
-  { href: "/settings/billing", label: "Billing & plan", icon: CreditCard },
-  { href: "/settings/plugins", label: "Plugins", icon: Plug },
+  { href: "/settings/profile", key: "profile", icon: User },
+  { href: "/settings/notifications", key: "notifications", icon: Bell },
+  { href: "/settings/billing", key: "billing", icon: CreditCard },
+  { href: "/settings/plugins", key: "plugins", icon: Plug },
 ];
 
 /** Layout for /settings/* pages: gates auth, renders left rail + main content. */
@@ -38,8 +40,11 @@ export function SettingsShell({
   description?: string;
   children: ReactNode;
 }) {
+  useLocaleSync();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("settings.nav");
+  const tCommon = useTranslations("common");
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
 
@@ -59,7 +64,7 @@ export function SettingsShell({
   if (checking) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
-        Loading…
+        {tCommon("loading")}
       </div>
     );
   }
@@ -77,12 +82,12 @@ export function SettingsShell({
             size={14}
             className="transition-transform group-hover:-translate-x-0.5"
           />
-          Back to dashboard
+          {tCommon("backToDashboard")}
         </Link>
         <div className="grid grid-cols-1 md:grid-cols-[14rem_1fr] gap-6 md:gap-10">
           <aside className="md:sticky md:top-8 md:self-start">
             <div className="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-3 px-2">
-              Settings
+              {t("label")}
             </div>
             <nav className="space-y-0.5">
               {NAV.map((item) => {
@@ -102,7 +107,7 @@ export function SettingsShell({
                       size={16}
                       className={active ? "text-emerald-400" : "text-zinc-500"}
                     />
-                    {item.label}
+                    {t(item.key)}
                   </Link>
                 );
               })}

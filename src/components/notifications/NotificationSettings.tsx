@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, Loader2, Send } from "lucide-react";
 
 import {
@@ -21,6 +22,7 @@ type Link = {
 };
 
 type Settings = {
+  locale: string;
   timezone: string;
   digestEnabled: boolean;
   digestDayOfWeek: number;
@@ -33,9 +35,13 @@ type Settings = {
   links: Link[];
 };
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
 export function NotificationSettings() {
+  const t = useTranslations("settings.notifications");
+  const tCommon = useTranslations("common");
+  const tWeekday = useTranslations("analytics.weekday.labels");
+
   const { data, loading, refetch } = useQuery<{ notificationSettings: Settings }>(
     NOTIFICATION_SETTINGS_QUERY,
     { fetchPolicy: "cache-and-network" }
@@ -73,7 +79,7 @@ export function NotificationSettings() {
   if (loading && !settings) {
     return (
       <div className="text-zinc-400 flex items-center gap-2">
-        <Loader2 className="animate-spin" size={16} /> Loading…
+        <Loader2 className="animate-spin" size={16} /> {tCommon("loading")}
       </div>
     );
   }
@@ -83,7 +89,7 @@ export function NotificationSettings() {
   const onSave = async (patch: Partial<Settings>) => {
     try {
       await updateSettings({ variables: { data: patch } });
-      toast.success("Saved");
+      toast.success(tCommon("saved"));
     } catch {
       // error link already shows toast
     }
@@ -105,37 +111,42 @@ export function NotificationSettings() {
   };
 
   const onDisconnectTelegram = async () => {
-    if (!confirm("Disconnect Telegram? You can reconnect later.")) return;
+    if (!confirm(t("channel.disconnectConfirm"))) return;
     await disconnect({ variables: { channel: "TELEGRAM" } });
     await refetch();
-    toast.success("Disconnected");
+    toast.success(t("channel.disconnected"));
   };
 
   return (
     <div>
-      <Section title="Channels">
+      <Section title={t("channels")}>
         <ChannelRow
-          name="Telegram"
+          name={t("telegram")}
           connected={!!telegramLink?.connected}
           waiting={pollingForLink}
           onConnect={onConnectTelegram}
           onDisconnect={onDisconnectTelegram}
           connecting={linking}
+          labels={{
+            connected: t("channel.connected"),
+            waiting: t("channel.waiting"),
+            notConnected: t("channel.notConnected"),
+            connect: t("channel.connect"),
+            disconnect: t("channel.disconnect"),
+          }}
         />
-        <p className="text-xs text-zinc-500 mt-3">
-          WhatsApp coming soon.
-        </p>
+        <p className="text-xs text-zinc-500 mt-3">{t("whatsappSoon")}</p>
       </Section>
 
-      <Section title="Weekly digest">
+      <Section title={t("weeklyDigest")}>
         <ToggleRow
-          label="Send a weekly summary of my analytics"
+          label={t("weeklyDigestToggle")}
           checked={settings.digestEnabled}
           onChange={(v) => onSave({ digestEnabled: v })}
           disabled={saving}
         />
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <Field label="Day">
+          <Field label={t("day")}>
             <select
               value={settings.digestDayOfWeek}
               onChange={(e) =>
@@ -144,14 +155,14 @@ export function NotificationSettings() {
               className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"
               disabled={saving || !settings.digestEnabled}
             >
-              {DAYS.map((d, i) => (
-                <option key={d} value={i}>
-                  {d}
+              {DAY_KEYS.map((key, i) => (
+                <option key={key} value={i}>
+                  {tWeekday(key)}
                 </option>
               ))}
             </select>
           </Field>
-          <Field label="Hour (local)">
+          <Field label={t("hour")}>
             <select
               value={settings.digestHour}
               onChange={(e) =>
@@ -168,7 +179,7 @@ export function NotificationSettings() {
             </select>
           </Field>
         </div>
-        <Field label="Timezone (IANA)">
+        <Field label={t("timezone")}>
           <input
             value={settings.timezone}
             onChange={(e) => onSave({ timezone: e.target.value })}
@@ -179,20 +190,20 @@ export function NotificationSettings() {
         </Field>
       </Section>
 
-      <Section title="Other notifications">
+      <Section title={t("otherNotifications")}>
         <ToggleRow
-          label="Sleeping project alerts (≥7, 14, 30 days idle)"
+          label={t("sleepingAlertsToggle")}
           checked={settings.sleepingAlertsEnabled}
           onChange={(v) => onSave({ sleepingAlertsEnabled: v })}
           disabled={saving}
         />
         <ToggleRow
-          label="Due-date reminders"
+          label={t("dueRemindersToggle")}
           checked={settings.dueRemindersEnabled}
           onChange={(v) => onSave({ dueRemindersEnabled: v })}
           disabled={saving}
         />
-        <Field label="Reminder lead time (hours)">
+        <Field label={t("leadTime")}>
           <input
             type="number"
             min={1}
@@ -206,7 +217,7 @@ export function NotificationSettings() {
           />
         </Field>
         <ToggleRow
-          label="Receive admin / manual announcements"
+          label={t("manualToggle")}
           checked={settings.manualEnabled}
           onChange={(v) => onSave({ manualEnabled: v })}
           disabled={saving}
@@ -274,6 +285,7 @@ function ChannelRow({
   onConnect,
   onDisconnect,
   connecting,
+  labels,
 }: {
   name: string;
   connected: boolean;
@@ -281,6 +293,13 @@ function ChannelRow({
   onConnect: () => void;
   onDisconnect: () => void;
   connecting: boolean;
+  labels: {
+    connected: string;
+    waiting: string;
+    notConnected: string;
+    connect: string;
+    disconnect: string;
+  };
 }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-zinc-800/50 last:border-0">
@@ -288,10 +307,10 @@ function ChannelRow({
         <div className="text-zinc-100 font-medium">{name}</div>
         <div className="text-xs text-zinc-500 mt-0.5">
           {connected
-            ? "Connected"
+            ? labels.connected
             : waiting
-              ? "Waiting for you to press Start in Telegram…"
-              : "Not connected"}
+              ? labels.waiting
+              : labels.notConnected}
         </div>
       </div>
       <div>
@@ -300,7 +319,7 @@ function ChannelRow({
             onClick={onDisconnect}
             className="px-3 py-1.5 text-xs rounded-lg border border-zinc-700 text-zinc-300 hover:bg-zinc-800"
           >
-            Disconnect
+            {labels.disconnect}
           </button>
         ) : (
           <button
@@ -315,7 +334,7 @@ function ChannelRow({
             ) : (
               <Send size={12} />
             )}
-            Connect
+            {labels.connect}
           </button>
         )}
       </div>

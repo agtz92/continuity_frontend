@@ -1,22 +1,24 @@
 "use client";
 
 import { CalendarDays } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { WeekdayBucket } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
-const LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
 export function WeekdayHeatmap({ heatmap }: { heatmap: WeekdayBucket[] }) {
+  const t = useTranslations("analytics.weekday");
   const max = Math.max(1, ...heatmap.map((b) => b.count));
   const lookup = new Map(heatmap.map((b) => [b.weekday, b.count] as const));
 
   return (
     <PanelCard
-      title="By weekday"
+      title={t("title")}
       icon={<CalendarDays size={16} className="text-purple-400" />}
     >
       <div className="grid grid-cols-7 gap-2">
-        {LABELS.map((label, i) => {
+        {KEYS.map((key, i) => {
           const wd = i + 1; // ISO 1=Mon..7=Sun
           const count = lookup.get(wd) ?? 0;
           const intensity = count / max;
@@ -31,7 +33,7 @@ export function WeekdayHeatmap({ heatmap }: { heatmap: WeekdayBucket[] }) {
                   {count}
                 </span>
               </div>
-              <div className="text-[10px] text-zinc-500">{label}</div>
+              <div className="text-[10px] text-zinc-500">{t(`labels.${key}`)}</div>
             </div>
           );
         })}

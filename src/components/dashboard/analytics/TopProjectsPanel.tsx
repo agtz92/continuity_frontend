@@ -1,6 +1,7 @@
 "use client";
 
 import { TrendingUp, ArrowUp, ArrowDown, Minus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ProjectInteractionRow } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
@@ -29,16 +30,15 @@ function Delta({ value }: { value: number }) {
 }
 
 export function TopProjectsPanel({ rows }: { rows: ProjectInteractionRow[] }) {
+  const t = useTranslations("analytics.topProjects");
   return (
     <PanelCard
-      title="Most active"
+      title={t("title")}
       icon={<TrendingUp size={16} className="text-blue-400" />}
-      subtitle="Top 5 by interactions (updates + completed tasks)"
+      subtitle={t("subtitle")}
     >
       {rows.length === 0 ? (
-        <div className="text-sm text-zinc-500 py-4">
-          No activity in this range.
-        </div>
+        <div className="text-sm text-zinc-500 py-4">{t("empty")}</div>
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => (

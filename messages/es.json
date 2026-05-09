@@ -1,0 +1,208 @@
+{
+  "common": {
+    "loading": "Cargando…",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "saved": "Guardado",
+    "retry": "Reintentar",
+    "back": "Atrás",
+    "backToDashboard": "Volver al dashboard",
+    "comingSoon": "Próximamente."
+  },
+  "dashboard": {
+    "header": {
+      "active": "Activos",
+      "launched": "Lanzados",
+      "stalled": "Estancados",
+      "thisWeek": "Esta semana",
+      "streak": "Racha",
+      "streakRecord": "Racha · récord",
+      "best": "Mejor",
+      "streakTooltipActive": "Racha actual: {current, plural, one {# día} other {# días}} · Mejor: {best}",
+      "streakTooltipBest": "Mejor racha: {best, plural, one {# día} other {# días}}. Registra actividad hoy para empezar una nueva.",
+      "weekTooltip": "Activo {count} de 7 días esta semana"
+    }
+  },
+  "tabs": {
+    "today": "Hoy",
+    "projects": "Proyectos",
+    "tasks": "Tareas",
+    "ideas": "Ideas",
+    "log": "Bitácora",
+    "analytics": "Analíticas"
+  },
+  "accountMenu": {
+    "ariaLabel": "Menú de cuenta",
+    "freePlan": "Plan gratis",
+    "close": "Cerrar",
+    "closeTooltip": "Cerrar (Esc)",
+    "openTooltip": "Cuenta y ajustes",
+    "groups": {
+      "settings": "Ajustes",
+      "workspace": "Espacio",
+      "support": "Soporte"
+    },
+    "items": {
+      "profile": "Perfil",
+      "notifications": "Notificaciones",
+      "billing": "Facturación y plan",
+      "plugins": "Integraciones",
+      "categories": "Categorías",
+      "exportBackup": "Exportar / respaldar",
+      "reportBug": "Reportar un bug",
+      "reddit": "Comunidad en Reddit",
+      "discord": "Soporte en Discord",
+      "signOut": "Cerrar sesión"
+    }
+  },
+  "settings": {
+    "nav": {
+      "label": "Ajustes",
+      "profile": "Perfil",
+      "notifications": "Notificaciones",
+      "billing": "Facturación y plan",
+      "plugins": "Integraciones"
+    },
+    "profile": {
+      "title": "Perfil",
+      "description": "Información de tu cuenta.",
+      "email": "Correo",
+      "memberSince": "Miembro desde",
+      "language": "Idioma",
+      "languageHint": "Afecta la interfaz y los digests/notificaciones que recibas.",
+      "moreSoon": "Pronto podrás editar más campos del perfil."
+    },
+    "billing": {
+      "title": "Facturación y plan",
+      "description": "Administra tu suscripción, método de pago y facturas.",
+      "currentPlan": "Plan actual",
+      "free": "Gratis",
+      "freeBlurb": "Proyectos, tareas e ideas ilimitadas durante la beta.",
+      "upgrade": "Mejorar plan",
+      "comingSoonBody": "Aquí vivirán los planes pagados y las facturas."
+    },
+    "plugins": {
+      "title": "Integraciones",
+      "description": "Conecta Continuity con las herramientas que ya usas.",
+      "comingSoonBody": "Aquí vivirán integraciones como GitHub, Linear, Notion y Slack."
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "description": "Recibe avisos en Telegram para que un proyecto no muera en silencio.",
+      "channels": "Canales",
+      "telegram": "Telegram",
+      "whatsappSoon": "WhatsApp llegará pronto.",
+      "weeklyDigest": "Resumen semanal",
+      "weeklyDigestToggle": "Enviarme el resumen semanal de mis analíticas",
+      "day": "Día",
+      "hour": "Hora (local)",
+      "timezone": "Zona horaria (IANA)",
+      "otherNotifications": "Otras notificaciones",
+      "sleepingAlertsToggle": "Alertas de proyectos durmientes (≥7, 14, 30 días)",
+      "dueRemindersToggle": "Recordatorios de vencimiento",
+      "leadTime": "Anticipación del recordatorio (horas)",
+      "manualToggle": "Recibir avisos manuales / del admin",
+      "channel": {
+        "connected": "Conectado",
+        "waiting": "Esperando a que presiones Start en Telegram…",
+        "notConnected": "No conectado",
+        "connect": "Conectar",
+        "disconnect": "Desconectar",
+        "disconnectConfirm": "¿Desconectar Telegram? Puedes reconectar después.",
+        "disconnected": "Desconectado"
+      }
+    }
+  },
+  "analytics": {
+    "title": "Analíticas",
+    "refreshing": "actualizando…",
+    "calculating": "Calculando analíticas…",
+    "loadError": "No se pudieron cargar las analíticas",
+    "cadence": {
+      "title": "Cadencia",
+      "currentStreak": "Racha actual",
+      "bestStreak": "Mejor racha",
+      "activeDays": "Días activos",
+      "events": "Eventos"
+    },
+    "activityChart": {
+      "title": "Actividad por día",
+      "updates": "Updates",
+      "tasks": "Tareas"
+    },
+    "weekday": {
+      "title": "Por día de la semana",
+      "labels": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mié",
+        "thu": "Jue",
+        "fri": "Vie",
+        "sat": "Sáb",
+        "sun": "Dom"
+      }
+    },
+    "topProjects": {
+      "title": "Más activos",
+      "subtitle": "Top 5 por interacciones (updates + tareas completadas)",
+      "empty": "Sin actividad en este rango."
+    },
+    "statusBreakdown": {
+      "title": "Por estado y categoría",
+      "subtitle": "{count, plural, one {# proyecto} other {# proyectos}}",
+      "status": "Estado",
+      "category": "Categoría",
+      "noData": "Sin datos.",
+      "noCategories": "Sin categorías.",
+      "rowMeta": "{projects} proy · {interactions} interacciones",
+      "labels": {
+        "idea": "Ideas",
+        "active": "Activos",
+        "stalled": "Estancados",
+        "paused": "Pausados",
+        "launched": "Lanzados",
+        "archived": "Archivados"
+      }
+    },
+    "backlog": {
+      "title": "Backlog",
+      "subtitle": "{count, plural, one {# tarea abierta en total} other {# tareas abiertas en total}}",
+      "overdue": "Vencidas",
+      "dueSoon": "Próximas (7d)",
+      "quickWins": "Quick wins",
+      "quickWinsHint": "Proyectos con ≤2 tareas abiertas",
+      "almostThere": "Casi listos",
+      "almostThereHint": "≥80% completado"
+    },
+    "sleeping": {
+      "title": "Durmiendo",
+      "subtitle": "Proyectos sin actividad reciente (≥7 días)",
+      "empty": "Nada durmiendo. Buen ritmo."
+    },
+    "stale": {
+      "title": "Ideas estancadas",
+      "subtitle": "Sin promover en ≥30 días",
+      "empty": "Sin ideas estancadas."
+    },
+    "ideaFunnel": {
+      "title": "Funnel de ideas",
+      "subtitle": "Ideas creadas vs promovidas a proyecto",
+      "created": "Creadas",
+      "promoted": "Promovidas",
+      "rate": "Tasa"
+    },
+    "effort": {
+      "title": "Esfuerzo",
+      "subtitle": "Cobertura {coverage}% (solo cuentan tareas con horas registradas)",
+      "totalHoursSuffix": "horas en el rango",
+      "empty": "Sin tareas con horas registradas en este rango."
+    },
+    "range": {
+      "7d": "7d",
+      "30d": "30d",
+      "90d": "90d",
+      "1y": "1a",
+      "all": "Todo"
+    }
+  }
+}

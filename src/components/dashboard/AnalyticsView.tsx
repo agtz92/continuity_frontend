@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AlertCircle, BarChart3 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { AnalyticsRange } from "@/lib/types";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { RangeSelector } from "./analytics/RangeSelector";
@@ -16,6 +17,8 @@ import { IdeaFunnelPanel } from "./analytics/IdeaFunnelPanel";
 import { EffortPanel } from "./analytics/EffortPanel";
 
 export function AnalyticsView() {
+  const t = useTranslations("analytics");
+  const tCommon = useTranslations("common");
   const [range, setRange] = useState<AnalyticsRange>("LAST_30_DAYS");
   const { analytics, initialLoading, loading, error, refetch } =
     useAnalyticsData(range);
@@ -25,9 +28,9 @@ export function AnalyticsView() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <BarChart3 size={18} className="text-emerald-400" />
-          <h2 className="text-lg font-semibold text-zinc-100">Analytics</h2>
+          <h2 className="text-lg font-semibold text-zinc-100">{t("title")}</h2>
           {loading && !initialLoading ? (
-            <span className="text-xs text-zinc-500">refreshing…</span>
+            <span className="text-xs text-zinc-500">{t("refreshing")}</span>
           ) : null}
         </div>
         <RangeSelector range={range} onChange={setRange} />
@@ -38,14 +41,14 @@ export function AnalyticsView() {
           <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={18} />
           <div className="flex-1">
             <div className="text-sm font-semibold text-amber-300">
-              Couldn&apos;t load analytics
+              {t("loadError")}
             </div>
             <div className="text-xs text-zinc-400 mt-1">{error.message}</div>
             <button
               onClick={() => refetch()}
               className="mt-3 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-md font-medium text-xs"
             >
-              Retry
+              {tCommon("retry")}
             </button>
           </div>
         </div>
@@ -53,7 +56,7 @@ export function AnalyticsView() {
 
       {initialLoading || !analytics ? (
         <div className="text-sm text-zinc-500 py-12 text-center">
-          Calculating analytics…
+          {t("calculating")}
         </div>
       ) : (
         <div className="space-y-4">

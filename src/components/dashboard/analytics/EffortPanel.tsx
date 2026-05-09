@@ -1,19 +1,19 @@
 "use client";
 
 import { Hourglass } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { EffortStats } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
 export function EffortPanel({ effort }: { effort: EffortStats }) {
+  const t = useTranslations("analytics.effort");
   const coverage = Math.round(effort.tasksWithEffortPct * 100);
   const subtitle =
-    coverage >= 100
-      ? undefined
-      : `${coverage}% coverage (only tasks with logged hours are counted)`;
+    coverage >= 100 ? undefined : t("subtitle", { coverage });
 
   return (
     <PanelCard
-      title="Effort"
+      title={t("title")}
       icon={<Hourglass size={16} className="text-orange-400" />}
       subtitle={subtitle}
     >
@@ -21,12 +21,10 @@ export function EffortPanel({ effort }: { effort: EffortStats }) {
         <div className="text-3xl font-semibold text-zinc-100 tabular-nums">
           {effort.effortHoursTotal}
         </div>
-        <div className="text-sm text-zinc-500">hours in range</div>
+        <div className="text-sm text-zinc-500">{t("totalHoursSuffix")}</div>
       </div>
       {effort.effortHoursByProject.length === 0 ? (
-        <div className="text-sm text-zinc-500">
-          No tasks with logged hours in this range.
-        </div>
+        <div className="text-sm text-zinc-500">{t("empty")}</div>
       ) : (
         <ul className="space-y-1.5">
           {effort.effortHoursByProject.map((row) => (

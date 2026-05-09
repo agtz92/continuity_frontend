@@ -2,6 +2,7 @@
 
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 import { LineChart as LineIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ActivityPoint } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
@@ -11,18 +12,20 @@ const fmtDay = (d: string) => {
 };
 
 export function ActivityChart({ series }: { series: ActivityPoint[] }) {
-  // Sample at most ~60 ticks to keep the X-axis legible.
+  const t = useTranslations("analytics.activityChart");
   const tickEvery = Math.max(1, Math.ceil(series.length / 12));
+  const updatesLabel = t("updates");
+  const tasksLabel = t("tasks");
   const data = series.map((p) => ({
     day: p.day,
     label: fmtDay(p.day),
-    Updates: p.updates,
-    Tasks: p.completedTasks,
+    [updatesLabel]: p.updates,
+    [tasksLabel]: p.completedTasks,
   }));
 
   return (
     <PanelCard
-      title="Daily activity"
+      title={t("title")}
       icon={<LineIcon size={16} className="text-emerald-400" />}
     >
       <div className="h-64 -mx-2">
@@ -56,14 +59,14 @@ export function ActivityChart({ series }: { series: ActivityPoint[] }) {
             <Legend wrapperStyle={{ fontSize: 11, color: "#a1a1aa" }} />
             <Line
               type="monotone"
-              dataKey="Updates"
+              dataKey={updatesLabel}
               stroke="#34d399"
               strokeWidth={2}
               dot={false}
             />
             <Line
               type="monotone"
-              dataKey="Tasks"
+              dataKey={tasksLabel}
               stroke="#60a5fa"
               strokeWidth={2}
               dot={false}

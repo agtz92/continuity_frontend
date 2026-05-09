@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Bell,
   Bug,
@@ -32,6 +33,7 @@ type Props = {
 };
 
 export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
+  const t = useTranslations("accountMenu");
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
       className="fixed inset-0 z-50 flex justify-start"
       role="dialog"
       aria-modal="true"
-      aria-label="Account menu"
+      aria-label={t("ariaLabel")}
     >
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -93,14 +95,14 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               <div className="text-zinc-100 text-sm font-medium truncate">
                 {email ?? "—"}
               </div>
-              <div className="text-zinc-500 text-xs">Free plan</div>
+              <div className="text-zinc-500 text-xs">{t("freePlan")}</div>
             </div>
           </div>
           <button
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-md hover:bg-zinc-900 transition-colors group"
-            aria-label="Close menu"
-            title="Close (Esc)"
+            aria-label={t("close")}
+            title={t("closeTooltip")}
           >
             <ChevronLeft
               size={20}
@@ -110,66 +112,66 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
         </header>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-          <Group label="Settings">
+          <Group label={t("groups.settings")}>
             <RowLink
               href="/settings/profile"
               icon={User}
-              label="Profile"
+              label={t("items.profile")}
               onClick={handleNavigate}
             />
             <RowLink
               href="/settings/notifications"
               icon={Bell}
-              label="Notifications"
+              label={t("items.notifications")}
               onClick={handleNavigate}
             />
             <RowLink
               href="/settings/billing"
               icon={CreditCard}
-              label="Billing & plan"
+              label={t("items.billing")}
               onClick={handleNavigate}
             />
             <RowLink
               href="/settings/plugins"
               icon={Plug}
-              label="Plugins"
+              label={t("items.plugins")}
               onClick={handleNavigate}
             />
           </Group>
 
           {workspace && (
-            <Group label="Workspace">
+            <Group label={t("groups.workspace")}>
               <RowButton
                 icon={Tags}
-                label="Categories"
+                label={t("items.categories")}
                 onClick={handleAction(workspace.onOpenCategories)}
               />
               <RowButton
                 icon={Database}
-                label="Export / backup"
+                label={t("items.exportBackup")}
                 onClick={handleAction(workspace.onOpenBackup)}
               />
             </Group>
           )}
 
-          <Group label="Support">
+          <Group label={t("groups.support")}>
             <RowExternal
               href="mailto:support@continuu.it?subject=Bug%20report"
               icon={Bug}
-              label="Report a bug"
+              label={t("items.reportBug")}
               onAfterClick={onClose}
             />
             <RowExternal
               href="https://www.reddit.com/r/Continuuit/"
               icon={MessageCircle}
-              label="Reddit community"
+              label={t("items.reddit")}
               onAfterClick={onClose}
             />
             <RowExternal
               // TODO: replace with the real Discord invite URL once the server exists
               href="#"
               icon={MessagesSquare}
-              label="Discord support"
+              label={t("items.discord")}
               onAfterClick={onClose}
             />
           </Group>
@@ -178,7 +180,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
         <footer className="px-3 py-3 border-t border-zinc-800/80">
           <RowButton
             icon={LogOut}
-            label="Sign out"
+            label={t("items.signOut")}
             onClick={handleAction(onSignOut)}
             variant="danger"
           />

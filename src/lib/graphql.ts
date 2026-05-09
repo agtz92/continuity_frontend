@@ -247,6 +247,7 @@ export const MARK_BACKUP = gql`
 export const NOTIFICATION_SETTINGS_QUERY = gql`
   query NotificationSettings {
     notificationSettings {
+      locale
       timezone
       digestEnabled
       digestDayOfWeek
@@ -268,6 +269,7 @@ export const NOTIFICATION_SETTINGS_QUERY = gql`
 export const UPDATE_NOTIFICATION_SETTINGS = gql`
   mutation UpdateNotificationSettings($data: NotificationSettingsInput!) {
     updateNotificationSettings(data: $data) {
+      locale
       timezone
       digestEnabled
       digestDayOfWeek
