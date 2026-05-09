@@ -121,7 +121,51 @@ export function ProjectsView({
 
       {projects.length > 0 && (
         <div className="mb-4 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Mobile: compact selects */}
+          <div className="flex gap-2 sm:hidden">
+            <select
+              value={projectStatusFilter}
+              onChange={(e) =>
+                setProjectStatusFilter(
+                  e.target.value as "all" | ProjectStatus
+                )
+              }
+              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              aria-label="Filter by status"
+            >
+              {STATUS_FILTER_ORDER.map((s) => {
+                const count = projectStatusCounts[s] ?? 0;
+                if (s !== "all" && count === 0) return null;
+                const label =
+                  s === "all" ? "All statuses" : statusConfig[s as ProjectStatus]?.label ?? s;
+                return (
+                  <option key={s} value={s}>
+                    {label} ({count})
+                  </option>
+                );
+              })}
+            </select>
+            {categories.length > 0 && (
+              <select
+                value={projectCategoryFilter ?? ""}
+                onChange={(e) =>
+                  setProjectCategoryFilter(e.target.value || null)
+                }
+                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+                aria-label="Filter by category"
+              >
+                <option value="">All categories</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Desktop: chip filters */}
+          <div className="hidden sm:flex items-center gap-2 flex-wrap">
             {STATUS_FILTER_ORDER.map((s) => {
               const isActive = projectStatusFilter === s;
               const count = projectStatusCounts[s] ?? 0;
@@ -154,7 +198,7 @@ export function ProjectsView({
             })}
           </div>
           {categories.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="hidden sm:flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setProjectCategoryFilter(null)}
                 aria-pressed={projectCategoryFilter === null}
