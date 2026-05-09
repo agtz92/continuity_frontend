@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Download, Upload } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 
 export function BackupRestoreModal({
@@ -17,16 +18,13 @@ export function BackupRestoreModal({
   onImport: (file: File, mode: "merge" | "replace") => void | Promise<void>;
   onClose: () => void;
 }) {
+  const t = useTranslations("modals.backup");
+  const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const triggerImport = (mode: "merge" | "replace") => {
     if (mode === "replace") {
-      if (
-        !confirm(
-          "This will DELETE all current data and replace it with the backup. Continue?"
-        )
-      )
-        return;
+      if (!confirm(t("replaceConfirm"))) return;
     }
     if (fileInputRef.current) {
       fileInputRef.current.dataset.mode = mode;
@@ -35,22 +33,25 @@ export function BackupRestoreModal({
   };
 
   return (
-    <Modal title="Backup & Restore" onClose={onClose}>
+    <Modal title={t("title")} onClose={onClose}>
       <div className="space-y-4">
-        <div className="text-sm text-zinc-400">
-          Export a JSON file with all your projects, tasks, ideas, and activity log.
-          Save it somewhere safe (Google Drive, Dropbox, iCloud).
-        </div>
+        <div className="text-sm text-zinc-400">{t("intro")}</div>
 
         <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-sm">
-          <div className="text-zinc-300 font-medium mb-1">Current data</div>
+          <div className="text-zinc-300 font-medium mb-1">{t("currentData")}</div>
           <div className="text-zinc-500 text-xs">
-            {counts.projects} projects · {counts.tasks} tasks · {counts.ideas} ideas ·{" "}
-            {counts.updates} updates
+            {t("counts", {
+              projects: counts.projects,
+              tasks: counts.tasks,
+              ideas: counts.ideas,
+              updates: counts.updates,
+            })}
           </div>
           {lastBackup && (
             <div className="text-zinc-500 text-xs mt-1">
-              Last backup: {new Date(lastBackup).toLocaleString()}
+              {t("lastBackup", {
+                when: new Date(lastBackup).toLocaleString(locale),
+              })}
             </div>
           )}
         </div>
@@ -60,27 +61,27 @@ export function BackupRestoreModal({
             onClick={() => onExport()}
             className="w-full px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center justify-center gap-2"
           >
-            <Download size={16} /> Export to JSON file
+            <Download size={16} /> {t("exportCta")}
           </button>
         </div>
 
         <div className="border-t border-zinc-800 pt-4">
-          <div className="text-zinc-300 font-medium text-sm mb-2">Restore from backup</div>
-          <div className="text-xs text-zinc-500 mb-3">
-            Select a previously exported JSON file. Choose how to handle existing data:
+          <div className="text-zinc-300 font-medium text-sm mb-2">
+            {t("restoreHeader")}
           </div>
+          <div className="text-xs text-zinc-500 mb-3">{t("restoreIntro")}</div>
           <div className="space-y-2">
             <button
               onClick={() => triggerImport("merge")}
               className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm flex items-center justify-center gap-2"
             >
-              <Upload size={14} /> Import & merge with current data
+              <Upload size={14} /> {t("importMerge")}
             </button>
             <button
               onClick={() => triggerImport("replace")}
               className="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-300 rounded-lg text-sm flex items-center justify-center gap-2"
             >
-              <Upload size={14} /> Import & replace all data
+              <Upload size={14} /> {t("importReplace")}
             </button>
           </div>
           <input

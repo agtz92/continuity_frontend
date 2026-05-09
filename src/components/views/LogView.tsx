@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Edit2, Search, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import type { Project, UpdateEntry } from "@/lib/types";
 
 export function LogView({
@@ -15,12 +16,14 @@ export function LogView({
   onEditUpdate: (u: UpdateEntry) => void;
   onDeleteUpdate: (id: string) => void | Promise<void>;
 }) {
+  const t = useTranslations("views.log");
+  const locale = useLocale();
   const [logSearch, setLogSearch] = useState("");
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">Activity Log</h2>
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
         <div className="relative flex-1 sm:max-w-md sm:ml-auto">
           <Search
             size={14}
@@ -30,14 +33,14 @@ export function LogView({
             type="text"
             value={logSearch}
             onChange={(e) => setLogSearch(e.target.value)}
-            placeholder="Search log entries or project..."
+            placeholder={t("search")}
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
           />
         </div>
       </div>
       {updates.length === 0 ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
-          No activity logged yet. Log updates from your projects to track momentum.
+          {t("empty")}
         </div>
       ) : (() => {
         const q = logSearch.trim().toLowerCase();
@@ -54,7 +57,7 @@ export function LogView({
         if (filteredUpdates.length === 0) {
           return (
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
-              No log entries match &ldquo;{logSearch}&rdquo;
+              {t("noMatch", { query: logSearch })}
             </div>
           );
         }
@@ -69,7 +72,7 @@ export function LogView({
                   className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
                 >
                   <div className="text-xs text-zinc-500 shrink-0 sm:w-24">
-                    {new Date(u.date).toLocaleDateString("en-US", {
+                    {new Date(u.date).toLocaleDateString(locale, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
@@ -87,16 +90,16 @@ export function LogView({
                     <button
                       onClick={() => onEditUpdate(u)}
                       className="text-zinc-500 hover:text-emerald-400"
-                      aria-label="Edit log entry"
+                      aria-label={t("editEntryAria")}
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm("Delete this log entry?")) onDeleteUpdate(u.id);
+                        if (confirm(t("deleteConfirm"))) onDeleteUpdate(u.id);
                       }}
                       className="text-zinc-500 hover:text-red-400"
-                      aria-label="Delete log entry"
+                      aria-label={t("deleteEntryAria")}
                     >
                       <X size={14} />
                     </button>

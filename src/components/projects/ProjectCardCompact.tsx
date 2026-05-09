@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock, Rocket, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Category, Project, Task } from "@/lib/types";
 import { categoryColorClass, priorityMeta } from "@/lib/types";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
@@ -29,6 +30,8 @@ export function ProjectCardCompact({
   comebackGapDays?: number | null;
   onClick: () => void;
 }) {
+  const t = useTranslations("projectCard");
+  const tPriority = useTranslations("priority");
   const done = projectTasks.filter((t) => t.done).length;
   const total = projectTasks.length;
   const todayCount = projectTasks.filter(
@@ -63,7 +66,7 @@ export function ProjectCardCompact({
         {variant === "launched" ? (
           <Rocket size={14} className="text-blue-400 shrink-0" />
         ) : (
-          <span title={priorityMeta(p.priority).label}>
+          <span title={tPriority(p.priority)}>
             {priorityMeta(p.priority).emoji}
           </span>
         )}
@@ -71,25 +74,25 @@ export function ProjectCardCompact({
         {comebackGapDays != null && comebackGapDays > 0 && (
           <span
             className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0 inline-flex items-center gap-1"
-            title="Activity resumed within the last 24h after being idle"
+            title={t("comebackTooltip")}
           >
             <Sparkles size={10} />
-            Comeback · {comebackGapDays}d
+            {t("comebackBadge", { days: comebackGapDays })}
           </span>
         )}
         {variant === "launched" && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 shrink-0">
-            {openCount} open
+            {t("openCount", { count: openCount })}
           </span>
         )}
         {overdueCount > 0 && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 shrink-0">
-            {overdueCount} overdue
+            {t("overdueBadge", { count: overdueCount })}
           </span>
         )}
         {todayCount > 0 && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40 shrink-0">
-            {todayCount} today
+            {t("todayBadge", { count: todayCount })}
           </span>
         )}
       </div>
@@ -122,7 +125,7 @@ export function ProjectCardCompact({
             />
           </div>
           <div className="flex justify-between text-[10px] text-zinc-500 mt-0.5">
-            <span>{donePct}% done</span>
+            <span>{t("donePct", { pct: donePct })}</span>
             <span>
               {done}/{total}
             </span>
@@ -134,24 +137,26 @@ export function ProjectCardCompact({
           {todayEffortHours != null && todayEffortHours > 0 && (
             <span
               className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-              title="Hours invested today"
+              title={t("todayHoursTooltip")}
             >
               <Clock size={10} />
-              +{todayEffortHours}h today
+              {t("todayHoursLabel", { hours: todayEffortHours })}
             </span>
           )}
           {totalEffortHours != null && totalEffortHours > 0 && (
             <span
               className="inline-flex items-center gap-1 text-zinc-500"
-              title="Total hours invested across completed tasks"
+              title={t("totalHoursTooltip")}
             >
               <Clock size={10} />
-              {totalEffortHours}h total
+              {t("totalHoursLabel", { hours: totalEffortHours })}
             </span>
           )}
         </div>
         {variant === "active" && (
-          <span className={days > 6 ? "text-amber-400" : ""}>{days}d ago</span>
+          <span className={days > 6 ? "text-amber-400" : ""}>
+            {t("daysAgo", { days })}
+          </span>
         )}
       </div>
     </button>

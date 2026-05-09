@@ -18,6 +18,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Category, Project, Task, UpdateEntry } from "@/lib/types";
 import { daysOverdue, daysSince } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
@@ -29,17 +30,14 @@ type ProductivityStats = ReturnType<typeof useProductivityStats>;
 
 const sleepingBucketStyle = {
   "7-14": {
-    label: "7-14 days",
     chip: "bg-amber-500/15 text-amber-300 border-amber-500/30",
     dot: "bg-amber-400",
   },
   "15-30": {
-    label: "15-30 days",
     chip: "bg-orange-500/15 text-orange-300 border-orange-500/30",
     dot: "bg-orange-400",
   },
   "30+": {
-    label: "30+ days",
     chip: "bg-red-500/15 text-red-300 border-red-500/30",
     dot: "bg-red-400",
   },
@@ -80,6 +78,13 @@ export function TodayView({
   onToggleTask: (t: Task) => void | Promise<void>;
   onEditTask: (t: Task) => void;
 }) {
+  const t = useTranslations("views.today");
+  const tFocus = useTranslations("views.today.focus");
+  const tDone = useTranslations("views.today.doneToday");
+  const tCloseable = useTranslations("views.today.closeable");
+  const tSleep = useTranslations("views.today.sleeping");
+  const tStale = useTranslations("views.today.staleIdeas");
+
   const {
     stalled,
     todayFocus,
@@ -120,17 +125,17 @@ export function TodayView({
             <div className="flex-1">
               <div className="font-semibold text-blue-300 mb-1">
                 {lastBackup
-                  ? `Last backup ${daysSinceBackup} days ago`
-                  : "No backup yet"}
+                  ? t("backupAlert.lastBackupAgo", { days: daysSinceBackup ?? 0 })
+                  : t("backupAlert.noBackup")}
               </div>
               <div className="text-sm text-blue-200/80 mb-2">
-                Export a JSON backup so you don&apos;t lose your data.
+                {t("backupAlert.explanation")}
               </div>
               <button
                 onClick={onOpenBackupModal}
                 className="text-xs px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 rounded-md text-blue-200"
               >
-                Open backup tools
+                {t("backupAlert.openTools")}
               </button>
             </div>
           </div>
@@ -143,11 +148,10 @@ export function TodayView({
             <Bell className="text-amber-400 shrink-0 mt-0.5" size={18} />
             <div className="flex-1">
               <div className="font-semibold text-amber-300 mb-1">
-                {stalled.length} project{stalled.length > 1 ? "s" : ""} need
-                {stalled.length === 1 ? "s" : ""} attention
+                {t("stalledAlert.title", { count: stalled.length })}
               </div>
               <div className="text-sm text-amber-200/80">
-                No activity in 7+ days. Don&apos;t let them quietly die.
+                {t("stalledAlert.subtitle")}
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
                 {stalled.map((p) => (
@@ -169,32 +173,32 @@ export function TodayView({
         open={showTodayFocus}
         onToggle={() => setShowTodayFocus((s) => !s)}
         icon={<Target size={18} className="text-emerald-400" />}
-        title="Today's Focus"
+        title={tFocus("title")}
         rightSlot={
           todayTaskCounts.total > 0 ? (
             <span className="inline-flex items-center gap-2 flex-wrap">
               <span
                 className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-200 shadow-sm shadow-orange-500/10"
-                title={`${todayTaskCounts.dueToday} due today · ${todayTaskCounts.overdue} overdue`}
+                title={tFocus("tasksTooltip", {
+                  dueToday: todayTaskCounts.dueToday,
+                  overdue: todayTaskCounts.overdue,
+                })}
               >
                 <Target size={11} className="text-orange-300" />
-                <span>
-                  {todayTaskCounts.total}{" "}
-                  {todayTaskCounts.total === 1 ? "task" : "tasks"}
-                </span>
+                <span>{tFocus("tasksLabel", { count: todayTaskCounts.total })}</span>
                 {todayTaskCounts.overdue > 0 && (
                   <span className="text-red-300 font-semibold">
-                    · {todayTaskCounts.overdue} overdue
+                    {tFocus("overdueExtra", { count: todayTaskCounts.overdue })}
                   </span>
                 )}
               </span>
               {todayEffortHours > 0 && (
                 <span
                   className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-blue-500/15 text-blue-200 border-blue-500/40"
-                  title="Total estimated hours for tasks due today + overdue"
+                  title={tFocus("totalHoursTooltip")}
                 >
                   <Clock size={11} className="text-blue-300" />
-                  {todayEffortHours}h total
+                  {tFocus("totalHoursLabel", { hours: todayEffortHours })}
                 </span>
               )}
             </span>
@@ -204,11 +208,11 @@ export function TodayView({
         <>
           {todayFocus.items.length === 0 ? (
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center">
-              <p className="text-zinc-400 mb-3">Nothing pressing today.</p>
+              <p className="text-zinc-400 mb-3">{tFocus("emptyTitle")}</p>
               <p className="text-sm text-zinc-500">
                 {projects.length === 0
-                  ? "Add your first project to get started."
-                  : "Add tasks or next steps to your active projects."}
+                  ? tFocus("emptyHintFirst")
+                  : tFocus("emptyHintNext")}
               </p>
             </div>
           ) : (
@@ -254,13 +258,11 @@ export function TodayView({
                               : "text-emerald-400"
                           }`}
                         >
-                          {item.type === "overdue"
-                            ? "Overdue"
-                            : item.type === "today"
-                            ? "Due today"
-                            : item.type === "stalled"
-                            ? "Stalled"
-                            : "Next step"}
+                          {tFocus(`labels.${item.type}` as
+                            | "labels.overdue"
+                            | "labels.dueToday"
+                            | "labels.stalled"
+                            | "labels.nextStep")}
                         </span>
                         {item.type === "overdue" &&
                           item.task?.dueDate &&
@@ -268,7 +270,7 @@ export function TodayView({
                             const n = daysOverdue(item.task.dueDate);
                             return n !== null ? (
                               <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/25 text-red-200 border border-red-500/50">
-                                {n}d late
+                                {tFocus("daysLate", { count: n })}
                               </span>
                             ) : null;
                           })()}
@@ -283,7 +285,10 @@ export function TodayView({
                           {item.task
                             ? item.task.title
                             : item.type === "stalled" && item.project
-                            ? `${item.project.name} — ${daysSince(item.project.lastActivity)} days idle`
+                            ? tFocus("daysIdleLine", {
+                                name: item.project.name,
+                                count: daysSince(item.project.lastActivity) ?? 0,
+                              })
                             : item.project?.nextStep}
                         </span>
                         {item.task?.effortHours != null && (
@@ -312,9 +317,11 @@ export function TodayView({
               onClick={onJumpToTasks}
               className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 text-sm font-medium transition-colors"
             >
-              View all tasks
+              {tFocus("viewAll")}
               <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/30 text-orange-100">
-                +{todayFocus.total - todayFocus.items.length} more
+                {tFocus("moreCount", {
+                  count: todayFocus.total - todayFocus.items.length,
+                })}
               </span>
               <ChevronRight size={14} />
             </button>
@@ -336,7 +343,7 @@ export function TodayView({
             open={showDoneToday}
             onToggle={() => setShowDoneToday((s) => !s)}
             icon={<Sparkles size={18} className="text-emerald-400" />}
-            title="Done today"
+            title={tDone("title")}
             rightSlot={
               <>
                 {taskCount > 0 && (
@@ -346,7 +353,11 @@ export function TodayView({
                       toggleFilter("task");
                     }}
                     aria-pressed={doneTodayFilter === "task"}
-                    title={doneTodayFilter === "task" ? "Show all" : "Show only tasks"}
+                    title={
+                      doneTodayFilter === "task"
+                        ? tDone("showAll")
+                        : tDone("showOnlyTasks")
+                    }
                     className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
                       doneTodayFilter === "task"
                         ? "bg-emerald-500/25 border border-emerald-500/60 text-emerald-200"
@@ -356,7 +367,7 @@ export function TodayView({
                     }`}
                   >
                     <CheckCircle2 size={11} />
-                    {taskCount} {taskCount === 1 ? "task" : "tasks"}
+                    {tDone("tasksLabel", { count: taskCount })}
                   </button>
                 )}
                 {logCount > 0 && (
@@ -366,7 +377,11 @@ export function TodayView({
                       toggleFilter("log");
                     }}
                     aria-pressed={doneTodayFilter === "log"}
-                    title={doneTodayFilter === "log" ? "Show all" : "Show only logs"}
+                    title={
+                      doneTodayFilter === "log"
+                        ? tDone("showAll")
+                        : tDone("showOnlyLogs")
+                    }
                     className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
                       doneTodayFilter === "log"
                         ? "bg-blue-500/25 border border-blue-500/60 text-blue-200"
@@ -376,16 +391,16 @@ export function TodayView({
                     }`}
                   >
                     <TrendingUp size={11} />
-                    {logCount} {logCount === 1 ? "log" : "logs"}
+                    {tDone("logsLabel", { count: logCount })}
                   </button>
                 )}
                 {doneTodayEffortHours > 0 && (
                   <span
                     className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-blue-500/15 text-blue-200 border border-blue-500/40"
-                    title="Total estimated hours worked on completed tasks today"
+                    title={tDone("hoursWorkedTooltip")}
                   >
                     <Clock size={11} />
-                    {doneTodayEffortHours}h worked
+                    {tDone("hoursWorkedLabel", { hours: doneTodayEffortHours })}
                   </span>
                 )}
               </>
@@ -395,7 +410,7 @@ export function TodayView({
               {todayHoursByProject.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pb-2 border-b border-zinc-800/80">
                   <span className="text-[10px] uppercase tracking-wider text-zinc-500 self-center mr-1">
-                    Hours by project
+                    {tDone("hoursByProject")}
                   </span>
                   {todayHoursByProject.map(({ project, hours }) => (
                     <button
@@ -412,11 +427,11 @@ export function TodayView({
               <div className="space-y-2">
                 {visibleItems.map((item) => {
                   if (item.kind === "task") {
-                    const t = item.task;
-                    const proj = projects.find((p) => p.id === t.projectId);
+                    const taskItem = item.task;
+                    const proj = projects.find((p) => p.id === taskItem.projectId);
                     return (
                       <div
-                        key={`task-${t.id}`}
+                        key={`task-${taskItem.id}`}
                         className="flex items-start gap-2 group border-l-2 border-emerald-500/40 pl-2.5"
                       >
                         <CheckCircle2
@@ -426,7 +441,7 @@ export function TodayView({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
                             <span className="text-[10px] uppercase tracking-wider font-medium text-emerald-400">
-                              Task
+                              {tDone("task")}
                             </span>
                             {proj && (
                               <span className="text-xs text-zinc-500">
@@ -436,29 +451,29 @@ export function TodayView({
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-sm text-zinc-300 line-through decoration-emerald-500/40 break-words">
-                              {t.title}
+                              {taskItem.title}
                             </span>
-                            {t.effortHours != null && (
+                            {taskItem.effortHours != null && (
                               <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
                                 <Clock size={10} />
-                                {t.effortHours}h
+                                {taskItem.effortHours}h
                               </span>
                             )}
                           </div>
                         </div>
                         <button
-                          onClick={() => onEditTask(t)}
+                          onClick={() => onEditTask(taskItem)}
                           className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                          title="Edit"
-                          aria-label="Edit task"
+                          title={tDone("edit")}
+                          aria-label={tDone("editTaskAria")}
                         >
                           <Edit2 size={14} />
                         </button>
                         <button
-                          onClick={() => onToggleTask(t)}
+                          onClick={() => onToggleTask(taskItem)}
                           className="text-zinc-600 hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                          title="Undo"
-                          aria-label="Undo completion"
+                          title={tDone("undo")}
+                          aria-label={tDone("undoAria")}
                         >
                           <X size={14} />
                         </button>
@@ -479,7 +494,7 @@ export function TodayView({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
                           <span className="text-[10px] uppercase tracking-wider font-medium text-blue-400">
-                            Log
+                            {tDone("log")}
                           </span>
                           {proj && (
                             <span className="text-xs text-zinc-500">
@@ -505,7 +520,7 @@ export function TodayView({
           open={showCloseable}
           onToggle={() => setShowCloseable((s) => !s)}
           icon={<Flag size={18} className="text-emerald-400" />}
-          title="Close to the finish line"
+          title={tCloseable("title")}
           rightSlot={
             <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
               {closableTotal}
@@ -523,7 +538,7 @@ export function TodayView({
                 >
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className="text-xs uppercase tracking-wider font-medium text-emerald-400">
-                      Almost there · {pct}%
+                      {tCloseable("almostThereChip", { pct })}
                     </span>
                   </div>
                   <div className="font-semibold mb-2 truncate">{s.project.name}</div>
@@ -534,8 +549,11 @@ export function TodayView({
                     />
                   </div>
                   <div className="text-xs text-zinc-500">
-                    {s.openCount} task{s.openCount === 1 ? "" : "s"} left ·{" "}
-                    {s.doneCount}/{s.totalCount} done
+                    {tCloseable("tasksLeft", {
+                      count: s.openCount,
+                      done: s.doneCount,
+                      total: s.totalCount,
+                    })}
                   </div>
                 </button>
               );
@@ -548,13 +566,12 @@ export function TodayView({
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span className="text-xs uppercase tracking-wider font-medium text-emerald-400">
-                    Quick win
+                    {tCloseable("quickWin")}
                   </span>
                 </div>
                 <div className="font-semibold mb-2 truncate">{s.project.name}</div>
                 <div className="text-xs text-zinc-400">
-                  Only {s.openCount} task{s.openCount === 1 ? "" : "s"} away from
-                  finishing.
+                  {tCloseable("tasksAway", { count: s.openCount })}
                 </div>
               </button>
             ))}
@@ -567,7 +584,7 @@ export function TodayView({
           open={showSleepingProjects}
           onToggle={() => setShowSleepingProjects((s) => !s)}
           icon={<Moon size={18} className="text-amber-400" />}
-          title="Sleeping projects"
+          title={tSleep("title")}
           rightSlot={
             <span className="text-xs font-normal text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
               {sleepingProjects.length}
@@ -594,7 +611,7 @@ export function TodayView({
                       <span
                         className={`text-xs px-2 py-0.5 rounded border ${style.chip}`}
                       >
-                        {days}d idle
+                        {tSleep("daysIdle", { count: days })}
                       </span>
                     </div>
                     {project.nextStep && (
@@ -607,7 +624,7 @@ export function TodayView({
                     onClick={() => onLogUpdate(project)}
                     className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-emerald-500/15 text-emerald-200 border border-emerald-500/40 hover:bg-emerald-500/25 transition-colors"
                   >
-                    Resume
+                    {tSleep("resume")}
                   </button>
                 </div>
               );
@@ -625,13 +642,9 @@ export function TodayView({
             <Lightbulb className="text-purple-300 shrink-0 mt-0.5" size={18} />
             <div className="flex-1">
               <div className="font-semibold text-purple-200 mb-1">
-                {staleIdeas.length} idea{staleIdeas.length === 1 ? "" : "s"} waiting
-                {staleIdeas.length === 1 ? "" : ""} for 30+ days
+                {tStale("title", { count: staleIdeas.length })}
               </div>
-              <div className="text-sm text-purple-200/70">
-                Promote one into a project, or let it go to make room for new
-                thinking.
-              </div>
+              <div className="text-sm text-purple-200/70">{tStale("subtitle")}</div>
             </div>
             <ChevronRight className="text-purple-300 shrink-0 mt-0.5" size={18} />
           </div>
@@ -643,7 +656,7 @@ export function TodayView({
           open={showActiveProjects}
           onToggle={() => setShowActiveProjects((s) => !s)}
           icon={<Zap size={18} className="text-emerald-400" />}
-          title="Active Projects"
+          title={t("active.title")}
           rightSlot={
             <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
               {projects.filter((p) => p.status === "active").length}
@@ -659,7 +672,7 @@ export function TodayView({
                   <ProjectCardCompact
                     key={p.id}
                     project={p}
-                    projectTasks={tasks.filter((t) => t.projectId === p.id)}
+                    projectTasks={tasks.filter((tt) => tt.projectId === p.id)}
                     variant="active"
                     categoryById={categoryById}
                     totalEffortHours={stats?.totalEffortHours}
@@ -682,7 +695,7 @@ export function TodayView({
           open={showLaunchedWithTasks}
           onToggle={() => setShowLaunchedWithTasks((s) => !s)}
           icon={<Rocket size={18} className="text-blue-400" />}
-          title="Launched · still has tasks"
+          title={t("launched.title")}
           rightSlot={
             <span className="text-xs font-normal text-blue-400/80 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
               {launchedWithOpenTasks.length}

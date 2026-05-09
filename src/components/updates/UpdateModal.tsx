@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 
@@ -17,6 +18,8 @@ export function UpdateModal({
   onSave: (note: string) => void | Promise<void>;
   onClose: () => void;
 }) {
+  const t = useTranslations("modals.update");
+  const tCommon = useTranslations("common");
   const [note, setNote] = useState(initialNote);
 
   const handleSubmit = () => {
@@ -26,15 +29,15 @@ export function UpdateModal({
 
   return (
     <Modal
-      title={`${isEdit ? "Edit log entry" : "Log update"} — ${projectName}`}
+      title={`${isEdit ? t("editTitle") : t("newTitle")} — ${projectName}`}
       onClose={onClose}
     >
       <div className="flex flex-col gap-3 flex-1 min-h-0">
-        <Field label="What happened?" grow>
+        <Field label={t("field")} grow>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g., Finished the landing page wireframe"
+            placeholder={t("placeholder")}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
             autoFocus
           />
@@ -44,13 +47,13 @@ export function UpdateModal({
             onClick={handleSubmit}
             className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
           >
-            {isEdit ? "Save" : "Log it"}
+            {isEdit ? tCommon("save") : t("logCta")}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm"
           >
-            Cancel
+            {tCommon("cancel")}
           </button>
         </div>
       </div>

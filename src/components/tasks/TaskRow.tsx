@@ -1,16 +1,17 @@
 "use client";
 
 import { CalendarPlus, CheckCircle2, Clock, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
 import { isDueToday, isOverdue } from "@/lib/date";
 
 /**
- * The bordered task row used inside the TasksView buckets. Shows checkbox + title +
- * project/due meta + delete button. When `onSchedule` is provided and the task has no
- * due date, an "Add date" inline action appears in the meta line.
+ * Bordered task row used inside the TasksView buckets. Shows checkbox + title +
+ * project/due meta + delete button. When `onSchedule` is provided and the task
+ * has no due date, an "Add date" inline action appears in the meta line.
  */
 export function TaskRow({
-  task: t,
+  task,
   project,
   onToggle,
   onDelete,
@@ -24,8 +25,10 @@ export function TaskRow({
   onSchedule?: (t: Task) => void;
   onEdit?: (t: Task) => void;
 }) {
-  const overdue = !t.done && isOverdue(t.dueDate);
-  const dueToday = !t.done && isDueToday(t.dueDate);
+  const t = useTranslations("taskRow");
+  const locale = useLocale();
+  const overdue = !task.done && isOverdue(task.dueDate);
+  const dueToday = !task.done && isDueToday(task.dueDate);
   return (
     <div
       className={`bg-zinc-900 border rounded-lg p-3 flex items-center gap-3 group ${
@@ -37,32 +40,32 @@ export function TaskRow({
       }`}
     >
       <button
-        onClick={() => onToggle(t)}
+        onClick={() => onToggle(task)}
         className={
-          t.done ? "text-emerald-400" : "text-zinc-600 hover:text-zinc-400"
+          task.done ? "text-emerald-400" : "text-zinc-600 hover:text-zinc-400"
         }
-        aria-label={t.done ? "Mark as not done" : "Mark as done"}
+        aria-label={task.done ? t("markNotDone") : t("markDone")}
       >
         <CheckCircle2 size={18} />
       </button>
       <div
         className={`flex-1 min-w-0 ${onEdit ? "cursor-pointer" : ""}`}
-        onClick={onEdit ? () => onEdit(t) : undefined}
+        onClick={onEdit ? () => onEdit(task) : undefined}
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={t.done ? "line-through text-zinc-500" : "text-zinc-100"}>
-            {t.title}
+          <span className={task.done ? "line-through text-zinc-500" : "text-zinc-100"}>
+            {task.title}
           </span>
-          {t.effortHours != null && (
+          {task.effortHours != null && (
             <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
               <Clock size={10} />
-              {t.effortHours}h
+              {task.effortHours}h
             </span>
           )}
         </div>
         <div className="text-xs text-zinc-500 flex flex-wrap items-center gap-x-2 mt-0.5">
           {project && <span>{project.name}</span>}
-          {t.dueDate ? (
+          {task.dueDate ? (
             <span
               className={
                 overdue
@@ -73,26 +76,26 @@ export function TaskRow({
               }
             >
               · {dueToday
-                ? "Due today"
-                : new Date(t.dueDate).toLocaleDateString()}
+                ? t("dueToday")
+                : new Date(task.dueDate).toLocaleDateString(locale)}
             </span>
           ) : onSchedule ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onSchedule(t);
+                onSchedule(task);
               }}
               className="inline-flex items-center gap-1 text-amber-300 hover:text-amber-200 hover:underline"
             >
-              <CalendarPlus size={12} /> Add date
+              <CalendarPlus size={12} /> {t("addDate")}
             </button>
           ) : null}
         </div>
       </div>
       <button
-        onClick={() => onDelete(t.id)}
+        onClick={() => onDelete(task.id)}
         className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-        aria-label="Delete task"
+        aria-label={t("deleteAria")}
       >
         <X size={16} />
       </button>

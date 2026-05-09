@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import type { Category, Priority, Project } from "@/lib/types";
@@ -36,6 +37,11 @@ export function ProjectModal({
   }) => Promise<Category | null>;
   onClose: () => void;
 }) {
+  const t = useTranslations("modals.project");
+  const tCommon = useTranslations("common");
+  const tStatus = useTranslations("status");
+  const tPriority = useTranslations("priority");
+
   const [name, setName] = useState(project?.name || "");
   const [description, setDescription] = useState(project?.description || "");
   const [why, setWhy] = useState(project?.why || "");
@@ -77,9 +83,9 @@ export function ProjectModal({
   };
 
   return (
-    <Modal title={project?.id ? "Edit Project" : "New Project"} onClose={onClose}>
+    <Modal title={project?.id ? t("editTitle") : t("newTitle")} onClose={onClose}>
       <div className="flex flex-col gap-3 flex-1 min-h-0">
-        <Field label="Name *">
+        <Field label={t("name")}>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -87,45 +93,45 @@ export function ProjectModal({
             autoFocus
           />
         </Field>
-        <Field label="Why does this matter?">
+        <Field label={t("why")}>
           <textarea
             value={why}
             onChange={(e) => setWhy(e.target.value)}
             rows={2}
-            placeholder="Your motivation — comes back when stalled."
+            placeholder={t("whyPlaceholder")}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
-        <Field label="Description" grow>
+        <Field label={t("description")} grow>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[60px]"
           />
         </Field>
-        <Field label="Next step">
+        <Field label={t("nextStep")}>
           <input
             value={nextStep}
             onChange={(e) => setNextStep(e.target.value)}
-            placeholder="The very next concrete action"
+            placeholder={t("nextStepPlaceholder")}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
           />
         </Field>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field label="Status">
+          <Field label={t("status")}>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
             >
-              <option value="idea">Idea</option>
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-              <option value="launched">Launched</option>
-              <option value="archived">Archived</option>
+              <option value="idea">{tStatus("idea")}</option>
+              <option value="active">{tStatus("active")}</option>
+              <option value="paused">{tStatus("paused")}</option>
+              <option value="launched">{tStatus("launched")}</option>
+              <option value="archived">{tStatus("archived")}</option>
             </select>
           </Field>
-          <Field label="Priority">
+          <Field label={t("priority")}>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as Priority)}
@@ -133,13 +139,13 @@ export function ProjectModal({
             >
               {PRIORITIES.map((p) => (
                 <option key={p.value} value={p.value}>
-                  {p.emoji} {p.label}
+                  {p.emoji} {tPriority(p.value)}
                 </option>
               ))}
             </select>
           </Field>
         </div>
-        <Field label="Category">
+        <Field label={t("category")}>
           {!creatingCategory ? (
             <div className="flex gap-2">
               <select
@@ -147,7 +153,7 @@ export function ProjectModal({
                 onChange={(e) => setCategoryId(e.target.value || null)}
                 className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
               >
-                <option value="">No category</option>
+                <option value="">{t("noCategory")}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -159,7 +165,7 @@ export function ProjectModal({
                 onClick={() => setCreatingCategory(true)}
                 className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs flex items-center gap-1"
               >
-                <Plus size={12} /> New
+                <Plus size={12} /> {tCommon("new")}
               </button>
             </div>
           ) : (
@@ -167,7 +173,7 @@ export function ProjectModal({
               <input
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
-                placeholder="Category name"
+                placeholder={t("newCategoryName")}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-2 py-1.5 text-sm"
                 autoFocus
               />
@@ -193,7 +199,7 @@ export function ProjectModal({
                   onClick={handleCreateCategory}
                   className="flex-1 px-2 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-md text-xs font-medium"
                 >
-                  Create
+                  {t("createCategory")}
                 </button>
                 <button
                   type="button"
@@ -203,7 +209,7 @@ export function ProjectModal({
                   }}
                   className="px-2 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-md text-xs"
                 >
-                  Cancel
+                  {tCommon("cancel")}
                 </button>
               </div>
             </div>
@@ -214,13 +220,13 @@ export function ProjectModal({
             onClick={handleSubmit}
             className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
           >
-            Save
+            {tCommon("save")}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm"
           >
-            Cancel
+            {tCommon("cancel")}
           </button>
         </div>
       </div>

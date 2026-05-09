@@ -9,6 +9,7 @@ import {
   Search,
   Target,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
 import { isDueToday, isOverdue } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
@@ -29,6 +30,8 @@ export function TasksView({
   onToggleTask: (task: Task) => void | Promise<void>;
   onDeleteTask: (id: string) => void | Promise<void>;
 }) {
+  const t = useTranslations("views.tasks");
+  const tCommon = useTranslations("common");
   const [taskSearch, setTaskSearch] = useState("");
   const [showTodayTasks, setShowTodayTasks] = useState(true);
   const [showUnscheduledTasks, setShowUnscheduledTasks] = useState(false);
@@ -38,7 +41,7 @@ export function TasksView({
   return (
     <div>
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">All Tasks</h2>
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search
@@ -49,7 +52,7 @@ export function TasksView({
               type="text"
               value={taskSearch}
               onChange={(e) => setTaskSearch(e.target.value)}
-              placeholder="Search tasks or project..."
+              placeholder={t("search")}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
             />
           </div>
@@ -57,13 +60,13 @@ export function TasksView({
             onClick={onNewTask}
             className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
           >
-            <Plus size={16} /> New
+            <Plus size={16} /> {tCommon("new")}
           </button>
         </div>
       </div>
       {tasks.length === 0 ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
-          No tasks yet.
+          {t("empty")}
         </div>
       ) : (() => {
         const q = taskSearch.trim().toLowerCase();
@@ -80,7 +83,7 @@ export function TasksView({
         if (filteredTasks.length === 0) {
           return (
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
-              No tasks match &ldquo;{taskSearch}&rdquo;
+              {t("noMatch", { query: taskSearch })}
             </div>
           );
         }
@@ -147,7 +150,7 @@ export function TasksView({
               open={todayOpen}
               onToggle={() => setShowTodayTasks((s) => !s)}
               icon={<Target size={14} className="text-orange-400" />}
-              title="Today & overdue"
+              title={t("todayBucket")}
               rightSlot={
                 <span className="text-xs text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
                   {todayBucket.length}
@@ -156,7 +159,7 @@ export function TasksView({
             >
               {todayBucket.length === 0 ? (
                 <div className="text-center text-sm text-zinc-500 py-4">
-                  All clear — nothing due today. ✨
+                  {t("todayEmpty")}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -171,14 +174,14 @@ export function TasksView({
                 open={unscheduledOpen}
                 onToggle={() => setShowUnscheduledTasks((s) => !s)}
                 icon={<CalendarPlus size={14} className="text-amber-400" />}
-                title="Pick a day"
+                title={t("pickDay")}
                 rightSlot={
                   <>
                     <span className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
                       {unscheduledBucket.length}
                     </span>
                     <span className="hidden sm:inline text-xs text-zinc-500 ml-1">
-                      — schedule them so they happen
+                      {t("pickDayHint")}
                     </span>
                   </>
                 }
@@ -195,7 +198,7 @@ export function TasksView({
                 open={upcomingOpen}
                 onToggle={() => setShowUpcomingTasks((s) => !s)}
                 icon={<Clock size={14} className="text-blue-400" />}
-                title="Upcoming"
+                title={t("upcoming")}
                 rightSlot={
                   <span className="text-xs text-blue-300 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
                     {upcomingBucket.length}
@@ -214,7 +217,7 @@ export function TasksView({
                 open={doneOpen}
                 onToggle={() => setShowDoneTasks((s) => !s)}
                 icon={<CheckCircle2 size={14} className="text-emerald-400" />}
-                title="Completed"
+                title={t("completed")}
                 rightSlot={
                   <span className="text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
                     {doneBucket.length}

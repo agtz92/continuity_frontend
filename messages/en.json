@@ -7,7 +7,11 @@
     "retry": "Retry",
     "back": "Back",
     "backToDashboard": "Back to dashboard",
-    "comingSoon": "Coming soon."
+    "comingSoon": "Coming soon.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "new": "New"
   },
   "dashboard": {
     "header": {
@@ -30,6 +34,23 @@
     "ideas": "Ideas",
     "log": "Log",
     "analytics": "Analytics"
+  },
+  "status": {
+    "idea": "Idea",
+    "active": "Active",
+    "stalled": "Stalled",
+    "paused": "Paused",
+    "launched": "Launched",
+    "archived": "Archived",
+    "all": "All",
+    "allStatuses": "All statuses"
+  },
+  "priority": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "label": "Priority: {label}"
   },
   "accountMenu": {
     "ariaLabel": "Account menu",
@@ -154,15 +175,7 @@
       "category": "Category",
       "noData": "No data.",
       "noCategories": "No categories.",
-      "rowMeta": "{projects} proj · {interactions} interactions",
-      "labels": {
-        "idea": "Ideas",
-        "active": "Active",
-        "stalled": "Stalled",
-        "paused": "Paused",
-        "launched": "Launched",
-        "archived": "Archived"
-      }
+      "rowMeta": "{projects} proj · {interactions} interactions"
     },
     "backlog": {
       "title": "Backlog",
@@ -203,6 +216,224 @@
       "90d": "90d",
       "1y": "1y",
       "all": "All"
+    }
+  },
+  "views": {
+    "today": {
+      "backupAlert": {
+        "lastBackupAgo": "Last backup {days, plural, one {# day} other {# days}} ago",
+        "noBackup": "No backup yet",
+        "explanation": "Export a JSON backup so you don't lose your data.",
+        "openTools": "Open backup tools"
+      },
+      "stalledAlert": {
+        "title": "{count, plural, one {# project needs} other {# projects need}} attention",
+        "subtitle": "No activity in 7+ days. Don't let them quietly die."
+      },
+      "focus": {
+        "title": "Today's Focus",
+        "tasksTooltip": "{dueToday} due today · {overdue} overdue",
+        "tasksLabel": "{count, plural, one {# task} other {# tasks}}",
+        "overdueExtra": "· {count} overdue",
+        "totalHoursTooltip": "Total estimated hours for tasks due today + overdue",
+        "totalHoursLabel": "{hours}h total",
+        "emptyTitle": "Nothing pressing today.",
+        "emptyHintFirst": "Add your first project to get started.",
+        "emptyHintNext": "Add tasks or next steps to your active projects.",
+        "labels": {
+          "overdue": "Overdue",
+          "dueToday": "Due today",
+          "stalled": "Stalled",
+          "nextStep": "Next step"
+        },
+        "daysLate": "{count}d late",
+        "daysIdleLine": "{name} — {count, plural, one {# day idle} other {# days idle}}",
+        "viewAll": "View all tasks",
+        "moreCount": "+{count} more"
+      },
+      "doneToday": {
+        "title": "Done today",
+        "tasksLabel": "{count, plural, one {# task} other {# tasks}}",
+        "logsLabel": "{count, plural, one {# log} other {# logs}}",
+        "showAll": "Show all",
+        "showOnlyTasks": "Show only tasks",
+        "showOnlyLogs": "Show only logs",
+        "hoursWorkedTooltip": "Total estimated hours worked on completed tasks today",
+        "hoursWorkedLabel": "{hours}h worked",
+        "hoursByProject": "Hours by project",
+        "task": "Task",
+        "log": "Log",
+        "edit": "Edit",
+        "editTaskAria": "Edit task",
+        "undo": "Undo",
+        "undoAria": "Undo completion"
+      },
+      "closeable": {
+        "title": "Close to the finish line",
+        "almostThereChip": "Almost there · {pct}%",
+        "tasksLeft": "{count, plural, one {# task left} other {# tasks left}} · {done}/{total} done",
+        "quickWin": "Quick win",
+        "tasksAway": "Only {count, plural, one {# task} other {# tasks}} away from finishing."
+      },
+      "sleeping": {
+        "title": "Sleeping projects",
+        "daysIdle": "{count}d idle",
+        "resume": "Resume"
+      },
+      "staleIdeas": {
+        "title": "{count, plural, one {# idea waiting} other {# ideas waiting}} for 30+ days",
+        "subtitle": "Promote one into a project, or let it go to make room for new thinking."
+      },
+      "active": {
+        "title": "Active Projects"
+      },
+      "launched": {
+        "title": "Launched · still has tasks"
+      }
+    },
+    "tasks": {
+      "title": "All Tasks",
+      "search": "Search tasks or project...",
+      "empty": "No tasks yet.",
+      "noMatch": "No tasks match \"{query}\"",
+      "todayBucket": "Today & overdue",
+      "todayEmpty": "All clear — nothing due today. ✨",
+      "pickDay": "Pick a day",
+      "pickDayHint": "— schedule them so they happen",
+      "upcoming": "Upcoming",
+      "completed": "Completed"
+    },
+    "projects": {
+      "title": "All Projects",
+      "search": "Search by name, description, category...",
+      "empty": "No projects yet.",
+      "addFirst": "Add your first project",
+      "noMatchSearch": "No projects match \"{query}\"",
+      "noMatchFilters": "No projects match these filters",
+      "filterStatusAria": "Filter by status",
+      "filterCategoryAria": "Filter by category",
+      "allCategories": "All categories",
+      "card": {
+        "overdueBadge": "{count} overdue",
+        "todayBadge": "{count} today",
+        "idleBadge": "{count}d idle",
+        "pendingHoursBadge": "{hours}h pending",
+        "pendingHoursTooltip": "Sum of effort hours of pending tasks",
+        "whyMatters": "Why this matters",
+        "description": "Description",
+        "tasks": "Tasks",
+        "addTask": "Add task",
+        "noTasks": "No tasks yet",
+        "recentActivity": "Recent activity",
+        "logUpdate": "Log update",
+        "noUpdates": "No updates logged",
+        "editTaskAria": "Edit task",
+        "deleteTaskAria": "Delete task"
+      }
+    },
+    "ideas": {
+      "title": "Ideas Parking Lot",
+      "search": "Search ideas...",
+      "capture": "Capture",
+      "subtitle": "Park new ideas here so you don't abandon current projects. Promote them when you're ready.",
+      "empty": "No ideas captured yet.",
+      "noMatch": "No ideas match \"{query}\"",
+      "promote": "Promote to project"
+    },
+    "log": {
+      "title": "Activity Log",
+      "search": "Search log entries or project...",
+      "empty": "No activity logged yet. Log updates from your projects to track momentum.",
+      "noMatch": "No log entries match \"{query}\"",
+      "deleteConfirm": "Delete this log entry?",
+      "editEntryAria": "Edit log entry",
+      "deleteEntryAria": "Delete log entry"
+    }
+  },
+  "taskRow": {
+    "markDone": "Mark as done",
+    "markNotDone": "Mark as not done",
+    "deleteAria": "Delete task",
+    "dueToday": "Due today",
+    "addDate": "Add date"
+  },
+  "projectCard": {
+    "comebackBadge": "Comeback · {days}d",
+    "comebackTooltip": "Activity resumed within the last 24h after being idle",
+    "openCount": "{count} open",
+    "overdueBadge": "{count} overdue",
+    "todayBadge": "{count} today",
+    "donePct": "{pct}% done",
+    "todayHoursTooltip": "Hours invested today",
+    "todayHoursLabel": "+{hours}h today",
+    "totalHoursTooltip": "Total hours invested across completed tasks",
+    "totalHoursLabel": "{hours}h total",
+    "daysAgo": "{days}d ago"
+  },
+  "modals": {
+    "project": {
+      "newTitle": "New Project",
+      "editTitle": "Edit Project",
+      "name": "Name *",
+      "why": "Why does this matter?",
+      "whyPlaceholder": "Your motivation — comes back when stalled.",
+      "description": "Description",
+      "nextStep": "Next step",
+      "nextStepPlaceholder": "The very next concrete action",
+      "status": "Status",
+      "priority": "Priority",
+      "category": "Category",
+      "noCategory": "No category",
+      "newCategoryName": "Category name",
+      "createCategory": "Create"
+    },
+    "task": {
+      "newTitle": "New Task",
+      "editTitle": "Edit Task",
+      "titleField": "Title *",
+      "project": "Project",
+      "noProject": "No project",
+      "dueDate": "Due date",
+      "effort": "Effort (hours)",
+      "effortPlaceholder": "e.g. 2.5",
+      "decreaseEffortAria": "Decrease effort",
+      "increaseEffortAria": "Increase effort"
+    },
+    "idea": {
+      "newTitle": "Capture Idea",
+      "editTitle": "Edit Idea",
+      "intro": "Park it here so it doesn't pull you off your current work.",
+      "title": "Idea *",
+      "why": "Why does this matter?",
+      "whyPlaceholder": "Optional motivation — useful when you promote it later.",
+      "notes": "Notes",
+      "captureCta": "Capture"
+    },
+    "update": {
+      "newTitle": "Log update",
+      "editTitle": "Edit log entry",
+      "field": "What happened?",
+      "placeholder": "e.g., Finished the landing page wireframe",
+      "logCta": "Log it"
+    },
+    "category": {
+      "title": "Manage categories",
+      "empty": "No categories yet. Create one from a project.",
+      "deleteAria": "Delete category",
+      "footnote": "Deleting a category leaves its projects intact (just uncategorized)."
+    },
+    "backup": {
+      "title": "Backup & Restore",
+      "intro": "Export a JSON file with all your projects, tasks, ideas, and activity log. Save it somewhere safe (Google Drive, Dropbox, iCloud).",
+      "currentData": "Current data",
+      "counts": "{projects} projects · {tasks} tasks · {ideas} ideas · {updates} updates",
+      "lastBackup": "Last backup: {when}",
+      "exportCta": "Export to JSON file",
+      "restoreHeader": "Restore from backup",
+      "restoreIntro": "Select a previously exported JSON file. Choose how to handle existing data:",
+      "importMerge": "Import & merge with current data",
+      "importReplace": "Import & replace all data",
+      "replaceConfirm": "This will DELETE all current data and replace it with the backup. Continue?"
     }
   }
 }

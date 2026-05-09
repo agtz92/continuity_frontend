@@ -9,37 +9,36 @@ import {
 } from "lucide-react";
 import type { ProjectStatus } from "@/lib/types";
 
+/**
+ * Status icons + Tailwind tones. Labels are NOT included here because they're
+ * locale-dependent — components should resolve them via
+ * `useTranslations("status")(status)`.
+ */
 export const statusConfig: Record<
   ProjectStatus,
-  { label: string; color: string; icon: React.ComponentType<{ size?: number }> }
+  { color: string; icon: React.ComponentType<{ size?: number }> }
 > = {
   idea: {
-    label: "Idea",
     color: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     icon: Lightbulb,
   },
   active: {
-    label: "Active",
     color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     icon: Zap,
   },
   stalled: {
-    label: "Stalled",
     color: "bg-amber-500/20 text-amber-300 border-amber-500/30",
     icon: AlertCircle,
   },
   paused: {
-    label: "Paused",
     color: "bg-slate-500/20 text-slate-300 border-slate-500/30",
     icon: Pause,
   },
   launched: {
-    label: "Launched",
     color: "bg-blue-500/20 text-blue-300 border-blue-500/30",
     icon: Rocket,
   },
   archived: {
-    label: "Archived",
     color: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
     icon: Archive,
   },

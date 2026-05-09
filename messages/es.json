@@ -7,7 +7,11 @@
     "retry": "Reintentar",
     "back": "Atrás",
     "backToDashboard": "Volver al dashboard",
-    "comingSoon": "Próximamente."
+    "comingSoon": "Próximamente.",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "new": "Nuevo"
   },
   "dashboard": {
     "header": {
@@ -30,6 +34,23 @@
     "ideas": "Ideas",
     "log": "Bitácora",
     "analytics": "Analíticas"
+  },
+  "status": {
+    "idea": "Idea",
+    "active": "Activo",
+    "stalled": "Estancado",
+    "paused": "Pausado",
+    "launched": "Lanzado",
+    "archived": "Archivado",
+    "all": "Todos",
+    "allStatuses": "Todos los estados"
+  },
+  "priority": {
+    "critical": "Crítica",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja",
+    "label": "Prioridad: {label}"
   },
   "accountMenu": {
     "ariaLabel": "Menú de cuenta",
@@ -154,15 +175,7 @@
       "category": "Categoría",
       "noData": "Sin datos.",
       "noCategories": "Sin categorías.",
-      "rowMeta": "{projects} proy · {interactions} interacciones",
-      "labels": {
-        "idea": "Ideas",
-        "active": "Activos",
-        "stalled": "Estancados",
-        "paused": "Pausados",
-        "launched": "Lanzados",
-        "archived": "Archivados"
-      }
+      "rowMeta": "{projects} proy · {interactions} interacciones"
     },
     "backlog": {
       "title": "Backlog",
@@ -203,6 +216,224 @@
       "90d": "90d",
       "1y": "1a",
       "all": "Todo"
+    }
+  },
+  "views": {
+    "today": {
+      "backupAlert": {
+        "lastBackupAgo": "Último respaldo hace {days, plural, one {# día} other {# días}}",
+        "noBackup": "Aún no hay respaldo",
+        "explanation": "Exporta un respaldo JSON para no perder tu información.",
+        "openTools": "Abrir herramientas de respaldo"
+      },
+      "stalledAlert": {
+        "title": "{count, plural, one {# proyecto necesita} other {# proyectos necesitan}} atención",
+        "subtitle": "Sin actividad en 7+ días. No dejes que mueran en silencio."
+      },
+      "focus": {
+        "title": "Enfoque de hoy",
+        "tasksTooltip": "{dueToday} para hoy · {overdue} vencidas",
+        "tasksLabel": "{count, plural, one {# tarea} other {# tareas}}",
+        "overdueExtra": "· {count} vencidas",
+        "totalHoursTooltip": "Horas estimadas totales para tareas de hoy + vencidas",
+        "totalHoursLabel": "{hours}h en total",
+        "emptyTitle": "Nada apremiante hoy.",
+        "emptyHintFirst": "Agrega tu primer proyecto para empezar.",
+        "emptyHintNext": "Agrega tareas o próximos pasos a tus proyectos activos.",
+        "labels": {
+          "overdue": "Vencida",
+          "dueToday": "Para hoy",
+          "stalled": "Estancado",
+          "nextStep": "Próximo paso"
+        },
+        "daysLate": "{count}d de retraso",
+        "daysIdleLine": "{name} — {count, plural, one {# día sin actividad} other {# días sin actividad}}",
+        "viewAll": "Ver todas las tareas",
+        "moreCount": "+{count} más"
+      },
+      "doneToday": {
+        "title": "Hecho hoy",
+        "tasksLabel": "{count, plural, one {# tarea} other {# tareas}}",
+        "logsLabel": "{count, plural, one {# entrada} other {# entradas}}",
+        "showAll": "Mostrar todo",
+        "showOnlyTasks": "Solo tareas",
+        "showOnlyLogs": "Solo bitácora",
+        "hoursWorkedTooltip": "Horas estimadas en tareas completadas hoy",
+        "hoursWorkedLabel": "{hours}h trabajadas",
+        "hoursByProject": "Horas por proyecto",
+        "task": "Tarea",
+        "log": "Bitácora",
+        "edit": "Editar",
+        "editTaskAria": "Editar tarea",
+        "undo": "Deshacer",
+        "undoAria": "Deshacer completado"
+      },
+      "closeable": {
+        "title": "Cerca de la meta",
+        "almostThereChip": "Casi listo · {pct}%",
+        "tasksLeft": "{count, plural, one {# tarea pendiente} other {# tareas pendientes}} · {done}/{total} hechas",
+        "quickWin": "Quick win",
+        "tasksAway": "Solo {count, plural, one {# tarea} other {# tareas}} para terminar."
+      },
+      "sleeping": {
+        "title": "Proyectos durmiendo",
+        "daysIdle": "{count}d sin actividad",
+        "resume": "Retomar"
+      },
+      "staleIdeas": {
+        "title": "{count, plural, one {# idea esperando} other {# ideas esperando}} hace 30+ días",
+        "subtitle": "Promueve una a proyecto, o suéltala para dar espacio a algo nuevo."
+      },
+      "active": {
+        "title": "Proyectos activos"
+      },
+      "launched": {
+        "title": "Lanzados · aún tienen tareas"
+      }
+    },
+    "tasks": {
+      "title": "Todas las tareas",
+      "search": "Buscar tareas o proyecto...",
+      "empty": "Aún no hay tareas.",
+      "noMatch": "No hay tareas que coincidan con \"{query}\"",
+      "todayBucket": "Hoy y vencidas",
+      "todayEmpty": "Todo en orden — nada para hoy. ✨",
+      "pickDay": "Asignar día",
+      "pickDayHint": "— prográmalas para que sucedan",
+      "upcoming": "Próximas",
+      "completed": "Completadas"
+    },
+    "projects": {
+      "title": "Todos los proyectos",
+      "search": "Buscar por nombre, descripción, categoría...",
+      "empty": "Aún no hay proyectos.",
+      "addFirst": "Agrega tu primer proyecto",
+      "noMatchSearch": "No hay proyectos que coincidan con \"{query}\"",
+      "noMatchFilters": "No hay proyectos que coincidan con estos filtros",
+      "filterStatusAria": "Filtrar por estado",
+      "filterCategoryAria": "Filtrar por categoría",
+      "allCategories": "Todas las categorías",
+      "card": {
+        "overdueBadge": "{count} vencidas",
+        "todayBadge": "{count} hoy",
+        "idleBadge": "{count}d sin actividad",
+        "pendingHoursBadge": "{hours}h pendientes",
+        "pendingHoursTooltip": "Suma de horas estimadas de tareas pendientes",
+        "whyMatters": "Por qué importa",
+        "description": "Descripción",
+        "tasks": "Tareas",
+        "addTask": "Agregar tarea",
+        "noTasks": "Aún no hay tareas",
+        "recentActivity": "Actividad reciente",
+        "logUpdate": "Registrar update",
+        "noUpdates": "Sin updates registrados",
+        "editTaskAria": "Editar tarea",
+        "deleteTaskAria": "Eliminar tarea"
+      }
+    },
+    "ideas": {
+      "title": "Parking lot de ideas",
+      "search": "Buscar ideas...",
+      "capture": "Capturar",
+      "subtitle": "Aparca aquí ideas nuevas para no abandonar lo que ya estás haciendo. Promuévelas cuando estés listo.",
+      "empty": "Aún no has capturado ideas.",
+      "noMatch": "No hay ideas que coincidan con \"{query}\"",
+      "promote": "Promover a proyecto"
+    },
+    "log": {
+      "title": "Bitácora",
+      "search": "Buscar entradas o proyecto...",
+      "empty": "Sin actividad registrada todavía. Registra updates en tus proyectos para llevar momentum.",
+      "noMatch": "No hay entradas que coincidan con \"{query}\"",
+      "deleteConfirm": "¿Eliminar esta entrada?",
+      "editEntryAria": "Editar entrada",
+      "deleteEntryAria": "Eliminar entrada"
+    }
+  },
+  "taskRow": {
+    "markDone": "Marcar como hecha",
+    "markNotDone": "Marcar como no hecha",
+    "deleteAria": "Eliminar tarea",
+    "dueToday": "Para hoy",
+    "addDate": "Agregar fecha"
+  },
+  "projectCard": {
+    "comebackBadge": "Comeback · {days}d",
+    "comebackTooltip": "Actividad retomada en las últimas 24h tras un periodo idle",
+    "openCount": "{count} abiertas",
+    "overdueBadge": "{count} vencidas",
+    "todayBadge": "{count} hoy",
+    "donePct": "{pct}% hecho",
+    "todayHoursTooltip": "Horas invertidas hoy",
+    "todayHoursLabel": "+{hours}h hoy",
+    "totalHoursTooltip": "Horas totales invertidas en tareas completadas",
+    "totalHoursLabel": "{hours}h en total",
+    "daysAgo": "hace {days}d"
+  },
+  "modals": {
+    "project": {
+      "newTitle": "Nuevo proyecto",
+      "editTitle": "Editar proyecto",
+      "name": "Nombre *",
+      "why": "¿Por qué importa?",
+      "whyPlaceholder": "Tu motivación — vuelve a salvarte cuando se estanque.",
+      "description": "Descripción",
+      "nextStep": "Próximo paso",
+      "nextStepPlaceholder": "La acción concreta que sigue",
+      "status": "Estado",
+      "priority": "Prioridad",
+      "category": "Categoría",
+      "noCategory": "Sin categoría",
+      "newCategoryName": "Nombre de categoría",
+      "createCategory": "Crear"
+    },
+    "task": {
+      "newTitle": "Nueva tarea",
+      "editTitle": "Editar tarea",
+      "titleField": "Título *",
+      "project": "Proyecto",
+      "noProject": "Sin proyecto",
+      "dueDate": "Fecha de vencimiento",
+      "effort": "Esfuerzo (horas)",
+      "effortPlaceholder": "ej. 2.5",
+      "decreaseEffortAria": "Reducir esfuerzo",
+      "increaseEffortAria": "Aumentar esfuerzo"
+    },
+    "idea": {
+      "newTitle": "Capturar idea",
+      "editTitle": "Editar idea",
+      "intro": "Aparcala aquí para no distraerte de lo que estás haciendo.",
+      "title": "Idea *",
+      "why": "¿Por qué importa?",
+      "whyPlaceholder": "Motivación opcional — útil cuando la promuevas más tarde.",
+      "notes": "Notas",
+      "captureCta": "Capturar"
+    },
+    "update": {
+      "newTitle": "Registrar update",
+      "editTitle": "Editar entrada",
+      "field": "¿Qué pasó?",
+      "placeholder": "ej., Terminé el wireframe de la landing",
+      "logCta": "Registrar"
+    },
+    "category": {
+      "title": "Administrar categorías",
+      "empty": "Aún no hay categorías. Crea una desde un proyecto.",
+      "deleteAria": "Eliminar categoría",
+      "footnote": "Al eliminar una categoría sus proyectos quedan sin categoría (no se borran)."
+    },
+    "backup": {
+      "title": "Respaldo y restauración",
+      "intro": "Exporta un archivo JSON con todos tus proyectos, tareas, ideas y bitácora. Guárdalo en un lugar seguro (Google Drive, Dropbox, iCloud).",
+      "currentData": "Información actual",
+      "counts": "{projects} proyectos · {tasks} tareas · {ideas} ideas · {updates} updates",
+      "lastBackup": "Último respaldo: {when}",
+      "exportCta": "Exportar a archivo JSON",
+      "restoreHeader": "Restaurar desde respaldo",
+      "restoreIntro": "Selecciona un JSON exportado previamente. Elige cómo manejar la información actual:",
+      "importMerge": "Importar y mezclar con la información actual",
+      "importReplace": "Importar y reemplazar todo",
+      "replaceConfirm": "Esto BORRARÁ toda la información actual y la reemplazará con el respaldo. ¿Continuar?"
     }
   }
 }

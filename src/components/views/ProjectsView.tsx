@@ -12,6 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import type {
   Category,
   Project,
@@ -64,6 +65,12 @@ export function ProjectsView({
   onEditTask: (t: Task) => void;
   onDeleteTask: (id: string) => void | Promise<void>;
 }) {
+  const t = useTranslations("views.projects");
+  const tCard = useTranslations("views.projects.card");
+  const tCommon = useTranslations("common");
+  const tStatus = useTranslations("status");
+  const tPriority = useTranslations("priority");
+  const locale = useLocale();
   const [projectSearch, setProjectSearch] = useState("");
   const [projectStatusFilter, setProjectStatusFilter] = useState<
     "all" | ProjectStatus
@@ -95,7 +102,7 @@ export function ProjectsView({
   return (
     <div>
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">All Projects</h2>
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search
@@ -106,7 +113,7 @@ export function ProjectsView({
               type="text"
               value={projectSearch}
               onChange={(e) => setProjectSearch(e.target.value)}
-              placeholder="Search by name, description, category..."
+              placeholder={t("search")}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
             />
           </div>
@@ -114,7 +121,7 @@ export function ProjectsView({
             onClick={onNewProject}
             className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
           >
-            <Plus size={16} /> New
+            <Plus size={16} /> {tCommon("new")}
           </button>
         </div>
       </div>
@@ -131,13 +138,12 @@ export function ProjectsView({
                 )
               }
               className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
-              aria-label="Filter by status"
+              aria-label={t("filterStatusAria")}
             >
               {STATUS_FILTER_ORDER.map((s) => {
                 const count = projectStatusCounts[s] ?? 0;
                 if (s !== "all" && count === 0) return null;
-                const label =
-                  s === "all" ? "All statuses" : statusConfig[s as ProjectStatus]?.label ?? s;
+                const label = s === "all" ? tStatus("allStatuses") : tStatus(s);
                 return (
                   <option key={s} value={s}>
                     {label} ({count})
@@ -152,9 +158,9 @@ export function ProjectsView({
                   setProjectCategoryFilter(e.target.value || null)
                 }
                 className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
-                aria-label="Filter by category"
+                aria-label={t("filterCategoryAria")}
               >
-                <option value="">All categories</option>
+                <option value="">{t("allCategories")}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -171,7 +177,7 @@ export function ProjectsView({
               const count = projectStatusCounts[s] ?? 0;
               if (s !== "all" && count === 0) return null;
               const cfg = s === "all" ? null : statusConfig[s as ProjectStatus];
-              const label = s === "all" ? "All" : cfg?.label ?? s;
+              const label = s === "all" ? tStatus("all") : tStatus(s);
               return (
                 <button
                   key={s}
@@ -208,7 +214,7 @@ export function ProjectsView({
                     : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
                 }`}
               >
-                All categories
+                {t("allCategories")}
               </button>
               {categories.map((c) => {
                 const isActive = projectCategoryFilter === c.id;
@@ -236,12 +242,12 @@ export function ProjectsView({
 
       {projects.length === 0 ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
-          <p className="text-zinc-400 mb-4">No projects yet.</p>
+          <p className="text-zinc-400 mb-4">{t("empty")}</p>
           <button
             onClick={onNewProject}
             className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
           >
-            Add your first project
+            {t("addFirst")}
           </button>
         </div>
       ) : (() => {
@@ -277,8 +283,8 @@ export function ProjectsView({
 
         if (filtered.length === 0) {
           const reason = q
-            ? `No projects match "${projectSearch}"`
-            : "No projects match these filters";
+            ? t("noMatchSearch", { query: projectSearch })
+            : t("noMatchFilters");
           return (
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
               {reason}
@@ -358,7 +364,9 @@ export function ProjectsView({
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span
                               className="text-sm"
-                              title={`Priority: ${priorityMeta(p.priority).label}`}
+                              title={tPriority("label", {
+                                label: tPriority(p.priority),
+                              })}
                             >
                               {priorityMeta(p.priority).emoji}
                             </span>
@@ -367,7 +375,7 @@ export function ProjectsView({
                               className={`text-xs px-2 py-0.5 rounded border flex items-center gap-1 ${statusConfig[p.status]?.color}`}
                             >
                               <StatusIcon size={10} />
-                              {statusConfig[p.status]?.label}
+                              {tStatus(p.status)}
                             </span>
                             {p.categoryId && categoryById[p.categoryId] && (
                               <span
@@ -382,26 +390,26 @@ export function ProjectsView({
                             )}
                             {overdueCount > 0 && (
                               <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40">
-                                {overdueCount} overdue
+                                {tCard("overdueBadge", { count: overdueCount })}
                               </span>
                             )}
                             {todayCount > 0 && (
                               <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40">
-                                {todayCount} today
+                                {tCard("todayBadge", { count: todayCount })}
                               </span>
                             )}
                             {isStalled && (
                               <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                                {days}d idle
+                                {tCard("idleBadge", { count: days })}
                               </span>
                             )}
                             {pendingEffort > 0 && (
                               <span
                                 className="text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 inline-flex items-center gap-1"
-                                title="Sum of effort hours of pending tasks"
+                                title={tCard("pendingHoursTooltip")}
                               >
                                 <Clock size={10} />
-                                {pendingEffort}h pending
+                                {tCard("pendingHoursBadge", { hours: pendingEffort })}
                               </span>
                             )}
                           </div>
@@ -422,7 +430,7 @@ export function ProjectsView({
                         {p.why && (
                           <div>
                             <div className="text-xs uppercase tracking-wider text-zinc-500 mb-1">
-                              Why this matters
+                              {tCard("whyMatters")}
                             </div>
                             <div className="text-sm text-zinc-300">{p.why}</div>
                           </div>
@@ -430,7 +438,7 @@ export function ProjectsView({
                         {p.description && (
                           <div>
                             <div className="text-xs uppercase tracking-wider text-zinc-500 mb-1">
-                              Description
+                              {tCard("description")}
                             </div>
                             <div className="text-sm text-zinc-300">
                               {p.description}
@@ -441,7 +449,7 @@ export function ProjectsView({
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <div className="text-xs uppercase tracking-wider text-zinc-500">
-                              Tasks
+                              {tCard("tasks")}
                             </div>
                             <button
                               onClick={(e) => {
@@ -450,27 +458,27 @@ export function ProjectsView({
                               }}
                               className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
                             >
-                              <Plus size={12} /> Add task
+                              <Plus size={12} /> {tCard("addTask")}
                             </button>
                           </div>
                           {projectTasks.length === 0 ? (
                             <div className="text-sm text-zinc-500 italic">
-                              No tasks yet
+                              {tCard("noTasks")}
                             </div>
                           ) : (
                             <div className="space-y-1">
-                              {projectTasks.map((t) => (
+                              {projectTasks.map((task) => (
                                 <div
-                                  key={t.id}
+                                  key={task.id}
                                   className="flex items-center gap-2 group py-1"
                                 >
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      onToggleTask(t);
+                                      onToggleTask(task);
                                     }}
                                     className={`shrink-0 ${
-                                      t.done
+                                      task.done
                                         ? "text-emerald-400"
                                         : "text-zinc-600 hover:text-zinc-400"
                                     }`}
@@ -479,41 +487,41 @@ export function ProjectsView({
                                   </button>
                                   <span
                                     className={`text-sm flex-1 ${
-                                      t.done
+                                      task.done
                                         ? "line-through text-zinc-500"
                                         : "text-zinc-200"
                                     }`}
                                   >
-                                    {t.title}
+                                    {task.title}
                                   </span>
-                                  {t.dueDate && (
+                                  {task.dueDate && (
                                     <span className="text-xs text-zinc-500">
-                                      {new Date(t.dueDate).toLocaleDateString()}
+                                      {new Date(task.dueDate).toLocaleDateString(locale)}
                                     </span>
                                   )}
-                                  {t.effortHours != null && (
+                                  {task.effortHours != null && (
                                     <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
                                       <Clock size={10} />
-                                      {t.effortHours}h
+                                      {task.effortHours}h
                                     </span>
                                   )}
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      onEditTask(t);
+                                      onEditTask(task);
                                     }}
                                     className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                                    aria-label="Edit task"
+                                    aria-label={tCard("editTaskAria")}
                                   >
                                     <Edit2 size={14} />
                                   </button>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      onDeleteTask(t.id);
+                                      onDeleteTask(task.id);
                                     }}
                                     className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                                    aria-label="Delete task"
+                                    aria-label={tCard("deleteTaskAria")}
                                   >
                                     <X size={14} />
                                   </button>
@@ -526,7 +534,7 @@ export function ProjectsView({
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <div className="text-xs uppercase tracking-wider text-zinc-500">
-                              Recent activity
+                              {tCard("recentActivity")}
                             </div>
                             <button
                               onClick={(e) => {
@@ -535,7 +543,7 @@ export function ProjectsView({
                               }}
                               className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
                             >
-                              <Plus size={12} /> Log update
+                              <Plus size={12} /> {tCard("logUpdate")}
                             </button>
                           </div>
                           <div className="space-y-1">
@@ -548,7 +556,7 @@ export function ProjectsView({
                                   className="text-sm text-zinc-400 flex flex-col sm:flex-row gap-0.5 sm:gap-2"
                                 >
                                   <span className="text-zinc-600 text-xs shrink-0 sm:w-20">
-                                    {new Date(u.date).toLocaleDateString("en-US", {
+                                    {new Date(u.date).toLocaleDateString(locale, {
                                       month: "short",
                                       day: "numeric",
                                     })}
@@ -559,7 +567,7 @@ export function ProjectsView({
                             {updates.filter((u) => u.projectId === p.id).length ===
                               0 && (
                               <div className="text-sm text-zinc-500 italic">
-                                No updates logged
+                                {tCard("noUpdates")}
                               </div>
                             )}
                           </div>
@@ -573,7 +581,7 @@ export function ProjectsView({
                             }}
                             className="px-3 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-md flex items-center gap-1"
                           >
-                            <Edit2 size={12} /> Edit
+                            <Edit2 size={12} /> {tCommon("edit")}
                           </button>
                           <button
                             onClick={(e) => {
@@ -582,7 +590,7 @@ export function ProjectsView({
                             }}
                             className="px-3 py-1.5 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-md flex items-center gap-1"
                           >
-                            <Trash2 size={12} /> Delete
+                            <Trash2 size={12} /> {tCommon("delete")}
                           </button>
                         </div>
                       </div>

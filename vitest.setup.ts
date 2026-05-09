@@ -30,13 +30,53 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Stub `next-intl` so translated components can render in tests without
-// a NextIntlClientProvider. `t("foo")` returns "foo" so assertions on
-// visible text stay simple.
+// a NextIntlClientProvider. We resolve actual English strings from
+// messages/en.json so existing tests can keep asserting visible text
+// (e.g. "Capture Idea") without coupling to translation keys.
+import enMessages from "./messages/en.json";
+
+const _resolve = (path: string): unknown => {
+  const parts = path.split(".");
+  let cur: unknown = enMessages;
+  for (const p of parts) {
+    if (cur && typeof cur === "object" && p in (cur as Record<string, unknown>)) {
+      cur = (cur as Record<string, unknown>)[p];
+    } else {
+      return undefined;
+    }
+  }
+  return cur;
+};
+
+const _interpolate = (
+  template: string,
+  params?: Record<string, unknown>
+): string => {
+  if (!params) return template;
+  // Handles both `{name}` and `{count, plural, one {x} other {y}}` ICU forms
+  return template
+    .replace(
+      /\{(\w+),\s*plural,\s*one\s*\{([^}]*)\}\s*other\s*\{([^}]*)\}\}/g,
+      (_, name, one, other) => {
+        const v = Number(params[name]);
+        const tpl = v === 1 ? one : other;
+        return tpl.replace(/#/g, String(v));
+      }
+    )
+    .replace(/\{(\w+)\}/g, (_, name) =>
+      params[name] != null ? String(params[name]) : ""
+    );
+};
+
 vi.mock("next-intl", () => ({
   useTranslations:
-    (_namespace?: string) =>
-    (key: string, _params?: Record<string, unknown>) =>
-      key,
+    (namespace?: string) =>
+    (key: string, params?: Record<string, unknown>) => {
+      const fullKey = namespace ? `${namespace}.${key}` : key;
+      const value = _resolve(fullKey);
+      if (typeof value === "string") return _interpolate(value, params);
+      return key;
+    },
   useLocale: () => "en",
 }));
 

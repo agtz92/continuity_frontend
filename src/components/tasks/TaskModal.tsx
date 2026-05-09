@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import type { Project, Task } from "@/lib/types";
@@ -24,6 +25,9 @@ export function TaskModal({
   }) => void | Promise<void>;
   onClose: () => void;
 }) {
+  const t = useTranslations("modals.task");
+  const tCommon = useTranslations("common");
+
   const isoToInputDate = (iso?: string | null) => {
     if (!iso) return "";
     const d = new Date(iso);
@@ -62,9 +66,9 @@ export function TaskModal({
   };
 
   return (
-    <Modal title={task?.id ? "Edit Task" : "New Task"} onClose={onClose}>
+    <Modal title={task?.id ? t("editTitle") : t("newTitle")} onClose={onClose}>
       <div className="space-y-3">
-        <Field label="Title *">
+        <Field label={t("titleField")}>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -72,13 +76,13 @@ export function TaskModal({
             autoFocus
           />
         </Field>
-        <Field label="Project">
+        <Field label={t("project")}>
           <select
             value={projectId || ""}
             onChange={(e) => setProjectId(e.target.value)}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">No project</option>
+            <option value="">{t("noProject")}</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -86,7 +90,7 @@ export function TaskModal({
             ))}
           </select>
         </Field>
-        <Field label="Due date">
+        <Field label={t("dueDate")}>
           <input
             type="date"
             value={dueDate}
@@ -94,7 +98,7 @@ export function TaskModal({
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
           />
         </Field>
-        <Field label="Effort (hours)">
+        <Field label={t("effort")}>
           <div className="flex items-stretch gap-2">
             <input
               type="number"
@@ -102,14 +106,14 @@ export function TaskModal({
               min="0"
               value={effortHours}
               onChange={(e) => setEffortHours(e.target.value)}
-              placeholder="e.g. 2.5"
+              placeholder={t("effortPlaceholder")}
               className="no-spinner flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
             />
             <button
               type="button"
               onClick={() => adjustEffort(-0.5)}
               className="px-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300"
-              aria-label="Decrease effort"
+              aria-label={t("decreaseEffortAria")}
             >
               <Minus size={14} />
             </button>
@@ -117,7 +121,7 @@ export function TaskModal({
               type="button"
               onClick={() => adjustEffort(0.5)}
               className="px-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300"
-              aria-label="Increase effort"
+              aria-label={t("increaseEffortAria")}
             >
               <Plus size={14} />
             </button>
@@ -128,13 +132,13 @@ export function TaskModal({
             onClick={handleSubmit}
             className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
           >
-            Save
+            {tCommon("save")}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm"
           >
-            Cancel
+            {tCommon("cancel")}
           </button>
         </div>
       </div>

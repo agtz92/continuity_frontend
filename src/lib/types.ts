@@ -166,11 +166,15 @@ export interface AnalyticsData {
   effort: EffortStats;
 }
 
-export const PRIORITIES: { value: Priority; emoji: string; label: string }[] = [
-  { value: "critical", emoji: "🔥", label: "Critical" },
-  { value: "high", emoji: "⚡", label: "High" },
-  { value: "medium", emoji: "🌱", label: "Medium" },
-  { value: "low", emoji: "🧊", label: "Low" },
+/**
+ * Priority emojis (locale-independent). Localized labels live in messages
+ * under `priority.{value}` and should be resolved via `useTranslations`.
+ */
+export const PRIORITIES: { value: Priority; emoji: string }[] = [
+  { value: "critical", emoji: "🔥" },
+  { value: "high", emoji: "⚡" },
+  { value: "medium", emoji: "🌱" },
+  { value: "low", emoji: "🧊" },
 ];
 
 export const priorityMeta = (p: Priority) =>
