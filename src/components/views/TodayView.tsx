@@ -275,9 +275,15 @@ export function TodayView({
                             ) : null;
                           })()}
                         {item.project && (
-                          <span className="text-xs text-zinc-500">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onJumpToProject(item.project!);
+                            }}
+                            className="text-xs text-zinc-500 hover:text-emerald-300 hover:underline"
+                          >
                             · {item.project.name}
-                          </span>
+                          </button>
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -444,9 +450,12 @@ export function TodayView({
                               {tDone("task")}
                             </span>
                             {proj && (
-                              <span className="text-xs text-zinc-500">
+                              <button
+                                onClick={() => onJumpToProject(proj)}
+                                className="text-xs text-zinc-500 hover:text-emerald-300 hover:underline"
+                              >
                                 · {proj.name}
-                              </span>
+                              </button>
                             )}
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
@@ -497,9 +506,12 @@ export function TodayView({
                             {tDone("log")}
                           </span>
                           {proj && (
-                            <span className="text-xs text-zinc-500">
+                            <button
+                              onClick={() => onJumpToProject(proj)}
+                              className="text-xs text-zinc-500 hover:text-emerald-300 hover:underline"
+                            >
                               · {proj.name}
-                            </span>
+                            </button>
                           )}
                         </div>
                         <div className="text-sm text-zinc-300 break-words">
