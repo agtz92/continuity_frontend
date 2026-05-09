@@ -21,6 +21,7 @@ export interface Project {
   description: string;
   why: string;
   nextStep: string;
+  notes: string;
   status: ProjectStatus;
   priority: Priority;
   categoryId: string | null;

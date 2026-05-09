@@ -27,6 +27,7 @@ export function ProjectModal({
     description: string;
     why: string;
     nextStep: string;
+    notes: string;
     status: string;
     priority: Priority;
     categoryId: string | null;
@@ -46,6 +47,7 @@ export function ProjectModal({
   const [description, setDescription] = useState(project?.description || "");
   const [why, setWhy] = useState(project?.why || "");
   const [nextStep, setNextStep] = useState(project?.nextStep || "");
+  const [notes, setNotes] = useState(project?.notes || "");
   const [status, setStatus] = useState<string>(project?.status || "idea");
   const [priority, setPriority] = useState<Priority>(project?.priority || "medium");
   const [categoryId, setCategoryId] = useState<string | null>(
@@ -76,6 +78,7 @@ export function ProjectModal({
       description,
       why,
       nextStep,
+      notes,
       status,
       priority,
       categoryId,
@@ -102,11 +105,13 @@ export function ProjectModal({
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
-        <Field label={t("description")} grow>
+        <Field label={t("description")}>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[60px]"
+            placeholder={t("descriptionPlaceholder")}
+            rows={3}
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
         <Field label={t("nextStep")}>
@@ -115,6 +120,14 @@ export function ProjectModal({
             onChange={(e) => setNextStep(e.target.value)}
             placeholder={t("nextStepPlaceholder")}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          />
+        </Field>
+        <Field label={t("notes")} grow>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={t("notesPlaceholder")}
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
           />
         </Field>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

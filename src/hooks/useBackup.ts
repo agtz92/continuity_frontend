@@ -115,6 +115,7 @@ export function useBackup({
               description: p.description || "",
               why: p.why || "",
               nextStep: p.nextStep || "",
+              notes: p.notes || "",
               status: p.status || "idea",
             },
           },

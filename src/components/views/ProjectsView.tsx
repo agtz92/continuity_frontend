@@ -425,42 +425,69 @@ export function ProjectsView({
                       </div>
                     </div>
 
-                    {isExpanded && (
-                      <div className="border-t border-zinc-800 p-4 space-y-4">
-                        {p.why && (
-                          <div>
-                            <div className="text-xs uppercase tracking-wider text-zinc-500 mb-1">
-                              {tCard("whyMatters")}
-                            </div>
-                            <div className="text-sm text-zinc-300">{p.why}</div>
+                    {isExpanded && (() => {
+                      const projectUpdates = updates.filter(
+                        (u) => u.projectId === p.id
+                      );
+                      return (
+                      <div className="border-t border-zinc-800 p-4 space-y-3">
+                        {/* Next step — always shown, never collapsible */}
+                        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-3 py-2">
+                          <div className="text-xs uppercase tracking-wider text-emerald-400 mb-1">
+                            {tCard("nextStep")}
                           </div>
-                        )}
-                        {p.description && (
-                          <div>
-                            <div className="text-xs uppercase tracking-wider text-zinc-500 mb-1">
-                              {tCard("description")}
+                          {p.nextStep ? (
+                            <div className="text-sm text-zinc-100">→ {p.nextStep}</div>
+                          ) : (
+                            <div className="text-sm text-zinc-500 italic">
+                              {tCard("nextStepEmpty")}
                             </div>
-                            <div className="text-sm text-zinc-300">
+                          )}
+                        </div>
+
+                        <ProjectSection title={tCard("whyMatters")}>
+                          {p.why ? (
+                            <div className="text-sm text-zinc-300 whitespace-pre-wrap">
+                              {p.why}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-zinc-500 italic">
+                              {tCard("whyEmpty")}
+                            </div>
+                          )}
+                        </ProjectSection>
+
+                        <ProjectSection title={tCard("description")}>
+                          {p.description ? (
+                            <div className="text-sm text-zinc-300 whitespace-pre-wrap">
                               {p.description}
                             </div>
-                          </div>
-                        )}
-
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="text-xs uppercase tracking-wider text-zinc-500">
-                              {tCard("tasks")}
+                          ) : (
+                            <div className="text-sm text-zinc-500 italic">
+                              {tCard("descriptionEmpty")}
                             </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onAddTaskToProject(p.id);
-                              }}
-                              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                            >
-                              <Plus size={12} /> {tCard("addTask")}
-                            </button>
-                          </div>
+                          )}
+                        </ProjectSection>
+
+                        <ProjectSection
+                          title={tCard("tasks")}
+                          rightSlot={
+                            total > 0 ? (
+                              <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                                {done}/{total}
+                              </span>
+                            ) : null
+                          }
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onAddTaskToProject(p.id);
+                            }}
+                            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mb-2"
+                          >
+                            <Plus size={12} /> {tCard("addTask")}
+                          </button>
                           {projectTasks.length === 0 ? (
                             <div className="text-sm text-zinc-500 italic">
                               {tCard("noTasks")}
@@ -529,49 +556,61 @@ export function ProjectsView({
                               ))}
                             </div>
                           )}
-                        </div>
+                        </ProjectSection>
 
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="text-xs uppercase tracking-wider text-zinc-500">
-                              {tCard("recentActivity")}
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onLogUpdate(p);
-                              }}
-                              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                            >
-                              <Plus size={12} /> {tCard("logUpdate")}
-                            </button>
-                          </div>
+                        <ProjectSection
+                          title={tCard("recentActivity")}
+                          rightSlot={
+                            projectUpdates.length > 0 ? (
+                              <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                                {projectUpdates.length}
+                              </span>
+                            ) : null
+                          }
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onLogUpdate(p);
+                            }}
+                            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mb-2"
+                          >
+                            <Plus size={12} /> {tCard("logUpdate")}
+                          </button>
                           <div className="space-y-1">
-                            {updates
-                              .filter((u) => u.projectId === p.id)
-                              .slice(0, 3)
-                              .map((u) => (
-                                <div
-                                  key={u.id}
-                                  className="text-sm text-zinc-400 flex flex-col sm:flex-row gap-0.5 sm:gap-2"
-                                >
-                                  <span className="text-zinc-600 text-xs shrink-0 sm:w-20">
-                                    {new Date(u.date).toLocaleDateString(locale, {
-                                      month: "short",
-                                      day: "numeric",
-                                    })}
-                                  </span>
-                                  <span className="break-words min-w-0">{u.note}</span>
-                                </div>
-                              ))}
-                            {updates.filter((u) => u.projectId === p.id).length ===
-                              0 && (
+                            {projectUpdates.slice(0, 3).map((u) => (
+                              <div
+                                key={u.id}
+                                className="text-sm text-zinc-400 flex flex-col sm:flex-row gap-0.5 sm:gap-2"
+                              >
+                                <span className="text-zinc-600 text-xs shrink-0 sm:w-20">
+                                  {new Date(u.date).toLocaleDateString(locale, {
+                                    month: "short",
+                                    day: "numeric",
+                                  })}
+                                </span>
+                                <span className="break-words min-w-0">{u.note}</span>
+                              </div>
+                            ))}
+                            {projectUpdates.length === 0 && (
                               <div className="text-sm text-zinc-500 italic">
                                 {tCard("noUpdates")}
                               </div>
                             )}
                           </div>
-                        </div>
+                        </ProjectSection>
+
+                        <ProjectSection title={tCard("notes")}>
+                          {p.notes ? (
+                            <div className="text-sm text-zinc-300 whitespace-pre-wrap bg-zinc-950/50 border border-zinc-800 rounded-md p-3 max-h-64 overflow-y-auto">
+                              {p.notes}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-zinc-500 italic">
+                              {tCard("notesEmpty")}
+                            </div>
+                          )}
+                        </ProjectSection>
 
                         <div className="flex gap-2 pt-2">
                           <button
@@ -594,13 +633,54 @@ export function ProjectsView({
                           </button>
                         </div>
                       </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 );
               })}
           </div>
         );
       })()}
+    </div>
+  );
+}
+
+/**
+ * Collapsible section inside an expanded project card. Default open; user
+ * collapses what they don't care about right now. State is local — resets
+ * when the card itself is collapsed.
+ */
+function ProjectSection({
+  title,
+  rightSlot,
+  children,
+}: {
+  title: string;
+  rightSlot?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+        className="w-full flex items-center justify-between gap-2 mb-1.5 group"
+        aria-expanded={open}
+      >
+        <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-500 group-hover:text-zinc-300 transition-colors">
+          <ChevronRight
+            size={12}
+            className={`transition-transform ${open ? "rotate-90" : ""}`}
+          />
+          {title}
+        </span>
+        {rightSlot}
+      </button>
+      {open && <div className="pl-[18px]">{children}</div>}
     </div>
   );
 }

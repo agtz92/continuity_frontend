@@ -9,6 +9,7 @@ export const DASHBOARD_QUERY = gql`
         description
         why
         nextStep
+        notes
         status
         priority
         categoryId
@@ -57,6 +58,7 @@ export const CREATE_PROJECT = gql`
       description
       why
       nextStep
+      notes
       status
       priority
       categoryId
@@ -74,6 +76,7 @@ export const UPDATE_PROJECT = gql`
       description
       why
       nextStep
+      notes
       status
       priority
       categoryId
