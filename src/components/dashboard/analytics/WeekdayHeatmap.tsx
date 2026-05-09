@@ -4,7 +4,7 @@ import { CalendarDays } from "lucide-react";
 import type { WeekdayBucket } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
-const LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function WeekdayHeatmap({ heatmap }: { heatmap: WeekdayBucket[] }) {
   const max = Math.max(1, ...heatmap.map((b) => b.count));
@@ -12,7 +12,7 @@ export function WeekdayHeatmap({ heatmap }: { heatmap: WeekdayBucket[] }) {
 
   return (
     <PanelCard
-      title="Por día de la semana"
+      title="By weekday"
       icon={<CalendarDays size={16} className="text-purple-400" />}
     >
       <div className="grid grid-cols-7 gap-2">

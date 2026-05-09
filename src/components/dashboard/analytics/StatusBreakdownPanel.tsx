@@ -7,11 +7,11 @@ import { PanelCard } from "./PanelCard";
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
   idea: "Ideas",
-  active: "Activos",
-  stalled: "Estancados",
-  paused: "Pausados",
-  launched: "Lanzados",
-  archived: "Archivados",
+  active: "Active",
+  stalled: "Stalled",
+  paused: "Paused",
+  launched: "Launched",
+  archived: "Archived",
 };
 
 const STATUS_COLOR: Record<ProjectStatus, string> = {
@@ -66,17 +66,17 @@ export function StatusBreakdownPanel({
 
   return (
     <PanelCard
-      title="Por estado y categoría"
+      title="By status and category"
       icon={<PieIcon size={16} className="text-cyan-400" />}
-      subtitle={`${totalProjects} proyectos`}
+      subtitle={`${totalProjects} projects`}
     >
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="space-y-2.5">
           <div className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Estado
+            Status
           </div>
           {statusCounts.length === 0 ? (
-            <div className="text-sm text-zinc-500">Sin datos.</div>
+            <div className="text-sm text-zinc-500">No data.</div>
           ) : (
             (Object.keys(STATUS_LABELS) as ProjectStatus[]).map((s) => {
               const row = statusCounts.find((x) => x.status === s);
@@ -95,10 +95,10 @@ export function StatusBreakdownPanel({
         </div>
         <div className="space-y-2.5">
           <div className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Categoría
+            Category
           </div>
           {categoryBreakdown.length === 0 ? (
-            <div className="text-sm text-zinc-500">Sin categorías.</div>
+            <div className="text-sm text-zinc-500">No categories.</div>
           ) : (
             categoryBreakdown.map((c) => (
               <div
@@ -116,9 +116,9 @@ export function StatusBreakdownPanel({
                   </span>
                 </div>
                 <div className="text-xs text-zinc-400 tabular-nums shrink-0">
-                  {c.projectCount} proy ·{" "}
+                  {c.projectCount} proj ·{" "}
                   <span className="text-zinc-300">{c.interactions}</span>{" "}
-                  interacciones
+                  interactions
                 </div>
               </div>
             ))

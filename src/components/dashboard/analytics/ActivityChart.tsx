@@ -17,12 +17,12 @@ export function ActivityChart({ series }: { series: ActivityPoint[] }) {
     day: p.day,
     label: fmtDay(p.day),
     Updates: p.updates,
-    Tareas: p.completedTasks,
+    Tasks: p.completedTasks,
   }));
 
   return (
     <PanelCard
-      title="Actividad por día"
+      title="Daily activity"
       icon={<LineIcon size={16} className="text-emerald-400" />}
     >
       <div className="h-64 -mx-2">
@@ -63,7 +63,7 @@ export function ActivityChart({ series }: { series: ActivityPoint[] }) {
             />
             <Line
               type="monotone"
-              dataKey="Tareas"
+              dataKey="Tasks"
               stroke="#60a5fa"
               strokeWidth={2}
               dot={false}

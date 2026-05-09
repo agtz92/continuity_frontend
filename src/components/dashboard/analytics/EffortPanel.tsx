@@ -9,11 +9,11 @@ export function EffortPanel({ effort }: { effort: EffortStats }) {
   const subtitle =
     coverage >= 100
       ? undefined
-      : `Cobertura ${coverage}% (solo se cuentan tareas con horas registradas)`;
+      : `${coverage}% coverage (only tasks with logged hours are counted)`;
 
   return (
     <PanelCard
-      title="Esfuerzo"
+      title="Effort"
       icon={<Hourglass size={16} className="text-orange-400" />}
       subtitle={subtitle}
     >
@@ -21,11 +21,11 @@ export function EffortPanel({ effort }: { effort: EffortStats }) {
         <div className="text-3xl font-semibold text-zinc-100 tabular-nums">
           {effort.effortHoursTotal}
         </div>
-        <div className="text-sm text-zinc-500">horas en el rango</div>
+        <div className="text-sm text-zinc-500">hours in range</div>
       </div>
       {effort.effortHoursByProject.length === 0 ? (
         <div className="text-sm text-zinc-500">
-          Sin tareas con horas registradas en este rango.
+          No tasks with logged hours in this range.
         </div>
       ) : (
         <ul className="space-y-1.5">

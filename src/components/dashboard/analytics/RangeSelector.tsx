@@ -6,8 +6,8 @@ const RANGES: { value: AnalyticsRange; label: string }[] = [
   { value: "LAST_7_DAYS", label: "7d" },
   { value: "LAST_30_DAYS", label: "30d" },
   { value: "LAST_90_DAYS", label: "90d" },
-  { value: "LAST_365_DAYS", label: "1a" },
-  { value: "ALL_TIME", label: "Todo" },
+  { value: "LAST_365_DAYS", label: "1y" },
+  { value: "ALL_TIME", label: "All" },
 ];
 
 export function RangeSelector({

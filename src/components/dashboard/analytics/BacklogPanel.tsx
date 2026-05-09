@@ -7,13 +7,13 @@ import { PanelCard } from "./PanelCard";
 export function BacklogPanel({ backlog }: { backlog: BacklogHealth }) {
   const tiles = [
     {
-      label: "Vencidas",
+      label: "Overdue",
       value: backlog.overdueTasks,
       icon: <AlertTriangle size={14} className="text-rose-400" />,
       tone: "text-rose-300",
     },
     {
-      label: "Próximas (7d)",
+      label: "Due soon (7d)",
       value: backlog.dueSoonTasks,
       icon: <Clock size={14} className="text-amber-400" />,
       tone: "text-amber-300",
@@ -23,14 +23,14 @@ export function BacklogPanel({ backlog }: { backlog: BacklogHealth }) {
       value: backlog.quickWins,
       icon: <Target size={14} className="text-emerald-400" />,
       tone: "text-emerald-300",
-      hint: "Proyectos con ≤2 tareas abiertas",
+      hint: "Projects with ≤2 open tasks",
     },
     {
-      label: "Casi listos",
+      label: "Almost there",
       value: backlog.almostThere,
       icon: <Trophy size={14} className="text-blue-400" />,
       tone: "text-blue-300",
-      hint: "≥80% completados",
+      hint: "≥80% complete",
     },
   ];
 
@@ -38,7 +38,7 @@ export function BacklogPanel({ backlog }: { backlog: BacklogHealth }) {
     <PanelCard
       title="Backlog"
       icon={<AlertTriangle size={16} className="text-amber-400" />}
-      subtitle={`${backlog.openTasks} tareas abiertas en total`}
+      subtitle={`${backlog.openTasks} open tasks total`}
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {tiles.map((t) => (

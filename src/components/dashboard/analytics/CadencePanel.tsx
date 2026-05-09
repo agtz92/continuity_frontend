@@ -6,15 +6,15 @@ import { PanelCard } from "./PanelCard";
 
 export function CadencePanel({ cadence }: { cadence: CadenceStats }) {
   const tiles = [
-    { label: "Racha actual", value: cadence.currentStreak, suffix: "d" },
-    { label: "Mejor racha", value: cadence.longestStreak, suffix: "d" },
-    { label: "Días activos", value: cadence.activeDaysInRange, suffix: "" },
-    { label: "Eventos", value: cadence.totalActivityEvents, suffix: "" },
+    { label: "Current streak", value: cadence.currentStreak, suffix: "d" },
+    { label: "Best streak", value: cadence.longestStreak, suffix: "d" },
+    { label: "Active days", value: cadence.activeDaysInRange, suffix: "" },
+    { label: "Events", value: cadence.totalActivityEvents, suffix: "" },
   ];
 
   return (
     <PanelCard
-      title="Cadencia"
+      title="Cadence"
       icon={<Flame size={16} className="text-amber-400" />}
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

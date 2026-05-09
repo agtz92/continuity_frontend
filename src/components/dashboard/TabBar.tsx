@@ -23,7 +23,7 @@ const TABS = [
   { id: "tasks", label: "Tasks", icon: CheckCircle2 },
   { id: "ideas", label: "Ideas", icon: Lightbulb },
   { id: "log", label: "Log", icon: TrendingUp },
-  { id: "analytics", label: "Analíticas", icon: BarChart3 },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
 ] as const;
 
 export function TabBar({

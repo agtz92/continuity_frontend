@@ -20,13 +20,13 @@ export function SleepingStalePanel({
   return (
     <div className="grid lg:grid-cols-2 gap-4">
       <PanelCard
-        title="Durmiendo"
+        title="Sleeping"
         icon={<MoonStar size={16} className="text-indigo-400" />}
-        subtitle="Proyectos sin actividad reciente (≥7 días)"
+        subtitle="Projects with no recent activity (≥7 days)"
       >
         {sleeping.length === 0 ? (
           <div className="text-sm text-zinc-500 py-4">
-            Nada durmiendo. Buen ritmo.
+            Nothing sleeping. Good pace.
           </div>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
@@ -53,13 +53,13 @@ export function SleepingStalePanel({
       </PanelCard>
 
       <PanelCard
-        title="Ideas estancadas"
+        title="Stale ideas"
         icon={<Lightbulb size={16} className="text-yellow-400" />}
-        subtitle="Sin promover en ≥30 días"
+        subtitle="Not promoted in ≥30 days"
       >
         {stale.length === 0 ? (
           <div className="text-sm text-zinc-500 py-4">
-            Sin ideas estancadas.
+            No stale ideas.
           </div>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">

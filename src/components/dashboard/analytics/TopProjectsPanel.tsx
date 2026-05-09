@@ -31,13 +31,13 @@ function Delta({ value }: { value: number }) {
 export function TopProjectsPanel({ rows }: { rows: ProjectInteractionRow[] }) {
   return (
     <PanelCard
-      title="Más activos"
+      title="Most active"
       icon={<TrendingUp size={16} className="text-blue-400" />}
-      subtitle="Top 5 por interacciones (Updates + tareas completadas)"
+      subtitle="Top 5 by interactions (updates + completed tasks)"
     >
       {rows.length === 0 ? (
         <div className="text-sm text-zinc-500 py-4">
-          Sin actividad en este rango.
+          No activity in this range.
         </div>
       ) : (
         <ul className="space-y-2">

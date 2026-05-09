@@ -25,9 +25,9 @@ export function AnalyticsView() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <BarChart3 size={18} className="text-emerald-400" />
-          <h2 className="text-lg font-semibold text-zinc-100">Analíticas</h2>
+          <h2 className="text-lg font-semibold text-zinc-100">Analytics</h2>
           {loading && !initialLoading ? (
-            <span className="text-xs text-zinc-500">actualizando…</span>
+            <span className="text-xs text-zinc-500">refreshing…</span>
           ) : null}
         </div>
         <RangeSelector range={range} onChange={setRange} />
@@ -38,14 +38,14 @@ export function AnalyticsView() {
           <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={18} />
           <div className="flex-1">
             <div className="text-sm font-semibold text-amber-300">
-              No se pudieron cargar las analíticas
+              Couldn&apos;t load analytics
             </div>
             <div className="text-xs text-zinc-400 mt-1">{error.message}</div>
             <button
               onClick={() => refetch()}
               className="mt-3 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-md font-medium text-xs"
             >
-              Reintentar
+              Retry
             </button>
           </div>
         </div>
@@ -53,7 +53,7 @@ export function AnalyticsView() {
 
       {initialLoading || !analytics ? (
         <div className="text-sm text-zinc-500 py-12 text-center">
-          Calculando analíticas…
+          Calculating analytics…
         </div>
       ) : (
         <div className="space-y-4">
