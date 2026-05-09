@@ -60,6 +60,7 @@ export function StatusBreakdownPanel({
   categoryBreakdown: CategoryRow[];
 }) {
   const t = useTranslations("analytics.statusBreakdown");
+  const tStatus = useTranslations("status");
   const totalProjects = statusCounts.reduce((acc, s) => acc + s.count, 0);
 
   return (
@@ -82,7 +83,7 @@ export function StatusBreakdownPanel({
               return (
                 <Bar
                   key={s}
-                  label={t(`labels.${s}`)}
+                  label={tStatus(s)}
                   count={row.count}
                   total={totalProjects}
                   colorClass={STATUS_COLOR[s]}
