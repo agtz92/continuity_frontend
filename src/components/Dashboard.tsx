@@ -22,6 +22,7 @@ import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
+import { AnalyticsView } from "./dashboard/AnalyticsView";
 import { LogView } from "./views/LogView";
 import { IdeasView } from "./views/IdeasView";
 import { TasksView } from "./views/TasksView";
@@ -285,6 +286,9 @@ export default function Dashboard() {
             onDeleteUpdate={deleteUpdate}
           />
         )}
+
+        {/* ANALYTICS */}
+        {view === "analytics" && <AnalyticsView />}
       </div>
 
       {showProjectModal && (

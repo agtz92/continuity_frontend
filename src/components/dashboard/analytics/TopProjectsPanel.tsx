@@ -1,0 +1,65 @@
+"use client";
+
+import { TrendingUp, ArrowUp, ArrowDown, Minus } from "lucide-react";
+import type { ProjectInteractionRow } from "@/lib/types";
+import { PanelCard } from "./PanelCard";
+
+function Delta({ value }: { value: number }) {
+  if (value === 0) {
+    return (
+      <span className="text-zinc-500 text-xs flex items-center gap-0.5">
+        <Minus size={12} />
+        0
+      </span>
+    );
+  }
+  if (value > 0) {
+    return (
+      <span className="text-emerald-400 text-xs flex items-center gap-0.5">
+        <ArrowUp size={12} />+{value}
+      </span>
+    );
+  }
+  return (
+    <span className="text-rose-400 text-xs flex items-center gap-0.5">
+      <ArrowDown size={12} />
+      {value}
+    </span>
+  );
+}
+
+export function TopProjectsPanel({ rows }: { rows: ProjectInteractionRow[] }) {
+  return (
+    <PanelCard
+      title="Más activos"
+      icon={<TrendingUp size={16} className="text-blue-400" />}
+      subtitle="Top 5 por interacciones (Updates + tareas completadas)"
+    >
+      {rows.length === 0 ? (
+        <div className="text-sm text-zinc-500 py-4">
+          Sin actividad en este rango.
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {rows.map((r) => (
+            <li
+              key={r.projectId}
+              className="flex items-center justify-between gap-3 bg-zinc-950/50 border border-zinc-800 rounded-lg px-3 py-2"
+            >
+              <div className="min-w-0">
+                <div className="text-sm text-zinc-100 truncate">{r.name}</div>
+                <div className="text-[11px] text-zinc-500">{r.status}</div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <Delta value={r.deltaVsPrev} />
+                <div className="text-base font-semibold text-zinc-100 tabular-nums">
+                  {r.interactions}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </PanelCard>
+  );
+}

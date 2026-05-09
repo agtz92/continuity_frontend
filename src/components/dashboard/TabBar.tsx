@@ -2,13 +2,20 @@
 
 import {
   Activity,
+  BarChart3,
   CheckCircle2,
   Lightbulb,
   Target,
   TrendingUp,
 } from "lucide-react";
 
-export type DashboardView = "today" | "projects" | "tasks" | "ideas" | "log";
+export type DashboardView =
+  | "today"
+  | "projects"
+  | "tasks"
+  | "ideas"
+  | "log"
+  | "analytics";
 
 const TABS = [
   { id: "today", label: "Today", icon: Target },
@@ -16,6 +23,7 @@ const TABS = [
   { id: "tasks", label: "Tasks", icon: CheckCircle2 },
   { id: "ideas", label: "Ideas", icon: Lightbulb },
   { id: "log", label: "Log", icon: TrendingUp },
+  { id: "analytics", label: "Analíticas", icon: BarChart3 },
 ] as const;
 
 export function TabBar({

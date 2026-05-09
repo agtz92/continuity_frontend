@@ -243,3 +243,79 @@ export const MARK_BACKUP = gql`
     markBackup
   }
 `;
+
+export const ANALYTICS_QUERY = gql`
+  query Analytics($range: AnalyticsRange!) {
+    analytics(range: $range) {
+      range
+      rangeStart
+      rangeEnd
+      cadence {
+        currentStreak
+        longestStreak
+        activeDaysInRange
+        totalActivityEvents
+      }
+      activitySeries {
+        day
+        updates
+        completedTasks
+        totalEvents
+      }
+      weekdayHeatmap {
+        weekday
+        count
+      }
+      topProjects {
+        projectId
+        name
+        status
+        interactions
+        deltaVsPrev
+      }
+      statusCounts {
+        status
+        count
+      }
+      categoryBreakdown {
+        categoryId
+        name
+        color
+        projectCount
+        interactions
+      }
+      backlog {
+        overdueTasks
+        dueSoonTasks
+        openTasks
+        quickWins
+        almostThere
+      }
+      sleepingProjects {
+        projectId
+        name
+        daysIdle
+        bucket
+      }
+      staleIdeas {
+        ideaId
+        title
+        daysOld
+      }
+      ideaFunnel {
+        ideasCreated
+        ideasPromoted
+        promotionRate
+      }
+      effort {
+        effortHoursTotal
+        tasksWithEffortPct
+        effortHoursByProject {
+          projectId
+          name
+          hours
+        }
+      }
+    }
+  }
+`;

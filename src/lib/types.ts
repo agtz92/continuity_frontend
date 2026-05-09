@@ -63,6 +63,109 @@ export interface DashboardData {
   lastBackup: string | null;
 }
 
+export type AnalyticsRange =
+  | "LAST_7_DAYS"
+  | "LAST_30_DAYS"
+  | "LAST_90_DAYS"
+  | "LAST_365_DAYS"
+  | "ALL_TIME";
+
+export interface CadenceStats {
+  currentStreak: number;
+  longestStreak: number;
+  activeDaysInRange: number;
+  totalActivityEvents: number;
+}
+
+export interface ActivityPoint {
+  day: string;
+  updates: number;
+  completedTasks: number;
+  totalEvents: number;
+}
+
+export interface WeekdayBucket {
+  weekday: number; // ISO 1=Mon..7=Sun
+  count: number;
+}
+
+export interface ProjectInteractionRow {
+  projectId: string;
+  name: string;
+  status: ProjectStatus;
+  interactions: number;
+  deltaVsPrev: number;
+}
+
+export interface StatusCount {
+  status: ProjectStatus;
+  count: number;
+}
+
+export interface CategoryRow {
+  categoryId: string | null;
+  name: string;
+  color: string;
+  projectCount: number;
+  interactions: number;
+}
+
+export interface BacklogHealth {
+  overdueTasks: number;
+  dueSoonTasks: number;
+  openTasks: number;
+  quickWins: number;
+  almostThere: number;
+}
+
+export interface SleepingProjectRow {
+  projectId: string;
+  name: string;
+  daysIdle: number;
+  bucket: "7-14" | "15-30" | "30+";
+}
+
+export interface StaleIdeaRow {
+  ideaId: string;
+  title: string;
+  daysOld: number;
+}
+
+export interface IdeaFunnel {
+  ideasCreated: number;
+  ideasPromoted: number;
+  promotionRate: number;
+}
+
+export interface EffortProjectRow {
+  projectId: string;
+  name: string;
+  hours: number;
+}
+
+export interface EffortStats {
+  effortHoursTotal: number;
+  tasksWithEffortPct: number;
+  effortHoursByProject: EffortProjectRow[];
+}
+
+export interface AnalyticsData {
+  range: AnalyticsRange;
+  rangeStart: string | null;
+  rangeEnd: string;
+  cadence: CadenceStats;
+  activitySeries: ActivityPoint[];
+  weekdayHeatmap: WeekdayBucket[];
+  topProjects: ProjectInteractionRow[];
+  statusCounts: StatusCount[];
+  categoryBreakdown: CategoryRow[];
+  backlog: BacklogHealth;
+  sleepingProjects: SleepingProjectRow[];
+  staleIdeas: StaleIdeaRow[];
+  ideaFunnel: IdeaFunnel;
+  effort: EffortStats;
+}
+
 export const PRIORITIES: { value: Priority; emoji: string; label: string }[] = [
   { value: "critical", emoji: "🔥", label: "Critical" },
   { value: "high", emoji: "⚡", label: "High" },
