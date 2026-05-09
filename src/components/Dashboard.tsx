@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 
-import { supabase } from "@/lib/supabase";
 import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -20,6 +19,7 @@ import { IdeaModal } from "./ideas/IdeaModal";
 import { UpdateModal } from "./updates/UpdateModal";
 import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
+import { TopNav } from "./layout/TopNav";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
 import { AnalyticsView } from "./dashboard/AnalyticsView";
@@ -112,10 +112,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
-
   if (initialLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -148,6 +144,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <TopNav
+        workspace={{
+          onOpenCategories: () => setShowCategoriesModal(true),
+          onOpenBackup: () => setShowBackupModal(true),
+        }}
+      />
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
         <DashboardHeader
           activeCount={activeCount}
@@ -156,11 +158,7 @@ export default function Dashboard() {
           streakCurrent={productivityStats.streak.current}
           streakBest={productivityStats.streak.best}
           activeThisWeek={productivityStats.activeThisWeek}
-          backupOverdue={backupOverdue}
           hasData={hasData}
-          onOpenCategories={() => setShowCategoriesModal(true)}
-          onOpenBackup={() => setShowBackupModal(true)}
-          onSignOut={handleSignOut}
         />
 
         <TabBar view={view} onChange={setView} />

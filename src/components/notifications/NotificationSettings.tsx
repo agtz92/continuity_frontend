@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
-import { ArrowLeft, Bell, CheckCircle2, Loader2, Send } from "lucide-react";
+import { CheckCircle2, Loader2, Send } from "lucide-react";
 
 import {
   DISCONNECT_CHANNEL,
@@ -73,7 +72,7 @@ export function NotificationSettings() {
 
   if (loading && !settings) {
     return (
-      <div className="max-w-3xl mx-auto text-zinc-400 flex items-center gap-2">
+      <div className="text-zinc-400 flex items-center gap-2">
         <Loader2 className="animate-spin" size={16} /> Loading…
       </div>
     );
@@ -113,21 +112,7 @@ export function NotificationSettings() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-200 mb-6 text-sm"
-      >
-        <ArrowLeft size={14} /> Back to dashboard
-      </Link>
-
-      <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
-        <Bell size={20} /> Notifications
-      </h1>
-      <p className="text-zinc-400 text-sm mb-8">
-        Get nudges on Telegram so a project doesn&apos;t quietly die.
-      </p>
-
+    <div>
       <Section title="Channels">
         <ChannelRow
           name="Telegram"

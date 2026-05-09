@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { Bell, CalendarDays, Database, Flame, LogOut, Tags } from "lucide-react";
+import { CalendarDays, Flame } from "lucide-react";
 
 export function DashboardHeader({
   activeCount,
@@ -10,11 +9,7 @@ export function DashboardHeader({
   streakCurrent,
   streakBest,
   activeThisWeek,
-  backupOverdue,
   hasData,
-  onOpenCategories,
-  onOpenBackup,
-  onSignOut,
 }: {
   activeCount: number;
   launchedCount: number;
@@ -22,60 +17,21 @@ export function DashboardHeader({
   streakCurrent: number;
   streakBest: number;
   activeThisWeek: number;
-  backupOverdue: boolean;
   hasData: boolean;
-  onOpenCategories: () => void;
-  onOpenBackup: () => void;
-  onSignOut: () => void;
 }) {
   const streakActive = streakCurrent > 0;
   const tiedRecord = streakActive && streakBest > 0 && streakCurrent === streakBest;
   return (
     <div className="mb-6 sm:mb-8">
-      <div className="flex items-start justify-between mb-2 flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-            Continuity
-          </h1>
-          <p className="text-zinc-400 text-sm mt-1">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        </div>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <p className="text-zinc-400 text-sm">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
         <div className="flex gap-2 text-xs items-center flex-wrap">
-          <button
-            onClick={onOpenCategories}
-            className="px-2 sm:px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
-            title="Manage categories"
-            aria-label="Manage categories"
-          >
-            <Tags size={14} />
-            <span className="hidden sm:inline">Categories</span>
-          </button>
-          <button
-            onClick={onOpenBackup}
-            className={`px-2 sm:px-3 py-2 rounded-lg border flex items-center gap-2 transition-colors ${
-              backupOverdue && hasData
-                ? "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20"
-                : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-            }`}
-            aria-label="Backup"
-          >
-            <Database size={14} />
-            <span className="hidden sm:inline">Backup</span>
-          </button>
-          <Link
-            href="/settings/notifications"
-            className="px-2 sm:px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
-            title="Notification settings"
-            aria-label="Notification settings"
-          >
-            <Bell size={14} />
-            <span className="hidden sm:inline">Notifications</span>
-          </Link>
           {hasData && (streakActive || streakBest > 0) && (
             <div
               className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border leading-tight flex items-center gap-2 ${
@@ -141,13 +97,6 @@ export function DashboardHeader({
               </div>
             </div>
           )}
-          <button
-            onClick={onSignOut}
-            className="px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
-            title="Sign out"
-          >
-            <LogOut size={14} />
-          </button>
         </div>
       </div>
     </div>
