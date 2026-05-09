@@ -1,11 +1,14 @@
 "use client";
 
-import { Database, LogOut, Tags } from "lucide-react";
+import { CalendarDays, Database, Flame, LogOut, Tags } from "lucide-react";
 
 export function DashboardHeader({
   activeCount,
   launchedCount,
   stalledCount,
+  streakCurrent,
+  streakBest,
+  activeThisWeek,
   backupOverdue,
   hasData,
   onOpenCategories,
@@ -15,12 +18,17 @@ export function DashboardHeader({
   activeCount: number;
   launchedCount: number;
   stalledCount: number;
+  streakCurrent: number;
+  streakBest: number;
+  activeThisWeek: number;
   backupOverdue: boolean;
   hasData: boolean;
   onOpenCategories: () => void;
   onOpenBackup: () => void;
   onSignOut: () => void;
 }) {
+  const streakActive = streakCurrent > 0;
+  const tiedRecord = streakActive && streakBest > 0 && streakCurrent === streakBest;
   return (
     <div className="mb-6 sm:mb-8">
       <div className="flex items-start justify-between mb-2 flex-wrap gap-3">
@@ -58,6 +66,51 @@ export function DashboardHeader({
             <Database size={14} />
             <span className="hidden sm:inline">Backup</span>
           </button>
+          {hasData && (streakActive || streakBest > 0) && (
+            <div
+              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border leading-tight flex items-center gap-2 ${
+                streakActive
+                  ? "bg-orange-500/10 border-orange-500/30"
+                  : "bg-zinc-900 border-zinc-800"
+              }`}
+              title={
+                streakActive
+                  ? `Current streak: ${streakCurrent} day${streakCurrent === 1 ? "" : "s"} · Best: ${streakBest}`
+                  : `Best streak: ${streakBest} day${streakBest === 1 ? "" : "s"}. Log activity today to start a new run.`
+              }
+            >
+              <Flame
+                size={14}
+                className={streakActive ? "text-orange-400" : "text-zinc-500"}
+              />
+              <div>
+                <div
+                  className={`text-[10px] sm:text-xs ${streakActive ? "text-orange-300/80" : "text-zinc-500"}`}
+                >
+                  {streakActive ? (tiedRecord ? "Streak · record" : "Streak") : "Best"}
+                </div>
+                <div
+                  className={`font-bold text-base sm:text-lg ${streakActive ? "text-orange-300" : "text-zinc-300"}`}
+                >
+                  {streakActive ? streakCurrent : streakBest}d
+                </div>
+              </div>
+            </div>
+          )}
+          {hasData && (
+            <div
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-zinc-900 rounded-lg border border-zinc-800 leading-tight flex items-center gap-2"
+              title={`Active on ${activeThisWeek} of 7 days this week`}
+            >
+              <CalendarDays size={14} className="text-zinc-500" />
+              <div>
+                <div className="text-zinc-500 text-[10px] sm:text-xs">This week</div>
+                <div className="text-zinc-200 font-bold text-base sm:text-lg">
+                  {activeThisWeek}/7
+                </div>
+              </div>
+            </div>
+          )}
           <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-zinc-900 rounded-lg border border-zinc-800 leading-tight">
             <div className="text-zinc-500 text-[10px] sm:text-xs">Active</div>
             <div className="text-emerald-400 font-bold text-base sm:text-lg">

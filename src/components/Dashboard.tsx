@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useProjectMutations } from "@/hooks/useProjectMutations";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { useIdeaMutations } from "@/hooks/useIdeaMutations";
@@ -73,6 +74,8 @@ export default function Dashboard() {
       (daysSince(p.lastActivity) ?? 0) >= 7
   ).length;
   const hasData = projects.length > 0 || tasks.length > 0 || ideas.length > 0;
+
+  const productivityStats = useProductivityStats({ projects, tasks, ideas, updates });
 
   // Thin wrappers that close modals on success — Dashboard owns modal state.
   const handleSaveProject = async (p: Parameters<typeof saveProject>[0]) => {
@@ -149,6 +152,9 @@ export default function Dashboard() {
           activeCount={activeCount}
           launchedCount={launchedCount}
           stalledCount={stalledCount}
+          streakCurrent={productivityStats.streak.current}
+          streakBest={productivityStats.streak.best}
+          activeThisWeek={productivityStats.activeThisWeek}
           backupOverdue={backupOverdue}
           hasData={hasData}
           onOpenCategories={() => setShowCategoriesModal(true)}
@@ -169,12 +175,19 @@ export default function Dashboard() {
             daysSinceBackup={daysSinceBackup}
             backupOverdue={backupOverdue}
             hasData={hasData}
+            productivityStats={productivityStats}
             onOpenBackupModal={() => setShowBackupModal(true)}
             onJumpToProject={(p) => {
               setSelectedProject(p);
               setView("projects");
             }}
             onJumpToTasks={() => setView("tasks")}
+            onJumpToIdeas={() => setView("ideas")}
+            onLogUpdate={(p) => {
+              setSelectedProject(p);
+              setEditingUpdate(null);
+              setShowUpdateModal(true);
+            }}
             onToggleTask={toggleTask}
             onEditTask={(task) => {
               setEditingTask(task);

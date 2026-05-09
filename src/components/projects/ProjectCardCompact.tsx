@@ -1,6 +1,6 @@
 "use client";
 
-import { Rocket } from "lucide-react";
+import { Clock, Rocket, Sparkles } from "lucide-react";
 import type { Category, Project, Task } from "@/lib/types";
 import { categoryColorClass, priorityMeta } from "@/lib/types";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
@@ -15,15 +15,22 @@ export function ProjectCardCompact({
   projectTasks,
   variant,
   categoryById,
+  totalEffortHours,
+  todayEffortHours,
+  comebackGapDays,
   onClick,
 }: {
   project: Project;
   projectTasks: Task[];
   variant: "active" | "launched";
   categoryById: Record<string, Category>;
+  totalEffortHours?: number;
+  todayEffortHours?: number;
+  comebackGapDays?: number | null;
   onClick: () => void;
 }) {
   const done = projectTasks.filter((t) => t.done).length;
+  const total = projectTasks.length;
   const todayCount = projectTasks.filter(
     (t) => !t.done && isDueToday(t.dueDate)
   ).length;
@@ -32,6 +39,7 @@ export function ProjectCardCompact({
   ).length;
   const openCount = projectTasks.filter((t) => !t.done).length;
   const days = daysSince(p.lastActivity) ?? 0;
+  const donePct = total === 0 ? 0 : Math.round((done / total) * 100);
 
   const baseBg =
     variant === "launched"
@@ -60,6 +68,15 @@ export function ProjectCardCompact({
           </span>
         )}
         <span className="font-semibold truncate flex-1">{p.name}</span>
+        {comebackGapDays != null && comebackGapDays > 0 && (
+          <span
+            className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0 inline-flex items-center gap-1"
+            title="Activity resumed within the last 24h after being idle"
+          >
+            <Sparkles size={10} />
+            Comeback · {comebackGapDays}d
+          </span>
+        )}
         {variant === "launched" && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 shrink-0">
             {openCount} open
@@ -90,10 +107,49 @@ export function ProjectCardCompact({
           → {p.nextStep}
         </div>
       )}
-      <div className="flex items-center justify-between text-xs text-zinc-500">
-        <span>
-          {done}/{projectTasks.length} tasks
-        </span>
+      {total > 0 && (
+        <div className="mb-2">
+          <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+            <div
+              className={`h-full ${
+                donePct >= 80
+                  ? "bg-emerald-400"
+                  : donePct >= 40
+                  ? "bg-blue-400"
+                  : "bg-zinc-500"
+              }`}
+              style={{ width: `${donePct}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] text-zinc-500 mt-0.5">
+            <span>{donePct}% done</span>
+            <span>
+              {done}/{total}
+            </span>
+          </div>
+        </div>
+      )}
+      <div className="flex items-center justify-between text-xs text-zinc-500 gap-2 flex-wrap">
+        <div className="inline-flex items-center gap-2 flex-wrap">
+          {todayEffortHours != null && todayEffortHours > 0 && (
+            <span
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+              title="Hours invested today"
+            >
+              <Clock size={10} />
+              +{todayEffortHours}h today
+            </span>
+          )}
+          {totalEffortHours != null && totalEffortHours > 0 && (
+            <span
+              className="inline-flex items-center gap-1 text-zinc-500"
+              title="Total hours invested across completed tasks"
+            >
+              <Clock size={10} />
+              {totalEffortHours}h total
+            </span>
+          )}
+        </div>
         {variant === "active" && (
           <span className={days > 6 ? "text-amber-400" : ""}>{days}d ago</span>
         )}

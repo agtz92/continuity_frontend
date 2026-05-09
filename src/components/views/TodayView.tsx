@@ -8,6 +8,9 @@ import {
   Clock,
   Database,
   Edit2,
+  Flag,
+  Lightbulb,
+  Moon,
   Rocket,
   Sparkles,
   Target,
@@ -20,6 +23,27 @@ import { daysOverdue, daysSince } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
 import { useTodayFocus } from "@/hooks/useTodayFocus";
+import type { useProductivityStats } from "@/hooks/useProductivityStats";
+
+type ProductivityStats = ReturnType<typeof useProductivityStats>;
+
+const sleepingBucketStyle = {
+  "7-14": {
+    label: "7-14 days",
+    chip: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    dot: "bg-amber-400",
+  },
+  "15-30": {
+    label: "15-30 days",
+    chip: "bg-orange-500/15 text-orange-300 border-orange-500/30",
+    dot: "bg-orange-400",
+  },
+  "30+": {
+    label: "30+ days",
+    chip: "bg-red-500/15 text-red-300 border-red-500/30",
+    dot: "bg-red-400",
+  },
+} as const;
 
 export function TodayView({
   projects,
@@ -30,9 +54,12 @@ export function TodayView({
   daysSinceBackup,
   backupOverdue,
   hasData,
+  productivityStats,
   onOpenBackupModal,
   onJumpToProject,
   onJumpToTasks,
+  onJumpToIdeas,
+  onLogUpdate,
   onToggleTask,
   onEditTask,
 }: {
@@ -44,9 +71,12 @@ export function TodayView({
   daysSinceBackup: number | null;
   backupOverdue: boolean;
   hasData: boolean;
+  productivityStats: ProductivityStats;
   onOpenBackupModal: () => void;
   onJumpToProject: (p: Project) => void;
   onJumpToTasks: () => void;
+  onJumpToIdeas: () => void;
+  onLogUpdate: (p: Project) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
   onEditTask: (t: Task) => void;
 }) {
@@ -60,11 +90,26 @@ export function TodayView({
     launchedWithOpenTasks,
   } = useTodayFocus({ projects, tasks, updates });
 
+  const {
+    sleepingProjects,
+    closableProjects,
+    staleIdeas,
+    todayHoursByProject,
+    projectProgressById,
+    comebackProjectIds,
+    comebackGapByProject,
+  } = productivityStats;
+
   const [showTodayFocus, setShowTodayFocus] = useState(true);
   const [showDoneToday, setShowDoneToday] = useState(true);
   const [showActiveProjects, setShowActiveProjects] = useState(true);
   const [showLaunchedWithTasks, setShowLaunchedWithTasks] = useState(true);
+  const [showSleepingProjects, setShowSleepingProjects] = useState(true);
+  const [showCloseable, setShowCloseable] = useState(true);
   const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
+
+  const closableTotal =
+    closableProjects.quickWins.length + closableProjects.almostThere.length;
 
   return (
     <div className="space-y-6">
@@ -346,7 +391,24 @@ export function TodayView({
               </>
             }
           >
-            <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 sm:p-4">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 sm:p-4 space-y-3">
+              {todayHoursByProject.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pb-2 border-b border-zinc-800/80">
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-500 self-center mr-1">
+                    Hours by project
+                  </span>
+                  {todayHoursByProject.map(({ project, hours }) => (
+                    <button
+                      key={project.id}
+                      onClick={() => onJumpToProject(project)}
+                      className="text-xs px-2 py-0.5 rounded border bg-emerald-500/10 text-emerald-200 border-emerald-500/30 hover:bg-emerald-500/20 inline-flex items-center gap-1"
+                    >
+                      <Clock size={10} />
+                      {project.name} · {hours}h
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="space-y-2">
                 {visibleItems.map((item) => {
                   if (item.kind === "task") {
@@ -438,6 +500,144 @@ export function TodayView({
         );
       })()}
 
+      {closableTotal > 0 && (
+        <CollapsibleSection
+          open={showCloseable}
+          onToggle={() => setShowCloseable((s) => !s)}
+          icon={<Flag size={18} className="text-emerald-400" />}
+          title="Close to the finish line"
+          rightSlot={
+            <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+              {closableTotal}
+            </span>
+          }
+        >
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {closableProjects.almostThere.map((s) => {
+              const pct = Math.round(s.donePct * 100);
+              return (
+                <button
+                  key={`almost-${s.project.id}`}
+                  onClick={() => onJumpToProject(s.project)}
+                  className="text-left bg-emerald-500/5 border border-emerald-500/30 rounded-xl p-4 hover:border-emerald-500/50 transition-all"
+                >
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className="text-xs uppercase tracking-wider font-medium text-emerald-400">
+                      Almost there · {pct}%
+                    </span>
+                  </div>
+                  <div className="font-semibold mb-2 truncate">{s.project.name}</div>
+                  <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden mb-2">
+                    <div
+                      className="h-full bg-emerald-400"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <div className="text-xs text-zinc-500">
+                    {s.openCount} task{s.openCount === 1 ? "" : "s"} left ·{" "}
+                    {s.doneCount}/{s.totalCount} done
+                  </div>
+                </button>
+              );
+            })}
+            {closableProjects.quickWins.map((s) => (
+              <button
+                key={`quick-${s.project.id}`}
+                onClick={() => onJumpToProject(s.project)}
+                className="text-left bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-emerald-500/40 transition-all"
+              >
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="text-xs uppercase tracking-wider font-medium text-emerald-400">
+                    Quick win
+                  </span>
+                </div>
+                <div className="font-semibold mb-2 truncate">{s.project.name}</div>
+                <div className="text-xs text-zinc-400">
+                  Only {s.openCount} task{s.openCount === 1 ? "" : "s"} away from
+                  finishing.
+                </div>
+              </button>
+            ))}
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {sleepingProjects.length > 0 && (
+        <CollapsibleSection
+          open={showSleepingProjects}
+          onToggle={() => setShowSleepingProjects((s) => !s)}
+          icon={<Moon size={18} className="text-amber-400" />}
+          title="Sleeping projects"
+          rightSlot={
+            <span className="text-xs font-normal text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
+              {sleepingProjects.length}
+            </span>
+          }
+        >
+          <div className="space-y-2">
+            {sleepingProjects.map(({ project, days, bucket }) => {
+              const style = sleepingBucketStyle[bucket];
+              return (
+                <div
+                  key={project.id}
+                  className={`flex items-center gap-3 p-3 rounded-xl border bg-zinc-900/60 border-zinc-800 hover:border-zinc-700 transition-colors`}
+                >
+                  <span className={`shrink-0 w-2 h-2 rounded-full ${style.dot}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        onClick={() => onJumpToProject(project)}
+                        className="font-semibold text-zinc-100 truncate hover:text-emerald-300"
+                      >
+                        {project.name}
+                      </button>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded border ${style.chip}`}
+                      >
+                        {days}d idle
+                      </span>
+                    </div>
+                    {project.nextStep && (
+                      <div className="text-xs text-zinc-500 truncate mt-0.5">
+                        → {project.nextStep}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => onLogUpdate(project)}
+                    className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-emerald-500/15 text-emerald-200 border border-emerald-500/40 hover:bg-emerald-500/25 transition-colors"
+                  >
+                    Resume
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {staleIdeas.length > 0 && (
+        <button
+          onClick={onJumpToIdeas}
+          className="w-full text-left bg-purple-500/5 border border-purple-500/30 rounded-xl p-4 hover:bg-purple-500/10 transition-colors"
+        >
+          <div className="flex items-start gap-3">
+            <Lightbulb className="text-purple-300 shrink-0 mt-0.5" size={18} />
+            <div className="flex-1">
+              <div className="font-semibold text-purple-200 mb-1">
+                {staleIdeas.length} idea{staleIdeas.length === 1 ? "" : "s"} waiting
+                {staleIdeas.length === 1 ? "" : ""} for 30+ days
+              </div>
+              <div className="text-sm text-purple-200/70">
+                Promote one into a project, or let it go to make room for new
+                thinking.
+              </div>
+            </div>
+            <ChevronRight className="text-purple-300 shrink-0 mt-0.5" size={18} />
+          </div>
+        </button>
+      )}
+
       {projects.filter((p) => p.status === "active").length > 0 && (
         <CollapsibleSection
           open={showActiveProjects}
@@ -453,16 +653,26 @@ export function TodayView({
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {projects
               .filter((p) => p.status === "active")
-              .map((p) => (
-                <ProjectCardCompact
-                  key={p.id}
-                  project={p}
-                  projectTasks={tasks.filter((t) => t.projectId === p.id)}
-                  variant="active"
-                  categoryById={categoryById}
-                  onClick={() => onJumpToProject(p)}
-                />
-              ))}
+              .map((p) => {
+                const stats = projectProgressById.get(p.id);
+                return (
+                  <ProjectCardCompact
+                    key={p.id}
+                    project={p}
+                    projectTasks={tasks.filter((t) => t.projectId === p.id)}
+                    variant="active"
+                    categoryById={categoryById}
+                    totalEffortHours={stats?.totalEffortHours}
+                    todayEffortHours={stats?.todayEffortHours}
+                    comebackGapDays={
+                      comebackProjectIds.has(p.id)
+                        ? comebackGapByProject.get(p.id) ?? null
+                        : null
+                    }
+                    onClick={() => onJumpToProject(p)}
+                  />
+                );
+              })}
           </div>
         </CollapsibleSection>
       )}
@@ -480,16 +690,26 @@ export function TodayView({
           }
         >
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {launchedWithOpenTasks.map(({ project: p, projectTasks }) => (
-              <ProjectCardCompact
-                key={p.id}
-                project={p}
-                projectTasks={projectTasks}
-                variant="launched"
-                categoryById={categoryById}
-                onClick={() => onJumpToProject(p)}
-              />
-            ))}
+            {launchedWithOpenTasks.map(({ project: p, projectTasks }) => {
+              const stats = projectProgressById.get(p.id);
+              return (
+                <ProjectCardCompact
+                  key={p.id}
+                  project={p}
+                  projectTasks={projectTasks}
+                  variant="launched"
+                  categoryById={categoryById}
+                  totalEffortHours={stats?.totalEffortHours}
+                  todayEffortHours={stats?.todayEffortHours}
+                  comebackGapDays={
+                    comebackProjectIds.has(p.id)
+                      ? comebackGapByProject.get(p.id) ?? null
+                      : null
+                  }
+                  onClick={() => onJumpToProject(p)}
+                />
+              );
+            })}
           </div>
         </CollapsibleSection>
       )}
