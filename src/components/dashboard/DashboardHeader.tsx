@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, Database, Flame, LogOut, Tags } from "lucide-react";
+import Link from "next/link";
+import { Bell, CalendarDays, Database, Flame, LogOut, Tags } from "lucide-react";
 
 export function DashboardHeader({
   activeCount,
@@ -66,6 +67,15 @@ export function DashboardHeader({
             <Database size={14} />
             <span className="hidden sm:inline">Backup</span>
           </button>
+          <Link
+            href="/settings/notifications"
+            className="px-2 sm:px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 flex items-center gap-2"
+            title="Notification settings"
+            aria-label="Notification settings"
+          >
+            <Bell size={14} />
+            <span className="hidden sm:inline">Notifications</span>
+          </Link>
           {hasData && (streakActive || streakBest > 0) && (
             <div
               className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border leading-tight flex items-center gap-2 ${
