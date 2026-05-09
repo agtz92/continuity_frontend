@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Bell,
+  Bug,
+  ChevronLeft,
   CreditCard,
   Database,
   LogOut,
+  MessageCircle,
+  MessagesSquare,
   Plug,
   Tags,
   User,
-  X,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -95,10 +98,14 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-200 p-1"
+            className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-md hover:bg-zinc-900 transition-colors group"
             aria-label="Close menu"
+            title="Close (Esc)"
           >
-            <X size={18} />
+            <ChevronLeft
+              size={20}
+              className="transition-transform group-hover:-translate-x-0.5"
+            />
           </button>
         </header>
 
@@ -144,6 +151,28 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               />
             </Group>
           )}
+
+          <Group label="Support">
+            <RowExternal
+              href="mailto:support@continuu.it?subject=Bug%20report"
+              icon={Bug}
+              label="Report a bug"
+              onAfterClick={onClose}
+            />
+            <RowExternal
+              href="https://www.reddit.com/r/Continuuit/"
+              icon={MessageCircle}
+              label="Reddit community"
+              onAfterClick={onClose}
+            />
+            <RowExternal
+              // TODO: replace with the real Discord invite URL once the server exists
+              href="#"
+              icon={MessagesSquare}
+              label="Discord support"
+              onAfterClick={onClose}
+            />
+          </Group>
         </nav>
 
         <footer className="px-3 py-3 border-t border-zinc-800/80">
@@ -196,6 +225,32 @@ function RowLink({
       <Icon size={16} className="text-zinc-500" />
       <span>{label}</span>
     </Link>
+  );
+}
+
+function RowExternal({
+  href,
+  icon: Icon,
+  label,
+  onAfterClick,
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  onAfterClick?: () => void;
+}) {
+  const isMailto = href.startsWith("mailto:");
+  return (
+    <a
+      href={href}
+      target={isMailto ? undefined : "_blank"}
+      rel={isMailto ? undefined : "noopener noreferrer"}
+      onClick={onAfterClick}
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 transition-colors"
+    >
+      <Icon size={16} className="text-zinc-500" />
+      <span>{label}</span>
+    </a>
   );
 }
 

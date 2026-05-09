@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
+  ArrowLeft,
   Bell,
   CreditCard,
   Plug,
@@ -68,6 +69,16 @@ export function SettingsShell({
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <TopNav />
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-100 mb-6 text-sm group"
+        >
+          <ArrowLeft
+            size={14}
+            className="transition-transform group-hover:-translate-x-0.5"
+          />
+          Back to dashboard
+        </Link>
         <div className="grid grid-cols-1 md:grid-cols-[14rem_1fr] gap-6 md:gap-10">
           <aside className="md:sticky md:top-8 md:self-start">
             <div className="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-3 px-2">
