@@ -16,6 +16,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import type {
   Category,
+  Priority,
   Project,
   ProjectNote,
   ProjectStatus,
@@ -35,6 +36,13 @@ import {
   statusBorderClass,
   statusConfig,
 } from "@/lib/status";
+import {
+  PRIORITY_FILTER_ORDER,
+  PROJECT_SORT_MODES,
+  priorityChipClass,
+  priorityStripeClass,
+  type ProjectSortMode,
+} from "@/lib/priority";
 
 export function ProjectsView({
   projects,
@@ -86,6 +94,11 @@ export function ProjectsView({
   const [projectCategoryFilter, setProjectCategoryFilter] = useState<string | null>(
     null
   );
+  const [projectPriorityFilter, setProjectPriorityFilter] = useState<
+    "all" | Priority
+  >("all");
+  const [projectSortMode, setProjectSortMode] =
+    useState<ProjectSortMode>("smart");
 
   const projectStatusCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -103,6 +116,20 @@ export function ProjectsView({
       if (["active", "idea"].includes(p.status) && idle >= 7) {
         counts.stalled = (counts.stalled ?? 0) + 1;
       }
+    }
+    return counts;
+  }, [projects]);
+
+  const projectPriorityCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: projects.length,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    };
+    for (const p of projects) {
+      counts[p.priority] = (counts[p.priority] ?? 0) + 1;
     }
     return counts;
   }, [projects]);
@@ -135,9 +162,9 @@ export function ProjectsView({
       </div>
 
       {projects.length > 0 && (
-        <div className="mb-4 space-y-2">
+        <div className="mb-4 bg-zinc-900/40 border border-zinc-800/60 rounded-xl p-3">
           {/* Mobile: compact selects */}
-          <div className="flex gap-2 sm:hidden">
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
             <select
               value={projectStatusFilter}
               onChange={(e) =>
@@ -145,7 +172,7 @@ export function ProjectsView({
                   e.target.value as "all" | ProjectStatus
                 )
               }
-              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
               aria-label={t("filterStatusAria")}
             >
               {STATUS_FILTER_ORDER.map((s) => {
@@ -165,7 +192,7 @@ export function ProjectsView({
                 onChange={(e) =>
                   setProjectCategoryFilter(e.target.value || null)
                 }
-                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+                className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
                 aria-label={t("filterCategoryAria")}
               >
                 <option value="">{t("allCategories")}</option>
@@ -176,75 +203,187 @@ export function ProjectsView({
                 ))}
               </select>
             )}
+            <select
+              value={projectPriorityFilter}
+              onChange={(e) =>
+                setProjectPriorityFilter(e.target.value as "all" | Priority)
+              }
+              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              aria-label={t("filterPriorityAria")}
+            >
+              {PRIORITY_FILTER_ORDER.map((pr) => {
+                const count = projectPriorityCounts[pr] ?? 0;
+                if (pr !== "all" && count === 0) return null;
+                const label =
+                  pr === "all"
+                    ? t("allPriorities")
+                    : `${priorityMeta(pr).emoji} ${tPriority(pr)}`;
+                return (
+                  <option key={pr} value={pr}>
+                    {label} ({count})
+                  </option>
+                );
+              })}
+            </select>
+            <select
+              value={projectSortMode}
+              onChange={(e) =>
+                setProjectSortMode(e.target.value as ProjectSortMode)
+              }
+              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              aria-label={t("sortAria")}
+            >
+              {PROJECT_SORT_MODES.map((m) => (
+                <option key={m} value={m}>
+                  {t("sortBy.label")}: {t(`sortBy.${m}`)}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Desktop: chip filters */}
-          <div className="hidden sm:flex items-center gap-2 flex-wrap">
-            {STATUS_FILTER_ORDER.map((s) => {
-              const isActive = projectStatusFilter === s;
-              const count = projectStatusCounts[s] ?? 0;
-              if (s !== "all" && count === 0) return null;
-              const cfg = s === "all" ? null : statusConfig[s as ProjectStatus];
-              const label = s === "all" ? tStatus("all") : tStatus(s);
-              return (
-                <button
-                  key={s}
-                  onClick={() => setProjectStatusFilter(s)}
-                  aria-pressed={isActive}
-                  className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
-                    isActive
-                      ? s === "all"
-                        ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
-                        : `${cfg?.color} ring-1 ring-current/40`
-                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
-                  }`}
-                >
-                  <span>{label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 rounded-full ${
-                      isActive ? "bg-black/30" : "bg-zinc-800 text-zinc-500"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {categories.length > 0 && (
-            <div className="hidden sm:flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setProjectCategoryFilter(null)}
-                aria-pressed={projectCategoryFilter === null}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                  projectCategoryFilter === null
-                    ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
-                }`}
-              >
-                {t("allCategories")}
-              </button>
-              {categories.map((c) => {
-                const isActive = projectCategoryFilter === c.id;
-                const cls = categoryColorClass(c.color);
-                return (
+          {/* Desktop: labeled rows */}
+          <div className="hidden sm:flex flex-col gap-2">
+            <div className="flex items-start gap-3">
+              <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+                {t("filterLabel.status")}
+              </span>
+              <div className="flex items-center gap-1.5 flex-wrap flex-1">
+                {STATUS_FILTER_ORDER.map((s) => {
+                  const isActive = projectStatusFilter === s;
+                  const count = projectStatusCounts[s] ?? 0;
+                  if (s !== "all" && count === 0) return null;
+                  const cfg =
+                    s === "all" ? null : statusConfig[s as ProjectStatus];
+                  const label = s === "all" ? tStatus("all") : tStatus(s);
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setProjectStatusFilter(s)}
+                      aria-pressed={isActive}
+                      className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
+                        isActive
+                          ? s === "all"
+                            ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
+                            : `${cfg?.color} ring-1 ring-current/40`
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                      }`}
+                    >
+                      <span>{label}</span>
+                      <span
+                        className={`text-[10px] px-1.5 rounded-full ${
+                          isActive ? "bg-black/30" : "bg-zinc-800 text-zinc-500"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {categories.length > 0 && (
+              <div className="flex items-start gap-3">
+                <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+                  {t("filterLabel.category")}
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap flex-1">
                   <button
-                    key={c.id}
-                    onClick={() => setProjectCategoryFilter(isActive ? null : c.id)}
-                    aria-pressed={isActive}
-                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1.5 ${
-                      isActive
-                        ? `${cls.chip} ring-1 ring-current/40`
+                    onClick={() => setProjectCategoryFilter(null)}
+                    aria-pressed={projectCategoryFilter === null}
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                      projectCategoryFilter === null
+                        ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
                         : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
                     }`}
                   >
-                    <span className={`w-2 h-2 rounded-full ${cls.dot}`} />
-                    {c.name}
+                    {t("allCategories")}
                   </button>
-                );
-              })}
+                  {categories.map((c) => {
+                    const isActive = projectCategoryFilter === c.id;
+                    const cls = categoryColorClass(c.color);
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() =>
+                          setProjectCategoryFilter(isActive ? null : c.id)
+                        }
+                        aria-pressed={isActive}
+                        className={`text-xs px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1.5 ${
+                          isActive
+                            ? `${cls.chip} ring-1 ring-current/40`
+                            : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${cls.dot}`} />
+                        {c.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-start gap-3">
+              <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+                {t("filterLabel.priority")}
+              </span>
+              <div className="flex items-center gap-1.5 flex-wrap flex-1">
+                {PRIORITY_FILTER_ORDER.map((pr) => {
+                  const isActive = projectPriorityFilter === pr;
+                  const count = projectPriorityCounts[pr] ?? 0;
+                  if (pr !== "all" && count === 0) return null;
+                  const label =
+                    pr === "all"
+                      ? t("allPriorities")
+                      : `${priorityMeta(pr).emoji} ${tPriority(pr)}`;
+                  return (
+                    <button
+                      key={pr}
+                      onClick={() => setProjectPriorityFilter(pr)}
+                      aria-pressed={isActive}
+                      className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
+                        isActive
+                          ? pr === "all"
+                            ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
+                            : `${priorityChipClass[pr]} ring-1 ring-current/40`
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                      }`}
+                    >
+                      <span>{label}</span>
+                      <span
+                        className={`text-[10px] px-1.5 rounded-full ${
+                          isActive ? "bg-black/30" : "bg-zinc-800 text-zinc-500"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
+
+            <div className="flex items-center gap-3 pt-1 border-t border-zinc-800/60">
+              <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+                {t("filterLabel.sort")}
+              </span>
+              <select
+                value={projectSortMode}
+                onChange={(e) =>
+                  setProjectSortMode(e.target.value as ProjectSortMode)
+                }
+                className="mt-1 bg-zinc-900 border border-zinc-800 rounded-md px-2 py-1 text-xs text-zinc-200 hover:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+                aria-label={t("sortAria")}
+              >
+                {PROJECT_SORT_MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {t(`sortBy.${m}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       )}
 
@@ -285,8 +424,16 @@ export function ProjectsView({
         const matchesCategory = (p: Project) =>
           projectCategoryFilter === null || p.categoryId === projectCategoryFilter;
 
+        const matchesPriority = (p: Project) =>
+          projectPriorityFilter === "all" ||
+          p.priority === projectPriorityFilter;
+
         const filtered = projects.filter(
-          (p) => matchesSearch(p) && matchesStatus(p) && matchesCategory(p)
+          (p) =>
+            matchesSearch(p) &&
+            matchesStatus(p) &&
+            matchesCategory(p) &&
+            matchesPriority(p)
         );
 
         if (filtered.length === 0) {
@@ -315,21 +462,42 @@ export function ProjectsView({
           return 3;
         };
 
+        const recentTs = (p: Project) =>
+          new Date(p.lastActivity).getTime();
+
+        const compare = (a: Project, b: Project) => {
+          switch (projectSortMode) {
+            case "priority": {
+              const d = priorityRank(a.priority) - priorityRank(b.priority);
+              return d !== 0 ? d : recentTs(b) - recentTs(a);
+            }
+            case "recent":
+              return recentTs(b) - recentTs(a);
+            case "name":
+              return a.name.localeCompare(b.name, locale);
+            case "status": {
+              const sa = STATUS_FILTER_ORDER.indexOf(a.status);
+              const sb = STATUS_FILTER_ORDER.indexOf(b.status);
+              if (sa !== sb) return sa - sb;
+              const pd = priorityRank(a.priority) - priorityRank(b.priority);
+              return pd !== 0 ? pd : recentTs(b) - recentTs(a);
+            }
+            case "smart":
+            default: {
+              const ba = urgencyBucket(a);
+              const bb = urgencyBucket(b);
+              if (ba !== bb) return ba - bb;
+              const pd = priorityRank(a.priority) - priorityRank(b.priority);
+              if (pd !== 0) return pd;
+              return recentTs(b) - recentTs(a);
+            }
+          }
+        };
+
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-min">
             {[...filtered]
-              .sort((a, b) => {
-                const ba = urgencyBucket(a);
-                const bb = urgencyBucket(b);
-                if (ba !== bb) return ba - bb;
-                const pa = priorityRank(a.priority);
-                const pb = priorityRank(b.priority);
-                if (pa !== pb) return pa - pb;
-                return (
-                  new Date(b.lastActivity).getTime() -
-                  new Date(a.lastActivity).getTime()
-                );
-              })
+              .sort(compare)
               .map((p) => {
                 const projectTasks = tasks.filter((t) => t.projectId === p.id);
                 const done = projectTasks.filter((t) => t.done).length;
@@ -353,10 +521,15 @@ export function ProjectsView({
                 return (
                   <div
                     key={p.id}
-                    className={`bg-zinc-900 border border-l-4 rounded-xl overflow-hidden transition-all ${statusBorderClass[p.status]} ${
+                    className={`relative bg-zinc-900 border border-l-4 rounded-xl overflow-hidden transition-all ${statusBorderClass[p.status]} ${
                       isStalled ? "border-amber-500/40" : "border-zinc-800"
                     } ${isExpanded ? "ring-1 ring-emerald-500/30 lg:col-span-2" : ""}`}
                   >
+                    <div
+                      aria-hidden
+                      className={`absolute left-0 top-0 bottom-0 w-1 ${priorityStripeClass[p.priority]}`}
+                      title={tPriority(p.priority)}
+                    />
                     <div
                       className="p-4 cursor-pointer hover:bg-zinc-900/50"
                       onClick={() => onSelectProject(isExpanded ? null : p)}
@@ -371,12 +544,13 @@ export function ProjectsView({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span
-                              className="text-sm"
+                              className={`text-xs px-2 py-0.5 rounded border inline-flex items-center gap-1 ${priorityChipClass[p.priority]}`}
                               title={tPriority("label", {
                                 label: tPriority(p.priority),
                               })}
                             >
-                              {priorityMeta(p.priority).emoji}
+                              {priorityMeta(p.priority).emoji}{" "}
+                              {tPriority(p.priority)}
                             </span>
                             <span className="font-semibold">{p.name}</span>
                             <span

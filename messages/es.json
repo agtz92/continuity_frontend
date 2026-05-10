@@ -313,7 +313,24 @@
       "noMatchFilters": "No hay proyectos que coincidan con estos filtros",
       "filterStatusAria": "Filtrar por estado",
       "filterCategoryAria": "Filtrar por categoría",
+      "filterPriorityAria": "Filtrar por prioridad",
+      "sortAria": "Ordenar proyectos",
       "allCategories": "Todas las categorías",
+      "allPriorities": "Todas las prioridades",
+      "filterLabel": {
+        "status": "Estado",
+        "category": "Categoría",
+        "priority": "Prioridad",
+        "sort": "Orden"
+      },
+      "sortBy": {
+        "label": "Orden",
+        "smart": "Inteligente",
+        "priority": "Por prioridad",
+        "recent": "Actividad reciente",
+        "name": "Nombre",
+        "status": "Por estado"
+      },
       "openFullView": "Abrir proyecto",
       "detail": {
         "title": "Detalle del proyecto",

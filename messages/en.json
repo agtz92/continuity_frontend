@@ -313,7 +313,24 @@
       "noMatchFilters": "No projects match these filters",
       "filterStatusAria": "Filter by status",
       "filterCategoryAria": "Filter by category",
+      "filterPriorityAria": "Filter by priority",
+      "sortAria": "Sort projects",
       "allCategories": "All categories",
+      "allPriorities": "All priorities",
+      "filterLabel": {
+        "status": "Status",
+        "category": "Category",
+        "priority": "Priority",
+        "sort": "Sort"
+      },
+      "sortBy": {
+        "label": "Sort",
+        "smart": "Smart",
+        "priority": "By priority",
+        "recent": "Recent activity",
+        "name": "Name",
+        "status": "By status"
+      },
       "openFullView": "Open project",
       "detail": {
         "title": "Project detail",
