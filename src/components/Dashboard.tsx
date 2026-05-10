@@ -22,6 +22,8 @@ import { UpdateModal } from "./updates/UpdateModal";
 import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
+import { AssistantTrigger } from "./assistant/AssistantTrigger";
+import { AssistantPanel } from "./assistant/AssistantPanel";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
 import { AnalyticsView } from "./dashboard/AnalyticsView";
@@ -63,6 +65,7 @@ export default function Dashboard() {
   });
 
   const [view, setView] = useState<DashboardView>("today");
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showIdeaModal, setShowIdeaModal] = useState(false);
@@ -159,6 +162,11 @@ export default function Dashboard() {
           onOpenCategories: () => setShowCategoriesModal(true),
           onOpenBackup: () => setShowBackupModal(true),
         }}
+        rightSlot={<AssistantTrigger onClick={() => setAssistantOpen(true)} />}
+      />
+      <AssistantPanel
+        open={assistantOpen}
+        onClose={() => setAssistantOpen(false)}
       />
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
         <DashboardHeader

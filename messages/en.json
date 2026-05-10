@@ -1,4 +1,40 @@
 {
+  "assistant": {
+    "title": "Assistant",
+    "subtitle": "Read-only Claude beta",
+    "buttonLabel": "Ask Claude",
+    "openTooltip": "Ask Claude about your projects",
+    "newChat": "New conversation",
+    "close": "Close",
+    "send": "Send",
+    "stop": "Stop",
+    "inputPlaceholder": "Ask about your projects, tasks, or ideas…",
+    "welcome": {
+      "title": "Hi! I'm here to help.",
+      "body": "I can read your projects and tasks to summarize, suggest priorities, and find things. I can't edit anything yet — that's coming soon."
+    },
+    "message": {
+      "thinking": "Thinking…"
+    },
+    "tools": {
+      "running": "Running",
+      "done": "Done",
+      "input": "Input"
+    },
+    "quickActions": {
+      "priorities": "Priorities for this week",
+      "sleeping": "Summarize sleeping projects",
+      "lastWeek": "What did I work on last week?",
+      "staleIdeas": "Show stale ideas"
+    },
+    "usage": {
+      "usedOf": "{used} / {cap} messages today",
+      "uncapped": "Unlimited",
+      "upgrade": "Upgrade",
+      "dailyMessages": "Messages today",
+      "monthlyTokens": "Tokens this month"
+    }
+  },
   "common": {
     "loading": "Loading…",
     "save": "Save",
@@ -99,6 +135,8 @@
       "description": "Manage your subscription, payment method, and invoices.",
       "currentPlan": "Current plan",
       "free": "Free",
+      "pro": "Pro",
+      "admin": "Admin",
       "freeBlurb": "Unlimited projects, tasks, and ideas while in beta.",
       "upgrade": "Upgrade",
       "comingSoonBody": "Paid plans and invoices will live here."
