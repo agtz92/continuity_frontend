@@ -31,11 +31,7 @@ import {
   priorityRank,
 } from "@/lib/types";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
-import {
-  STATUS_FILTER_ORDER,
-  statusBorderClass,
-  statusConfig,
-} from "@/lib/status";
+import { STATUS_FILTER_ORDER, statusConfig } from "@/lib/status";
 import {
   PRIORITY_FILTER_ORDER,
   PROJECT_SORT_MODES,
@@ -512,7 +508,7 @@ export function ProjectsView({
                   .filter((t) => !t.done && t.effortHours != null)
                   .reduce((sum, t) => sum + (t.effortHours as number), 0);
                 const pendingEffort = Math.round(pendingEffortRaw * 10) / 10;
-                const StatusIcon = statusConfig[p.status]?.icon || Activity;
+                const StatusIcon = statusConfig[p.status]?.icon ?? Activity;
                 const days = daysSince(p.lastActivity) ?? 0;
                 const isStalled =
                   ["active", "idea"].includes(p.status) && days >= 7;
@@ -521,7 +517,7 @@ export function ProjectsView({
                 return (
                   <div
                     key={p.id}
-                    className={`relative bg-surface border border-l-4 rounded-xl overflow-hidden transition-all ${statusBorderClass[p.status]} ${
+                    className={`relative bg-surface border rounded-xl overflow-hidden transition-all ${
                       isStalled ? "border-amber-500/40" : "border-border"
                     } ${isExpanded ? "ring-1 ring-accent/30 lg:col-span-2" : ""}`}
                   >
@@ -544,21 +540,13 @@ export function ProjectsView({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span
-                              className={`text-xs px-2 py-0.5 rounded border inline-flex items-center gap-1 ${priorityChipClass[p.priority]}`}
-                              title={tPriority("label", {
-                                label: tPriority(p.priority),
-                              })}
+                              className={`inline-flex items-center justify-center w-6 h-6 rounded border ${statusConfig[p.status]?.color}`}
+                              title={tStatus(p.status)}
+                              aria-label={tStatus(p.status)}
                             >
-                              {priorityMeta(p.priority).emoji}{" "}
-                              {tPriority(p.priority)}
+                              <StatusIcon size={12} />
                             </span>
                             <span className="font-semibold">{p.name}</span>
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded border flex items-center gap-1 ${statusConfig[p.status]?.color}`}
-                            >
-                              <StatusIcon size={10} />
-                              {tStatus(p.status)}
-                            </span>
                             {p.categoryId && categoryById[p.categoryId] && (
                               <span
                                 className={`text-xs px-2 py-0.5 rounded border ${

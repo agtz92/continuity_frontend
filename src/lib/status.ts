@@ -14,6 +14,9 @@ import type { ProjectStatus } from "@/lib/types";
  * locale-dependent — components should resolve them via
  * `useTranslations("status")(status)`.
  */
+// Status is a semantic state indicator — colors stay fixed across themes
+// and palettes. Each status has a Lucide icon used for the icon-only
+// badge on project cards.
 export const statusConfig: Record<
   ProjectStatus,
   { color: string; icon: React.ComponentType<{ size?: number }> }
@@ -23,7 +26,7 @@ export const statusConfig: Record<
     icon: Lightbulb,
   },
   active: {
-    color: "bg-accent/20 text-accent border-accent/30",
+    color: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
     icon: Zap,
   },
   stalled: {
@@ -35,7 +38,7 @@ export const statusConfig: Record<
     icon: Pause,
   },
   launched: {
-    color: "bg-accent-2/20 text-accent-2 border-accent-2/30",
+    color: "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30",
     icon: Rocket,
   },
   archived: {
@@ -44,12 +47,16 @@ export const statusConfig: Record<
   },
 };
 
+// Status border colors are intentionally fixed Tailwind shades (not theme/
+// palette tokens). These are semantic state indicators — they shouldn't
+// shift hue when the user picks Pink or Neon. emerald/blue/purple/amber/
+// slate all read fine on both dark and light backgrounds at 60% opacity.
 export const statusBorderClass: Record<ProjectStatus, string> = {
-  active: "border-l-accent/60",
+  active: "border-l-emerald-500/60",
   idea: "border-l-purple-500/60",
   stalled: "border-l-amber-500/60",
   paused: "border-l-slate-500/60",
-  launched: "border-l-accent-2/60",
+  launched: "border-l-blue-500/60",
   archived: "border-l-text-muted",
 };
 
