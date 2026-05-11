@@ -38,7 +38,7 @@ function applyThemeAttribute(theme: Theme) {
  * `data-theme` on <html> immediately for instant visual feedback.
  */
 export function ThemeSelector() {
-  const t = useTranslations("settings.profile");
+  const t = useTranslations("settings.appearance");
   const tCommon = useTranslations("common");
   const router = useRouter();
 

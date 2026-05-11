@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   Bell,
   CreditCard,
+  Palette,
   Plug,
   User,
   type LucideIcon,
@@ -21,13 +22,14 @@ import { TopNav } from "@/components/layout/TopNav";
 
 type NavItem = {
   href: string;
-  key: "profile" | "notifications" | "billing" | "plugins";
+  key: "profile" | "notifications" | "appearance" | "billing" | "plugins";
   icon: LucideIcon;
 };
 
 const NAV: NavItem[] = [
   { href: "/settings/profile", key: "profile", icon: User },
   { href: "/settings/notifications", key: "notifications", icon: Bell },
+  { href: "/settings/appearance", key: "appearance", icon: Palette },
   { href: "/settings/billing", key: "billing", icon: CreditCard },
   { href: "/settings/plugins", key: "plugins", icon: Plug },
 ];

@@ -103,6 +103,7 @@
     "items": {
       "profile": "Perfil",
       "notifications": "Notificaciones",
+      "appearance": "Apariencia e idioma",
       "billing": "Facturación y plan",
       "plugins": "Integraciones",
       "categories": "Categorías",
@@ -118,6 +119,7 @@
       "label": "Ajustes",
       "profile": "Perfil",
       "notifications": "Notificaciones",
+      "appearance": "Apariencia e idioma",
       "billing": "Facturación y plan",
       "plugins": "Integraciones"
     },
@@ -126,6 +128,11 @@
       "description": "Información de tu cuenta.",
       "email": "Correo",
       "memberSince": "Miembro desde",
+      "moreSoon": "Pronto podrás editar más campos del perfil."
+    },
+    "appearance": {
+      "title": "Apariencia e idioma",
+      "description": "Elige cómo se ve la app y el idioma en el que la lees.",
       "language": "Idioma",
       "languageHint": "Afecta la interfaz y los digests/notificaciones que recibas.",
       "theme": "Tema",
@@ -138,8 +145,7 @@
       "paletteDefault": "Predeterminada",
       "palettePink": "Rosa",
       "paletteBusiness": "Business",
-      "paletteNeon": "Neón",
-      "moreSoon": "Pronto podrás editar más campos del perfil."
+      "paletteNeon": "Neón"
     },
     "billing": {
       "title": "Facturación y plan",

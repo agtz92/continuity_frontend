@@ -103,6 +103,7 @@
     "items": {
       "profile": "Profile",
       "notifications": "Notifications",
+      "appearance": "Appearance & language",
       "billing": "Billing & plan",
       "plugins": "Plugins",
       "categories": "Categories",
@@ -118,6 +119,7 @@
       "label": "Settings",
       "profile": "Profile",
       "notifications": "Notifications",
+      "appearance": "Appearance & language",
       "billing": "Billing & plan",
       "plugins": "Plugins"
     },
@@ -126,6 +128,11 @@
       "description": "Your account information.",
       "email": "Email",
       "memberSince": "Member since",
+      "moreSoon": "Editable profile fields are coming soon."
+    },
+    "appearance": {
+      "title": "Appearance & language",
+      "description": "Pick how the app looks and the language you read it in.",
       "language": "Language",
       "languageHint": "Affects the app interface and any digests/notifications you receive.",
       "theme": "Theme",
@@ -138,8 +145,7 @@
       "paletteDefault": "Default",
       "palettePink": "Pink",
       "paletteBusiness": "Business",
-      "paletteNeon": "Neon",
-      "moreSoon": "Editable profile fields are coming soon."
+      "paletteNeon": "Neon"
     },
     "billing": {
       "title": "Billing & plan",

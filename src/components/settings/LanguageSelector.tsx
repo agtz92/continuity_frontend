@@ -26,7 +26,7 @@ import { toast } from "@/lib/toast";
  * messages.
  */
 export function LanguageSelector() {
-  const t = useTranslations("settings.profile");
+  const t = useTranslations("settings.appearance");
   const tCommon = useTranslations("common");
   const router = useRouter();
   const activeLocale = useLocale();
@@ -36,7 +36,21 @@ export function LanguageSelector() {
   });
   const persisted = (data?.notificationSettings?.locale as Locale | undefined) ?? null;
 
-  const [updateSettings] = useMutation(UPDATE_NOTIFICATION_SETTINGS);
+  // Write the mutation response into the NOTIFICATION_SETTINGS_QUERY cache.
+  // Without this, useLocaleSync reads a stale locale from Apollo on the next
+  // page mount, sees it differs from the active locale, and "syncs" by
+  // reverting — undoing the user's choice. NotificationSettings has no `id`,
+  // so Apollo can't auto-normalize the mutation response.
+  const [updateSettings] = useMutation(UPDATE_NOTIFICATION_SETTINGS, {
+    update: (cache, { data }) => {
+      if (data?.updateNotificationSettings) {
+        cache.writeQuery({
+          query: NOTIFICATION_SETTINGS_QUERY,
+          data: { notificationSettings: data.updateNotificationSettings },
+        });
+      }
+    },
+  });
   const [pending, startTransition] = useTransition();
   const [savingValue, setSavingValue] = useState<Locale | null>(null);
 

@@ -12,6 +12,7 @@ import {
   LogOut,
   MessageCircle,
   MessagesSquare,
+  Palette,
   Plug,
   Tags,
   User,
@@ -123,6 +124,12 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               href="/settings/notifications"
               icon={Bell}
               label={t("items.notifications")}
+              onClick={handleNavigate}
+            />
+            <RowLink
+              href="/settings/appearance"
+              icon={Palette}
+              label={t("items.appearance")}
               onClick={handleNavigate}
             />
             <RowLink

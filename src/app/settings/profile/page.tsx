@@ -5,9 +5,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { SettingsShell } from "@/components/settings/SettingsShell";
-import { LanguageSelector } from "@/components/settings/LanguageSelector";
-import { ThemeSelector } from "@/components/settings/ThemeSelector";
-import { PaletteSelector } from "@/components/settings/PaletteSelector";
 
 export default function ProfileSettingsPage() {
   const t = useTranslations("settings.profile");
@@ -32,15 +29,6 @@ export default function ProfileSettingsPage() {
       <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-5">
         <Field label={t("email")} value={email} />
         {createdAt && <Field label={t("memberSince")} value={createdAt} />}
-        <div className="pt-1">
-          <LanguageSelector />
-        </div>
-        <div className="pt-1">
-          <ThemeSelector />
-        </div>
-        <div className="pt-1">
-          <PaletteSelector />
-        </div>
         <div className="pt-2 flex items-center gap-2 text-xs text-text-muted">
           <User size={14} /> {t("moreSoon")}
         </div>

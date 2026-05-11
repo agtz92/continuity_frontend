@@ -34,7 +34,7 @@ function detectEffectiveTheme(): "dark" | "light" {
  * (bg/surface/border/text) stays controlled by ThemeSelector.
  */
 export function PaletteSelector() {
-  const t = useTranslations("settings.profile");
+  const t = useTranslations("settings.appearance");
   const tCommon = useTranslations("common");
   const router = useRouter();
 
