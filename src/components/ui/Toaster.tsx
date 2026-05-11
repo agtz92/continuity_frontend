@@ -6,7 +6,7 @@ import { subscribeToasts, toast as toastApi, type Toast } from "@/lib/toast";
 
 const styles: Record<Toast["kind"], { ring: string; icon: React.ReactNode }> = {
   error: {
-    ring: "border-red-500/40 bg-red-500/10 text-red-100",
+    ring: "border-red-500/40 bg-red-500/10 text-red-800 dark:text-red-100",
     icon: <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />,
   },
   success: {

@@ -19,7 +19,7 @@ export const statusConfig: Record<
   { color: string; icon: React.ComponentType<{ size?: number }> }
 > = {
   idea: {
-    color: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+    color: "bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30",
     icon: Lightbulb,
   },
   active: {
@@ -27,11 +27,11 @@ export const statusConfig: Record<
     icon: Zap,
   },
   stalled: {
-    color: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    color: "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30",
     icon: AlertCircle,
   },
   paused: {
-    color: "bg-slate-500/20 text-slate-300 border-slate-500/30",
+    color: "bg-slate-500/20 text-slate-700 dark:text-slate-300 border-slate-500/30",
     icon: Pause,
   },
   launched: {

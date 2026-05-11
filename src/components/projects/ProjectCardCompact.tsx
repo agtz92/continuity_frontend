@@ -86,12 +86,12 @@ export function ProjectCardCompact({
           </span>
         )}
         {overdueCount > 0 && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40 shrink-0">
             {t("overdueBadge", { count: overdueCount })}
           </span>
         )}
         {todayCount > 0 && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 shrink-0">
             {t("todayBadge", { count: todayCount })}
           </span>
         )}

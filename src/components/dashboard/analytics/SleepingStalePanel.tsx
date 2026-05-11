@@ -6,9 +6,9 @@ import type { SleepingProjectRow, StaleIdeaRow } from "@/lib/types";
 import { PanelCard } from "./PanelCard";
 
 const BUCKET_TONE: Record<SleepingProjectRow["bucket"], string> = {
-  "7-14": "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  "15-30": "bg-orange-500/15 text-orange-300 border-orange-500/30",
-  "30+": "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  "7-14": "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+  "15-30": "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30",
+  "30+": "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30",
 };
 
 export function SleepingStalePanel({

@@ -152,7 +152,7 @@ export function TasksView({
               icon={<Target size={14} className="text-orange-400" />}
               title={t("todayBucket")}
               rightSlot={
-                <span className="text-xs text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
+                <span className="text-xs text-orange-700 dark:text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
                   {todayBucket.length}
                 </span>
               }
@@ -177,7 +177,7 @@ export function TasksView({
                 title={t("pickDay")}
                 rightSlot={
                   <>
-                    <span className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
+                    <span className="text-xs text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
                       {unscheduledBucket.length}
                     </span>
                     <span className="hidden sm:inline text-xs text-text-muted ml-1">

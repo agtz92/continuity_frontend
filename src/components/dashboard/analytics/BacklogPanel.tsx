@@ -12,13 +12,13 @@ export function BacklogPanel({ backlog }: { backlog: BacklogHealth }) {
       label: t("overdue"),
       value: backlog.overdueTasks,
       icon: <AlertTriangle size={14} className="text-rose-400" />,
-      tone: "text-rose-300",
+      tone: "text-rose-700 dark:text-rose-300",
     },
     {
       label: t("dueSoon"),
       value: backlog.dueSoonTasks,
       icon: <Clock size={14} className="text-amber-400" />,
-      tone: "text-amber-300",
+      tone: "text-amber-700 dark:text-amber-300",
     },
     {
       label: t("quickWins"),

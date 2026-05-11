@@ -123,7 +123,7 @@ export function AssistantPanel({ open, onClose }: Props) {
         )}
 
         {error && (
-          <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2 rounded-md border border-amber-500/30 bg-amber-500/5 text-amber-200 text-xs">
+          <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2 rounded-md border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-200 text-xs">
             <AlertCircle size={12} className="mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -153,7 +153,7 @@ export function AssistantPanel({ open, onClose }: Props) {
             <button
               type="button"
               onClick={stop}
-              className="shrink-0 w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 flex items-center justify-center"
+              className="shrink-0 w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 flex items-center justify-center"
               aria-label={t("stop")}
               title={t("stop")}
             >

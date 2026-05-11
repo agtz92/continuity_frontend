@@ -1,8 +1,8 @@
 import type { Priority } from "@/lib/types";
 
 export const priorityChipClass: Record<Priority, string> = {
-  critical: "bg-red-500/20 text-red-300 border-red-500/40",
-  high: "bg-orange-500/20 text-orange-300 border-orange-500/40",
+  critical: "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/40",
+  high: "bg-orange-500/20 text-orange-700 dark:text-orange-300 border-orange-500/40",
   medium: "bg-accent/15 text-accent border-accent/30",
   low: "bg-accent-2/15 text-accent-2 border-accent-2/30",
 };

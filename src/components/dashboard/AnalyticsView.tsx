@@ -40,7 +40,7 @@ export function AnalyticsView() {
         <div className="bg-surface border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={18} />
           <div className="flex-1">
-            <div className="text-sm font-semibold text-amber-300">
+            <div className="text-sm font-semibold text-amber-700 dark:text-amber-300">
               {t("loadError")}
             </div>
             <div className="text-xs text-text-muted mt-1">{error.message}</div>

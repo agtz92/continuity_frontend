@@ -144,7 +144,7 @@ export default function Dashboard() {
           <div className="flex items-start gap-3 mb-3">
             <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={20} />
             <div>
-              <div className="font-semibold text-amber-300 mb-1">Couldn&apos;t load data</div>
+              <div className="font-semibold text-amber-700 dark:text-amber-300 mb-1">Couldn&apos;t load data</div>
               <div className="text-sm text-text-muted mb-3">Error: {error.message}</div>
             </div>
           </div>

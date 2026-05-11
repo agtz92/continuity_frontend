@@ -79,7 +79,7 @@ export function BackupRestoreModal({
             </button>
             <button
               onClick={() => triggerImport("replace")}
-              className="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-300 rounded-lg text-sm flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-center justify-center gap-2"
             >
               <Upload size={14} /> {t("importReplace")}
             </button>

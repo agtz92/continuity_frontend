@@ -571,17 +571,17 @@ export function ProjectsView({
                               </span>
                             )}
                             {overdueCount > 0 && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40">
+                              <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40">
                                 {tCard("overdueBadge", { count: overdueCount })}
                               </span>
                             )}
                             {todayCount > 0 && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40">
+                              <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40">
                                 {tCard("todayBadge", { count: todayCount })}
                               </span>
                             )}
                             {isStalled && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                                 {tCard("idleBadge", { count: days })}
                               </span>
                             )}

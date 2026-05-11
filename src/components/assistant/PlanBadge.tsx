@@ -18,7 +18,7 @@ const STYLES: Record<
   },
   admin: {
     label: "Admin",
-    tone: "border-amber-500/40 text-amber-300 bg-amber-500/10",
+    tone: "border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10",
     Icon: Crown,
   },
 };

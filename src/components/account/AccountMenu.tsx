@@ -273,7 +273,7 @@ function RowButton({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
         danger
-          ? "text-red-300 hover:text-red-200 hover:bg-red-500/10"
+          ? "text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-500/10"
           : "text-text-muted hover:text-text hover:bg-surface"
       }`}
     >

@@ -30,15 +30,15 @@ type ProductivityStats = ReturnType<typeof useProductivityStats>;
 
 const sleepingBucketStyle = {
   "7-14": {
-    chip: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    chip: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
     dot: "bg-amber-400",
   },
   "15-30": {
-    chip: "bg-orange-500/15 text-orange-300 border-orange-500/30",
+    chip: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30",
     dot: "bg-orange-400",
   },
   "30+": {
-    chip: "bg-red-500/15 text-red-300 border-red-500/30",
+    chip: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
     dot: "bg-red-400",
   },
 } as const;
@@ -147,10 +147,10 @@ export function TodayView({
           <div className="flex items-start gap-3">
             <Bell className="text-amber-400 shrink-0 mt-0.5" size={18} />
             <div className="flex-1">
-              <div className="font-semibold text-amber-300 mb-1">
+              <div className="font-semibold text-amber-700 dark:text-amber-300 mb-1">
                 {t("stalledAlert.title", { count: stalled.length })}
               </div>
-              <div className="text-sm text-amber-200/80">
+              <div className="text-sm text-amber-700/80 dark:text-amber-200/80">
                 {t("stalledAlert.subtitle")}
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
@@ -158,7 +158,7 @@ export function TodayView({
                   <button
                     key={p.id}
                     onClick={() => onJumpToProject(p)}
-                    className="text-xs px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 rounded-md text-amber-200"
+                    className="text-xs px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 rounded-md text-amber-700 dark:text-amber-200"
                   >
                     {p.name} · {daysSince(p.lastActivity)}d
                   </button>
@@ -178,16 +178,16 @@ export function TodayView({
           todayTaskCounts.total > 0 ? (
             <span className="inline-flex items-center gap-2 flex-wrap">
               <span
-                className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-200 shadow-sm shadow-orange-500/10"
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-700 dark:text-orange-200 shadow-sm shadow-orange-500/10"
                 title={tFocus("tasksTooltip", {
                   dueToday: todayTaskCounts.dueToday,
                   overdue: todayTaskCounts.overdue,
                 })}
               >
-                <Target size={11} className="text-orange-300" />
+                <Target size={11} className="text-orange-700 dark:text-orange-300" />
                 <span>{tFocus("tasksLabel", { count: todayTaskCounts.total })}</span>
                 {todayTaskCounts.overdue > 0 && (
-                  <span className="text-red-300 font-semibold">
+                  <span className="text-red-700 dark:text-red-300 font-semibold">
                     {tFocus("overdueExtra", { count: todayTaskCounts.overdue })}
                   </span>
                 )}
@@ -269,7 +269,7 @@ export function TodayView({
                           (() => {
                             const n = daysOverdue(item.task.dueDate);
                             return n !== null ? (
-                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/25 text-red-200 border border-red-500/50">
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/25 text-red-700 dark:text-red-200 border border-red-500/50">
                                 {tFocus("daysLate", { count: n })}
                               </span>
                             ) : null;
@@ -321,10 +321,10 @@ export function TodayView({
           {todayFocus.total > todayFocus.items.length && (
             <button
               onClick={onJumpToTasks}
-              className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 text-sm font-medium transition-colors"
+              className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-700 dark:text-orange-200 text-sm font-medium transition-colors"
             >
               {tFocus("viewAll")}
-              <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/30 text-orange-100">
+              <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/30 text-orange-800 dark:text-orange-100">
                 {tFocus("moreCount", {
                   count: todayFocus.total - todayFocus.items.length,
                 })}
@@ -598,7 +598,7 @@ export function TodayView({
           icon={<Moon size={18} className="text-amber-400" />}
           title={tSleep("title")}
           rightSlot={
-            <span className="text-xs font-normal text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
+            <span className="text-xs font-normal text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
               {sleepingProjects.length}
             </span>
           }
@@ -651,14 +651,14 @@ export function TodayView({
           className="w-full text-left bg-purple-500/5 border border-purple-500/30 rounded-xl p-4 hover:bg-purple-500/10 transition-colors"
         >
           <div className="flex items-start gap-3">
-            <Lightbulb className="text-purple-300 shrink-0 mt-0.5" size={18} />
+            <Lightbulb className="text-purple-700 dark:text-purple-300 shrink-0 mt-0.5" size={18} />
             <div className="flex-1">
-              <div className="font-semibold text-purple-200 mb-1">
+              <div className="font-semibold text-purple-700 dark:text-purple-200 mb-1">
                 {tStale("title", { count: staleIdeas.length })}
               </div>
-              <div className="text-sm text-purple-200/70">{tStale("subtitle")}</div>
+              <div className="text-sm text-purple-700/70 dark:text-purple-200/70">{tStale("subtitle")}</div>
             </div>
-            <ChevronRight className="text-purple-300 shrink-0 mt-0.5" size={18} />
+            <ChevronRight className="text-purple-700 dark:text-purple-300 shrink-0 mt-0.5" size={18} />
           </div>
         </button>
       )}

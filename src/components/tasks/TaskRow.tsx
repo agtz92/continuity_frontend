@@ -85,7 +85,7 @@ export function TaskRow({
                 e.stopPropagation();
                 onSchedule(task);
               }}
-              className="inline-flex items-center gap-1 text-amber-300 hover:text-amber-200 hover:underline"
+              className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200 hover:underline"
             >
               <CalendarPlus size={12} /> {t("addDate")}
             </button>

@@ -56,7 +56,7 @@ export function DashboardHeader({
               />
               <div>
                 <div
-                  className={`text-[10px] sm:text-xs ${streakActive ? "text-orange-300/80" : "text-text-muted"}`}
+                  className={`text-[10px] sm:text-xs ${streakActive ? "text-orange-700/80 dark:text-orange-300/80" : "text-text-muted"}`}
                 >
                   {streakActive
                     ? tiedRecord
@@ -65,7 +65,7 @@ export function DashboardHeader({
                     : t("best")}
                 </div>
                 <div
-                  className={`font-bold text-base sm:text-lg ${streakActive ? "text-orange-300" : "text-text-muted"}`}
+                  className={`font-bold text-base sm:text-lg ${streakActive ? "text-orange-700 dark:text-orange-300" : "text-text-muted"}`}
                 >
                   {streakActive ? streakCurrent : streakBest}d
                 </div>

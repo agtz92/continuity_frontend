@@ -81,12 +81,12 @@ export function IdeasView({
               >
                 <div className="flex items-start gap-2 mb-2">
                   <Lightbulb className="text-purple-400 shrink-0 mt-0.5" size={16} />
-                  <div className="font-semibold text-purple-100 flex-1 break-words">
+                  <div className="font-semibold text-purple-800 dark:text-purple-100 flex-1 break-words">
                     {i.title}
                   </div>
                 </div>
                 {i.why && (
-                  <div className="text-sm text-purple-200/80 italic mb-2 break-words">
+                  <div className="text-sm text-purple-700/80 dark:text-purple-200/80 italic mb-2 break-words">
                     → {i.why}
                   </div>
                 )}
@@ -98,7 +98,7 @@ export function IdeasView({
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => onPromote(i.id)}
-                    className="text-xs px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 rounded-md"
+                    className="text-xs px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-700 dark:text-purple-200 rounded-md"
                   >
                     {t("promote")}
                   </button>
