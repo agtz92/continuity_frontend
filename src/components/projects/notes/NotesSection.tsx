@@ -220,7 +220,7 @@ function NoteEditor({
 }) {
   return (
     <div
-      className="bg-bg/70 border border-accent/30 rounded-lg p-3 space-y-2"
+      className="bg-bg/70 border border-border rounded-lg p-3 space-y-2"
       onClick={(e) => e.stopPropagation()}
     >
       <input
@@ -244,7 +244,7 @@ function NoteEditor({
           }
         }}
         placeholder={t("bodyPlaceholder")}
-        className="w-full bg-surface/50 border border-border rounded-md px-2.5 py-2 text-sm text-text placeholder:text-text-muted resize-y min-h-[100px] focus:outline-none focus:border-accent/40"
+        className="w-full bg-surface border border-accent/40 rounded-md px-2.5 py-2 text-sm text-text placeholder:text-text-muted resize-y min-h-[100px] focus:outline-none"
         rows={4}
       />
       <div className="flex items-center justify-between gap-2">
