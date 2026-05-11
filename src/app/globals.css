@@ -54,6 +54,78 @@
   --accent-2: #0891b2;
 }
 
+[data-theme="dark"][data-palette="green"] {
+  --accent: #6FCF97;
+  --accent-2: #2FA084;
+}
+[data-theme="light"][data-palette="green"] {
+  --accent: #0F8A5C;
+  --accent-2: #155F4A;
+}
+
+[data-theme="dark"][data-palette="turquoise"] {
+  --accent: #5DF8D8;
+  --accent-2: #6FD1D7;
+}
+[data-theme="light"][data-palette="turquoise"] {
+  --accent: #0D9488;
+  --accent-2: #0E7490;
+}
+
+[data-theme="dark"][data-palette="cute"] {
+  --accent: #FFF0BE;
+  --accent-2: #FFD6A6;
+}
+[data-theme="light"][data-palette="cute"] {
+  --accent: #9B7C20;
+  --accent-2: #A6582B;
+}
+
+[data-theme="dark"][data-palette="midnight"] {
+  --accent: #A5B4FC;
+  --accent-2: #818CF8;
+}
+[data-theme="light"][data-palette="midnight"] {
+  --accent: #080616;
+  --accent-2: #1A1953;
+}
+
+[data-theme="dark"][data-palette="boho"] {
+  --accent: #CAAA98;
+  --accent-2: #9A8678;
+}
+[data-theme="light"][data-palette="boho"] {
+  --accent: #7A5D4A;
+  --accent-2: #5C4434;
+}
+
+[data-theme="dark"][data-palette="complimentary"] {
+  --accent: #F0E9B6;
+  --accent-2: #B891C2;
+}
+[data-theme="light"][data-palette="complimentary"] {
+  --accent: #9B7A1F;
+  --accent-2: #744577;
+}
+
+[data-theme="dark"][data-palette="sunset"] {
+  --accent: #EA5252;
+  --accent-2: #FF9D23;
+}
+[data-theme="light"][data-palette="sunset"] {
+  --accent: #B83232;
+  --accent-2: #B86317;
+}
+
+[data-theme="dark"][data-palette="retro"] {
+  --accent: #FF9B51;
+  --accent-2: #7A9CB3;
+}
+[data-theme="light"][data-palette="retro"] {
+  --accent: #C46817;
+  --accent-2: #25343F;
+}
+
 html,
 body {
   background: var(--bg);

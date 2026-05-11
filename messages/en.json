@@ -145,7 +145,15 @@
       "paletteDefault": "Default",
       "palettePink": "Pink",
       "paletteBusiness": "Business",
-      "paletteNeon": "Neon"
+      "paletteNeon": "Neon",
+      "paletteGreen": "Green",
+      "paletteTurquoise": "Turquoise",
+      "paletteCute": "Cute",
+      "paletteMidnight": "Midnight",
+      "paletteBoho": "Boho",
+      "paletteComplimentary": "Complimentary",
+      "paletteSunset": "Sunset",
+      "paletteRetro": "Retro"
     },
     "billing": {
       "title": "Billing & plan",

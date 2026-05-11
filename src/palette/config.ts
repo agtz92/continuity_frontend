@@ -1,4 +1,17 @@
-export const SUPPORTED_PALETTES = ["default", "pink", "business", "neon"] as const;
+export const SUPPORTED_PALETTES = [
+  "default",
+  "pink",
+  "business",
+  "neon",
+  "green",
+  "turquoise",
+  "cute",
+  "midnight",
+  "boho",
+  "complimentary",
+  "sunset",
+  "retro",
+] as const;
 export type Palette = (typeof SUPPORTED_PALETTES)[number];
 export const DEFAULT_PALETTE: Palette = "default";
 
@@ -16,6 +29,14 @@ export const PALETTE_LABEL_KEY: Record<Palette, string> = {
   pink: "palettePink",
   business: "paletteBusiness",
   neon: "paletteNeon",
+  green: "paletteGreen",
+  turquoise: "paletteTurquoise",
+  cute: "paletteCute",
+  midnight: "paletteMidnight",
+  boho: "paletteBoho",
+  complimentary: "paletteComplimentary",
+  sunset: "paletteSunset",
+  retro: "paletteRetro",
 };
 
 /**
@@ -43,5 +64,37 @@ export const PALETTE_SWATCHES: Record<
   neon: {
     dark: ["#a3e635", "#22d3ee"],
     light: ["#65a30d", "#0891b2"],
+  },
+  green: {
+    dark: ["#6FCF97", "#2FA084"],
+    light: ["#0F8A5C", "#155F4A"],
+  },
+  turquoise: {
+    dark: ["#5DF8D8", "#6FD1D7"],
+    light: ["#0D9488", "#0E7490"],
+  },
+  cute: {
+    dark: ["#FFF0BE", "#FFD6A6"],
+    light: ["#9B7C20", "#A6582B"],
+  },
+  midnight: {
+    dark: ["#A5B4FC", "#818CF8"],
+    light: ["#080616", "#1A1953"],
+  },
+  boho: {
+    dark: ["#CAAA98", "#9A8678"],
+    light: ["#7A5D4A", "#5C4434"],
+  },
+  complimentary: {
+    dark: ["#F0E9B6", "#B891C2"],
+    light: ["#9B7A1F", "#744577"],
+  },
+  sunset: {
+    dark: ["#EA5252", "#FF9D23"],
+    light: ["#B83232", "#B86317"],
+  },
+  retro: {
+    dark: ["#FF9B51", "#7A9CB3"],
+    light: ["#C46817", "#25343F"],
   },
 };

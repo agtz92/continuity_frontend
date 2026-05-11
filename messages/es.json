@@ -145,7 +145,15 @@
       "paletteDefault": "Predeterminada",
       "palettePink": "Rosa",
       "paletteBusiness": "Business",
-      "paletteNeon": "Neón"
+      "paletteNeon": "Neón",
+      "paletteGreen": "Verde",
+      "paletteTurquoise": "Turquesa",
+      "paletteCute": "Tierna",
+      "paletteMidnight": "Medianoche",
+      "paletteBoho": "Boho",
+      "paletteComplimentary": "Complementaria",
+      "paletteSunset": "Atardecer",
+      "paletteRetro": "Retro"
     },
     "billing": {
       "title": "Facturación y plan",
