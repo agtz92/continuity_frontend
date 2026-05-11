@@ -258,11 +258,15 @@ export function TodayView({
                               : "text-accent"
                           }`}
                         >
-                          {tFocus(`labels.${item.type}` as
-                            | "labels.overdue"
-                            | "labels.dueToday"
-                            | "labels.stalled"
-                            | "labels.nextStep")}
+                          {tFocus(
+                            item.type === "today"
+                              ? "labels.dueToday"
+                              : item.type === "overdue"
+                              ? "labels.overdue"
+                              : item.type === "stalled"
+                              ? "labels.stalled"
+                              : "labels.nextStep"
+                          )}
                         </span>
                         {item.type === "overdue" &&
                           item.task?.dueDate &&
