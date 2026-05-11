@@ -119,21 +119,21 @@ export function TodayView({
   return (
     <div className="space-y-6">
       {backupOverdue && hasData && (
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+        <div className="bg-accent-2/10 border border-accent-2/30 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <Database className="text-blue-400 shrink-0 mt-0.5" size={18} />
+            <Database className="text-accent-2 shrink-0 mt-0.5" size={18} />
             <div className="flex-1">
-              <div className="font-semibold text-blue-300 mb-1">
+              <div className="font-semibold text-accent-2 mb-1">
                 {lastBackup
                   ? t("backupAlert.lastBackupAgo", { days: daysSinceBackup ?? 0 })
                   : t("backupAlert.noBackup")}
               </div>
-              <div className="text-sm text-blue-200/80 mb-2">
+              <div className="text-sm text-accent-2/80 mb-2">
                 {t("backupAlert.explanation")}
               </div>
               <button
                 onClick={onOpenBackupModal}
-                className="text-xs px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 rounded-md text-blue-200"
+                className="text-xs px-3 py-1.5 bg-accent-2/20 hover:bg-accent-2/30 rounded-md text-accent-2"
               >
                 {t("backupAlert.openTools")}
               </button>
@@ -172,7 +172,7 @@ export function TodayView({
       <CollapsibleSection
         open={showTodayFocus}
         onToggle={() => setShowTodayFocus((s) => !s)}
-        icon={<Target size={18} className="text-emerald-400" />}
+        icon={<Target size={18} className="text-accent" />}
         title={tFocus("title")}
         rightSlot={
           todayTaskCounts.total > 0 ? (
@@ -194,10 +194,10 @@ export function TodayView({
               </span>
               {todayEffortHours > 0 && (
                 <span
-                  className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-blue-500/15 text-blue-200 border-blue-500/40"
+                  className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-accent-2/15 text-accent-2 border-accent-2/40"
                   title={tFocus("totalHoursTooltip")}
                 >
-                  <Clock size={11} className="text-blue-300" />
+                  <Clock size={11} className="text-accent-2" />
                   {tFocus("totalHoursLabel", { hours: todayEffortHours })}
                 </span>
               )}
@@ -207,9 +207,9 @@ export function TodayView({
       >
         <>
           {todayFocus.items.length === 0 ? (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center">
-              <p className="text-zinc-400 mb-3">{tFocus("emptyTitle")}</p>
-              <p className="text-sm text-zinc-500">
+            <div className="bg-surface border border-border rounded-xl p-8 text-center">
+              <p className="text-text-muted mb-3">{tFocus("emptyTitle")}</p>
+              <p className="text-sm text-text-muted">
                 {projects.length === 0
                   ? tFocus("emptyHintFirst")
                   : tFocus("emptyHintNext")}
@@ -220,14 +220,14 @@ export function TodayView({
               {todayFocus.items.map((item, idx) => (
                 <div
                   key={idx}
-                  className={`p-4 rounded-xl border transition-all hover:border-zinc-700 ${
+                  className={`p-4 rounded-xl border transition-all hover:border-border ${
                     item.type === "overdue"
                       ? "bg-red-500/5 border-red-500/30"
                       : item.type === "today"
                       ? "bg-orange-500/5 border-orange-500/30"
                       : item.type === "stalled"
                       ? "bg-amber-500/5 border-amber-500/30"
-                      : "bg-zinc-900 border-zinc-800"
+                      : "bg-surface border-border"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -239,7 +239,7 @@ export function TodayView({
                           ? "bg-orange-400"
                           : item.type === "stalled"
                           ? "bg-amber-400"
-                          : "bg-emerald-400"
+                          : "bg-accent"
                       }`}
                     />
                     <div
@@ -255,7 +255,7 @@ export function TodayView({
                               ? "text-orange-400"
                               : item.type === "stalled"
                               ? "text-amber-400"
-                              : "text-emerald-400"
+                              : "text-accent"
                           }`}
                         >
                           {tFocus(`labels.${item.type}` as
@@ -280,14 +280,14 @@ export function TodayView({
                               e.stopPropagation();
                               onJumpToProject(item.project!);
                             }}
-                            className="text-xs text-zinc-500 hover:text-emerald-300 hover:underline"
+                            className="text-xs text-text-muted hover:text-accent hover:underline"
                           >
                             · {item.project.name}
                           </button>
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-zinc-100">
+                        <span className="text-text">
                           {item.task
                             ? item.task.title
                             : item.type === "stalled" && item.project
@@ -298,7 +298,7 @@ export function TodayView({
                             : item.project?.nextStep}
                         </span>
                         {item.task?.effortHours != null && (
-                          <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                          <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
                             <Clock size={10} />
                             {item.task.effortHours}h
                           </span>
@@ -308,7 +308,7 @@ export function TodayView({
                     {item.task && (
                       <button
                         onClick={() => onToggleTask(item.task!)}
-                        className="shrink-0 text-zinc-500 hover:text-emerald-400 transition-colors"
+                        className="shrink-0 text-text-muted hover:text-accent transition-colors"
                       >
                         <CheckCircle2 size={20} />
                       </button>
@@ -348,7 +348,7 @@ export function TodayView({
           <CollapsibleSection
             open={showDoneToday}
             onToggle={() => setShowDoneToday((s) => !s)}
-            icon={<Sparkles size={18} className="text-emerald-400" />}
+            icon={<Sparkles size={18} className="text-accent" />}
             title={tDone("title")}
             rightSlot={
               <>
@@ -366,10 +366,10 @@ export function TodayView({
                     }
                     className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
                       doneTodayFilter === "task"
-                        ? "bg-emerald-500/25 border border-emerald-500/60 text-emerald-200"
+                        ? "bg-accent/25 border border-accent/60 text-accent"
                         : doneTodayFilter === "log"
-                        ? "bg-emerald-500/5 border border-emerald-500/15 text-emerald-300/50 hover:text-emerald-300"
-                        : "bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+                        ? "bg-accent/5 border border-accent/15 text-accent/50 hover:text-accent"
+                        : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20"
                     }`}
                   >
                     <CheckCircle2 size={11} />
@@ -390,10 +390,10 @@ export function TodayView({
                     }
                     className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
                       doneTodayFilter === "log"
-                        ? "bg-blue-500/25 border border-blue-500/60 text-blue-200"
+                        ? "bg-accent-2/25 border border-accent-2/60 text-accent-2"
                         : doneTodayFilter === "task"
-                        ? "bg-blue-500/5 border border-blue-500/15 text-blue-300/50 hover:text-blue-300"
-                        : "bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20"
+                        ? "bg-accent-2/5 border border-accent-2/15 text-accent-2/50 hover:text-accent-2"
+                        : "bg-accent-2/10 border border-accent-2/30 text-accent-2 hover:bg-accent-2/20"
                     }`}
                   >
                     <TrendingUp size={11} />
@@ -402,7 +402,7 @@ export function TodayView({
                 )}
                 {doneTodayEffortHours > 0 && (
                   <span
-                    className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-blue-500/15 text-blue-200 border border-blue-500/40"
+                    className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-accent-2/15 text-accent-2 border border-accent-2/40"
                     title={tDone("hoursWorkedTooltip")}
                   >
                     <Clock size={11} />
@@ -412,17 +412,17 @@ export function TodayView({
               </>
             }
           >
-            <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 sm:p-4 space-y-3">
+            <div className="bg-surface/40 border border-border rounded-xl p-3 sm:p-4 space-y-3">
               {todayHoursByProject.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pb-2 border-b border-zinc-800/80">
-                  <span className="text-[10px] uppercase tracking-wider text-zinc-500 self-center mr-1">
+                <div className="flex flex-wrap gap-1.5 pb-2 border-b border-border/80">
+                  <span className="text-[10px] uppercase tracking-wider text-text-muted self-center mr-1">
                     {tDone("hoursByProject")}
                   </span>
                   {todayHoursByProject.map(({ project, hours }) => (
                     <button
                       key={project.id}
                       onClick={() => onJumpToProject(project)}
-                      className="text-xs px-2 py-0.5 rounded border bg-emerald-500/10 text-emerald-200 border-emerald-500/30 hover:bg-emerald-500/20 inline-flex items-center gap-1"
+                      className="text-xs px-2 py-0.5 rounded border bg-accent/10 text-accent border-accent/30 hover:bg-accent/20 inline-flex items-center gap-1"
                     >
                       <Clock size={10} />
                       {project.name} · {hours}h
@@ -438,32 +438,32 @@ export function TodayView({
                     return (
                       <div
                         key={`task-${taskItem.id}`}
-                        className="flex items-start gap-2 group border-l-2 border-emerald-500/40 pl-2.5"
+                        className="flex items-start gap-2 group border-l-2 border-accent/40 pl-2.5"
                       >
                         <CheckCircle2
                           size={16}
-                          className="text-emerald-400 shrink-0 mt-0.5"
+                          className="text-accent shrink-0 mt-0.5"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                            <span className="text-[10px] uppercase tracking-wider font-medium text-emerald-400">
+                            <span className="text-[10px] uppercase tracking-wider font-medium text-accent">
                               {tDone("task")}
                             </span>
                             {proj && (
                               <button
                                 onClick={() => onJumpToProject(proj)}
-                                className="text-xs text-zinc-500 hover:text-emerald-300 hover:underline"
+                                className="text-xs text-text-muted hover:text-accent hover:underline"
                               >
                                 · {proj.name}
                               </button>
                             )}
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm text-zinc-300 line-through decoration-emerald-500/40 break-words">
+                            <span className="text-sm text-text-muted line-through decoration-emerald-500/40 break-words">
                               {taskItem.title}
                             </span>
                             {taskItem.effortHours != null && (
-                              <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                              <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
                                 <Clock size={10} />
                                 {taskItem.effortHours}h
                               </span>
@@ -472,7 +472,7 @@ export function TodayView({
                         </div>
                         <button
                           onClick={() => onEditTask(taskItem)}
-                          className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                          className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                           title={tDone("edit")}
                           aria-label={tDone("editTaskAria")}
                         >
@@ -480,7 +480,7 @@ export function TodayView({
                         </button>
                         <button
                           onClick={() => onToggleTask(taskItem)}
-                          className="text-zinc-600 hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                          className="text-text-muted hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                           title={tDone("undo")}
                           aria-label={tDone("undoAria")}
                         >
@@ -494,27 +494,27 @@ export function TodayView({
                   return (
                     <div
                       key={`log-${u.id}`}
-                      className="flex items-start gap-2 border-l-2 border-blue-500/40 pl-2.5"
+                      className="flex items-start gap-2 border-l-2 border-accent-2/40 pl-2.5"
                     >
                       <TrendingUp
                         size={16}
-                        className="text-blue-400 shrink-0 mt-0.5"
+                        className="text-accent-2 shrink-0 mt-0.5"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                          <span className="text-[10px] uppercase tracking-wider font-medium text-blue-400">
+                          <span className="text-[10px] uppercase tracking-wider font-medium text-accent-2">
                             {tDone("log")}
                           </span>
                           {proj && (
                             <button
                               onClick={() => onJumpToProject(proj)}
-                              className="text-xs text-zinc-500 hover:text-emerald-300 hover:underline"
+                              className="text-xs text-text-muted hover:text-accent hover:underline"
                             >
                               · {proj.name}
                             </button>
                           )}
                         </div>
-                        <div className="text-sm text-zinc-300 break-words">
+                        <div className="text-sm text-text-muted break-words">
                           {u.note}
                         </div>
                       </div>
@@ -531,10 +531,10 @@ export function TodayView({
         <CollapsibleSection
           open={showCloseable}
           onToggle={() => setShowCloseable((s) => !s)}
-          icon={<Flag size={18} className="text-emerald-400" />}
+          icon={<Flag size={18} className="text-accent" />}
           title={tCloseable("title")}
           rightSlot={
-            <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+            <span className="text-xs font-normal text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
               {closableTotal}
             </span>
           }
@@ -546,21 +546,21 @@ export function TodayView({
                 <button
                   key={`almost-${s.project.id}`}
                   onClick={() => onJumpToProject(s.project)}
-                  className="text-left bg-emerald-500/5 border border-emerald-500/30 rounded-xl p-4 hover:border-emerald-500/50 transition-all"
+                  className="text-left bg-accent/5 border border-accent/30 rounded-xl p-4 hover:border-accent/50 transition-all"
                 >
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className="text-xs uppercase tracking-wider font-medium text-emerald-400">
+                    <span className="text-xs uppercase tracking-wider font-medium text-accent">
                       {tCloseable("almostThereChip", { pct })}
                     </span>
                   </div>
                   <div className="font-semibold mb-2 truncate">{s.project.name}</div>
-                  <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden mb-2">
+                  <div className="h-1.5 rounded-full bg-border overflow-hidden mb-2">
                     <div
-                      className="h-full bg-emerald-400"
+                      className="h-full bg-accent"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <div className="text-xs text-zinc-500">
+                  <div className="text-xs text-text-muted">
                     {tCloseable("tasksLeft", {
                       count: s.openCount,
                       done: s.doneCount,
@@ -574,15 +574,15 @@ export function TodayView({
               <button
                 key={`quick-${s.project.id}`}
                 onClick={() => onJumpToProject(s.project)}
-                className="text-left bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-emerald-500/40 transition-all"
+                className="text-left bg-surface border border-border rounded-xl p-4 hover:border-accent/40 transition-all"
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="text-xs uppercase tracking-wider font-medium text-emerald-400">
+                  <span className="text-xs uppercase tracking-wider font-medium text-accent">
                     {tCloseable("quickWin")}
                   </span>
                 </div>
                 <div className="font-semibold mb-2 truncate">{s.project.name}</div>
-                <div className="text-xs text-zinc-400">
+                <div className="text-xs text-text-muted">
                   {tCloseable("tasksAway", { count: s.openCount })}
                 </div>
               </button>
@@ -609,14 +609,14 @@ export function TodayView({
               return (
                 <div
                   key={project.id}
-                  className={`flex items-center gap-3 p-3 rounded-xl border bg-zinc-900/60 border-zinc-800 hover:border-zinc-700 transition-colors`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border bg-surface/60 border-border hover:border-border transition-colors`}
                 >
                   <span className={`shrink-0 w-2 h-2 rounded-full ${style.dot}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => onJumpToProject(project)}
-                        className="font-semibold text-zinc-100 truncate hover:text-emerald-300"
+                        className="font-semibold text-text truncate hover:text-accent"
                       >
                         {project.name}
                       </button>
@@ -627,14 +627,14 @@ export function TodayView({
                       </span>
                     </div>
                     {project.nextStep && (
-                      <div className="text-xs text-zinc-500 truncate mt-0.5">
+                      <div className="text-xs text-text-muted truncate mt-0.5">
                         → {project.nextStep}
                       </div>
                     )}
                   </div>
                   <button
                     onClick={() => onLogUpdate(project)}
-                    className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-emerald-500/15 text-emerald-200 border border-emerald-500/40 hover:bg-emerald-500/25 transition-colors"
+                    className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-accent/15 text-accent border border-accent/40 hover:bg-accent/25 transition-colors"
                   >
                     {tSleep("resume")}
                   </button>
@@ -667,10 +667,10 @@ export function TodayView({
         <CollapsibleSection
           open={showActiveProjects}
           onToggle={() => setShowActiveProjects((s) => !s)}
-          icon={<Zap size={18} className="text-emerald-400" />}
+          icon={<Zap size={18} className="text-accent" />}
           title={t("active.title")}
           rightSlot={
-            <span className="text-xs font-normal text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+            <span className="text-xs font-normal text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
               {projects.filter((p) => p.status === "active").length}
             </span>
           }
@@ -706,10 +706,10 @@ export function TodayView({
         <CollapsibleSection
           open={showLaunchedWithTasks}
           onToggle={() => setShowLaunchedWithTasks((s) => !s)}
-          icon={<Rocket size={18} className="text-blue-400" />}
+          icon={<Rocket size={18} className="text-accent-2" />}
           title={t("launched.title")}
           rightSlot={
-            <span className="text-xs font-normal text-blue-400/80 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
+            <span className="text-xs font-normal text-accent-2/80 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5">
               {launchedWithOpenTasks.length}
             </span>
           }

@@ -23,7 +23,7 @@ export const statusConfig: Record<
     icon: Lightbulb,
   },
   active: {
-    color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    color: "bg-accent/20 text-accent border-accent/30",
     icon: Zap,
   },
   stalled: {
@@ -35,22 +35,22 @@ export const statusConfig: Record<
     icon: Pause,
   },
   launched: {
-    color: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+    color: "bg-accent-2/20 text-accent-2 border-accent-2/30",
     icon: Rocket,
   },
   archived: {
-    color: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
+    color: "bg-text-muted/20 text-text-muted border-text-muted/30",
     icon: Archive,
   },
 };
 
 export const statusBorderClass: Record<ProjectStatus, string> = {
-  active: "border-l-emerald-500/60",
+  active: "border-l-accent/60",
   idea: "border-l-purple-500/60",
   stalled: "border-l-amber-500/60",
   paused: "border-l-slate-500/60",
-  launched: "border-l-blue-500/60",
-  archived: "border-l-zinc-600",
+  launched: "border-l-accent-2/60",
+  archived: "border-l-text-muted",
 };
 
 export const STATUS_FILTER_ORDER: Array<"all" | ProjectStatus> = [

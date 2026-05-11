@@ -18,7 +18,7 @@ export function AccountMenuTrigger({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 flex items-center justify-center text-white font-semibold text-sm transition-colors"
+      className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-accent-2 hover:from-accent hover:to-accent-2 flex items-center justify-center text-text font-semibold text-sm transition-colors"
       aria-label={t("ariaLabel")}
       title={t("openTooltip")}
     >

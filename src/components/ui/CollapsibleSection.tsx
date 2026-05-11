@@ -25,23 +25,23 @@ export function CollapsibleSection({
   if (variant === "card") {
     return (
       <div
-        className={`border border-zinc-800 rounded-xl overflow-hidden ${className}`}
+        className={`border border-border rounded-xl overflow-hidden ${className}`}
       >
         <button
           onClick={onToggle}
           aria-expanded={open}
-          className="w-full flex items-center gap-2 px-3 py-2.5 bg-zinc-900 hover:bg-zinc-900/70 text-left"
+          className="w-full flex items-center gap-2 px-3 py-2.5 bg-surface hover:bg-surface/70 text-left"
         >
           <ChevronRight
             size={16}
-            className={`text-zinc-500 transition-transform ${open ? "rotate-90" : ""}`}
+            className={`text-text-muted transition-transform ${open ? "rotate-90" : ""}`}
           />
           {icon}
-          <span className="text-sm font-medium text-zinc-200">{title}</span>
+          <span className="text-sm font-medium text-text">{title}</span>
           {rightSlot}
         </button>
         {open && (
-          <div className="p-2 sm:p-3 bg-zinc-950/40 border-t border-zinc-800">
+          <div className="p-2 sm:p-3 bg-bg/40 border-t border-border">
             {children}
           </div>
         )}
@@ -62,11 +62,11 @@ export function CollapsibleSection({
           }
         }}
         aria-expanded={open}
-        className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-zinc-900/40 -mx-1 px-1 py-1"
+        className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-surface/40 -mx-1 px-1 py-1"
       >
         <ChevronRight
           size={16}
-          className={`text-zinc-500 transition-transform ${open ? "rotate-90" : ""}`}
+          className={`text-text-muted transition-transform ${open ? "rotate-90" : ""}`}
         />
         {icon}
         <h2 className="text-lg font-semibold">{title}</h2>

@@ -29,23 +29,23 @@ export default function BillingSettingsPage() {
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mb-5">
-        <div className="text-xs text-zinc-500 mb-1">{t("currentPlan")}</div>
+      <div className="bg-surface/50 border border-border rounded-xl p-5 mb-5">
+        <div className="text-xs text-text-muted mb-1">{t("currentPlan")}</div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="text-zinc-100 font-medium">
+            <div className="text-text font-medium">
               {plan === "pro" ? t("pro") : plan === "admin" ? t("admin") : t("free")}
             </div>
             <PlanBadge plan={plan} />
           </div>
           <button
             disabled
-            className="px-3 py-1.5 text-xs rounded-lg border border-zinc-700 text-zinc-500 cursor-not-allowed"
+            className="px-3 py-1.5 text-xs rounded-lg border border-border text-text-muted cursor-not-allowed"
           >
             {t("upgrade")}
           </button>
         </div>
-        <div className="text-xs text-zinc-500 mb-3">
+        <div className="text-xs text-text-muted mb-3">
           {plan === "free" ? t("freeBlurb") : null}
         </div>
 
@@ -71,11 +71,11 @@ export default function BillingSettingsPage() {
 
 function UsageRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-zinc-500">
+    <div className="rounded-lg border border-border bg-bg/40 px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wider text-text-muted">
         {label}
       </div>
-      <div className="text-sm text-zinc-200 font-medium mt-0.5">{value}</div>
+      <div className="text-sm text-text font-medium mt-0.5">{value}</div>
     </div>
   );
 }

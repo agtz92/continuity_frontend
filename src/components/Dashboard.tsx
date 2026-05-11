@@ -7,6 +7,8 @@ import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
+import { useThemeSync } from "@/hooks/useThemeSync";
+import { usePaletteSync } from "@/hooks/usePaletteSync";
 import { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useProjectMutations } from "@/hooks/useProjectMutations";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
@@ -35,6 +37,8 @@ import { TodayView } from "./views/TodayView";
 
 export default function Dashboard() {
   useLocaleSync();
+  useThemeSync();
+  usePaletteSync();
   const {
     projects,
     tasks,
@@ -127,26 +131,26 @@ export default function Dashboard() {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-zinc-400">Loading your dashboard...</div>
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="text-text-muted">Loading your dashboard...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
-        <div className="max-w-md bg-zinc-900 border border-amber-500/30 rounded-xl p-6">
+      <div className="min-h-screen bg-bg flex items-center justify-center p-6">
+        <div className="max-w-md bg-surface border border-amber-500/30 rounded-xl p-6">
           <div className="flex items-start gap-3 mb-3">
             <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={20} />
             <div>
               <div className="font-semibold text-amber-300 mb-1">Couldn&apos;t load data</div>
-              <div className="text-sm text-zinc-400 mb-3">Error: {error.message}</div>
+              <div className="text-sm text-text-muted mb-3">Error: {error.message}</div>
             </div>
           </div>
           <button
             onClick={() => refetch()}
-            className="mt-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
+            className="mt-2 px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
           >
             Retry
           </button>
@@ -156,7 +160,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-bg text-text">
       <TopNav
         workspace={{
           onOpenCategories: () => setShowCategoriesModal(true),

@@ -85,22 +85,22 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <aside className="relative w-full sm:w-[22rem] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col shadow-2xl">
-        <header className="flex items-center justify-between px-5 py-4 border-b border-zinc-800/80">
+      <aside className="relative w-full sm:w-[22rem] h-full bg-bg border-r border-border flex flex-col shadow-2xl">
+        <header className="flex items-center justify-between px-5 py-4 border-b border-border/80">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white font-semibold shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-text font-semibold shrink-0">
               {initial}
             </div>
             <div className="min-w-0">
-              <div className="text-zinc-100 text-sm font-medium truncate">
+              <div className="text-text text-sm font-medium truncate">
                 {email ?? "—"}
               </div>
-              <div className="text-zinc-500 text-xs">{t("freePlan")}</div>
+              <div className="text-text-muted text-xs">{t("freePlan")}</div>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-md hover:bg-zinc-900 transition-colors group"
+            className="text-text-muted hover:text-text p-1.5 rounded-md hover:bg-surface transition-colors group"
             aria-label={t("close")}
             title={t("closeTooltip")}
           >
@@ -177,7 +177,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
           </Group>
         </nav>
 
-        <footer className="px-3 py-3 border-t border-zinc-800/80">
+        <footer className="px-3 py-3 border-t border-border/80">
           <RowButton
             icon={LogOut}
             label={t("items.signOut")}
@@ -199,7 +199,7 @@ function Group({
 }) {
   return (
     <div>
-      <div className="px-3 mb-2 text-[11px] uppercase tracking-wider text-zinc-500 font-semibold">
+      <div className="px-3 mb-2 text-[11px] uppercase tracking-wider text-text-muted font-semibold">
         {label}
       </div>
       <div className="space-y-0.5">{children}</div>
@@ -222,9 +222,9 @@ function RowLink({
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 transition-colors"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-text-muted hover:text-text hover:bg-surface transition-colors"
     >
-      <Icon size={16} className="text-zinc-500" />
+      <Icon size={16} className="text-text-muted" />
       <span>{label}</span>
     </Link>
   );
@@ -248,9 +248,9 @@ function RowExternal({
       target={isMailto ? undefined : "_blank"}
       rel={isMailto ? undefined : "noopener noreferrer"}
       onClick={onAfterClick}
-      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 transition-colors"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-text-muted hover:text-text hover:bg-surface transition-colors"
     >
-      <Icon size={16} className="text-zinc-500" />
+      <Icon size={16} className="text-text-muted" />
       <span>{label}</span>
     </a>
   );
@@ -274,10 +274,10 @@ function RowButton({
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
         danger
           ? "text-red-300 hover:text-red-200 hover:bg-red-500/10"
-          : "text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900"
+          : "text-text-muted hover:text-text hover:bg-surface"
       }`}
     >
-      <Icon size={16} className={danger ? "text-red-400" : "text-zinc-500"} />
+      <Icon size={16} className={danger ? "text-red-400" : "text-text-muted"} />
       <span>{label}</span>
     </button>
   );

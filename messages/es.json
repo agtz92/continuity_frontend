@@ -128,6 +128,17 @@
       "memberSince": "Miembro desde",
       "language": "Idioma",
       "languageHint": "Afecta la interfaz y los digests/notificaciones que recibas.",
+      "theme": "Tema",
+      "themeHint": "Elige tu apariencia preferida. \"Sistema\" sigue la configuración de tu dispositivo.",
+      "themeLight": "Claro",
+      "themeDark": "Oscuro",
+      "themeSystem": "Sistema",
+      "palette": "Paleta de colores",
+      "paletteHint": "Cambia solo los colores de acento. El tema controla claro/oscuro; la paleta cambia los resaltes.",
+      "paletteDefault": "Predeterminada",
+      "palettePink": "Rosa",
+      "paletteBusiness": "Business",
+      "paletteNeon": "Neón",
       "moreSoon": "Pronto podrás editar más campos del perfil."
     },
     "billing": {

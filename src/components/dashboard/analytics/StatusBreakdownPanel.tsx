@@ -17,11 +17,11 @@ const STATUS_ORDER: ProjectStatus[] = [
 
 const STATUS_COLOR: Record<ProjectStatus, string> = {
   idea: "bg-amber-400",
-  active: "bg-emerald-400",
+  active: "bg-accent",
   stalled: "bg-rose-400",
-  paused: "bg-zinc-400",
-  launched: "bg-blue-400",
-  archived: "bg-zinc-600",
+  paused: "bg-text-muted",
+  launched: "bg-accent-2",
+  archived: "bg-text-muted",
 };
 
 function Bar({
@@ -38,11 +38,11 @@ function Bar({
   const pct = total > 0 ? (count / total) * 100 : 0;
   return (
     <div>
-      <div className="flex justify-between text-xs text-zinc-400 mb-1">
+      <div className="flex justify-between text-xs text-text-muted mb-1">
         <span>{label}</span>
         <span className="tabular-nums">{count}</span>
       </div>
-      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-border rounded-full overflow-hidden">
         <div
           className={`h-full ${colorClass}`}
           style={{ width: `${pct}%` }}
@@ -71,11 +71,11 @@ export function StatusBreakdownPanel({
     >
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="space-y-2.5">
-          <div className="text-[11px] uppercase tracking-wide text-zinc-500">
+          <div className="text-[11px] uppercase tracking-wide text-text-muted">
             {t("status")}
           </div>
           {statusCounts.length === 0 ? (
-            <div className="text-sm text-zinc-500">{t("noData")}</div>
+            <div className="text-sm text-text-muted">{t("noData")}</div>
           ) : (
             STATUS_ORDER.map((s) => {
               const row = statusCounts.find((x) => x.status === s);
@@ -93,11 +93,11 @@ export function StatusBreakdownPanel({
           )}
         </div>
         <div className="space-y-2.5">
-          <div className="text-[11px] uppercase tracking-wide text-zinc-500">
+          <div className="text-[11px] uppercase tracking-wide text-text-muted">
             {t("category")}
           </div>
           {categoryBreakdown.length === 0 ? (
-            <div className="text-sm text-zinc-500">{t("noCategories")}</div>
+            <div className="text-sm text-text-muted">{t("noCategories")}</div>
           ) : (
             categoryBreakdown.map((c) => (
               <div
@@ -110,11 +110,11 @@ export function StatusBreakdownPanel({
                       categoryColorClass(c.color).dot
                     }`}
                   />
-                  <span className="text-sm text-zinc-200 truncate">
+                  <span className="text-sm text-text truncate">
                     {c.name}
                   </span>
                 </div>
-                <div className="text-xs text-zinc-400 tabular-nums shrink-0">
+                <div className="text-xs text-text-muted tabular-nums shrink-0">
                   {t("rowMeta", {
                     projects: c.projectCount,
                     interactions: c.interactions,

@@ -18,13 +18,13 @@ export function EffortPanel({ effort }: { effort: EffortStats }) {
       subtitle={subtitle}
     >
       <div className="flex items-baseline gap-2 mb-4">
-        <div className="text-3xl font-semibold text-zinc-100 tabular-nums">
+        <div className="text-3xl font-semibold text-text tabular-nums">
           {effort.effortHoursTotal}
         </div>
-        <div className="text-sm text-zinc-500">{t("totalHoursSuffix")}</div>
+        <div className="text-sm text-text-muted">{t("totalHoursSuffix")}</div>
       </div>
       {effort.effortHoursByProject.length === 0 ? (
-        <div className="text-sm text-zinc-500">{t("empty")}</div>
+        <div className="text-sm text-text-muted">{t("empty")}</div>
       ) : (
         <ul className="space-y-1.5">
           {effort.effortHoursByProject.map((row) => (
@@ -32,8 +32,8 @@ export function EffortPanel({ effort }: { effort: EffortStats }) {
               key={row.projectId}
               className="flex items-center justify-between gap-3 text-sm"
             >
-              <span className="text-zinc-200 truncate">{row.name}</span>
-              <span className="text-zinc-400 tabular-nums shrink-0">
+              <span className="text-text truncate">{row.name}</span>
+              <span className="text-text-muted tabular-nums shrink-0">
                 {row.hours} h
               </span>
             </li>

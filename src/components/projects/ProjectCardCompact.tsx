@@ -46,10 +46,10 @@ export function ProjectCardCompact({
 
   const baseBg =
     variant === "launched"
-      ? "bg-blue-500/5 hover:border-blue-500/40"
-      : "bg-zinc-900 hover:border-zinc-700";
+      ? "bg-accent-2/5 hover:border-accent-2/40"
+      : "bg-surface hover:border-border";
   const restBorder =
-    variant === "launched" ? "border-blue-500/20" : "border-zinc-800";
+    variant === "launched" ? "border-accent-2/20" : "border-border";
   const border =
     overdueCount > 0
       ? "border-red-500/40"
@@ -64,7 +64,7 @@ export function ProjectCardCompact({
     >
       <div className="flex items-center gap-2 mb-1 flex-wrap">
         {variant === "launched" ? (
-          <Rocket size={14} className="text-blue-400 shrink-0" />
+          <Rocket size={14} className="text-accent-2 shrink-0" />
         ) : (
           <span title={tPriority(p.priority)}>
             {priorityMeta(p.priority).emoji}
@@ -73,7 +73,7 @@ export function ProjectCardCompact({
         <span className="font-semibold truncate flex-1">{p.name}</span>
         {comebackGapDays != null && comebackGapDays > 0 && (
           <span
-            className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0 inline-flex items-center gap-1"
+            className="text-xs px-1.5 py-0.5 rounded bg-accent/20 text-accent border border-accent/40 shrink-0 inline-flex items-center gap-1"
             title={t("comebackTooltip")}
           >
             <Sparkles size={10} />
@@ -81,7 +81,7 @@ export function ProjectCardCompact({
           </span>
         )}
         {variant === "launched" && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-accent-2/20 text-accent-2 border border-accent-2/40 shrink-0">
             {t("openCount", { count: openCount })}
           </span>
         )}
@@ -106,25 +106,25 @@ export function ProjectCardCompact({
         </span>
       )}
       {p.nextStep && (
-        <div className="text-sm text-zinc-400 mb-3 line-clamp-2">
+        <div className="text-sm text-text-muted mb-3 line-clamp-2">
           → {p.nextStep}
         </div>
       )}
       {total > 0 && (
         <div className="mb-2">
-          <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-border overflow-hidden">
             <div
               className={`h-full ${
                 donePct >= 80
-                  ? "bg-emerald-400"
+                  ? "bg-accent"
                   : donePct >= 40
-                  ? "bg-blue-400"
-                  : "bg-zinc-500"
+                  ? "bg-accent-2"
+                  : "bg-text-muted"
               }`}
               style={{ width: `${donePct}%` }}
             />
           </div>
-          <div className="flex justify-between text-[10px] text-zinc-500 mt-0.5">
+          <div className="flex justify-between text-[10px] text-text-muted mt-0.5">
             <span>{t("donePct", { pct: donePct })}</span>
             <span>
               {done}/{total}
@@ -132,11 +132,11 @@ export function ProjectCardCompact({
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between text-xs text-zinc-500 gap-2 flex-wrap">
+      <div className="flex items-center justify-between text-xs text-text-muted gap-2 flex-wrap">
         <div className="inline-flex items-center gap-2 flex-wrap">
           {todayEffortHours != null && todayEffortHours > 0 && (
             <span
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30"
               title={t("todayHoursTooltip")}
             >
               <Clock size={10} />
@@ -145,7 +145,7 @@ export function ProjectCardCompact({
           )}
           {totalEffortHours != null && totalEffortHours > 0 && (
             <span
-              className="inline-flex items-center gap-1 text-zinc-500"
+              className="inline-flex items-center gap-1 text-text-muted"
               title={t("totalHoursTooltip")}
             >
               <Clock size={10} />

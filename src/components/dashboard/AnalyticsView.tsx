@@ -27,26 +27,26 @@ export function AnalyticsView() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <BarChart3 size={18} className="text-emerald-400" />
-          <h2 className="text-lg font-semibold text-zinc-100">{t("title")}</h2>
+          <BarChart3 size={18} className="text-accent" />
+          <h2 className="text-lg font-semibold text-text">{t("title")}</h2>
           {loading && !initialLoading ? (
-            <span className="text-xs text-zinc-500">{t("refreshing")}</span>
+            <span className="text-xs text-text-muted">{t("refreshing")}</span>
           ) : null}
         </div>
         <RangeSelector range={range} onChange={setRange} />
       </div>
 
       {error ? (
-        <div className="bg-zinc-900 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
+        <div className="bg-surface border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={18} />
           <div className="flex-1">
             <div className="text-sm font-semibold text-amber-300">
               {t("loadError")}
             </div>
-            <div className="text-xs text-zinc-400 mt-1">{error.message}</div>
+            <div className="text-xs text-text-muted mt-1">{error.message}</div>
             <button
               onClick={() => refetch()}
-              className="mt-3 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-md font-medium text-xs"
+              className="mt-3 px-3 py-1.5 bg-accent hover:opacity-90 text-bg rounded-md font-medium text-xs"
             >
               {tCommon("retry")}
             </button>
@@ -55,7 +55,7 @@ export function AnalyticsView() {
       ) : null}
 
       {initialLoading || !analytics ? (
-        <div className="text-sm text-zinc-500 py-12 text-center">
+        <div className="text-sm text-text-muted py-12 text-center">
           {t("calculating")}
         </div>
       ) : (

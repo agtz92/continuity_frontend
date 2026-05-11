@@ -23,13 +23,13 @@ export function CadencePanel({ cadence }: { cadence: CadenceStats }) {
         {tiles.map((tile) => (
           <div
             key={tile.label}
-            className="bg-zinc-950/50 border border-zinc-800 rounded-lg p-3"
+            className="bg-bg/50 border border-border rounded-lg p-3"
           >
-            <div className="text-2xl font-semibold text-zinc-100">
+            <div className="text-2xl font-semibold text-text">
               {tile.value}
-              <span className="text-sm text-zinc-500 ml-0.5">{tile.suffix}</span>
+              <span className="text-sm text-text-muted ml-0.5">{tile.suffix}</span>
             </div>
-            <div className="text-xs text-zinc-500 mt-1">{tile.label}</div>
+            <div className="text-xs text-text-muted mt-1">{tile.label}</div>
           </div>
         ))}
       </div>

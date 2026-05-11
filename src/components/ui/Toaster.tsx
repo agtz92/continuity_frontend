@@ -10,12 +10,12 @@ const styles: Record<Toast["kind"], { ring: string; icon: React.ReactNode }> = {
     icon: <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />,
   },
   success: {
-    ring: "border-emerald-500/40 bg-emerald-500/10 text-emerald-100",
-    icon: <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />,
+    ring: "border-accent/40 bg-accent/10 text-accent",
+    icon: <CheckCircle2 size={18} className="text-accent shrink-0 mt-0.5" />,
   },
   info: {
-    ring: "border-blue-500/40 bg-blue-500/10 text-blue-100",
-    icon: <Info size={18} className="text-blue-400 shrink-0 mt-0.5" />,
+    ring: "border-accent-2/40 bg-accent-2/10 text-accent-2",
+    icon: <Info size={18} className="text-accent-2 shrink-0 mt-0.5" />,
   },
 };
 
@@ -46,7 +46,7 @@ export function Toaster() {
             </div>
             <button
               onClick={() => toastApi.dismiss(t.id)}
-              className="text-zinc-300/70 hover:text-zinc-100 shrink-0"
+              className="text-text-muted/70 hover:text-text shrink-0"
               aria-label="Dismiss"
             >
               <X size={14} />

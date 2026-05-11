@@ -14,8 +14,8 @@ export function UsageMeter({ usage }: { usage: UsageSnapshot | null }) {
   const nearLimit = cap != null && ratio >= 0.8;
 
   return (
-    <div className="px-3 py-2 border-b border-zinc-800/80 bg-zinc-950/60">
-      <div className="flex items-center justify-between text-[11px] text-zinc-400">
+    <div className="px-3 py-2 border-b border-border/80 bg-bg/60">
+      <div className="flex items-center justify-between text-[11px] text-text-muted">
         <span>
           {cap == null
             ? t("uncapped")
@@ -24,17 +24,17 @@ export function UsageMeter({ usage }: { usage: UsageSnapshot | null }) {
         {nearLimit && (
           <Link
             href="/settings/billing"
-            className="text-emerald-400 hover:text-emerald-300 font-medium"
+            className="text-accent hover:text-accent font-medium"
           >
             {t("upgrade")}
           </Link>
         )}
       </div>
       {cap != null && (
-        <div className="mt-1.5 h-1 rounded-full bg-zinc-800 overflow-hidden">
+        <div className="mt-1.5 h-1 rounded-full bg-border overflow-hidden">
           <div
             className={`h-full transition-all ${
-              nearLimit ? "bg-amber-400" : "bg-emerald-500"
+              nearLimit ? "bg-amber-400" : "bg-accent"
             }`}
             style={{ width: `${Math.round(ratio * 100)}%` }}
           />

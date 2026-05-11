@@ -35,11 +35,11 @@ export function BackupRestoreModal({
   return (
     <Modal title={t("title")} onClose={onClose}>
       <div className="space-y-4">
-        <div className="text-sm text-zinc-400">{t("intro")}</div>
+        <div className="text-sm text-text-muted">{t("intro")}</div>
 
-        <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-sm">
-          <div className="text-zinc-300 font-medium mb-1">{t("currentData")}</div>
-          <div className="text-zinc-500 text-xs">
+        <div className="bg-border/50 border border-border rounded-lg p-3 text-sm">
+          <div className="text-text-muted font-medium mb-1">{t("currentData")}</div>
+          <div className="text-text-muted text-xs">
             {t("counts", {
               projects: counts.projects,
               tasks: counts.tasks,
@@ -48,7 +48,7 @@ export function BackupRestoreModal({
             })}
           </div>
           {lastBackup && (
-            <div className="text-zinc-500 text-xs mt-1">
+            <div className="text-text-muted text-xs mt-1">
               {t("lastBackup", {
                 when: new Date(lastBackup).toLocaleString(locale),
               })}
@@ -59,21 +59,21 @@ export function BackupRestoreModal({
         <div>
           <button
             onClick={() => onExport()}
-            className="w-full px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center justify-center gap-2"
+            className="w-full px-4 py-2.5 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center justify-center gap-2"
           >
             <Download size={16} /> {t("exportCta")}
           </button>
         </div>
 
-        <div className="border-t border-zinc-800 pt-4">
-          <div className="text-zinc-300 font-medium text-sm mb-2">
+        <div className="border-t border-border pt-4">
+          <div className="text-text-muted font-medium text-sm mb-2">
             {t("restoreHeader")}
           </div>
-          <div className="text-xs text-zinc-500 mb-3">{t("restoreIntro")}</div>
+          <div className="text-xs text-text-muted mb-3">{t("restoreIntro")}</div>
           <div className="space-y-2">
             <button
               onClick={() => triggerImport("merge")}
-              className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm flex items-center justify-center gap-2"
             >
               <Upload size={14} /> {t("importMerge")}
             </button>

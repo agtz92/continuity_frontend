@@ -215,8 +215,8 @@ export const CATEGORY_COLORS = [
 
 // Static map — Tailwind needs the literal class names in source to keep them.
 const CATEGORY_COLOR_MAP: Record<string, { chip: string; dot: string }> = {
-  emerald: { chip: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
-  blue: { chip: "bg-blue-500/15 text-blue-300 border-blue-500/30", dot: "bg-blue-400" },
+  emerald: { chip: "bg-accent/15 text-accent border-accent/30", dot: "bg-accent" },
+  blue: { chip: "bg-accent-2/15 text-accent-2 border-accent-2/30", dot: "bg-accent-2" },
   purple: { chip: "bg-purple-500/15 text-purple-300 border-purple-500/30", dot: "bg-purple-400" },
   amber: { chip: "bg-amber-500/15 text-amber-300 border-amber-500/30", dot: "bg-amber-400" },
   rose: { chip: "bg-rose-500/15 text-rose-300 border-rose-500/30", dot: "bg-rose-400" },

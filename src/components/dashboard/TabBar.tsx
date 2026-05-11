@@ -36,7 +36,7 @@ export function TabBar({
 }) {
   const t = useTranslations("tabs");
   return (
-    <div className="flex gap-1 mb-6 bg-zinc-900 p-1 rounded-lg border border-zinc-800 w-full sm:w-fit overflow-x-auto">
+    <div className="flex gap-1 mb-6 bg-surface p-1 rounded-lg border border-border w-full sm:w-fit overflow-x-auto">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         return (
@@ -44,7 +44,7 @@ export function TabBar({
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={`px-2.5 sm:px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-1 sm:flex-none whitespace-nowrap ${
-              view === tab.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-zinc-200"
+              view === tab.id ? "bg-border text-text" : "text-text-muted hover:text-text"
             }`}
           >
             <Icon size={14} />

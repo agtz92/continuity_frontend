@@ -28,22 +28,22 @@ export function SleepingStalePanel({
         subtitle={tSleep("subtitle")}
       >
         {sleeping.length === 0 ? (
-          <div className="text-sm text-zinc-500 py-4">{tSleep("empty")}</div>
+          <div className="text-sm text-text-muted py-4">{tSleep("empty")}</div>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {sleeping.map((s) => (
               <li
                 key={s.projectId}
-                className="flex items-center justify-between gap-3 bg-zinc-950/50 border border-zinc-800 rounded-lg px-3 py-2"
+                className="flex items-center justify-between gap-3 bg-bg/50 border border-border rounded-lg px-3 py-2"
               >
-                <div className="text-sm text-zinc-100 truncate">{s.name}</div>
+                <div className="text-sm text-text truncate">{s.name}</div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded border ${BUCKET_TONE[s.bucket]}`}
                   >
                     {s.bucket}d
                   </span>
-                  <span className="text-xs text-zinc-400 tabular-nums">
+                  <span className="text-xs text-text-muted tabular-nums">
                     {s.daysIdle}d
                   </span>
                 </div>
@@ -59,16 +59,16 @@ export function SleepingStalePanel({
         subtitle={tStale("subtitle")}
       >
         {stale.length === 0 ? (
-          <div className="text-sm text-zinc-500 py-4">{tStale("empty")}</div>
+          <div className="text-sm text-text-muted py-4">{tStale("empty")}</div>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {stale.map((s) => (
               <li
                 key={s.ideaId}
-                className="flex items-center justify-between gap-3 bg-zinc-950/50 border border-zinc-800 rounded-lg px-3 py-2"
+                className="flex items-center justify-between gap-3 bg-bg/50 border border-border rounded-lg px-3 py-2"
               >
-                <div className="text-sm text-zinc-100 truncate">{s.title}</div>
-                <span className="text-xs text-zinc-400 tabular-nums shrink-0">
+                <div className="text-sm text-text truncate">{s.title}</div>
+                <span className="text-xs text-text-muted tabular-nums shrink-0">
                   {s.daysOld}d
                 </span>
               </li>

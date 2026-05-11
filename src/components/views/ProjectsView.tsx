@@ -142,19 +142,19 @@ export function ProjectsView({
           <div className="relative flex-1">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
             />
             <input
               type="text"
               value={projectSearch}
               onChange={(e) => setProjectSearch(e.target.value)}
               placeholder={t("search")}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+              className="w-full bg-surface border border-border rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-text-muted"
             />
           </div>
           <button
             onClick={onNewProject}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {tCommon("new")}
           </button>
@@ -162,7 +162,7 @@ export function ProjectsView({
       </div>
 
       {projects.length > 0 && (
-        <div className="mb-4 bg-zinc-900/40 border border-zinc-800/60 rounded-xl p-3">
+        <div className="mb-4 bg-surface/40 border border-border/60 rounded-xl p-3">
           {/* Mobile: compact selects */}
           <div className="grid grid-cols-2 gap-2 sm:hidden">
             <select
@@ -172,7 +172,7 @@ export function ProjectsView({
                   e.target.value as "all" | ProjectStatus
                 )
               }
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
               aria-label={t("filterStatusAria")}
             >
               {STATUS_FILTER_ORDER.map((s) => {
@@ -192,7 +192,7 @@ export function ProjectsView({
                 onChange={(e) =>
                   setProjectCategoryFilter(e.target.value || null)
                 }
-                className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+                className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
                 aria-label={t("filterCategoryAria")}
               >
                 <option value="">{t("allCategories")}</option>
@@ -208,7 +208,7 @@ export function ProjectsView({
               onChange={(e) =>
                 setProjectPriorityFilter(e.target.value as "all" | Priority)
               }
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
               aria-label={t("filterPriorityAria")}
             >
               {PRIORITY_FILTER_ORDER.map((pr) => {
@@ -230,7 +230,7 @@ export function ProjectsView({
               onChange={(e) =>
                 setProjectSortMode(e.target.value as ProjectSortMode)
               }
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
               aria-label={t("sortAria")}
             >
               {PROJECT_SORT_MODES.map((m) => (
@@ -244,7 +244,7 @@ export function ProjectsView({
           {/* Desktop: labeled rows */}
           <div className="hidden sm:flex flex-col gap-2">
             <div className="flex items-start gap-3">
-              <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+              <span className="text-[11px] uppercase tracking-wider text-text-muted w-20 shrink-0 mt-1.5">
                 {t("filterLabel.status")}
               </span>
               <div className="flex items-center gap-1.5 flex-wrap flex-1">
@@ -263,15 +263,15 @@ export function ProjectsView({
                       className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
                         isActive
                           ? s === "all"
-                            ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
+                            ? "bg-text/10 border-text/30 text-text"
                             : `${cfg?.color} ring-1 ring-current/40`
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                          : "bg-surface border-border text-text-muted hover:text-text hover:border-border"
                       }`}
                     >
                       <span>{label}</span>
                       <span
                         className={`text-[10px] px-1.5 rounded-full ${
-                          isActive ? "bg-black/30" : "bg-zinc-800 text-zinc-500"
+                          isActive ? "bg-black/30" : "bg-border text-text-muted"
                         }`}
                       >
                         {count}
@@ -284,7 +284,7 @@ export function ProjectsView({
 
             {categories.length > 0 && (
               <div className="flex items-start gap-3">
-                <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+                <span className="text-[11px] uppercase tracking-wider text-text-muted w-20 shrink-0 mt-1.5">
                   {t("filterLabel.category")}
                 </span>
                 <div className="flex items-center gap-1.5 flex-wrap flex-1">
@@ -293,8 +293,8 @@ export function ProjectsView({
                     aria-pressed={projectCategoryFilter === null}
                     className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                       projectCategoryFilter === null
-                        ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
-                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                        ? "bg-text/10 border-text/30 text-text"
+                        : "bg-surface border-border text-text-muted hover:text-text hover:border-border"
                     }`}
                   >
                     {t("allCategories")}
@@ -312,7 +312,7 @@ export function ProjectsView({
                         className={`text-xs px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1.5 ${
                           isActive
                             ? `${cls.chip} ring-1 ring-current/40`
-                            : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                            : "bg-surface border-border text-text-muted hover:text-text hover:border-border"
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full ${cls.dot}`} />
@@ -325,7 +325,7 @@ export function ProjectsView({
             )}
 
             <div className="flex items-start gap-3">
-              <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+              <span className="text-[11px] uppercase tracking-wider text-text-muted w-20 shrink-0 mt-1.5">
                 {t("filterLabel.priority")}
               </span>
               <div className="flex items-center gap-1.5 flex-wrap flex-1">
@@ -345,15 +345,15 @@ export function ProjectsView({
                       className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
                         isActive
                           ? pr === "all"
-                            ? "bg-zinc-100/10 border-zinc-300/60 text-zinc-100"
+                            ? "bg-text/10 border-text/30 text-text"
                             : `${priorityChipClass[pr]} ring-1 ring-current/40`
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                          : "bg-surface border-border text-text-muted hover:text-text hover:border-border"
                       }`}
                     >
                       <span>{label}</span>
                       <span
                         className={`text-[10px] px-1.5 rounded-full ${
-                          isActive ? "bg-black/30" : "bg-zinc-800 text-zinc-500"
+                          isActive ? "bg-black/30" : "bg-border text-text-muted"
                         }`}
                       >
                         {count}
@@ -364,8 +364,8 @@ export function ProjectsView({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-1 border-t border-zinc-800/60">
-              <span className="text-[11px] uppercase tracking-wider text-zinc-500 w-20 shrink-0 mt-1.5">
+            <div className="flex items-center gap-3 pt-1 border-t border-border/60">
+              <span className="text-[11px] uppercase tracking-wider text-text-muted w-20 shrink-0 mt-1.5">
                 {t("filterLabel.sort")}
               </span>
               <select
@@ -373,7 +373,7 @@ export function ProjectsView({
                 onChange={(e) =>
                   setProjectSortMode(e.target.value as ProjectSortMode)
                 }
-                className="mt-1 bg-zinc-900 border border-zinc-800 rounded-md px-2 py-1 text-xs text-zinc-200 hover:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+                className="mt-1 bg-surface border border-border rounded-md px-2 py-1 text-xs text-text hover:border-border focus:outline-none focus:ring-1 focus:ring-accent/40"
                 aria-label={t("sortAria")}
               >
                 {PROJECT_SORT_MODES.map((m) => (
@@ -388,11 +388,11 @@ export function ProjectsView({
       )}
 
       {projects.length === 0 ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
-          <p className="text-zinc-400 mb-4">{t("empty")}</p>
+        <div className="bg-surface border border-border rounded-xl p-12 text-center">
+          <p className="text-text-muted mb-4">{t("empty")}</p>
           <button
             onClick={onNewProject}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
+            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
           >
             {t("addFirst")}
           </button>
@@ -441,7 +441,7 @@ export function ProjectsView({
             ? t("noMatchSearch", { query: projectSearch })
             : t("noMatchFilters");
           return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
               {reason}
             </div>
           );
@@ -521,9 +521,9 @@ export function ProjectsView({
                 return (
                   <div
                     key={p.id}
-                    className={`relative bg-zinc-900 border border-l-4 rounded-xl overflow-hidden transition-all ${statusBorderClass[p.status]} ${
-                      isStalled ? "border-amber-500/40" : "border-zinc-800"
-                    } ${isExpanded ? "ring-1 ring-emerald-500/30 lg:col-span-2" : ""}`}
+                    className={`relative bg-surface border border-l-4 rounded-xl overflow-hidden transition-all ${statusBorderClass[p.status]} ${
+                      isStalled ? "border-amber-500/40" : "border-border"
+                    } ${isExpanded ? "ring-1 ring-accent/30 lg:col-span-2" : ""}`}
                   >
                     <div
                       aria-hidden
@@ -531,13 +531,13 @@ export function ProjectsView({
                       title={tPriority(p.priority)}
                     />
                     <div
-                      className="p-4 cursor-pointer hover:bg-zinc-900/50"
+                      className="p-4 cursor-pointer hover:bg-surface/50"
                       onClick={() => onSelectProject(isExpanded ? null : p)}
                     >
                       <div className="flex items-start gap-3">
                         <ChevronRight
                           size={18}
-                          className={`shrink-0 mt-0.5 text-zinc-500 transition-transform ${
+                          className={`shrink-0 mt-0.5 text-text-muted transition-transform ${
                             isExpanded ? "rotate-90" : ""
                           }`}
                         />
@@ -587,7 +587,7 @@ export function ProjectsView({
                             )}
                             {pendingEffort > 0 && (
                               <span
-                                className="text-xs px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 inline-flex items-center gap-1"
+                                className="text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 inline-flex items-center gap-1"
                                 title={tCard("pendingHoursTooltip")}
                               >
                                 <Clock size={10} />
@@ -596,12 +596,12 @@ export function ProjectsView({
                             )}
                           </div>
                           {p.nextStep && (
-                            <div className="text-sm text-zinc-400 truncate">
+                            <div className="text-sm text-text-muted truncate">
                               → {p.nextStep}
                             </div>
                           )}
                         </div>
-                        <div className="text-xs text-zinc-500 shrink-0">
+                        <div className="text-xs text-text-muted shrink-0">
                           {total > 0 && `${done}/${total}`}
                         </div>
                       </div>
@@ -612,14 +612,14 @@ export function ProjectsView({
                         (u) => u.projectId === p.id
                       );
                       return (
-                      <div className="border-t border-zinc-800 p-4 space-y-3">
+                      <div className="border-t border-border p-4 space-y-3">
                         <div className="flex justify-end -mt-1 -mr-1">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               onOpenProject(p);
                             }}
-                            className="text-xs px-3 py-1.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 inline-flex items-center gap-1.5 transition-colors"
+                            className="text-xs px-3 py-1.5 rounded-md bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent inline-flex items-center gap-1.5 transition-colors"
                           >
                             <Maximize2 size={12} />
                             {t("openFullView")}
@@ -627,14 +627,14 @@ export function ProjectsView({
                         </div>
 
                         {/* Next step — always shown, never collapsible */}
-                        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-3 py-2">
-                          <div className="text-xs uppercase tracking-wider text-emerald-400 mb-1">
+                        <div className="bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
+                          <div className="text-xs uppercase tracking-wider text-accent mb-1">
                             {tCard("nextStep")}
                           </div>
                           {p.nextStep ? (
-                            <div className="text-sm text-zinc-100">→ {p.nextStep}</div>
+                            <div className="text-sm text-text">→ {p.nextStep}</div>
                           ) : (
-                            <div className="text-sm text-zinc-500 italic">
+                            <div className="text-sm text-text-muted italic">
                               {tCard("nextStepEmpty")}
                             </div>
                           )}
@@ -642,11 +642,11 @@ export function ProjectsView({
 
                         <ProjectSection title={tCard("whyMatters")}>
                           {p.why ? (
-                            <div className="text-sm text-zinc-300 whitespace-pre-wrap">
+                            <div className="text-sm text-text-muted whitespace-pre-wrap">
                               {p.why}
                             </div>
                           ) : (
-                            <div className="text-sm text-zinc-500 italic">
+                            <div className="text-sm text-text-muted italic">
                               {tCard("whyEmpty")}
                             </div>
                           )}
@@ -654,11 +654,11 @@ export function ProjectsView({
 
                         <ProjectSection title={tCard("description")}>
                           {p.description ? (
-                            <div className="text-sm text-zinc-300 whitespace-pre-wrap">
+                            <div className="text-sm text-text-muted whitespace-pre-wrap">
                               {p.description}
                             </div>
                           ) : (
-                            <div className="text-sm text-zinc-500 italic">
+                            <div className="text-sm text-text-muted italic">
                               {tCard("descriptionEmpty")}
                             </div>
                           )}
@@ -668,7 +668,7 @@ export function ProjectsView({
                           title={tCard("tasks")}
                           rightSlot={
                             total > 0 ? (
-                              <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                              <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
                                 {done}/{total}
                               </span>
                             ) : null
@@ -679,12 +679,12 @@ export function ProjectsView({
                               e.stopPropagation();
                               onAddTaskToProject(p.id);
                             }}
-                            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mb-2"
+                            className="text-xs text-accent hover:text-accent flex items-center gap-1 mb-2"
                           >
                             <Plus size={12} /> {tCard("addTask")}
                           </button>
                           {projectTasks.length === 0 ? (
-                            <div className="text-sm text-zinc-500 italic">
+                            <div className="text-sm text-text-muted italic">
                               {tCard("noTasks")}
                             </div>
                           ) : (
@@ -701,8 +701,8 @@ export function ProjectsView({
                                     }}
                                     className={`shrink-0 ${
                                       task.done
-                                        ? "text-emerald-400"
-                                        : "text-zinc-600 hover:text-zinc-400"
+                                        ? "text-accent"
+                                        : "text-text-muted hover:text-text-muted"
                                     }`}
                                   >
                                     <CheckCircle2 size={16} />
@@ -710,19 +710,19 @@ export function ProjectsView({
                                   <span
                                     className={`text-sm flex-1 ${
                                       task.done
-                                        ? "line-through text-zinc-500"
-                                        : "text-zinc-200"
+                                        ? "line-through text-text-muted"
+                                        : "text-text"
                                     }`}
                                   >
                                     {task.title}
                                   </span>
                                   {task.dueDate && (
-                                    <span className="text-xs text-zinc-500">
+                                    <span className="text-xs text-text-muted">
                                       {new Date(task.dueDate).toLocaleDateString(locale)}
                                     </span>
                                   )}
                                   {task.effortHours != null && (
-                                    <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                                    <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
                                       <Clock size={10} />
                                       {task.effortHours}h
                                     </span>
@@ -732,7 +732,7 @@ export function ProjectsView({
                                       e.stopPropagation();
                                       onEditTask(task);
                                     }}
-                                    className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                    className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                                     aria-label={tCard("editTaskAria")}
                                   >
                                     <Edit2 size={14} />
@@ -742,7 +742,7 @@ export function ProjectsView({
                                       e.stopPropagation();
                                       onDeleteTask(task.id);
                                     }}
-                                    className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                    className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                                     aria-label={tCard("deleteTaskAria")}
                                   >
                                     <X size={14} />
@@ -757,7 +757,7 @@ export function ProjectsView({
                           title={tCard("recentActivity")}
                           rightSlot={
                             projectUpdates.length > 0 ? (
-                              <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                              <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
                                 {projectUpdates.length}
                               </span>
                             ) : null
@@ -768,7 +768,7 @@ export function ProjectsView({
                               e.stopPropagation();
                               onLogUpdate(p);
                             }}
-                            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mb-2"
+                            className="text-xs text-accent hover:text-accent flex items-center gap-1 mb-2"
                           >
                             <Plus size={12} /> {tCard("logUpdate")}
                           </button>
@@ -776,9 +776,9 @@ export function ProjectsView({
                             {projectUpdates.slice(0, 3).map((u) => (
                               <div
                                 key={u.id}
-                                className="text-sm text-zinc-400 flex flex-col sm:flex-row gap-0.5 sm:gap-2"
+                                className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
                               >
-                                <span className="text-zinc-600 text-xs shrink-0 sm:w-20">
+                                <span className="text-text-muted text-xs shrink-0 sm:w-20">
                                   {new Date(u.date).toLocaleDateString(locale, {
                                     month: "short",
                                     day: "numeric",
@@ -788,7 +788,7 @@ export function ProjectsView({
                               </div>
                             ))}
                             {projectUpdates.length === 0 && (
-                              <div className="text-sm text-zinc-500 italic">
+                              <div className="text-sm text-text-muted italic">
                                 {tCard("noUpdates")}
                               </div>
                             )}
@@ -799,7 +799,7 @@ export function ProjectsView({
                           title={tCard("notes")}
                           rightSlot={
                             (notesByProject[p.id]?.length ?? 0) > 0 ? (
-                              <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                              <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
                                 {notesByProject[p.id]!.length}
                               </span>
                             ) : null
@@ -817,7 +817,7 @@ export function ProjectsView({
                               e.stopPropagation();
                               onEditProject(p);
                             }}
-                            className="px-3 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-md flex items-center gap-1"
+                            className="px-3 py-1.5 text-xs bg-border hover:opacity-80 rounded-md flex items-center gap-1"
                           >
                             <Edit2 size={12} /> {tCommon("edit")}
                           </button>

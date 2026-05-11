@@ -30,27 +30,27 @@ export function IdeasView({
           <div className="relative flex-1">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
             />
             <input
               type="text"
               value={ideaSearch}
               onChange={(e) => setIdeaSearch(e.target.value)}
               placeholder={t("search")}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+              className="w-full bg-surface border border-border rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-text-muted"
             />
           </div>
           <button
             onClick={onCapture}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-text rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {t("capture")}
           </button>
         </div>
       </div>
-      <p className="text-sm text-zinc-500 mb-4">{t("subtitle")}</p>
+      <p className="text-sm text-text-muted mb-4">{t("subtitle")}</p>
       {ideas.length === 0 ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
+        <div className="bg-surface border border-border rounded-xl p-12 text-center text-text-muted">
           {t("empty")}
         </div>
       ) : (() => {
@@ -66,7 +66,7 @@ export function IdeasView({
 
         if (filteredIdeas.length === 0) {
           return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
               {t("noMatch", { query: ideaSearch })}
             </div>
           );
@@ -91,7 +91,7 @@ export function IdeasView({
                   </div>
                 )}
                 {i.description && (
-                  <div className="text-sm text-zinc-400 mb-3 break-words">
+                  <div className="text-sm text-text-muted mb-3 break-words">
                     {i.description}
                   </div>
                 )}
@@ -104,13 +104,13 @@ export function IdeasView({
                   </button>
                   <button
                     onClick={() => onEdit(i)}
-                    className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-md flex items-center gap-1"
+                    className="text-xs px-3 py-1.5 bg-border hover:opacity-80 text-text-muted rounded-md flex items-center gap-1"
                   >
                     <Edit2 size={12} /> {tCommon("edit")}
                   </button>
                   <button
                     onClick={() => onDelete(i.id)}
-                    className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-md"
+                    className="text-xs px-3 py-1.5 bg-border hover:opacity-80 text-text-muted rounded-md"
                   >
                     {tCommon("delete")}
                   </button>

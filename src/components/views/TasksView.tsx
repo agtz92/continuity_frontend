@@ -46,26 +46,26 @@ export function TasksView({
           <div className="relative flex-1">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
             />
             <input
               type="text"
               value={taskSearch}
               onChange={(e) => setTaskSearch(e.target.value)}
               placeholder={t("search")}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-600"
+              className="w-full bg-surface border border-border rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-text-muted"
             />
           </div>
           <button
             onClick={onNewTask}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {tCommon("new")}
           </button>
         </div>
       </div>
       {tasks.length === 0 ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center text-zinc-400">
+        <div className="bg-surface border border-border rounded-xl p-12 text-center text-text-muted">
           {t("empty")}
         </div>
       ) : (() => {
@@ -82,7 +82,7 @@ export function TasksView({
 
         if (filteredTasks.length === 0) {
           return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
               {t("noMatch", { query: taskSearch })}
             </div>
           );
@@ -158,7 +158,7 @@ export function TasksView({
               }
             >
               {todayBucket.length === 0 ? (
-                <div className="text-center text-sm text-zinc-500 py-4">
+                <div className="text-center text-sm text-text-muted py-4">
                   {t("todayEmpty")}
                 </div>
               ) : (
@@ -180,7 +180,7 @@ export function TasksView({
                     <span className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
                       {unscheduledBucket.length}
                     </span>
-                    <span className="hidden sm:inline text-xs text-zinc-500 ml-1">
+                    <span className="hidden sm:inline text-xs text-text-muted ml-1">
                       {t("pickDayHint")}
                     </span>
                   </>
@@ -197,10 +197,10 @@ export function TasksView({
                 variant="card"
                 open={upcomingOpen}
                 onToggle={() => setShowUpcomingTasks((s) => !s)}
-                icon={<Clock size={14} className="text-blue-400" />}
+                icon={<Clock size={14} className="text-accent-2" />}
                 title={t("upcoming")}
                 rightSlot={
-                  <span className="text-xs text-blue-300 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-accent-2 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5">
                     {upcomingBucket.length}
                   </span>
                 }
@@ -216,10 +216,10 @@ export function TasksView({
                 variant="card"
                 open={doneOpen}
                 onToggle={() => setShowDoneTasks((s) => !s)}
-                icon={<CheckCircle2 size={14} className="text-emerald-400" />}
+                icon={<CheckCircle2 size={14} className="text-accent" />}
                 title={t("completed")}
                 rightSlot={
-                  <span className="text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
                     {doneBucket.length}
                   </span>
                 }

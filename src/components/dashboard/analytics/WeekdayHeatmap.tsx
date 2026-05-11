@@ -29,11 +29,11 @@ export function WeekdayHeatmap({ heatmap }: { heatmap: WeekdayBucket[] }) {
                 className="w-full aspect-square rounded-md flex items-center justify-center"
                 style={{ backgroundColor: `rgba(52, 211, 153, ${opacity})` }}
               >
-                <span className="text-xs font-semibold text-zinc-100">
+                <span className="text-xs font-semibold text-text">
                   {count}
                 </span>
               </div>
-              <div className="text-[10px] text-zinc-500">{t(`labels.${key}`)}</div>
+              <div className="text-[10px] text-text-muted">{t(`labels.${key}`)}</div>
             </div>
           );
         })}

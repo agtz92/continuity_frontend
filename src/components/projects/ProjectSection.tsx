@@ -32,7 +32,7 @@ export function ProjectSection({
         className="w-full flex items-center justify-between gap-2 mb-1.5 group"
         aria-expanded={open}
       >
-        <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <span className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-text-muted group-hover:text-text-muted transition-colors">
           <ChevronRight
             size={12}
             className={`transition-transform ${open ? "rotate-90" : ""}`}

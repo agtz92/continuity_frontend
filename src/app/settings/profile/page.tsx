@@ -6,6 +6,8 @@ import { User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { ThemeSelector } from "@/components/settings/ThemeSelector";
+import { PaletteSelector } from "@/components/settings/PaletteSelector";
 
 export default function ProfileSettingsPage() {
   const t = useTranslations("settings.profile");
@@ -27,13 +29,19 @@ export default function ProfileSettingsPage() {
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      <section className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 space-y-5">
+      <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-5">
         <Field label={t("email")} value={email} />
         {createdAt && <Field label={t("memberSince")} value={createdAt} />}
         <div className="pt-1">
           <LanguageSelector />
         </div>
-        <div className="pt-2 flex items-center gap-2 text-xs text-zinc-500">
+        <div className="pt-1">
+          <ThemeSelector />
+        </div>
+        <div className="pt-1">
+          <PaletteSelector />
+        </div>
+        <div className="pt-2 flex items-center gap-2 text-xs text-text-muted">
           <User size={14} /> {t("moreSoon")}
         </div>
       </section>
@@ -44,8 +52,8 @@ export default function ProfileSettingsPage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs text-zinc-500 mb-1">{label}</div>
-      <div className="text-sm text-zinc-100">{value}</div>
+      <div className="text-xs text-text-muted mb-1">{label}</div>
+      <div className="text-sm text-text">{value}</div>
     </div>
   );
 }

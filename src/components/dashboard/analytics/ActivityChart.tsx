@@ -26,7 +26,7 @@ export function ActivityChart({ series }: { series: ActivityPoint[] }) {
   return (
     <PanelCard
       title={t("title")}
-      icon={<LineIcon size={16} className="text-emerald-400" />}
+      icon={<LineIcon size={16} className="text-accent" />}
     >
       <div className="h-64 -mx-2">
         <ResponsiveContainer width="100%" height="100%">

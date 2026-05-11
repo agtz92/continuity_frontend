@@ -89,7 +89,7 @@ export function ProjectModal({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             autoFocus
           />
         </Field>
@@ -99,7 +99,7 @@ export function ProjectModal({
             onChange={(e) => setWhy(e.target.value)}
             rows={2}
             placeholder={t("whyPlaceholder")}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
         <Field label={t("description")}>
@@ -108,7 +108,7 @@ export function ProjectModal({
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t("descriptionPlaceholder")}
             rows={3}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
         <Field label={t("nextStep")}>
@@ -116,7 +116,7 @@ export function ProjectModal({
             value={nextStep}
             onChange={(e) => setNextStep(e.target.value)}
             placeholder={t("nextStepPlaceholder")}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
           />
         </Field>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -124,7 +124,7 @@ export function ProjectModal({
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             >
               <option value="idea">{tStatus("idea")}</option>
               <option value="active">{tStatus("active")}</option>
@@ -137,7 +137,7 @@ export function ProjectModal({
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as Priority)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             >
               {PRIORITIES.map((p) => (
                 <option key={p.value} value={p.value}>
@@ -153,7 +153,7 @@ export function ProjectModal({
               <select
                 value={categoryId ?? ""}
                 onChange={(e) => setCategoryId(e.target.value || null)}
-                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+                className="flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
               >
                 <option value="">{t("noCategory")}</option>
                 {categories.map((c) => (
@@ -165,18 +165,18 @@ export function ProjectModal({
               <button
                 type="button"
                 onClick={() => setCreatingCategory(true)}
-                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs flex items-center gap-1"
+                className="px-3 py-2 bg-border hover:opacity-80 border border-border rounded-lg text-xs flex items-center gap-1"
               >
                 <Plus size={12} /> {tCommon("new")}
               </button>
             </div>
           ) : (
-            <div className="space-y-2 bg-zinc-800/50 border border-zinc-700 rounded-lg p-2.5">
+            <div className="space-y-2 bg-border/50 border border-border rounded-lg p-2.5">
               <input
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
                 placeholder={t("newCategoryName")}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-2 py-1.5 text-sm"
+                className="w-full bg-border border border-border rounded-md px-2 py-1.5 text-sm"
                 autoFocus
               />
               <div className="flex flex-wrap gap-1.5">
@@ -199,7 +199,7 @@ export function ProjectModal({
                 <button
                   type="button"
                   onClick={handleCreateCategory}
-                  className="flex-1 px-2 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-md text-xs font-medium"
+                  className="flex-1 px-2 py-1.5 bg-accent hover:opacity-90 text-bg rounded-md text-xs font-medium"
                 >
                   {t("createCategory")}
                 </button>
@@ -209,7 +209,7 @@ export function ProjectModal({
                     setCreatingCategory(false);
                     setNewCatName("");
                   }}
-                  className="px-2 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-md text-xs"
+                  className="px-2 py-1.5 bg-border hover:bg-text-muted rounded-md text-xs"
                 >
                   {tCommon("cancel")}
                 </button>
@@ -220,13 +220,13 @@ export function ProjectModal({
         <div className="flex gap-2 pt-2">
           <button
             onClick={handleSubmit}
-            className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-lg font-medium text-sm"
+            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
           >
             {tCommon("save")}
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm"
+            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
           >
             {tCommon("cancel")}
           </button>

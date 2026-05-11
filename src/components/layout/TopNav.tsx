@@ -47,12 +47,12 @@ export function TopNav({
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/70">
+      <header className="sticky top-0 z-30 border-b border-border/80 bg-bg/85 backdrop-blur supports-[backdrop-filter]:bg-bg/70">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center gap-3 sm:gap-4">
           <AccountMenuTrigger onClick={() => setMenuOpen(true)} />
           <Link
             href="/"
-            className="font-bold text-lg bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent shrink-0"
+            className="font-bold text-lg bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent shrink-0"
           >
             Continuity
           </Link>
@@ -70,8 +70,8 @@ export function TopNav({
                     href={l.href}
                     className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
                       active
-                        ? "text-zinc-100 bg-zinc-900"
-                        : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/60"
+                        ? "text-text bg-surface"
+                        : "text-text-muted hover:text-text hover:bg-surface/60"
                     }`}
                   >
                     {l.label}

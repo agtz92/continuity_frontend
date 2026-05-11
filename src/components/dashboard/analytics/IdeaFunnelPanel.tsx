@@ -15,24 +15,24 @@ export function IdeaFunnelPanel({ funnel }: { funnel: IdeaFunnel }) {
       subtitle={t("subtitle")}
     >
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-zinc-950/50 border border-zinc-800 rounded-lg p-3">
-          <div className="text-2xl font-semibold text-zinc-100">
+        <div className="bg-bg/50 border border-border rounded-lg p-3">
+          <div className="text-2xl font-semibold text-text">
             {funnel.ideasCreated}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">{t("created")}</div>
+          <div className="text-xs text-text-muted mt-1">{t("created")}</div>
         </div>
-        <div className="bg-zinc-950/50 border border-zinc-800 rounded-lg p-3">
-          <div className="text-2xl font-semibold text-emerald-300">
+        <div className="bg-bg/50 border border-border rounded-lg p-3">
+          <div className="text-2xl font-semibold text-accent">
             {funnel.ideasPromoted}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">{t("promoted")}</div>
+          <div className="text-xs text-text-muted mt-1">{t("promoted")}</div>
         </div>
-        <div className="bg-zinc-950/50 border border-zinc-800 rounded-lg p-3">
-          <div className="text-2xl font-semibold text-zinc-100">
+        <div className="bg-bg/50 border border-border rounded-lg p-3">
+          <div className="text-2xl font-semibold text-text">
             {pct}
-            <span className="text-sm text-zinc-500 ml-0.5">%</span>
+            <span className="text-sm text-text-muted ml-0.5">%</span>
           </div>
-          <div className="text-xs text-zinc-500 mt-1">{t("rate")}</div>
+          <div className="text-xs text-text-muted mt-1">{t("rate")}</div>
         </div>
       </div>
     </PanelCard>

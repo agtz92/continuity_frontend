@@ -31,18 +31,18 @@ export function TaskRow({
   const dueToday = !task.done && isDueToday(task.dueDate);
   return (
     <div
-      className={`bg-zinc-900 border rounded-lg p-3 flex items-center gap-3 group ${
+      className={`bg-surface border rounded-lg p-3 flex items-center gap-3 group ${
         overdue
           ? "border-red-500/30"
           : dueToday
           ? "border-orange-500/30"
-          : "border-zinc-800"
+          : "border-border"
       }`}
     >
       <button
         onClick={() => onToggle(task)}
         className={
-          task.done ? "text-emerald-400" : "text-zinc-600 hover:text-zinc-400"
+          task.done ? "text-accent" : "text-text-muted hover:text-text-muted"
         }
         aria-label={task.done ? t("markNotDone") : t("markDone")}
       >
@@ -53,17 +53,17 @@ export function TaskRow({
         onClick={onEdit ? () => onEdit(task) : undefined}
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={task.done ? "line-through text-zinc-500" : "text-zinc-100"}>
+          <span className={task.done ? "line-through text-text-muted" : "text-text"}>
             {task.title}
           </span>
           {task.effortHours != null && (
-            <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+            <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
               <Clock size={10} />
               {task.effortHours}h
             </span>
           )}
         </div>
-        <div className="text-xs text-zinc-500 flex flex-wrap items-center gap-x-2 mt-0.5">
+        <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 mt-0.5">
           {project && <span>{project.name}</span>}
           {task.dueDate ? (
             <span
@@ -94,7 +94,7 @@ export function TaskRow({
       </div>
       <button
         onClick={() => onDelete(task.id)}
-        className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+        className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
         aria-label={t("deleteAria")}
       >
         <X size={16} />

@@ -78,7 +78,7 @@ export function NotificationSettings() {
 
   if (loading && !settings) {
     return (
-      <div className="text-zinc-400 flex items-center gap-2">
+      <div className="text-text-muted flex items-center gap-2">
         <Loader2 className="animate-spin" size={16} /> {tCommon("loading")}
       </div>
     );
@@ -135,7 +135,7 @@ export function NotificationSettings() {
             disconnect: t("channel.disconnect"),
           }}
         />
-        <p className="text-xs text-zinc-500 mt-3">{t("whatsappSoon")}</p>
+        <p className="text-xs text-text-muted mt-3">{t("whatsappSoon")}</p>
       </Section>
 
       <Section title={t("weeklyDigest")}>
@@ -152,7 +152,7 @@ export function NotificationSettings() {
               onChange={(e) =>
                 onSave({ digestDayOfWeek: parseInt(e.target.value, 10) })
               }
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"
+              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm"
               disabled={saving || !settings.digestEnabled}
             >
               {DAY_KEYS.map((key, i) => (
@@ -168,7 +168,7 @@ export function NotificationSettings() {
               onChange={(e) =>
                 onSave({ digestHour: parseInt(e.target.value, 10) })
               }
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"
+              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm"
               disabled={saving || !settings.digestEnabled}
             >
               {Array.from({ length: 24 }, (_, h) => (
@@ -183,7 +183,7 @@ export function NotificationSettings() {
           <input
             value={settings.timezone}
             onChange={(e) => onSave({ timezone: e.target.value })}
-            className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm w-full"
+            className="bg-surface border border-border rounded-lg px-3 py-2 text-sm w-full"
             disabled={saving}
             placeholder="America/Mexico_City"
           />
@@ -212,7 +212,7 @@ export function NotificationSettings() {
             onChange={(e) =>
               onSave({ dueReminderLeadHours: parseInt(e.target.value, 10) || 24 })
             }
-            className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm w-32"
+            className="bg-surface border border-border rounded-lg px-3 py-2 text-sm w-32"
             disabled={saving || !settings.dueRemindersEnabled}
           />
         </Field>
@@ -235,8 +235,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mb-6">
-      <h2 className="text-sm font-semibold text-zinc-300 mb-4 uppercase tracking-wide">
+    <section className="bg-surface/50 border border-border rounded-xl p-5 mb-6">
+      <h2 className="text-sm font-semibold text-text-muted mb-4 uppercase tracking-wide">
         {title}
       </h2>
       {children}
@@ -257,7 +257,7 @@ function ToggleRow({
 }) {
   return (
     <label className="flex items-center justify-between py-2 cursor-pointer">
-      <span className="text-sm text-zinc-200">{label}</span>
+      <span className="text-sm text-text">{label}</span>
       <input
         type="checkbox"
         checked={checked}
@@ -272,7 +272,7 @@ function ToggleRow({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block mt-3">
-      <span className="text-xs text-zinc-400 block mb-1">{label}</span>
+      <span className="text-xs text-text-muted block mb-1">{label}</span>
       {children}
     </label>
   );
@@ -302,10 +302,10 @@ function ChannelRow({
   };
 }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-zinc-800/50 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
       <div>
-        <div className="text-zinc-100 font-medium">{name}</div>
-        <div className="text-xs text-zinc-500 mt-0.5">
+        <div className="text-text font-medium">{name}</div>
+        <div className="text-xs text-text-muted mt-0.5">
           {connected
             ? labels.connected
             : waiting
@@ -317,7 +317,7 @@ function ChannelRow({
         {connected ? (
           <button
             onClick={onDisconnect}
-            className="px-3 py-1.5 text-xs rounded-lg border border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+            className="px-3 py-1.5 text-xs rounded-lg border border-border text-text-muted hover:bg-border"
           >
             {labels.disconnect}
           </button>
@@ -325,7 +325,7 @@ function ChannelRow({
           <button
             onClick={onConnect}
             disabled={connecting}
-            className="px-3 py-1.5 text-xs rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1.5 disabled:opacity-60"
+            className="px-3 py-1.5 text-xs rounded-lg bg-accent hover:opacity-90 text-text flex items-center gap-1.5 disabled:opacity-60"
           >
             {connecting ? (
               <Loader2 size={12} className="animate-spin" />

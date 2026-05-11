@@ -42,13 +42,13 @@ export function IdeaModal({
     <Modal title={isEdit ? t("editTitle") : t("newTitle")} onClose={onClose}>
       <div className="flex flex-col gap-3 flex-1 min-h-0">
         {!isEdit && (
-          <p className="text-sm text-zinc-400 shrink-0">{t("intro")}</p>
+          <p className="text-sm text-text-muted shrink-0">{t("intro")}</p>
         )}
         <Field label={t("title")}>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             autoFocus
           />
         </Field>
@@ -58,26 +58,26 @@ export function IdeaModal({
             onChange={(e) => setWhy(e.target.value)}
             rows={2}
             placeholder={t("whyPlaceholder")}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
         <Field label={t("notes")} grow>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
           />
         </Field>
         <div className="flex gap-2 pt-2 shrink-0">
           <button
             onClick={handleSubmit}
-            className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium text-sm"
+            className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-text rounded-lg font-medium text-sm"
           >
             {isEdit ? tCommon("save") : t("captureCta")}
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm"
+            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
           >
             {tCommon("cancel")}
           </button>

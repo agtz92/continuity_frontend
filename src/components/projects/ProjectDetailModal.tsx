@@ -119,9 +119,9 @@ export function ProjectDetailModal({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-5xl h-[92vh] bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-5xl h-[92vh] bg-bg border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-start justify-between gap-3 px-5 sm:px-6 py-4 border-b border-zinc-800 shrink-0">
+        <header className="flex items-start justify-between gap-3 px-5 sm:px-6 py-4 border-b border-border shrink-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <PrioritySelect
@@ -133,8 +133,8 @@ export function ProjectDetailModal({
                 value={p.name}
                 onSave={(name) => onSaveProject({ name: name.trim() || p.name })}
                 ariaLabel={tProjectModal("name")}
-                className="text-xl sm:text-2xl font-bold text-zinc-100 truncate px-2 py-0.5 -mx-2"
-                inputClassName="text-xl sm:text-2xl font-bold text-zinc-100 px-2 py-0.5 w-full max-w-md"
+                className="text-xl sm:text-2xl font-bold text-text truncate px-2 py-0.5 -mx-2"
+                inputClassName="text-xl sm:text-2xl font-bold text-text px-2 py-0.5 w-full max-w-md"
               />
               <StatusSelect
                 value={p.status}
@@ -150,7 +150,7 @@ export function ProjectDetailModal({
                 tProjectModal={tProjectModal}
               />
             </div>
-            <div className="text-xs text-zinc-500">
+            <div className="text-xs text-text-muted">
               {total > 0 && (
                 <span className="tabular-nums">
                   {done}/{total} {tCard("tasks").toLowerCase()}
@@ -170,7 +170,7 @@ export function ProjectDetailModal({
             </button>
             <button
               onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-md hover:bg-zinc-900 ml-1 transition-colors"
+              className="text-text-muted hover:text-text p-1.5 rounded-md hover:bg-surface ml-1 transition-colors"
               aria-label={tCommon("close")}
               title={tDetail("closeTooltip")}
             >
@@ -181,8 +181,8 @@ export function ProjectDetailModal({
 
         {/* Body — scrollable */}
         <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 space-y-4">
-          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-3 py-2">
-            <div className="text-xs uppercase tracking-wider text-emerald-400 mb-1">
+          <div className="bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
+            <div className="text-xs uppercase tracking-wider text-accent mb-1">
               {tCard("nextStep")}
             </div>
             <InlineText
@@ -190,8 +190,8 @@ export function ProjectDetailModal({
               onSave={(nextStep) => onSaveProject({ nextStep })}
               placeholder={tCard("nextStepEmpty")}
               ariaLabel={tCard("nextStep")}
-              className="text-sm text-zinc-100 w-full px-1.5 py-1 -mx-1.5 block"
-              inputClassName="text-sm text-zinc-100 w-full px-1.5 py-1"
+              className="text-sm text-text w-full px-1.5 py-1 -mx-1.5 block"
+              inputClassName="text-sm text-text w-full px-1.5 py-1"
             />
           </div>
 
@@ -201,8 +201,8 @@ export function ProjectDetailModal({
               onSave={(why) => onSaveProject({ why })}
               placeholder={tCard("whyEmpty")}
               ariaLabel={tCard("whyMatters")}
-              className="text-sm text-zinc-300 px-1.5 py-1 -mx-1.5 block min-h-[1.5rem]"
-              textareaClassName="text-sm text-zinc-200"
+              className="text-sm text-text-muted px-1.5 py-1 -mx-1.5 block min-h-[1.5rem]"
+              textareaClassName="text-sm text-text"
               rows={3}
             />
           </ProjectSection>
@@ -213,8 +213,8 @@ export function ProjectDetailModal({
               onSave={(description) => onSaveProject({ description })}
               placeholder={tCard("descriptionEmpty")}
               ariaLabel={tCard("description")}
-              className="text-sm text-zinc-300 px-1.5 py-1 -mx-1.5 block min-h-[1.5rem]"
-              textareaClassName="text-sm text-zinc-200"
+              className="text-sm text-text-muted px-1.5 py-1 -mx-1.5 block min-h-[1.5rem]"
+              textareaClassName="text-sm text-text"
               rows={4}
             />
           </ProjectSection>
@@ -223,7 +223,7 @@ export function ProjectDetailModal({
             title={tCard("tasks")}
             rightSlot={
               total > 0 ? (
-                <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
                   {done}/{total}
                 </span>
               ) : null
@@ -231,12 +231,12 @@ export function ProjectDetailModal({
           >
             <button
               onClick={() => onAddTaskToProject(p.id)}
-              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mb-2"
+              className="text-xs text-accent hover:text-accent flex items-center gap-1 mb-2"
             >
               <Plus size={12} /> {tCard("addTask")}
             </button>
             {projectTasks.length === 0 ? (
-              <div className="text-sm text-zinc-500 italic">
+              <div className="text-sm text-text-muted italic">
                 {tCard("noTasks")}
               </div>
             ) : (
@@ -250,8 +250,8 @@ export function ProjectDetailModal({
                       onClick={() => onToggleTask(task)}
                       className={`shrink-0 ${
                         task.done
-                          ? "text-emerald-400"
-                          : "text-zinc-600 hover:text-zinc-400"
+                          ? "text-accent"
+                          : "text-text-muted hover:text-text-muted"
                       }`}
                     >
                       <CheckCircle2 size={16} />
@@ -259,33 +259,33 @@ export function ProjectDetailModal({
                     <span
                       className={`text-sm flex-1 ${
                         task.done
-                          ? "line-through text-zinc-500"
-                          : "text-zinc-200"
+                          ? "line-through text-text-muted"
+                          : "text-text"
                       }`}
                     >
                       {task.title}
                     </span>
                     {task.dueDate && (
-                      <span className="text-xs text-zinc-500">
+                      <span className="text-xs text-text-muted">
                         {new Date(task.dueDate).toLocaleDateString(locale)}
                       </span>
                     )}
                     {task.effortHours != null && (
-                      <span className="text-xs px-2 py-0.5 rounded border bg-blue-500/15 text-blue-300 border-blue-500/30 inline-flex items-center gap-1">
+                      <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
                         <Clock size={10} />
                         {task.effortHours}h
                       </span>
                     )}
                     <button
                       onClick={() => onEditTask(task)}
-                      className="text-zinc-600 hover:text-emerald-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                      className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                       aria-label={tCard("editTaskAria")}
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => onDeleteTask(task.id)}
-                      className="text-zinc-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                      className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                       aria-label={tCard("deleteTaskAria")}
                     >
                       <X size={14} />
@@ -300,7 +300,7 @@ export function ProjectDetailModal({
             title={tCard("recentActivity")}
             rightSlot={
               projectUpdates.length > 0 ? (
-                <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
                   {projectUpdates.length}
                 </span>
               ) : null
@@ -308,7 +308,7 @@ export function ProjectDetailModal({
           >
             <button
               onClick={() => onLogUpdate(p)}
-              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mb-2"
+              className="text-xs text-accent hover:text-accent flex items-center gap-1 mb-2"
             >
               <Plus size={12} /> {tCard("logUpdate")}
             </button>
@@ -316,9 +316,9 @@ export function ProjectDetailModal({
               {projectUpdates.map((u) => (
                 <div
                   key={u.id}
-                  className="text-sm text-zinc-400 flex flex-col sm:flex-row gap-0.5 sm:gap-2"
+                  className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
                 >
-                  <span className="text-zinc-600 text-xs shrink-0 sm:w-24">
+                  <span className="text-text-muted text-xs shrink-0 sm:w-24">
                     {new Date(u.date).toLocaleDateString(locale, {
                       month: "short",
                       day: "numeric",
@@ -329,7 +329,7 @@ export function ProjectDetailModal({
                 </div>
               ))}
               {projectUpdates.length === 0 && (
-                <div className="text-sm text-zinc-500 italic">
+                <div className="text-sm text-text-muted italic">
                   {tCard("noUpdates")}
                 </div>
               )}
@@ -340,7 +340,7 @@ export function ProjectDetailModal({
             title={tCard("notes")}
             rightSlot={
               notes.length > 0 ? (
-                <span className="text-xs font-normal text-zinc-400 bg-zinc-800/80 border border-zinc-700 rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
                   {notes.length}
                 </span>
               ) : null
@@ -380,7 +380,7 @@ function StatusSelect({
         aria-label={tStatus(value)}
       >
         {STATUS_OPTIONS.map((s) => (
-          <option key={s} value={s} className="bg-zinc-900 text-zinc-100">
+          <option key={s} value={s} className="bg-surface text-text">
             {tStatus(s)}
           </option>
         ))}
@@ -413,7 +413,7 @@ function PrioritySelect({
         aria-label={tPriority(value)}
       >
         {PRIORITIES.map((p) => (
-          <option key={p.value} value={p.value} className="bg-zinc-900 text-zinc-100">
+          <option key={p.value} value={p.value} className="bg-surface text-text">
             {p.emoji} {tPriority(p.value)}
           </option>
         ))}
@@ -443,7 +443,7 @@ function CategorySelect({
       className={`relative text-xs px-2 py-0.5 rounded border cursor-pointer hover:opacity-80 ${
         current
           ? cls
-          : "bg-zinc-900 border-zinc-800 text-zinc-500 border-dashed"
+          : "bg-surface border-border text-text-muted border-dashed"
       }`}
     >
       <span>{current ? current.name : tProjectModal("noCategory")}</span>
@@ -453,11 +453,11 @@ function CategorySelect({
         className="absolute inset-0 opacity-0 cursor-pointer"
         aria-label={tProjectModal("category")}
       >
-        <option value="" className="bg-zinc-900 text-zinc-100">
+        <option value="" className="bg-surface text-text">
           {tProjectModal("noCategory")}
         </option>
         {categories.map((c) => (
-          <option key={c.id} value={c.id} className="bg-zinc-900 text-zinc-100">
+          <option key={c.id} value={c.id} className="bg-surface text-text">
             {c.name}
           </option>
         ))}

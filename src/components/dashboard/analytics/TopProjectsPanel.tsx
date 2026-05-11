@@ -8,7 +8,7 @@ import { PanelCard } from "./PanelCard";
 function Delta({ value }: { value: number }) {
   if (value === 0) {
     return (
-      <span className="text-zinc-500 text-xs flex items-center gap-0.5">
+      <span className="text-text-muted text-xs flex items-center gap-0.5">
         <Minus size={12} />
         0
       </span>
@@ -16,7 +16,7 @@ function Delta({ value }: { value: number }) {
   }
   if (value > 0) {
     return (
-      <span className="text-emerald-400 text-xs flex items-center gap-0.5">
+      <span className="text-accent text-xs flex items-center gap-0.5">
         <ArrowUp size={12} />+{value}
       </span>
     );
@@ -34,25 +34,25 @@ export function TopProjectsPanel({ rows }: { rows: ProjectInteractionRow[] }) {
   return (
     <PanelCard
       title={t("title")}
-      icon={<TrendingUp size={16} className="text-blue-400" />}
+      icon={<TrendingUp size={16} className="text-accent-2" />}
       subtitle={t("subtitle")}
     >
       {rows.length === 0 ? (
-        <div className="text-sm text-zinc-500 py-4">{t("empty")}</div>
+        <div className="text-sm text-text-muted py-4">{t("empty")}</div>
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => (
             <li
               key={r.projectId}
-              className="flex items-center justify-between gap-3 bg-zinc-950/50 border border-zinc-800 rounded-lg px-3 py-2"
+              className="flex items-center justify-between gap-3 bg-bg/50 border border-border rounded-lg px-3 py-2"
             >
               <div className="min-w-0">
-                <div className="text-sm text-zinc-100 truncate">{r.name}</div>
-                <div className="text-[11px] text-zinc-500">{r.status}</div>
+                <div className="text-sm text-text truncate">{r.name}</div>
+                <div className="text-[11px] text-text-muted">{r.status}</div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <Delta value={r.deltaVsPrev} />
-                <div className="text-base font-semibold text-zinc-100 tabular-nums">
+                <div className="text-base font-semibold text-text tabular-nums">
                   {r.interactions}
                 </div>
               </div>

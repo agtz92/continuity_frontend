@@ -79,7 +79,7 @@ export function NotesSection({
             e.stopPropagation();
             startNew();
           }}
-          className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+          className="text-xs text-accent hover:text-accent flex items-center gap-1"
         >
           <Plus size={12} /> {t("newNote")}
         </button>
@@ -102,7 +102,7 @@ export function NotesSection({
 
       {/* List */}
       {notes.length === 0 && editingId !== "new" ? (
-        <div className="text-sm text-zinc-500 italic">{t("empty")}</div>
+        <div className="text-sm text-text-muted italic">{t("empty")}</div>
       ) : (
         notes.map((n) =>
           editingId === n.id ? (
@@ -153,11 +153,11 @@ function NoteCard({
   const heading = note.title || firstLine(note.body);
   const preview = note.title ? note.body : restAfterFirstLine(note.body);
   return (
-    <div className="bg-zinc-950/50 border border-zinc-800 rounded-lg p-3 group">
+    <div className="bg-bg/50 border border-border rounded-lg p-3 group">
       <div className="flex items-start justify-between gap-2 mb-1">
-        <div className="text-sm font-medium text-zinc-100 truncate flex-1">
+        <div className="text-sm font-medium text-text truncate flex-1">
           {heading || (
-            <span className="text-zinc-500 italic font-normal">
+            <span className="text-text-muted italic font-normal">
               {t("untitled")}
             </span>
           )}
@@ -168,7 +168,7 @@ function NoteCard({
               e.stopPropagation();
               onEdit();
             }}
-            className="text-zinc-500 hover:text-emerald-400 p-1"
+            className="text-text-muted hover:text-accent p-1"
             aria-label={tCommon("edit")}
           >
             <Pencil size={13} />
@@ -178,7 +178,7 @@ function NoteCard({
               e.stopPropagation();
               onDelete();
             }}
-            className="text-zinc-500 hover:text-red-400 p-1"
+            className="text-text-muted hover:text-red-400 p-1"
             aria-label={tCommon("delete")}
           >
             <Trash2 size={13} />
@@ -186,11 +186,11 @@ function NoteCard({
         </div>
       </div>
       {preview && (
-        <div className="text-sm text-zinc-400 whitespace-pre-wrap line-clamp-3 mb-1.5">
+        <div className="text-sm text-text-muted whitespace-pre-wrap line-clamp-3 mb-1.5">
           {preview}
         </div>
       )}
-      <div className="text-[10px] uppercase tracking-wider text-zinc-600">
+      <div className="text-[10px] uppercase tracking-wider text-text-muted">
         {formatRelative(note.updatedAt, locale, t)}
       </div>
     </div>
@@ -220,14 +220,14 @@ function NoteEditor({
 }) {
   return (
     <div
-      className="bg-zinc-950/70 border border-emerald-500/30 rounded-lg p-3 space-y-2"
+      className="bg-bg/70 border border-accent/30 rounded-lg p-3 space-y-2"
       onClick={(e) => e.stopPropagation()}
     >
       <input
         value={title}
         onChange={(e) => onTitleChange(e.target.value)}
         placeholder={t("titlePlaceholder")}
-        className="w-full bg-transparent border-0 px-0 py-0 text-sm font-medium text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-0"
+        className="w-full bg-transparent border-0 px-0 py-0 text-sm font-medium text-text placeholder:text-text-muted focus:outline-none focus:ring-0"
         autoFocus
       />
       <textarea
@@ -244,22 +244,22 @@ function NoteEditor({
           }
         }}
         placeholder={t("bodyPlaceholder")}
-        className="w-full bg-zinc-900/50 border border-zinc-800 rounded-md px-2.5 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 resize-y min-h-[100px] focus:outline-none focus:border-emerald-500/40"
+        className="w-full bg-surface/50 border border-border rounded-md px-2.5 py-2 text-sm text-text placeholder:text-text-muted resize-y min-h-[100px] focus:outline-none focus:border-accent/40"
         rows={4}
       />
       <div className="flex items-center justify-between gap-2">
-        <div className="text-[10px] text-zinc-600">{t("editorHint")}</div>
+        <div className="text-[10px] text-text-muted">{t("editorHint")}</div>
         <div className="flex gap-2">
           <button
             onClick={onCancel}
-            className="px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-md flex items-center gap-1"
+            className="px-3 py-1 text-xs bg-border hover:opacity-80 rounded-md flex items-center gap-1"
           >
             <X size={12} /> {tCommon("cancel")}
           </button>
           <button
             onClick={onSave}
             disabled={saving || !body.trim()}
-            className="px-3 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-md font-medium disabled:opacity-50 flex items-center gap-1"
+            className="px-3 py-1 text-xs bg-accent hover:opacity-90 text-bg rounded-md font-medium disabled:opacity-50 flex items-center gap-1"
           >
             {saving ? (
               <Loader2 size={12} className="animate-spin" />

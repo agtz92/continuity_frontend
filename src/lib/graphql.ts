@@ -288,6 +288,8 @@ export const NOTIFICATION_SETTINGS_QUERY = gql`
   query NotificationSettings {
     notificationSettings {
       locale
+      theme
+      palette
       timezone
       digestEnabled
       digestDayOfWeek
@@ -310,6 +312,8 @@ export const UPDATE_NOTIFICATION_SETTINGS = gql`
   mutation UpdateNotificationSettings($data: NotificationSettingsInput!) {
     updateNotificationSettings(data: $data) {
       locale
+      theme
+      palette
       timezone
       digestEnabled
       digestDayOfWeek

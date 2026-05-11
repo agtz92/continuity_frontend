@@ -8,12 +8,12 @@ const STYLES: Record<
 > = {
   free: {
     label: "Free",
-    tone: "border-zinc-700 text-zinc-400 bg-zinc-900/60",
+    tone: "border-border text-text-muted bg-surface/60",
     Icon: Sparkle,
   },
   pro: {
     label: "Pro",
-    tone: "border-emerald-500/40 text-emerald-300 bg-emerald-500/10",
+    tone: "border-accent/40 text-accent bg-accent/10",
     Icon: Star,
   },
   admin: {

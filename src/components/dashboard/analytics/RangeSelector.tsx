@@ -20,15 +20,15 @@ export function RangeSelector({
 }) {
   const t = useTranslations("analytics.range");
   return (
-    <div className="inline-flex gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
+    <div className="inline-flex gap-1 bg-surface p-1 rounded-lg border border-border">
       {RANGES.map((r) => (
         <button
           key={r.value}
           onClick={() => onChange(r.value)}
           className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
             range === r.value
-              ? "bg-zinc-800 text-white"
-              : "text-zinc-400 hover:text-zinc-200"
+              ? "bg-border text-text"
+              : "text-text-muted hover:text-text"
           }`}
         >
           {t(r.key)}

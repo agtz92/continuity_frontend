@@ -30,14 +30,14 @@ export function Modal({
       }}
     >
       <div
-        className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-5 w-full sm:w-[28rem] sm:min-w-[20rem] sm:max-w-[min(95vw,80rem)] h-auto max-h-[90vh] overflow-auto sm:resize relative flex flex-col"
+        className="bg-surface border border-border rounded-xl p-4 sm:p-5 w-full sm:w-[28rem] sm:min-w-[20rem] sm:max-w-[min(95vw,80rem)] h-auto max-h-[90vh] overflow-auto sm:resize relative flex flex-col"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4 shrink-0">
           <h3 className="font-semibold text-lg">{title}</h3>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-300 p-1 -m-1"
+            className="text-text-muted hover:text-text-muted p-1 -m-1"
             aria-label="Close"
           >
             <X size={18} />
@@ -46,7 +46,7 @@ export function Modal({
         <div className="flex-1 min-h-0 flex flex-col">{children}</div>
         <div
           aria-hidden
-          className="hidden sm:block pointer-events-none absolute bottom-1 right-1 text-zinc-600"
+          className="hidden sm:block pointer-events-none absolute bottom-1 right-1 text-text-muted"
           title="Drag to resize"
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">

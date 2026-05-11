@@ -11,7 +11,7 @@ export function Message({ message }: { message: ChatMessage }) {
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl bg-emerald-500/15 border border-emerald-500/30 px-3 py-2 text-sm text-emerald-50 whitespace-pre-wrap">
+        <div className="max-w-[85%] rounded-2xl bg-accent/15 border border-accent/30 px-3 py-2 text-sm text-accent whitespace-pre-wrap">
           {message.text}
         </div>
       </div>
@@ -22,12 +22,12 @@ export function Message({ message }: { message: ChatMessage }) {
   const isEmpty = message.blocks.length === 0;
   return (
     <div className="flex gap-2">
-      <div className="shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-blue-400 text-zinc-950 flex items-center justify-center">
+      <div className="shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-accent to-accent-2 text-bg flex items-center justify-center">
         <Sparkles size={14} />
       </div>
       <div className="flex-1 min-w-0">
         {isEmpty ? (
-          <div className="text-xs text-zinc-500 italic animate-pulse">
+          <div className="text-xs text-text-muted italic animate-pulse">
             {t("thinking")}
           </div>
         ) : (
@@ -36,7 +36,7 @@ export function Message({ message }: { message: ChatMessage }) {
               return (
                 <div
                   key={i}
-                  className="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed"
+                  className="text-sm text-text whitespace-pre-wrap leading-relaxed"
                 >
                   {block.text}
                 </div>

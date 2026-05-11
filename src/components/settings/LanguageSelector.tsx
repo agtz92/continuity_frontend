@@ -66,11 +66,11 @@ export function LanguageSelector() {
 
   return (
     <div>
-      <div className="text-xs text-zinc-500 mb-1 flex items-center gap-2">
+      <div className="text-xs text-text-muted mb-1 flex items-center gap-2">
         {t("language")}
-        {pending && <Loader2 size={12} className="animate-spin text-zinc-500" />}
+        {pending && <Loader2 size={12} className="animate-spin text-text-muted" />}
       </div>
-      <div className="inline-flex gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+      <div className="inline-flex gap-1 bg-bg p-1 rounded-lg border border-border">
         {SUPPORTED_LOCALES.map((loc) => (
           <button
             key={loc}
@@ -78,15 +78,15 @@ export function LanguageSelector() {
             disabled={pending}
             className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
               value === loc
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-border text-text"
+                : "text-text-muted hover:text-text"
             } disabled:opacity-60`}
           >
             {LOCALE_LABEL[loc]}
           </button>
         ))}
       </div>
-      <p className="text-xs text-zinc-500 mt-2">{t("languageHint")}</p>
+      <p className="text-xs text-text-muted mt-2">{t("languageHint")}</p>
     </div>
   );
 }

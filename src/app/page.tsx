@@ -26,7 +26,7 @@ export default function Home() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+      <div className="min-h-screen bg-bg flex items-center justify-center text-text-muted">
         Loading...
       </div>
     );
