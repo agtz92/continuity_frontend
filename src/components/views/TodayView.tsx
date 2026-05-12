@@ -502,6 +502,8 @@ export function TodayView({
                     );
                   }
                   const proj = projects.find((p) => p.id === item.projectId);
+                  const badgeKey =
+                    item.source === "projectNote" ? "note" : "log";
                   return (
                     <div
                       key={`log-${item.source}-${item.id}`}
@@ -514,7 +516,7 @@ export function TodayView({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
                           <span className="text-[10px] uppercase tracking-wider font-medium text-accent-2">
-                            {tDone("log")}
+                            {tDone(badgeKey)}
                           </span>
                           {proj && (
                             <button
