@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
+import { UserAvatar } from "@/components/account/UserAvatar";
 
 export function AccountMenuTrigger({ onClick }: { onClick: () => void }) {
   const t = useTranslations("accountMenu");
@@ -18,11 +19,11 @@ export function AccountMenuTrigger({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-accent-2 hover:from-accent hover:to-accent-2 flex items-center justify-center text-text font-semibold text-sm transition-colors"
+      className="rounded-full hover:opacity-80 transition-opacity"
       aria-label={t("ariaLabel")}
       title={t("openTooltip")}
     >
-      {initial}
+      <UserAvatar size={36} fallbackInitial={initial} />
     </button>
   );
 }

@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { UserAvatar } from "@/components/account/UserAvatar";
 
 type Workspace = {
   onOpenCategories: () => void;
@@ -89,9 +90,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
       <aside className="relative w-full sm:w-[22rem] h-full bg-bg border-r border-border flex flex-col shadow-2xl">
         <header className="flex items-center justify-between px-5 py-4 border-b border-border/80">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-text font-semibold shrink-0">
-              {initial}
-            </div>
+            <UserAvatar size={36} fallbackInitial={initial} />
             <div className="min-w-0">
               <div className="text-text text-sm font-medium truncate">
                 {email ?? "—"}

@@ -7,10 +7,13 @@ export function Modal({
   title,
   children,
   onClose,
+  widthClassName = "sm:w-[28rem] sm:min-w-[20rem] sm:max-w-[min(95vw,80rem)]",
 }: {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
+  /** Tailwind width classes for the sm+ breakpoint. Override to make the modal wider by default. */
+  widthClassName?: string;
 }) {
   const mouseDownTargetRef = useRef<EventTarget | null>(null);
   return (
@@ -30,7 +33,7 @@ export function Modal({
       }}
     >
       <div
-        className="bg-surface border border-border rounded-xl p-4 sm:p-5 w-full sm:w-[28rem] sm:min-w-[20rem] sm:max-w-[min(95vw,80rem)] h-auto max-h-[90vh] overflow-auto sm:resize relative flex flex-col"
+        className={`bg-surface border border-border rounded-xl p-4 sm:p-5 w-full ${widthClassName} h-auto max-h-[90vh] overflow-auto sm:resize relative flex flex-col`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4 shrink-0">

@@ -28,7 +28,7 @@ import { MockedProvider, type MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import Dashboard from "./Dashboard";
 import { IdeaModal } from "./ideas/IdeaModal";
-import { CREATE_IDEA, DASHBOARD_QUERY } from "@/lib/graphql";
+import { CREATE_IDEA, DASHBOARD_QUERY, PROFILE_QUERY } from "@/lib/graphql";
 
 const emptyDashboard = {
   dashboard: {
@@ -44,6 +44,11 @@ const emptyDashboard = {
 const dashboardMock = (): MockedResponse => ({
   request: { query: DASHBOARD_QUERY },
   result: { data: emptyDashboard },
+});
+
+const profileMock = (): MockedResponse => ({
+  request: { query: PROFILE_QUERY },
+  result: { data: { profile: { avatar: null } } },
 });
 
 describe("Dashboard mutation error handling (integration)", () => {
@@ -62,7 +67,10 @@ describe("Dashboard mutation error handling (integration)", () => {
     };
 
     render(
-      <MockedProvider mocks={[dashboardMock(), errorMock]} addTypename={false}>
+      <MockedProvider
+        mocks={[dashboardMock(), profileMock(), errorMock]}
+        addTypename={false}
+      >
         <Dashboard />
       </MockedProvider>
     );

@@ -423,3 +423,19 @@ export const ANALYTICS_QUERY = gql`
     }
   }
 `;
+
+export const PROFILE_QUERY = gql`
+  query Profile {
+    profile {
+      avatar
+    }
+  }
+`;
+
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile($avatar: String) {
+    updateProfile(avatar: $avatar) {
+      avatar
+    }
+  }
+`;

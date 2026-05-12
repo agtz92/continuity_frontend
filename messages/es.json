@@ -128,6 +128,11 @@
       "description": "Información de tu cuenta.",
       "email": "Correo",
       "memberSince": "Miembro desde",
+      "avatar": "Avatar",
+      "avatarDescription": "Elige cómo apareces en la app.",
+      "changeAvatar": "Cambiar avatar",
+      "clearAvatar": "Quitar avatar",
+      "pickerTitle": "Elige tu avatar",
       "moreSoon": "Pronto podrás editar más campos del perfil."
     },
     "appearance": {
@@ -540,6 +545,23 @@
       "importMerge": "Importar y mezclar con la información actual",
       "importReplace": "Importar y reemplazar todo",
       "replaceConfirm": "Esto BORRARÁ toda la información actual y la reemplazará con el respaldo. ¿Continuar?"
+    }
+  },
+  "avatars": {
+    "styles": {
+      "3d": "3D",
+      "anime": "Anime",
+      "8bit": "8-bit",
+      "vector": "Vector"
+    },
+    "names": {
+      "momo": "Momo",
+      "yuki": "Yuki",
+      "tako": "Tako",
+      "kuma": "Kuma",
+      "hoshi": "Hoshi",
+      "pip": "Pip",
+      "tetsu": "Tetsu"
     }
   }
 }
