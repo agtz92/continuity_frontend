@@ -8,6 +8,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +17,11 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    if (mode === "signup" && password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
     try {
       const { error } =
         mode === "signin"
@@ -66,6 +72,21 @@ export default function LoginPage() {
               className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             />
           </div>
+          {mode === "signup" && (
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-text-muted mb-1.5">
+                Confirm password
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+          )}
           {error && (
             <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-md p-2">
               {error}
@@ -80,7 +101,11 @@ export default function LoginPage() {
           </button>
         </form>
         <button
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+          onClick={() => {
+            setMode(mode === "signin" ? "signup" : "signin");
+            setConfirmPassword("");
+            setError(null);
+          }}
           className="mt-4 text-xs text-text-muted hover:text-text w-full text-center"
         >
           {mode === "signin"
