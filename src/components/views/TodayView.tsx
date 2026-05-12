@@ -19,7 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { Category, Project, Task, UpdateEntry } from "@/lib/types";
+import type { Activity, Category, Project, Task } from "@/lib/types";
 import { daysOverdue, daysSince } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
@@ -46,7 +46,7 @@ const sleepingBucketStyle = {
 export function TodayView({
   projects,
   tasks,
-  updates,
+  activities,
   categoryById,
   lastBackup,
   daysSinceBackup,
@@ -63,7 +63,7 @@ export function TodayView({
 }: {
   projects: Project[];
   tasks: Task[];
-  updates: UpdateEntry[];
+  activities: Activity[];
   categoryById: Record<string, Category>;
   lastBackup: string | null;
   daysSinceBackup: number | null;
@@ -93,7 +93,7 @@ export function TodayView({
     doneTodayItems,
     doneTodayEffortHours,
     launchedWithOpenTasks,
-  } = useTodayFocus({ projects, tasks, updates });
+  } = useTodayFocus({ projects, tasks, activities });
 
   const {
     sleepingProjects,
@@ -493,11 +493,11 @@ export function TodayView({
                       </div>
                     );
                   }
-                  const u = item.update;
-                  const proj = projects.find((p) => p.id === u.projectId);
+                  const a = item.activity;
+                  const proj = projects.find((p) => p.id === a.projectId);
                   return (
                     <div
-                      key={`log-${u.id}`}
+                      key={`log-${a.id}`}
                       className="flex items-start gap-2 border-l-2 border-accent-2/40 pl-2.5"
                     >
                       <TrendingUp
@@ -519,7 +519,7 @@ export function TodayView({
                           )}
                         </div>
                         <div className="text-sm text-text-muted break-words">
-                          {u.note}
+                          {a.note}
                         </div>
                       </div>
                     </div>

@@ -12,7 +12,7 @@ export function BackupRestoreModal({
   onImport,
   onClose,
 }: {
-  counts: { projects: number; tasks: number; ideas: number; updates: number };
+  counts: { projects: number; tasks: number; ideas: number; activities: number };
   lastBackup: string | null;
   onExport: () => void | Promise<void>;
   onImport: (file: File, mode: "merge" | "replace") => void | Promise<void>;
@@ -44,7 +44,7 @@ export function BackupRestoreModal({
               projects: counts.projects,
               tasks: counts.tasks,
               ideas: counts.ideas,
-              updates: counts.updates,
+              updates: counts.activities,
             })}
           </div>
           {lastBackup && (

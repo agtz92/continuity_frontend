@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 
-export function UpdateModal({
+export function NoteModal({
   projectName,
   initialNote = "",
   isEdit = false,

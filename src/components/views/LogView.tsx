@@ -1,24 +1,159 @@
 "use client";
 
 import { useState } from "react";
-import { Edit2, Search, X } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Edit2,
+  FileText,
+  RefreshCw,
+  Rocket,
+  Search,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { Project, UpdateEntry } from "@/lib/types";
+import type { Activity, ActivityKind, Project } from "@/lib/types";
+
+type Filter = "all" | "achievements" | "notes" | "changes" | "deleted";
+
+const ACHIEVEMENT_KINDS: ActivityKind[] = [
+  "task_completed",
+  "project_created",
+  "idea_promoted",
+];
+const CHANGE_KINDS: ActivityKind[] = [
+  "project_status_changed",
+  "project_due_date_changed",
+  "task_due_date_changed",
+];
+const DELETED_KINDS: ActivityKind[] = [
+  "project_deleted",
+  "task_deleted",
+  "idea_deleted",
+];
+
+function matchesFilter(kind: ActivityKind, f: Filter): boolean {
+  if (f === "all") return true;
+  if (f === "notes") return kind === "note";
+  if (f === "achievements") return ACHIEVEMENT_KINDS.includes(kind);
+  if (f === "changes") return CHANGE_KINDS.includes(kind);
+  if (f === "deleted") return DELETED_KINDS.includes(kind);
+  return true;
+}
+
+function iconFor(kind: ActivityKind) {
+  switch (kind) {
+    case "note":
+      return <FileText size={14} className="text-accent" />;
+    case "task_completed":
+      return <CheckCircle2 size={14} className="text-emerald-400" />;
+    case "project_created":
+    case "idea_created":
+    case "task_created":
+      return <Sparkles size={14} className="text-amber-400" />;
+    case "idea_promoted":
+      return <Rocket size={14} className="text-purple-400" />;
+    case "project_status_changed":
+      return <RefreshCw size={14} className="text-cyan-400" />;
+    case "project_due_date_changed":
+    case "task_due_date_changed":
+      return <Calendar size={14} className="text-blue-400" />;
+    case "project_deleted":
+    case "task_deleted":
+    case "idea_deleted":
+      return <Trash2 size={14} className="text-red-400/70" />;
+    default:
+      return <FileText size={14} className="text-text-muted" />;
+  }
+}
+
+function formatDate(iso: string | null, locale: string) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function describe(a: Activity, locale: string): string {
+  const t = a.entityTitle || "(untitled)";
+  switch (a.kind) {
+    case "note":
+      return a.note;
+    case "task_completed":
+      return `Completed task ${t}`;
+    case "task_created":
+      return `Created task ${t}`;
+    case "task_deleted":
+      return `Deleted task ${t}`;
+    case "task_due_date_changed":
+      return a.newValue
+        ? `Rescheduled ${t} to ${formatDate(a.newValue, locale)}`
+        : `Cleared due date on ${t}`;
+    case "project_created":
+      return `Created project ${t}`;
+    case "project_deleted":
+      return `Deleted project ${t}`;
+    case "project_status_changed":
+      return `Moved ${t}: ${a.previousValue} → ${a.newValue}`;
+    case "project_due_date_changed":
+      return a.newValue
+        ? `Set ${t} due date to ${formatDate(a.newValue, locale)}`
+        : `Cleared due date on ${t}`;
+    case "idea_created":
+      return `Captured idea ${t}`;
+    case "idea_deleted":
+      return `Discarded idea ${t}`;
+    case "idea_promoted":
+      return `Promoted idea ${t} → project`;
+    default:
+      return a.entityTitle;
+  }
+}
+
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "achievements", label: "Achievements" },
+  { value: "notes", label: "Notes" },
+  { value: "changes", label: "Changes" },
+  { value: "deleted", label: "Deleted" },
+];
 
 export function LogView({
-  updates,
+  activities,
   projects,
-  onEditUpdate,
-  onDeleteUpdate,
+  onEditNote,
+  onDeleteNote,
 }: {
-  updates: UpdateEntry[];
+  activities: Activity[];
   projects: Project[];
-  onEditUpdate: (u: UpdateEntry) => void;
-  onDeleteUpdate: (id: string) => void | Promise<void>;
+  onEditNote: (a: Activity) => void;
+  onDeleteNote: (id: string) => void | Promise<void>;
 }) {
   const t = useTranslations("views.log");
   const locale = useLocale();
   const [logSearch, setLogSearch] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const q = logSearch.trim().toLowerCase();
+  const visible = activities.filter((a) => {
+    if (!matchesFilter(a.kind, filter)) return false;
+    if (!q) return true;
+    const proj = projects.find((p) => p.id === a.projectId);
+    const haystack = [
+      a.note,
+      a.entityTitle,
+      proj?.name ?? "",
+      a.previousValue,
+      a.newValue,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
 
   return (
     <div>
@@ -38,57 +173,62 @@ export function LogView({
           />
         </div>
       </div>
-      {updates.length === 0 ? (
+
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        {FILTERS.map((f) => {
+          const active = filter === f.value;
+          return (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                active
+                  ? "bg-accent text-bg border-accent"
+                  : "bg-surface border-border text-text-muted hover:text-text"
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {activities.length === 0 ? (
         <div className="bg-surface border border-border rounded-xl p-12 text-center text-text-muted">
           {t("empty")}
         </div>
-      ) : (() => {
-        const q = logSearch.trim().toLowerCase();
-        const filteredUpdates = q
-          ? updates.filter((u) => {
-              const proj = projects.find((p) => p.id === u.projectId);
-              return (
-                u.note.toLowerCase().includes(q) ||
-                (proj?.name.toLowerCase().includes(q) ?? false)
-              );
-            })
-          : updates;
-
-        if (filteredUpdates.length === 0) {
-          return (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
-              {t("noMatch", { query: logSearch })}
-            </div>
-          );
-        }
-
-        return (
-          <div className="space-y-2">
-            {filteredUpdates.map((u) => {
-              const proj = projects.find((p) => p.id === u.projectId);
-              return (
-                <div
-                  key={u.id}
-                  className="bg-surface border border-border rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
-                >
-                  <div className="text-xs text-text-muted shrink-0 sm:w-24">
-                    {new Date(u.date).toLocaleDateString(locale, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+      ) : visible.length === 0 ? (
+        <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
+          {q ? t("noMatch", { query: logSearch }) : "No items in this filter."}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {visible.map((a) => {
+            const proj = projects.find((p) => p.id === a.projectId);
+            const isNote = a.kind === "note";
+            return (
+              <div
+                key={a.id}
+                className="bg-surface border border-border rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
+              >
+                <div className="flex items-start gap-2 shrink-0 sm:w-32">
+                  <span className="mt-0.5">{iconFor(a.kind)}</span>
+                  <div className="text-xs text-text-muted">
+                    {formatDate(a.created, locale)}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    {proj && (
-                      <div className="text-xs text-accent mb-0.5">
-                        {proj.name}
-                      </div>
-                    )}
-                    <div className="text-sm text-text break-words">{u.note}</div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  {proj && (
+                    <div className="text-xs text-accent mb-0.5">{proj.name}</div>
+                  )}
+                  <div className="text-sm text-text break-words">
+                    {describe(a, locale)}
                   </div>
+                </div>
+                {isNote && (
                   <div className="flex items-start gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => onEditUpdate(u)}
+                      onClick={() => onEditNote(a)}
                       className="text-text-muted hover:text-accent"
                       aria-label={t("editEntryAria")}
                     >
@@ -96,7 +236,7 @@ export function LogView({
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm(t("deleteConfirm"))) onDeleteUpdate(u.id);
+                        if (confirm(t("deleteConfirm"))) onDeleteNote(a.id);
                       }}
                       className="text-text-muted hover:text-red-400"
                       aria-label={t("deleteEntryAria")}
@@ -104,12 +244,12 @@ export function LogView({
                       <X size={14} />
                     </button>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        );
-      })()}
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

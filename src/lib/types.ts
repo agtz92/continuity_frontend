@@ -26,6 +26,7 @@ export interface Project {
   categoryId: string | null;
   lastActivity: string;
   created: string;
+  dueDate: string | null;
 }
 
 export interface ProjectNote {
@@ -56,18 +57,38 @@ export interface Idea {
   created: string;
 }
 
-export interface UpdateEntry {
+export type ActivityKind =
+  | "note"
+  | "project_created"
+  | "project_deleted"
+  | "project_status_changed"
+  | "project_due_date_changed"
+  | "task_created"
+  | "task_completed"
+  | "task_deleted"
+  | "task_due_date_changed"
+  | "idea_created"
+  | "idea_deleted"
+  | "idea_promoted";
+
+export interface Activity {
   id: string;
-  projectId: string;
+  kind: ActivityKind;
+  entityId: string | null;
+  entityTitle: string;
+  projectId: string | null;
+  targetProjectId: string | null;
   note: string;
-  date: string;
+  previousValue: string;
+  newValue: string;
+  created: string;
 }
 
 export interface DashboardData {
   projects: Project[];
   tasks: Task[];
   ideas: Idea[];
-  updates: UpdateEntry[];
+  activities: Activity[];
   categories: Category[];
   projectNotes: ProjectNote[];
   lastBackup: string | null;

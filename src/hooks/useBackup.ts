@@ -9,23 +9,33 @@ import {
 import { toast } from "@/lib/toast";
 import { daysSince } from "@/lib/date";
 import type {
+  Activity,
   Idea,
   Project,
   ProjectNote,
   Task,
-  UpdateEntry,
 } from "@/lib/types";
 import { useProjectMutations } from "./useProjectMutations";
 import { useTaskMutations } from "./useTaskMutations";
 import { useIdeaMutations } from "./useIdeaMutations";
-import { useUpdateMutations } from "./useUpdateMutations";
+import { useNoteMutations } from "./useNoteMutations";
 
 type Snapshot = {
   projects: Project[];
   tasks: Task[];
   ideas: Idea[];
-  updates: UpdateEntry[];
+  activities: Activity[];
   projectNotes: ProjectNote[];
+};
+
+// Legacy snapshot shape (pre-unification): `updates` field with a flat list
+// of user-authored notes. We still accept these on import and restore them
+// as kind=NOTE activities; achievements aren't reconstructed.
+type LegacyUpdate = {
+  id: string;
+  projectId: string;
+  note: string;
+  date: string;
 };
 
 export function useBackup({
@@ -44,7 +54,7 @@ export function useBackup({
   const projectMut = useProjectMutations();
   const taskMut = useTaskMutations();
   const ideaMut = useIdeaMutations();
-  const updateMut = useUpdateMutations();
+  const noteMut = useNoteMutations();
   const [createNoteRaw] = useMutation(CREATE_PROJECT_NOTE);
 
   const daysSinceBackup = lastBackup ? daysSince(lastBackup) : null;
@@ -53,7 +63,7 @@ export function useBackup({
 
   const exportData = async () => {
     const payload = {
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       ...snapshot,
     };
@@ -83,7 +93,8 @@ export function useBackup({
       projects?: Project[];
       tasks?: Task[];
       ideas?: Idea[];
-      updates?: UpdateEntry[];
+      activities?: Activity[];
+      updates?: LegacyUpdate[]; // legacy v1 backups
       projectNotes?: ProjectNote[];
     };
     try {
@@ -118,7 +129,7 @@ export function useBackup({
         );
       }
 
-      // Recreate projects (server assigns new ids; map old → new for tasks/updates).
+      // Recreate projects (server assigns new ids; map old → new for tasks/notes).
       const idMap: Record<string, string> = {};
       for (const p of parsed.projects as Project[]) {
         const res = await projectMut.raw.createProject({
@@ -129,6 +140,7 @@ export function useBackup({
               why: p.why || "",
               nextStep: p.nextStep || "",
               status: p.status || "idea",
+              dueDate: p.dueDate ?? null,
             },
           },
         });
@@ -155,14 +167,34 @@ export function useBackup({
           },
         });
       }
-      for (const u of (parsed.updates || []) as UpdateEntry[]) {
-        const newProjectId = idMap[u.projectId];
+
+      // Note import: prefer v2 `activities` (only kind=note); fall back to v1
+      // legacy `updates`. We deliberately only restore notes — achievements
+      // (task_completed, project_created, …) are runtime observations, not
+      // user data.
+      let restoredNotes = 0;
+      const noteActivities = (parsed.activities || []).filter(
+        (a) => a.kind === "note"
+      );
+      for (const a of noteActivities) {
+        const newProjectId = a.projectId ? idMap[a.projectId] : null;
         if (newProjectId) {
-          await updateMut.raw.addUpdate({
-            variables: { projectId: newProjectId, note: u.note },
+          await noteMut.raw.addNote({
+            variables: { projectId: newProjectId, note: a.note },
           });
+          restoredNotes += 1;
         }
       }
+      for (const u of parsed.updates || []) {
+        const newProjectId = idMap[u.projectId];
+        if (newProjectId) {
+          await noteMut.raw.addNote({
+            variables: { projectId: newProjectId, note: u.note },
+          });
+          restoredNotes += 1;
+        }
+      }
+
       for (const n of (parsed.projectNotes || []) as ProjectNote[]) {
         const newProjectId = idMap[n.projectId];
         if (newProjectId) {
@@ -179,7 +211,7 @@ export function useBackup({
       }
       await refetch();
       toast.success(
-        `Imported ${parsed.projects?.length || 0} projects, ${parsed.tasks?.length || 0} tasks, ${parsed.ideas?.length || 0} ideas, ${parsed.updates?.length || 0} updates, ${parsed.projectNotes?.length || 0} notes.`
+        `Imported ${parsed.projects?.length || 0} projects, ${parsed.tasks?.length || 0} tasks, ${parsed.ideas?.length || 0} ideas, ${restoredNotes} notes, ${parsed.projectNotes?.length || 0} project notes.`
       );
     } catch {
       // errorLink already toasted whichever mutation failed; refresh state.

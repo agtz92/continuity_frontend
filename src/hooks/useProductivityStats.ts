@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
+import type { Activity, Idea, Project, Task } from "@/lib/types";
 import {
   computeStreak,
   daysActiveThisWeek,
@@ -36,26 +36,22 @@ export function useProductivityStats({
   projects,
   tasks,
   ideas,
-  updates,
+  activities,
 }: {
   projects: Project[];
   tasks: Task[];
   ideas: Idea[];
-  updates: UpdateEntry[];
+  activities: Activity[];
 }) {
   // ---------------------------------------------------------------------------
-  // Streak + activity-day metrics. Activity = a task got completed or an
-  // update was logged. Toggle_task already creates an Update server-side, so
-  // we deliberately use only `updates.date` and `tasks.completedAt` to avoid
-  // double-counting. Editing project metadata bumps `last_activity` but is
-  // intentionally excluded — silent metadata edits shouldn't pad streaks.
+  // Streak + activity-day metrics. After the slice-2 unification, every
+  // meaningful event lives in `Activity` (notes, completed tasks, creates,
+  // status changes, etc.), so streak counting just maps over `activities`.
   // ---------------------------------------------------------------------------
-  const activityTimestamps = useMemo(() => {
-    const out: string[] = [];
-    for (const u of updates) out.push(u.date);
-    for (const t of tasks) if (t.done && t.completedAt) out.push(t.completedAt);
-    return out;
-  }, [updates, tasks]);
+  const activityTimestamps = useMemo(
+    () => activities.map((a) => a.created),
+    [activities]
+  );
 
   const streak = useMemo(
     () => computeStreak(activityTimestamps),
@@ -145,16 +141,12 @@ export function useProductivityStats({
   // ---------------------------------------------------------------------------
   const comebackProjectIds = useMemo(() => {
     const byProject = new Map<string, number[]>();
-    const push = (id: string, ts: number) => {
+    const push = (id: string | null, ts: number) => {
+      if (!id) return;
       if (!byProject.has(id)) byProject.set(id, []);
       byProject.get(id)!.push(ts);
     };
-    for (const u of updates) push(u.projectId, new Date(u.date).getTime());
-    for (const t of tasks) {
-      if (t.done && t.completedAt && t.projectId) {
-        push(t.projectId, new Date(t.completedAt).getTime());
-      }
-    }
+    for (const a of activities) push(a.projectId, new Date(a.created).getTime());
     const set = new Set<string>();
     const now = Date.now();
     const freshCutoff = COMEBACK_FRESH_HOURS * 60 * 60 * 1000;
@@ -168,23 +160,19 @@ export function useProductivityStats({
       }
     }
     return set;
-  }, [updates, tasks]);
+  }, [activities]);
 
   // Days between latest and previous activity — used to show "Retomado tras Nd".
   const comebackGapByProject = useMemo(() => {
     const map = new Map<string, number>();
     if (comebackProjectIds.size === 0) return map;
     const byProject = new Map<string, number[]>();
-    const push = (id: string, ts: number) => {
+    const push = (id: string | null, ts: number) => {
+      if (!id) return;
       if (!byProject.has(id)) byProject.set(id, []);
       byProject.get(id)!.push(ts);
     };
-    for (const u of updates) push(u.projectId, new Date(u.date).getTime());
-    for (const t of tasks) {
-      if (t.done && t.completedAt && t.projectId) {
-        push(t.projectId, new Date(t.completedAt).getTime());
-      }
-    }
+    for (const a of activities) push(a.projectId, new Date(a.created).getTime());
     for (const pid of comebackProjectIds) {
       const stamps = byProject.get(pid);
       if (!stamps || stamps.length < 2) continue;
@@ -195,7 +183,7 @@ export function useProductivityStats({
       map.set(pid, gapDays);
     }
     return map;
-  }, [comebackProjectIds, updates, tasks]);
+  }, [comebackProjectIds, activities]);
 
   // ---------------------------------------------------------------------------
   // Stale ideas: created >30 days ago and never promoted. (Promotion deletes

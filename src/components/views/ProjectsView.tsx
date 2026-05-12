@@ -15,13 +15,13 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type {
+  Activity as ActivityEntry,
   Category,
   Priority,
   Project,
   ProjectNote,
   ProjectStatus,
   Task,
-  UpdateEntry,
 } from "@/lib/types";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectSection } from "@/components/projects/ProjectSection";
@@ -43,7 +43,7 @@ import {
 export function ProjectsView({
   projects,
   tasks,
-  updates,
+  activities,
   categories,
   categoryById,
   notesByProject,
@@ -61,7 +61,7 @@ export function ProjectsView({
 }: {
   projects: Project[];
   tasks: Task[];
-  updates: UpdateEntry[];
+  activities: ActivityEntry[];
   categories: Category[];
   categoryById: Record<string, Category>;
   notesByProject: Record<string, ProjectNote[]>;
@@ -596,8 +596,8 @@ export function ProjectsView({
                     </div>
 
                     {isExpanded && (() => {
-                      const projectUpdates = updates.filter(
-                        (u) => u.projectId === p.id
+                      const projectNotes = activities.filter(
+                        (a) => a.kind === "note" && a.projectId === p.id
                       );
                       return (
                       <div className="border-t border-border p-4 space-y-3">
@@ -744,9 +744,9 @@ export function ProjectsView({
                         <ProjectSection
                           title={tCard("recentActivity")}
                           rightSlot={
-                            projectUpdates.length > 0 ? (
+                            projectNotes.length > 0 ? (
                               <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
-                                {projectUpdates.length}
+                                {projectNotes.length}
                               </span>
                             ) : null
                           }
@@ -761,21 +761,21 @@ export function ProjectsView({
                             <Plus size={12} /> {tCard("logUpdate")}
                           </button>
                           <div className="space-y-1">
-                            {projectUpdates.slice(0, 3).map((u) => (
+                            {projectNotes.slice(0, 3).map((a) => (
                               <div
-                                key={u.id}
+                                key={a.id}
                                 className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
                               >
                                 <span className="text-text-muted text-xs shrink-0 sm:w-20">
-                                  {new Date(u.date).toLocaleDateString(locale, {
+                                  {new Date(a.created).toLocaleDateString(locale, {
                                     month: "short",
                                     day: "numeric",
                                   })}
                                 </span>
-                                <span className="break-words min-w-0">{u.note}</span>
+                                <span className="break-words min-w-0">{a.note}</span>
                               </div>
                             ))}
-                            {projectUpdates.length === 0 && (
+                            {projectNotes.length === 0 && (
                               <div className="text-sm text-text-muted italic">
                                 {tCard("noUpdates")}
                               </div>

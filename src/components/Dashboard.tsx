@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertCircle } from "lucide-react";
 
-import type { Idea, Project, Task, UpdateEntry } from "@/lib/types";
+import type { Activity, Idea, Project, Task } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
@@ -13,14 +13,14 @@ import { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useProjectMutations } from "@/hooks/useProjectMutations";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { useIdeaMutations } from "@/hooks/useIdeaMutations";
-import { useUpdateMutations } from "@/hooks/useUpdateMutations";
+import { useNoteMutations } from "@/hooks/useNoteMutations";
 import { useCategoryMutations } from "@/hooks/useCategoryMutations";
 import { useBackup } from "@/hooks/useBackup";
 import { ProjectDetailModal } from "./projects/ProjectDetailModal";
 import { ProjectModal } from "./projects/ProjectModal";
 import { TaskModal } from "./tasks/TaskModal";
 import { IdeaModal } from "./ideas/IdeaModal";
-import { UpdateModal } from "./updates/UpdateModal";
+import { NoteModal } from "./updates/UpdateModal";
 import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
@@ -43,7 +43,7 @@ export default function Dashboard() {
     projects,
     tasks,
     ideas,
-    updates,
+    activities,
     categories,
     categoryById,
     notesByProject,
@@ -56,14 +56,14 @@ export default function Dashboard() {
   const { saveProject, deleteProject: deleteProjectAction } = useProjectMutations();
   const { saveTask, toggleTask, deleteTask } = useTaskMutations();
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
-  const { addUpdate, editUpdate, deleteUpdate } = useUpdateMutations();
+  const { addNote, editNote, deleteNote } = useNoteMutations();
   const { createCategory, deleteCategory } = useCategoryMutations();
   const allProjectNotes = useMemo(
     () => Object.values(notesByProject).flat(),
     [notesByProject]
   );
   const { exportData, importData, daysSinceBackup, backupOverdue } = useBackup({
-    snapshot: { projects, tasks, ideas, updates, projectNotes: allProjectNotes },
+    snapshot: { projects, tasks, ideas, activities, projectNotes: allProjectNotes },
     lastBackup,
     refetch,
   });
@@ -74,12 +74,12 @@ export default function Dashboard() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showIdeaModal, setShowIdeaModal] = useState(false);
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showNoteModal, setShowNoteModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
   const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
-  const [editingUpdate, setEditingUpdate] = useState<UpdateEntry | null>(null);
+  const [editingNote, setEditingNote] = useState<Activity | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
   const viewingProject = projects.find((p) => p.id === viewingProjectId) ?? null;
@@ -93,7 +93,12 @@ export default function Dashboard() {
   ).length;
   const hasData = projects.length > 0 || tasks.length > 0 || ideas.length > 0;
 
-  const productivityStats = useProductivityStats({ projects, tasks, ideas, updates });
+  const productivityStats = useProductivityStats({
+    projects,
+    tasks,
+    ideas,
+    activities,
+  });
 
   // Thin wrappers that close modals on success — Dashboard owns modal state.
   const handleSaveProject = async (p: Parameters<typeof saveProject>[0]) => {
@@ -117,15 +122,15 @@ export default function Dashboard() {
     }
   };
 
-  const handleSaveUpdate = async (note: string) => {
-    const ok = editingUpdate
-      ? await editUpdate(editingUpdate.id, note)
+  const handleSaveNote = async (note: string) => {
+    const ok = editingNote
+      ? await editNote(editingNote.id, note)
       : selectedProject
-      ? await addUpdate(selectedProject.id, note)
+      ? await addNote(selectedProject.id, note)
       : false;
     if (ok) {
-      setShowUpdateModal(false);
-      setEditingUpdate(null);
+      setShowNoteModal(false);
+      setEditingNote(null);
     }
   };
 
@@ -190,7 +195,7 @@ export default function Dashboard() {
           <TodayView
             projects={projects}
             tasks={tasks}
-            updates={updates}
+            activities={activities}
             categoryById={categoryById}
             lastBackup={lastBackup}
             daysSinceBackup={daysSinceBackup}
@@ -206,8 +211,8 @@ export default function Dashboard() {
             onJumpToIdeas={() => setView("ideas")}
             onLogUpdate={(p) => {
               setSelectedProject(p);
-              setEditingUpdate(null);
-              setShowUpdateModal(true);
+              setEditingNote(null);
+              setShowNoteModal(true);
             }}
             onToggleTask={toggleTask}
             onEditTask={(task) => {
@@ -222,7 +227,7 @@ export default function Dashboard() {
           <ProjectsView
             projects={projects}
             tasks={tasks}
-            updates={updates}
+            activities={activities}
             categories={categories}
             categoryById={categoryById}
             notesByProject={notesByProject}
@@ -246,8 +251,8 @@ export default function Dashboard() {
             }}
             onLogUpdate={(p) => {
               setSelectedProject(p);
-              setEditingUpdate(null);
-              setShowUpdateModal(true);
+              setEditingNote(null);
+              setShowNoteModal(true);
             }}
             onToggleTask={toggleTask}
             onEditTask={(task) => {
@@ -296,16 +301,16 @@ export default function Dashboard() {
         {/* LOG */}
         {view === "log" && (
           <LogView
-            updates={updates}
+            activities={activities}
             projects={projects}
-            onEditUpdate={(u) => {
-              const proj = projects.find((p) => p.id === u.projectId);
+            onEditNote={(a) => {
+              const proj = projects.find((p) => p.id === a.projectId);
               if (!proj) return;
               setSelectedProject(proj);
-              setEditingUpdate(u);
-              setShowUpdateModal(true);
+              setEditingNote(a);
+              setShowNoteModal(true);
             }}
-            onDeleteUpdate={deleteUpdate}
+            onDeleteNote={deleteNote}
           />
         )}
 
@@ -359,15 +364,15 @@ export default function Dashboard() {
         />
       )}
 
-      {showUpdateModal && selectedProject && (
-        <UpdateModal
+      {showNoteModal && selectedProject && (
+        <NoteModal
           projectName={selectedProject.name}
-          initialNote={editingUpdate?.note ?? ""}
-          isEdit={!!editingUpdate}
-          onSave={handleSaveUpdate}
+          initialNote={editingNote?.note ?? ""}
+          isEdit={!!editingNote}
+          onSave={handleSaveNote}
           onClose={() => {
-            setShowUpdateModal(false);
-            setEditingUpdate(null);
+            setShowNoteModal(false);
+            setEditingNote(null);
           }}
         />
       )}
@@ -376,7 +381,7 @@ export default function Dashboard() {
         <ProjectDetailModal
           project={viewingProject}
           tasks={tasks}
-          updates={updates}
+          activities={activities}
           notes={notesByProject[viewingProject.id] ?? []}
           categories={categories}
           categoryById={categoryById}
@@ -400,6 +405,10 @@ export default function Dashboard() {
                 patch.categoryId !== undefined
                   ? patch.categoryId
                   : viewingProject.categoryId,
+              dueDate:
+                patch.dueDate !== undefined
+                  ? patch.dueDate
+                  : viewingProject.dueDate,
             });
           }}
           onDeleteProject={async (id) => {
@@ -411,8 +420,8 @@ export default function Dashboard() {
           }}
           onLogUpdate={(p) => {
             setSelectedProject(p);
-            setEditingUpdate(null);
-            setShowUpdateModal(true);
+            setEditingNote(null);
+            setShowNoteModal(true);
           }}
           onToggleTask={toggleTask}
           onEditTask={(task) => {
@@ -429,7 +438,7 @@ export default function Dashboard() {
             projects: projects.length,
             tasks: tasks.length,
             ideas: ideas.length,
-            updates: updates.length,
+            activities: activities.length,
           }}
           lastBackup={lastBackup}
           onExport={exportData}

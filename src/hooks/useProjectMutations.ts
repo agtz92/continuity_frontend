@@ -26,6 +26,7 @@ export function useProjectMutations() {
     status: string;
     priority: Priority;
     categoryId: string | null;
+    dueDate: string | null;
   }): Promise<boolean> => {
     const data = {
       name: p.name,
@@ -35,6 +36,7 @@ export function useProjectMutations() {
       status: p.status,
       priority: p.priority,
       categoryId: p.categoryId,
+      dueDate: p.dueDate,
     };
     try {
       if (p.id) {

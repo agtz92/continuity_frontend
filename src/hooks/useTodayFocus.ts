@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Project, Task, UpdateEntry } from "@/lib/types";
+import type { Activity, Project, Task } from "@/lib/types";
 import {
   daysSince,
   isCompletedToday,
@@ -17,17 +17,17 @@ export type FocusItem = {
 
 export type DoneItem =
   | { kind: "task"; time: number; task: Task }
-  | { kind: "log"; time: number; update: UpdateEntry };
+  | { kind: "log"; time: number; activity: Activity };
 
 /** Aggregates all the "today" derived data so views can subscribe to it cleanly. */
 export function useTodayFocus({
   projects,
   tasks,
-  updates,
+  activities,
 }: {
   projects: Project[];
   tasks: Task[];
-  updates: UpdateEntry[];
+  activities: Activity[];
 }) {
   const stalled = useMemo(
     () =>
@@ -109,17 +109,21 @@ export function useTodayFocus({
           task: t,
         })
       );
-    updates
-      .filter((u) => isCompletedToday(u.date))
-      .forEach((u) =>
+    // Surface user-authored notes (kind=note) here. Achievements like
+    // task_completed are already covered by the task-completed branch
+    // above (they read from the Task table). Other auto-events (creates,
+    // status changes, etc.) belong in the LogView, not "done today".
+    activities
+      .filter((a) => a.kind === "note" && isCompletedToday(a.created))
+      .forEach((a) =>
         items.push({
           kind: "log",
-          time: new Date(u.date).getTime(),
-          update: u,
+          time: new Date(a.created).getTime(),
+          activity: a,
         })
       );
     return items.sort((a, b) => b.time - a.time);
-  }, [tasks, updates]);
+  }, [tasks, activities]);
 
   const doneTodayEffortHours = useMemo(() => {
     const sum = tasks

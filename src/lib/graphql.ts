@@ -14,6 +14,7 @@ export const DASHBOARD_QUERY = gql`
         categoryId
         lastActivity
         created
+        dueDate
       }
       tasks {
         id
@@ -32,11 +33,17 @@ export const DASHBOARD_QUERY = gql`
         why
         created
       }
-      updates {
+      activities {
         id
+        kind
+        entityId
+        entityTitle
         projectId
+        targetProjectId
         note
-        date
+        previousValue
+        newValue
+        created
       }
       categories {
         id
@@ -102,6 +109,7 @@ export const CREATE_PROJECT = gql`
       categoryId
       lastActivity
       created
+      dueDate
     }
   }
 `;
@@ -119,6 +127,7 @@ export const UPDATE_PROJECT = gql`
       categoryId
       lastActivity
       created
+      dueDate
     }
   }
 `;
@@ -250,31 +259,38 @@ export const PROMOTE_IDEA = gql`
   }
 `;
 
-export const ADD_UPDATE = gql`
-  mutation AddUpdate($projectId: ID!, $note: String!) {
-    addUpdate(projectId: $projectId, note: $note) {
-      id
-      projectId
-      note
-      date
+const ACTIVITY_FIELDS = `
+  id
+  kind
+  entityId
+  entityTitle
+  projectId
+  targetProjectId
+  note
+  previousValue
+  newValue
+  created
+`;
+
+export const ADD_NOTE = gql`
+  mutation AddNote($projectId: ID!, $note: String!) {
+    addNote(projectId: $projectId, note: $note) {
+      ${ACTIVITY_FIELDS}
     }
   }
 `;
 
-export const UPDATE_UPDATE = gql`
-  mutation UpdateUpdate($id: ID!, $note: String!) {
-    updateUpdate(id: $id, note: $note) {
-      id
-      projectId
-      note
-      date
+export const UPDATE_NOTE = gql`
+  mutation UpdateNote($id: ID!, $note: String!) {
+    updateNote(id: $id, note: $note) {
+      ${ACTIVITY_FIELDS}
     }
   }
 `;
 
-export const DELETE_UPDATE = gql`
-  mutation DeleteUpdate($id: ID!) {
-    deleteUpdate(id: $id)
+export const DELETE_NOTE = gql`
+  mutation DeleteNote($id: ID!) {
+    deleteNote(id: $id)
   }
 `;
 
@@ -428,6 +444,35 @@ export const PROFILE_QUERY = gql`
   query Profile {
     profile {
       avatar
+    }
+  }
+`;
+
+export const ACTIVITY_QUERY = gql`
+  query ActivityFeed(
+    $limit: Int
+    $since: DateTime
+    $until: DateTime
+    $projectId: ID
+    $kinds: [String!]
+  ) {
+    activity(
+      limit: $limit
+      since: $since
+      until: $until
+      projectId: $projectId
+      kinds: $kinds
+    ) {
+      id
+      kind
+      entityId
+      entityTitle
+      projectId
+      targetProjectId
+      note
+      previousValue
+      newValue
+      created
     }
   }
 `;

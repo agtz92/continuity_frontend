@@ -30,6 +30,7 @@ export function ProjectModal({
     status: string;
     priority: Priority;
     categoryId: string | null;
+    dueDate: string | null;
   }) => void | Promise<void>;
   onCreateCategory: (input: {
     name: string;
@@ -41,6 +42,17 @@ export function ProjectModal({
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
   const tPriority = useTranslations("priority");
+  const tTask = useTranslations("modals.task");
+
+  const isoToInputDate = (iso?: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const inputDateToIso = (s: string) => {
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0).toISOString();
+  };
 
   const [name, setName] = useState(project?.name || "");
   const [description, setDescription] = useState(project?.description || "");
@@ -51,6 +63,7 @@ export function ProjectModal({
   const [categoryId, setCategoryId] = useState<string | null>(
     project?.categoryId ?? null
   );
+  const [dueDate, setDueDate] = useState(isoToInputDate(project?.dueDate));
   const [creatingCategory, setCreatingCategory] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newCatColor, setNewCatColor] = useState<string>("emerald");
@@ -79,6 +92,7 @@ export function ProjectModal({
       status,
       priority,
       categoryId,
+      dueDate: dueDate ? inputDateToIso(dueDate) : null,
     });
   };
 
@@ -147,6 +161,14 @@ export function ProjectModal({
             </select>
           </Field>
         </div>
+        <Field label={tTask("dueDate")}>
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
+          />
+        </Field>
         <Field label={t("category")}>
           {!creatingCategory ? (
             <div className="flex gap-2">

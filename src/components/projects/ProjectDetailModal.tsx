@@ -12,12 +12,12 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import type {
   Category,
+  Activity,
   Priority,
   Project,
   ProjectNote,
   ProjectStatus,
   Task,
-  UpdateEntry,
 } from "@/lib/types";
 import {
   PRIORITIES,
@@ -50,7 +50,7 @@ const STATUS_OPTIONS: ProjectStatus[] = [
 export function ProjectDetailModal({
   project: p,
   tasks,
-  updates,
+  activities,
   notes,
   categories,
   categoryById,
@@ -65,7 +65,7 @@ export function ProjectDetailModal({
 }: {
   project: Project;
   tasks: Task[];
-  updates: UpdateEntry[];
+  activities: Activity[];
   notes: ProjectNote[];
   categories: Category[];
   categoryById: Record<string, Category>;
@@ -87,7 +87,9 @@ export function ProjectDetailModal({
   const locale = useLocale();
 
   const projectTasks = tasks.filter((t) => t.projectId === p.id);
-  const projectUpdates = updates.filter((u) => u.projectId === p.id);
+  const projectUpdates = activities.filter(
+    (a) => a.kind === "note" && a.projectId === p.id
+  );
   const done = projectTasks.filter((t) => t.done).length;
   const total = projectTasks.length;
   const StatusIcon = statusConfig[p.status]?.icon;
@@ -313,19 +315,19 @@ export function ProjectDetailModal({
               <Plus size={12} /> {tCard("logUpdate")}
             </button>
             <div className="space-y-1.5">
-              {projectUpdates.map((u) => (
+              {projectUpdates.map((a) => (
                 <div
-                  key={u.id}
+                  key={a.id}
                   className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
                 >
                   <span className="text-text-muted text-xs shrink-0 sm:w-24">
-                    {new Date(u.date).toLocaleDateString(locale, {
+                    {new Date(a.created).toLocaleDateString(locale, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
                     })}
                   </span>
-                  <span className="break-words min-w-0">{u.note}</span>
+                  <span className="break-words min-w-0">{a.note}</span>
                 </div>
               ))}
               {projectUpdates.length === 0 && (
