@@ -19,7 +19,13 @@ import {
   Zap,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { Activity, Category, Project, Task } from "@/lib/types";
+import type {
+  Activity,
+  Category,
+  Project,
+  ProjectNote,
+  Task,
+} from "@/lib/types";
 import { daysOverdue, daysSince } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
@@ -47,6 +53,7 @@ export function TodayView({
   projects,
   tasks,
   activities,
+  projectNotes,
   categoryById,
   lastBackup,
   daysSinceBackup,
@@ -64,6 +71,7 @@ export function TodayView({
   projects: Project[];
   tasks: Task[];
   activities: Activity[];
+  projectNotes: ProjectNote[];
   categoryById: Record<string, Category>;
   lastBackup: string | null;
   daysSinceBackup: number | null;
@@ -93,7 +101,7 @@ export function TodayView({
     doneTodayItems,
     doneTodayEffortHours,
     launchedWithOpenTasks,
-  } = useTodayFocus({ projects, tasks, activities });
+  } = useTodayFocus({ projects, tasks, activities, projectNotes });
 
   const {
     sleepingProjects,
@@ -493,11 +501,10 @@ export function TodayView({
                       </div>
                     );
                   }
-                  const a = item.activity;
-                  const proj = projects.find((p) => p.id === a.projectId);
+                  const proj = projects.find((p) => p.id === item.projectId);
                   return (
                     <div
-                      key={`log-${a.id}`}
+                      key={`log-${item.source}-${item.id}`}
                       className="flex items-start gap-2 border-l-2 border-accent-2/40 pl-2.5"
                     >
                       <TrendingUp
@@ -519,7 +526,7 @@ export function TodayView({
                           )}
                         </div>
                         <div className="text-sm text-text-muted break-words">
-                          {a.note}
+                          {item.text}
                         </div>
                       </div>
                     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Activity, Project, Task } from "@/lib/types";
+import type { Activity, Project, ProjectNote, Task } from "@/lib/types";
 import {
   daysSince,
   isCompletedToday,
@@ -17,17 +17,28 @@ export type FocusItem = {
 
 export type DoneItem =
   | { kind: "task"; time: number; task: Task }
-  | { kind: "log"; time: number; activity: Activity };
+  | {
+      kind: "log";
+      time: number;
+      /** "activity" = a timeline note (Activity kind=NOTE).
+       *  "projectNote" = a rich note from the project's Notes section. */
+      source: "activity" | "projectNote";
+      id: string;
+      projectId: string | null;
+      text: string;
+    };
 
 /** Aggregates all the "today" derived data so views can subscribe to it cleanly. */
 export function useTodayFocus({
   projects,
   tasks,
   activities,
+  projectNotes,
 }: {
   projects: Project[];
   tasks: Task[];
   activities: Activity[];
+  projectNotes: ProjectNote[];
 }) {
   const stalled = useMemo(
     () =>
@@ -109,21 +120,42 @@ export function useTodayFocus({
           task: t,
         })
       );
-    // Surface user-authored notes (kind=note) here. Achievements like
-    // task_completed are already covered by the task-completed branch
-    // above (they read from the Task table). Other auto-events (creates,
-    // status changes, etc.) belong in the LogView, not "done today".
+    // Surface user-authored notes here. Both flavors count:
+    //   - Timeline notes (Activity kind=NOTE) from the "Log Update" button.
+    //   - Rich project notes (ProjectNote) from the project's Notes section.
+    // Achievements like task_completed are already covered by the
+    // task-completed branch above. Other auto-events (creates, status
+    // changes, etc.) belong in the LogView, not "done today".
     activities
       .filter((a) => a.kind === "note" && isCompletedToday(a.created))
       .forEach((a) =>
         items.push({
           kind: "log",
+          source: "activity",
           time: new Date(a.created).getTime(),
-          activity: a,
+          id: a.id,
+          projectId: a.projectId,
+          text: a.note,
         })
       );
+    projectNotes
+      .filter((n) => isCompletedToday(n.created))
+      .forEach((n) => {
+        const text =
+          n.title?.trim() ||
+          (n.body || "").split("\n")[0]?.trim() ||
+          "(untitled note)";
+        items.push({
+          kind: "log",
+          source: "projectNote",
+          time: new Date(n.created).getTime(),
+          id: n.id,
+          projectId: n.projectId,
+          text,
+        });
+      });
     return items.sort((a, b) => b.time - a.time);
-  }, [tasks, activities]);
+  }, [tasks, activities, projectNotes]);
 
   const doneTodayEffortHours = useMemo(() => {
     const sum = tasks

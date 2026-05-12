@@ -196,6 +196,7 @@ export default function Dashboard() {
             projects={projects}
             tasks={tasks}
             activities={activities}
+            projectNotes={allProjectNotes}
             categoryById={categoryById}
             lastBackup={lastBackup}
             daysSinceBackup={daysSinceBackup}
