@@ -1,5 +1,422 @@
 import { gql } from "@apollo/client";
 
+export const ME_QUERY = gql`
+  query Me {
+    me {
+      userId
+      isAdmin
+    }
+  }
+`;
+
+export const ADMIN_USERS_QUERY = gql`
+  query AdminUsers(
+    $page: Int
+    $perPage: Int
+    $emailContains: String
+    $plan: String
+    $adminsOnly: Boolean
+  ) {
+    adminUsers(
+      page: $page
+      perPage: $perPage
+      emailContains: $emailContains
+      plan: $plan
+      adminsOnly: $adminsOnly
+    ) {
+      users {
+        userId
+        email
+        plan
+        isAdmin
+        createdAt
+        lastSignInAt
+        lastActivity
+        counts {
+          projects
+          tasksOpen
+          tasksDone
+          ideas
+          notes
+        }
+      }
+      page
+      perPage
+      hasNext
+    }
+  }
+`;
+
+export const ADMIN_USER_QUERY = gql`
+  query AdminUser($userId: ID!) {
+    adminUser(userId: $userId) {
+      userId
+      email
+      plan
+      isAdmin
+      planRenewsAt
+      stripeCustomerId
+      stripeSubscriptionId
+      createdAt
+      lastSignInAt
+      emailConfirmedAt
+      bannedUntil
+      lastActivity
+      counts {
+        projects
+        tasksOpen
+        tasksDone
+        ideas
+        notes
+      }
+      usageLast30d {
+        date
+        messagesSent
+        tokensIn
+        tokensOut
+        costUsdCents
+      }
+      notifications {
+        digestEnabled
+        dailyDigestEnabled
+        dueRemindersEnabled
+        sleepingAlertsEnabled
+        isAdmin
+        links {
+          channel
+          verified
+          created
+        }
+      }
+    }
+  }
+`;
+
+export const ADMIN_SET_USER_PLAN = gql`
+  mutation AdminSetUserPlan($userId: ID!, $plan: String!) {
+    adminSetUserPlan(userId: $userId, plan: $plan) {
+      userId
+      plan
+      isAdmin
+    }
+  }
+`;
+
+export const ADMIN_SET_USER_IS_ADMIN = gql`
+  mutation AdminSetUserIsAdmin($userId: ID!, $isAdmin: Boolean!) {
+    adminSetUserIsAdmin(userId: $userId, isAdmin: $isAdmin) {
+      userId
+      isAdmin
+    }
+  }
+`;
+
+const BLOG_POST_FRAGMENT = gql`
+  fragment AdminBlogPostFields on AdminBlogPost {
+    id
+    slug
+    title
+    excerpt
+    contentJson
+    contentHtml
+    coverImageUrl
+    status
+    publishedAt
+    tags
+    seoTitle
+    seoDescription
+    locale
+    createdAt
+    updatedAt
+  }
+`;
+
+const PAGE_FRAGMENT = gql`
+  fragment AdminPageFields on AdminPage {
+    id
+    path
+    title
+    excerpt
+    contentJson
+    contentHtml
+    coverImageUrl
+    status
+    publishedAt
+    showInNav
+    navOrder
+    seoTitle
+    seoDescription
+    locale
+    createdAt
+    updatedAt
+  }
+`;
+
+export const ADMIN_BLOG_POSTS_QUERY = gql`
+  ${BLOG_POST_FRAGMENT}
+  query AdminBlogPosts(
+    $page: Int
+    $perPage: Int
+    $status: String
+    $search: String
+  ) {
+    adminBlogPosts(
+      page: $page
+      perPage: $perPage
+      status: $status
+      search: $search
+    ) {
+      posts {
+        ...AdminBlogPostFields
+      }
+      page
+      perPage
+      hasNext
+    }
+  }
+`;
+
+export const ADMIN_BLOG_POST_QUERY = gql`
+  ${BLOG_POST_FRAGMENT}
+  query AdminBlogPost($id: ID!) {
+    adminBlogPost(id: $id) {
+      ...AdminBlogPostFields
+    }
+  }
+`;
+
+export const ADMIN_BLOG_POST_CREATE = gql`
+  ${BLOG_POST_FRAGMENT}
+  mutation AdminBlogPostCreate($data: BlogPostInput!) {
+    adminBlogPostCreate(data: $data) {
+      ...AdminBlogPostFields
+    }
+  }
+`;
+
+export const ADMIN_BLOG_POST_UPDATE = gql`
+  ${BLOG_POST_FRAGMENT}
+  mutation AdminBlogPostUpdate($id: ID!, $data: BlogPostInput!) {
+    adminBlogPostUpdate(id: $id, data: $data) {
+      ...AdminBlogPostFields
+    }
+  }
+`;
+
+export const ADMIN_BLOG_POST_PUBLISH = gql`
+  ${BLOG_POST_FRAGMENT}
+  mutation AdminBlogPostPublish($id: ID!, $published: Boolean!) {
+    adminBlogPostPublish(id: $id, published: $published) {
+      ...AdminBlogPostFields
+    }
+  }
+`;
+
+export const ADMIN_BLOG_POST_DELETE = gql`
+  mutation AdminBlogPostDelete($id: ID!) {
+    adminBlogPostDelete(id: $id)
+  }
+`;
+
+export const ADMIN_PAGES_QUERY = gql`
+  ${PAGE_FRAGMENT}
+  query AdminPages($page: Int, $perPage: Int, $status: String) {
+    adminPages(page: $page, perPage: $perPage, status: $status) {
+      ...AdminPageFields
+    }
+  }
+`;
+
+export const ADMIN_PAGE_QUERY = gql`
+  ${PAGE_FRAGMENT}
+  query AdminPage($id: ID!) {
+    adminPage(id: $id) {
+      ...AdminPageFields
+    }
+  }
+`;
+
+export const ADMIN_PAGE_CREATE = gql`
+  ${PAGE_FRAGMENT}
+  mutation AdminPageCreate($data: PageInput!) {
+    adminPageCreate(data: $data) {
+      ...AdminPageFields
+    }
+  }
+`;
+
+export const ADMIN_PAGE_UPDATE = gql`
+  ${PAGE_FRAGMENT}
+  mutation AdminPageUpdate($id: ID!, $data: PageInput!) {
+    adminPageUpdate(id: $id, data: $data) {
+      ...AdminPageFields
+    }
+  }
+`;
+
+export const ADMIN_PAGE_PUBLISH = gql`
+  ${PAGE_FRAGMENT}
+  mutation AdminPagePublish($id: ID!, $published: Boolean!) {
+    adminPagePublish(id: $id, published: $published) {
+      ...AdminPageFields
+    }
+  }
+`;
+
+export const ADMIN_PAGE_DELETE = gql`
+  mutation AdminPageDelete($id: ID!) {
+    adminPageDelete(id: $id)
+  }
+`;
+
+export const ADMIN_MEDIA_ASSETS_QUERY = gql`
+  query AdminMediaAssets($page: Int, $perPage: Int) {
+    adminMediaAssets(page: $page, perPage: $perPage) {
+      assets {
+        id
+        storagePath
+        publicUrl
+        originalFilename
+        mimeType
+        sizeBytes
+        width
+        height
+        createdAt
+      }
+      page
+      perPage
+      hasNext
+    }
+  }
+`;
+
+export const ADMIN_MEDIA_REGISTER = gql`
+  mutation AdminMediaRegister($data: MediaRegisterInput!) {
+    adminMediaRegister(data: $data) {
+      id
+      storagePath
+      publicUrl
+      originalFilename
+      mimeType
+      sizeBytes
+      width
+      height
+      createdAt
+    }
+  }
+`;
+
+export const ADMIN_MEDIA_DELETE = gql`
+  mutation AdminMediaDelete($id: ID!) {
+    adminMediaDelete(id: $id)
+  }
+`;
+
+export const ADMIN_NOTIFICATION_JOBS_QUERY = gql`
+  query AdminNotificationJobs(
+    $page: Int
+    $perPage: Int
+    $status: String
+    $channel: String
+    $kind: String
+    $userId: ID
+  ) {
+    adminNotificationJobs(
+      page: $page
+      perPage: $perPage
+      status: $status
+      channel: $channel
+      kind: $kind
+      userId: $userId
+    ) {
+      jobs {
+        id
+        userId
+        channel
+        kind
+        dedupeKey
+        body
+        scheduledFor
+        status
+        attempts
+        externalMessageId
+        error
+        created
+        sentAt
+      }
+      page
+      perPage
+      hasNext
+    }
+  }
+`;
+
+export const ADMIN_NOTIFICATION_JOB_RETRY = gql`
+  mutation AdminNotificationJobRetry($id: ID!) {
+    adminNotificationJobRetry(id: $id) {
+      id
+      status
+      error
+    }
+  }
+`;
+
+export const ADMIN_SYSTEM_STATS_QUERY = gql`
+  query AdminSystemStats {
+    adminSystemStats {
+      totalAccounts
+      admins
+      dau
+      wau
+      mau
+      blogPostsPublished
+      blogPostsDraft
+      pagesPublished
+      pendingJobs
+      failedJobs
+      planCounts {
+        plan
+        count
+      }
+      jobStatusCounts {
+        status
+        count
+      }
+    }
+  }
+`;
+
+export const ADMIN_AUDIT_LOG_QUERY = gql`
+  query AdminAuditLog(
+    $page: Int
+    $perPage: Int
+    $actorUserId: ID
+    $actionContains: String
+    $targetUserId: ID
+  ) {
+    adminAuditLog(
+      page: $page
+      perPage: $perPage
+      actorUserId: $actorUserId
+      actionContains: $actionContains
+      targetUserId: $targetUserId
+    ) {
+      entries {
+        id
+        actorUserId
+        action
+        targetType
+        targetId
+        payload
+        created
+      }
+      page
+      perPage
+      hasNext
+    }
+  }
+`;
+
 export const DASHBOARD_QUERY = gql`
   query Dashboard {
     dashboard {
