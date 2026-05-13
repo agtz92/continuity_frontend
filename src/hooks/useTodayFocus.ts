@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Activity, Project, ProjectNote, Task } from "@/lib/types";
+import type {
+  Activity,
+  Project,
+  ProjectNote,
+  Routine,
+  RoutineOccurrence,
+  Task,
+} from "@/lib/types";
 import {
   daysSince,
   isCompletedToday,
@@ -26,6 +33,14 @@ export type DoneItem =
       id: string;
       projectId: string | null;
       text: string;
+    }
+  | {
+      kind: "routine";
+      time: number;
+      occurrenceId: string;
+      routineId: string;
+      title: string;
+      effortHours: number | null;
     };
 
 /** Aggregates all the "today" derived data so views can subscribe to it cleanly. */
@@ -34,11 +49,15 @@ export function useTodayFocus({
   tasks,
   activities,
   projectNotes,
+  routines,
+  routineOccurrences,
 }: {
   projects: Project[];
   tasks: Task[];
   activities: Activity[];
   projectNotes: ProjectNote[];
+  routines: Routine[];
+  routineOccurrences: RoutineOccurrence[];
 }) {
   const stalled = useMemo(
     () =>
@@ -154,17 +173,39 @@ export function useTodayFocus({
           text,
         });
       });
+    const routineById = new Map(routines.map((r) => [r.id, r]));
+    routineOccurrences
+      .filter((occ) => isCompletedToday(occ.completedAt))
+      .forEach((occ) => {
+        const r = routineById.get(occ.routineId);
+        if (!r) return;
+        items.push({
+          kind: "routine",
+          time: new Date(occ.completedAt).getTime(),
+          occurrenceId: occ.id,
+          routineId: r.id,
+          title: r.title,
+          effortHours: r.effortHours,
+        });
+      });
     return items.sort((a, b) => b.time - a.time);
-  }, [tasks, activities, projectNotes]);
+  }, [tasks, activities, projectNotes, routines, routineOccurrences]);
 
   const doneTodayEffortHours = useMemo(() => {
-    const sum = tasks
+    const taskSum = tasks
       .filter(
         (t) => t.done && isCompletedToday(t.completedAt) && t.effortHours != null
       )
       .reduce((acc, t) => acc + (t.effortHours as number), 0);
-    return Math.round(sum * 10) / 10;
-  }, [tasks]);
+    const routineById = new Map(routines.map((r) => [r.id, r]));
+    const routineSum = routineOccurrences
+      .filter((occ) => isCompletedToday(occ.completedAt))
+      .reduce((acc, occ) => {
+        const r = routineById.get(occ.routineId);
+        return r?.effortHours != null ? acc + r.effortHours : acc;
+      }, 0);
+    return Math.round((taskSum + routineSum) * 10) / 10;
+  }, [tasks, routines, routineOccurrences]);
 
   const launchedWithOpenTasks = useMemo(
     () =>

@@ -334,6 +334,7 @@
         "task": "Task",
         "log": "New log",
         "note": "New note",
+        "routine": "Routine",
         "edit": "Edit",
         "editTaskAria": "Edit task",
         "undo": "Undo",
@@ -362,7 +363,12 @@
         "title": "Launched · still has tasks"
       },
       "routines": {
-        "title": "Routines for today"
+        "title": "Routines for today",
+        "routinesTooltip": "{dueToday} due today · {overdue} overdue",
+        "routinesLabel": "{count, plural, one {# routine} other {# routines}}",
+        "overdueExtra": "· {count} overdue",
+        "totalHoursTooltip": "Total estimated hours for routines due today + overdue",
+        "totalHoursLabel": "{hours}h total"
       }
     },
     "tasks": {

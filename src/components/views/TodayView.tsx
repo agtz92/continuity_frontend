@@ -112,6 +112,7 @@ export function TodayView({
   const tCloseable = useTranslations("views.today.closeable");
   const tSleep = useTranslations("views.today.sleeping");
   const tStale = useTranslations("views.today.staleIdeas");
+  const tTabs = useTranslations("tabs");
 
   const {
     stalled,
@@ -121,7 +122,14 @@ export function TodayView({
     doneTodayItems,
     doneTodayEffortHours,
     launchedWithOpenTasks,
-  } = useTodayFocus({ projects, tasks, activities, projectNotes });
+  } = useTodayFocus({
+    projects,
+    tasks,
+    activities,
+    projectNotes,
+    routines,
+    routineOccurrences,
+  });
 
   const {
     sleepingProjects,
@@ -159,6 +167,25 @@ export function TodayView({
     items.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
     return items;
   }, [routines, routineOccurrences]);
+
+  const todayRoutineCounts = useMemo(() => {
+    const today = todayLocalISODate();
+    const overdue = todayRoutineItems.filter(
+      (it) => it.scheduledDate < today
+    ).length;
+    const dueToday = todayRoutineItems.filter(
+      (it) => it.scheduledDate === today
+    ).length;
+    return { overdue, dueToday, total: overdue + dueToday };
+  }, [todayRoutineItems]);
+
+  const todayRoutineEffortHours = useMemo(() => {
+    const sum = todayRoutineItems.reduce(
+      (acc, it) => acc + (it.routine.effortHours ?? 0),
+      0
+    );
+    return Math.round(sum * 10) / 10;
+  }, [todayRoutineItems]);
 
   const closableTotal =
     closableProjects.quickWins.length + closableProjects.almostThere.length;
@@ -278,6 +305,14 @@ export function TodayView({
                   }`}
                 >
                   <div className="flex items-center gap-3">
+                    {item.task && (
+                      <button
+                        onClick={() => onToggleTask(item.task!)}
+                        className="shrink-0 text-text-muted hover:text-accent transition-colors"
+                      >
+                        <CheckCircle2 size={20} />
+                      </button>
+                    )}
                     <div
                       className={`flex-1 min-w-0 ${item.task ? "cursor-pointer" : ""}`}
                       onClick={item.task ? () => onEditTask(item.task!) : undefined}
@@ -345,14 +380,6 @@ export function TodayView({
                         )}
                       </div>
                     </div>
-                    {item.task && (
-                      <button
-                        onClick={() => onToggleTask(item.task!)}
-                        className="shrink-0 text-text-muted hover:text-accent transition-colors"
-                      >
-                        <CheckCircle2 size={20} />
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
@@ -382,18 +409,47 @@ export function TodayView({
           icon={<Repeat size={18} className="text-accent-2" />}
           title={t("routines.title")}
           rightSlot={
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onJumpToRoutines();
-              }}
-              className="text-xs font-normal text-accent-2 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5 hover:bg-accent-2/20"
-            >
-              {todayRoutineItems.length}
-            </button>
+            todayRoutineCounts.total > 0 ? (
+              <span className="inline-flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onJumpToRoutines();
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-700 dark:text-orange-200 shadow-sm shadow-orange-500/10 hover:from-orange-500/30 hover:to-red-500/30"
+                  title={t("routines.routinesTooltip", {
+                    dueToday: todayRoutineCounts.dueToday,
+                    overdue: todayRoutineCounts.overdue,
+                  })}
+                >
+                  <Repeat size={11} className="text-orange-700 dark:text-orange-300" />
+                  <span>
+                    {t("routines.routinesLabel", {
+                      count: todayRoutineCounts.total,
+                    })}
+                  </span>
+                  {todayRoutineCounts.overdue > 0 && (
+                    <span className="text-red-700 dark:text-red-300 font-semibold">
+                      {t("routines.overdueExtra", {
+                        count: todayRoutineCounts.overdue,
+                      })}
+                    </span>
+                  )}
+                </button>
+                <span
+                  className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-accent-2/15 text-accent-2 border-accent-2/40"
+                  title={t("routines.totalHoursTooltip")}
+                >
+                  <Clock size={11} className="text-accent-2" />
+                  {t("routines.totalHoursLabel", {
+                    hours: todayRoutineEffortHours,
+                  })}
+                </span>
+              </span>
+            ) : null
           }
         >
-          <div className="space-y-2">
+          <div className="grid md:grid-cols-2 gap-3">
             {todayRoutineItems.map((it) => (
               <RoutineRow
                 key={`${it.routine.id}-${it.scheduledDate}`}
@@ -560,6 +616,40 @@ export function TodayView({
                         >
                           <X size={14} />
                         </button>
+                      </div>
+                    );
+                  }
+                  if (item.kind === "routine") {
+                    return (
+                      <div
+                        key={`routine-${item.occurrenceId}`}
+                        className="flex items-start gap-2 border-l-2 border-accent/40 pl-2.5"
+                      >
+                        <CheckCircle2
+                          size={16}
+                          className="text-accent shrink-0 mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                            <span className="text-[10px] uppercase tracking-wider font-medium text-accent">
+                              {tDone("routine")}
+                            </span>
+                            <span className="text-xs text-text-muted">
+                              · {tTabs("routines")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm text-text-muted break-words">
+                              {item.title}
+                            </span>
+                            {item.effortHours != null && (
+                              <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+                                <Clock size={10} />
+                                {item.effortHours}h
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     );
                   }

@@ -22,6 +22,7 @@ const ACHIEVEMENT_KINDS: ActivityKind[] = [
   "task_completed",
   "project_created",
   "idea_promoted",
+  "routine_completed",
 ];
 const CHANGE_KINDS: ActivityKind[] = [
   "project_status_changed",
@@ -32,6 +33,7 @@ const DELETED_KINDS: ActivityKind[] = [
   "project_deleted",
   "task_deleted",
   "idea_deleted",
+  "routine_deleted",
 ];
 
 function matchesFilter(kind: ActivityKind, f: Filter): boolean {
@@ -48,10 +50,12 @@ function iconFor(kind: ActivityKind) {
     case "note":
       return <FileText size={14} className="text-accent" />;
     case "task_completed":
+    case "routine_completed":
       return <CheckCircle2 size={14} className="text-emerald-400" />;
     case "project_created":
     case "idea_created":
     case "task_created":
+    case "routine_created":
       return <Sparkles size={14} className="text-amber-400" />;
     case "idea_promoted":
       return <Rocket size={14} className="text-purple-400" />;
@@ -63,6 +67,7 @@ function iconFor(kind: ActivityKind) {
     case "project_deleted":
     case "task_deleted":
     case "idea_deleted":
+    case "routine_deleted":
       return <Trash2 size={14} className="text-red-400/70" />;
     default:
       return <FileText size={14} className="text-text-muted" />;
@@ -109,6 +114,12 @@ function describe(a: Activity, locale: string): string {
       return `Discarded idea ${t}`;
     case "idea_promoted":
       return `Promoted idea ${t} → project`;
+    case "routine_created":
+      return `Created routine ${t}`;
+    case "routine_completed":
+      return `Completed routine ${t}`;
+    case "routine_deleted":
+      return `Deleted routine ${t}`;
     default:
       return a.entityTitle;
   }

@@ -334,6 +334,7 @@
         "task": "Tarea",
         "log": "Nuevo log",
         "note": "Nota nueva",
+        "routine": "Rutina",
         "edit": "Editar",
         "editTaskAria": "Editar tarea",
         "undo": "Deshacer",
@@ -362,7 +363,12 @@
         "title": "Lanzados · aún tienen tareas"
       },
       "routines": {
-        "title": "Rutinas para hoy"
+        "title": "Rutinas para hoy",
+        "routinesTooltip": "{dueToday} para hoy · {overdue} vencidas",
+        "routinesLabel": "{count, plural, one {# rutina} other {# rutinas}}",
+        "overdueExtra": "· {count} vencidas",
+        "totalHoursTooltip": "Horas estimadas totales para rutinas de hoy + vencidas",
+        "totalHoursLabel": "{hours}h en total"
       }
     },
     "tasks": {
