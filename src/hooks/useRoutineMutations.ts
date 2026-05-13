@@ -25,6 +25,7 @@ export interface RoutineFormInput {
   intervalN: number | null;
   intervalUnit: IntervalUnit | null;
   monthlyDay: number | null;
+  effortHours: number | null;
 }
 
 export function useRoutineMutations() {
@@ -52,6 +53,7 @@ export function useRoutineMutations() {
       intervalN: r.intervalN,
       intervalUnit: r.intervalUnit,
       monthlyDay: r.monthlyDay,
+      effortHours: r.effortHours,
     };
     try {
       if (r.id) {

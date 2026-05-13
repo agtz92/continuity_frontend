@@ -267,28 +267,17 @@ export function TodayView({
               {todayFocus.items.map((item, idx) => (
                 <div
                   key={idx}
-                  className={`p-4 rounded-xl border transition-all hover:border-border ${
+                  className={`bg-surface p-4 rounded-xl border transition-all hover:border-border ${
                     item.type === "overdue"
-                      ? "bg-red-500/5 border-red-500/30"
+                      ? "border-red-500/30"
                       : item.type === "today"
-                      ? "bg-orange-500/5 border-orange-500/30"
+                      ? "border-orange-500/30"
                       : item.type === "stalled"
-                      ? "bg-amber-500/5 border-amber-500/30"
-                      : "bg-surface border-border"
+                      ? "border-amber-500/30"
+                      : "border-border"
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`shrink-0 w-2 h-2 rounded-full mt-2 ${
-                        item.type === "overdue"
-                          ? "bg-red-400"
-                          : item.type === "today"
-                          ? "bg-orange-400"
-                          : item.type === "stalled"
-                          ? "bg-amber-400"
-                          : "bg-accent"
-                      }`}
-                    />
+                  <div className="flex items-center gap-3">
                     <div
                       className={`flex-1 min-w-0 ${item.task ? "cursor-pointer" : ""}`}
                       onClick={item.task ? () => onEditTask(item.task!) : undefined}

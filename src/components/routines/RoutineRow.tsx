@@ -4,6 +4,7 @@ import {
   Archive,
   ArchiveRestore,
   CheckCircle2,
+  Clock,
   Pencil,
   Repeat,
   X,
@@ -88,6 +89,12 @@ export function RoutineRow({
             <Repeat size={10} />
             {describeRecurrence(routine, recLabel)}
           </span>
+          {routine.effortHours != null && (
+            <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+              <Clock size={10} />
+              {routine.effortHours}h
+            </span>
+          )}
         </div>
         <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 mt-0.5">
           <span

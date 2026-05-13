@@ -589,6 +589,10 @@
         "months": "months"
       },
       "monthlyDayHint": "Will repeat on day {day} of every month (taken from the start date).",
+      "effort": "Estimated effort (hours)",
+      "effortPlaceholder": "Optional · e.g. 0.5",
+      "decreaseEffortAria": "Decrease effort",
+      "increaseEffortAria": "Increase effort",
       "errorTitle": "Add a title.",
       "errorStartDate": "Pick a date.",
       "errorWeekdays": "Select at least one weekday.",

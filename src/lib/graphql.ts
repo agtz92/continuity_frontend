@@ -70,6 +70,7 @@ export const DASHBOARD_QUERY = gql`
         intervalN
         intervalUnit
         monthlyDay
+        effortHours
         archived
         created
       }
@@ -97,6 +98,7 @@ const ROUTINE_FIELDS = `
   intervalN
   intervalUnit
   monthlyDay
+  effortHours
   archived
   created
 `;

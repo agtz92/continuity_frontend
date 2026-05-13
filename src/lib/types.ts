@@ -89,6 +89,7 @@ export interface Routine {
   intervalN: number | null;
   intervalUnit: IntervalUnit | null;
   monthlyDay: number | null;
+  effortHours: number | null;
   archived: boolean;
   created: string;
 }
