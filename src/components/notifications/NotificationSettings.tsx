@@ -27,6 +27,8 @@ type Settings = {
   digestEnabled: boolean;
   digestDayOfWeek: number;
   digestHour: number;
+  dailyDigestEnabled: boolean;
+  dailyDigestHour: number;
   sleepingAlertsEnabled: boolean;
   dueRemindersEnabled: boolean;
   dueReminderLeadHours: number;
@@ -47,7 +49,20 @@ export function NotificationSettings() {
     { fetchPolicy: "cache-and-network" }
   );
   const [updateSettings, { loading: saving }] = useMutation(
-    UPDATE_NOTIFICATION_SETTINGS
+    UPDATE_NOTIFICATION_SETTINGS,
+    {
+      // NotificationSettingsType has no id, so Apollo can't auto-merge the
+      // mutation result into the query cache. Write it ourselves so the UI
+      // reflects every saved field without needing a manual refresh.
+      update: (cache, { data }) => {
+        if (data?.updateNotificationSettings) {
+          cache.writeQuery({
+            query: NOTIFICATION_SETTINGS_QUERY,
+            data: { notificationSettings: data.updateNotificationSettings },
+          });
+        }
+      },
+    }
   );
   const [requestLink, { loading: linking }] = useMutation(REQUEST_CHANNEL_LINK);
   const [disconnect] = useMutation(DISCONNECT_CHANNEL);
@@ -188,6 +203,32 @@ export function NotificationSettings() {
             placeholder="America/Mexico_City"
           />
         </Field>
+      </Section>
+
+      <Section title={t("dailyDigest")}>
+        <ToggleRow
+          label={t("dailyDigestToggle")}
+          checked={settings.dailyDigestEnabled}
+          onChange={(v) => onSave({ dailyDigestEnabled: v })}
+          disabled={saving}
+        />
+        <Field label={t("hour")}>
+          <select
+            value={settings.dailyDigestHour}
+            onChange={(e) =>
+              onSave({ dailyDigestHour: parseInt(e.target.value, 10) })
+            }
+            className="bg-surface border border-border rounded-lg px-3 py-2 text-sm w-32"
+            disabled={saving || !settings.dailyDigestEnabled}
+          >
+            {Array.from({ length: 24 }, (_, h) => (
+              <option key={h} value={h}>
+                {String(h).padStart(2, "0")}:00
+              </option>
+            ))}
+          </select>
+        </Field>
+        <p className="text-xs text-text-muted mt-3">{t("dailyDigestHint")}</p>
       </Section>
 
       <Section title={t("otherNotifications")}>

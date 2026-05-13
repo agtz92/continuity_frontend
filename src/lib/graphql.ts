@@ -410,6 +410,8 @@ export const NOTIFICATION_SETTINGS_QUERY = gql`
       digestEnabled
       digestDayOfWeek
       digestHour
+      dailyDigestEnabled
+      dailyDigestHour
       sleepingAlertsEnabled
       dueRemindersEnabled
       dueReminderLeadHours
@@ -434,6 +436,8 @@ export const UPDATE_NOTIFICATION_SETTINGS = gql`
       digestEnabled
       digestDayOfWeek
       digestHour
+      dailyDigestEnabled
+      dailyDigestHour
       sleepingAlertsEnabled
       dueRemindersEnabled
       dueReminderLeadHours
