@@ -59,8 +59,106 @@ export const DASHBOARD_QUERY = gql`
         created
         updatedAt
       }
+      routines {
+        id
+        title
+        description
+        recurrenceType
+        startDate
+        endDate
+        weekdays
+        intervalN
+        intervalUnit
+        monthlyDay
+        archived
+        created
+      }
+      routineOccurrences {
+        id
+        routineId
+        scheduledDate
+        completedAt
+        note
+        created
+      }
       lastBackup
     }
+  }
+`;
+
+const ROUTINE_FIELDS = `
+  id
+  title
+  description
+  recurrenceType
+  startDate
+  endDate
+  weekdays
+  intervalN
+  intervalUnit
+  monthlyDay
+  archived
+  created
+`;
+
+const ROUTINE_OCCURRENCE_FIELDS = `
+  id
+  routineId
+  scheduledDate
+  completedAt
+  note
+  created
+`;
+
+export const CREATE_ROUTINE = gql`
+  mutation CreateRoutine($data: RoutineInput!) {
+    createRoutine(data: $data) {
+      ${ROUTINE_FIELDS}
+    }
+  }
+`;
+
+export const UPDATE_ROUTINE = gql`
+  mutation UpdateRoutine($id: ID!, $data: RoutineInput!) {
+    updateRoutine(id: $id, data: $data) {
+      ${ROUTINE_FIELDS}
+    }
+  }
+`;
+
+export const ARCHIVE_ROUTINE = gql`
+  mutation ArchiveRoutine($id: ID!, $archived: Boolean!) {
+    archiveRoutine(id: $id, archived: $archived) {
+      ${ROUTINE_FIELDS}
+    }
+  }
+`;
+
+export const DELETE_ROUTINE = gql`
+  mutation DeleteRoutine($id: ID!) {
+    deleteRoutine(id: $id)
+  }
+`;
+
+export const COMPLETE_ROUTINE_OCCURRENCE = gql`
+  mutation CompleteRoutineOccurrence(
+    $routineId: ID!
+    $scheduledDate: Date!
+    $note: String
+  ) {
+    completeRoutineOccurrence(
+      routineId: $routineId
+      scheduledDate: $scheduledDate
+      note: $note
+    ) {
+      ${ROUTINE_OCCURRENCE_FIELDS}
+    }
+  }
+`;
+
+export const UNCOMPLETE_ROUTINE_OCCURRENCE = gql`
+  mutation UncompleteRoutineOccurrence($id: ID!) {
+    uncompleteRoutineOccurrence(id: $id)
   }
 `;
 

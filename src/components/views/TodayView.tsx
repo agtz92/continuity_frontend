@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bell,
   CheckCircle2,
@@ -11,6 +11,7 @@ import {
   Flag,
   Lightbulb,
   Moon,
+  Repeat,
   Rocket,
   Sparkles,
   Target,
@@ -24,11 +25,15 @@ import type {
   Category,
   Project,
   ProjectNote,
+  Routine,
+  RoutineOccurrence,
   Task,
 } from "@/lib/types";
-import { daysOverdue, daysSince } from "@/lib/date";
+import { daysOverdue, daysSince, todayLocalISODate, toLocalISO } from "@/lib/date";
+import { completedDatesFor, computeDueDates } from "@/lib/recurrence";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
+import { RoutineRow } from "../routines/RoutineRow";
 import { useTodayFocus } from "@/hooks/useTodayFocus";
 import type { useProductivityStats } from "@/hooks/useProductivityStats";
 
@@ -54,6 +59,8 @@ export function TodayView({
   tasks,
   activities,
   projectNotes,
+  routines,
+  routineOccurrences,
   categoryById,
   lastBackup,
   daysSinceBackup,
@@ -64,14 +71,20 @@ export function TodayView({
   onJumpToProject,
   onJumpToTasks,
   onJumpToIdeas,
+  onJumpToRoutines,
   onLogUpdate,
   onToggleTask,
   onEditTask,
+  onEditRoutine,
+  onCompleteOccurrence,
+  onUncompleteOccurrence,
 }: {
   projects: Project[];
   tasks: Task[];
   activities: Activity[];
   projectNotes: ProjectNote[];
+  routines: Routine[];
+  routineOccurrences: RoutineOccurrence[];
   categoryById: Record<string, Category>;
   lastBackup: string | null;
   daysSinceBackup: number | null;
@@ -82,9 +95,16 @@ export function TodayView({
   onJumpToProject: (p: Project) => void;
   onJumpToTasks: () => void;
   onJumpToIdeas: () => void;
+  onJumpToRoutines: () => void;
   onLogUpdate: (p: Project) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
   onEditTask: (t: Task) => void;
+  onEditRoutine: (r: Routine) => void;
+  onCompleteOccurrence: (
+    routineId: string,
+    scheduledDate: string
+  ) => void | Promise<void>;
+  onUncompleteOccurrence: (occurrenceId: string) => void | Promise<void>;
 }) {
   const t = useTranslations("views.today");
   const tFocus = useTranslations("views.today.focus");
@@ -119,7 +139,26 @@ export function TodayView({
   const [showLaunchedWithTasks, setShowLaunchedWithTasks] = useState(true);
   const [showSleepingProjects, setShowSleepingProjects] = useState(true);
   const [showCloseable, setShowCloseable] = useState(true);
+  const [showRoutinesToday, setShowRoutinesToday] = useState(true);
   const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
+
+  const todayRoutineItems = useMemo(() => {
+    const today = todayLocalISODate();
+    const lookback = new Date();
+    lookback.setDate(lookback.getDate() - 14);
+    const backStart = toLocalISO(lookback);
+    const items: { routine: Routine; scheduledDate: string }[] = [];
+    for (const r of routines) {
+      if (r.archived) continue;
+      const done = completedDatesFor(routineOccurrences, r.id);
+      const dates = computeDueDates(r, backStart, today);
+      for (const d of dates) {
+        if (!done.has(d)) items.push({ routine: r, scheduledDate: d });
+      }
+    }
+    items.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
+    return items;
+  }, [routines, routineOccurrences]);
 
   const closableTotal =
     closableProjects.quickWins.length + closableProjects.almostThere.length;
@@ -346,6 +385,40 @@ export function TodayView({
           )}
         </>
       </CollapsibleSection>
+
+      {todayRoutineItems.length > 0 && (
+        <CollapsibleSection
+          open={showRoutinesToday}
+          onToggle={() => setShowRoutinesToday((s) => !s)}
+          icon={<Repeat size={18} className="text-accent-2" />}
+          title={t("routines.title")}
+          rightSlot={
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onJumpToRoutines();
+              }}
+              className="text-xs font-normal text-accent-2 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5 hover:bg-accent-2/20"
+            >
+              {todayRoutineItems.length}
+            </button>
+          }
+        >
+          <div className="space-y-2">
+            {todayRoutineItems.map((it) => (
+              <RoutineRow
+                key={`${it.routine.id}-${it.scheduledDate}`}
+                routine={it.routine}
+                scheduledDate={it.scheduledDate}
+                occurrenceId={null}
+                onComplete={onCompleteOccurrence}
+                onUncomplete={onUncompleteOccurrence}
+                onEdit={onEditRoutine}
+              />
+            ))}
+          </div>
+        </CollapsibleSection>
+      )}
 
       {doneTodayItems.length > 0 && (() => {
         const taskCount = doneTodayItems.filter((i) => i.kind === "task").length;

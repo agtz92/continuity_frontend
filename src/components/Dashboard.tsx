@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertCircle } from "lucide-react";
 
-import type { Activity, Idea, Project, Task } from "@/lib/types";
+import type { Activity, Idea, Project, Routine, Task } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
@@ -15,6 +15,7 @@ import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { useIdeaMutations } from "@/hooks/useIdeaMutations";
 import { useNoteMutations } from "@/hooks/useNoteMutations";
 import { useCategoryMutations } from "@/hooks/useCategoryMutations";
+import { useRoutineMutations } from "@/hooks/useRoutineMutations";
 import { useBackup } from "@/hooks/useBackup";
 import { ProjectDetailModal } from "./projects/ProjectDetailModal";
 import { ProjectModal } from "./projects/ProjectModal";
@@ -22,6 +23,7 @@ import { TaskModal } from "./tasks/TaskModal";
 import { IdeaModal } from "./ideas/IdeaModal";
 import { NoteModal } from "./updates/UpdateModal";
 import { CategoryManagementModal } from "./categories/CategoryManagementModal";
+import { RoutineModal } from "./routines/RoutineModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
 import { AssistantTrigger } from "./assistant/AssistantTrigger";
@@ -33,6 +35,7 @@ import { LogView } from "./views/LogView";
 import { IdeasView } from "./views/IdeasView";
 import { TasksView } from "./views/TasksView";
 import { ProjectsView } from "./views/ProjectsView";
+import { RoutinesView } from "./views/RoutinesView";
 import { TodayView } from "./views/TodayView";
 
 export default function Dashboard() {
@@ -47,6 +50,8 @@ export default function Dashboard() {
     categories,
     categoryById,
     notesByProject,
+    routines,
+    routineOccurrences,
     lastBackup,
     initialLoading,
     error,
@@ -58,6 +63,13 @@ export default function Dashboard() {
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
   const { addNote, editNote, deleteNote } = useNoteMutations();
   const { createCategory, deleteCategory } = useCategoryMutations();
+  const {
+    saveRoutine,
+    archiveRoutine,
+    deleteRoutine,
+    completeOccurrence,
+    uncompleteOccurrence,
+  } = useRoutineMutations();
   const allProjectNotes = useMemo(
     () => Object.values(notesByProject).flat(),
     [notesByProject]
@@ -77,6 +89,8 @@ export default function Dashboard() {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+  const [showRoutineModal, setShowRoutineModal] = useState(false);
+  const [editingRoutine, setEditingRoutine] = useState<Partial<Routine> | null>(null);
   const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
   const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
   const [editingNote, setEditingNote] = useState<Activity | null>(null);
@@ -119,6 +133,13 @@ export default function Dashboard() {
     if (await saveIdea(i)) {
       setShowIdeaModal(false);
       setEditingIdea(null);
+    }
+  };
+
+  const handleSaveRoutine = async (r: Parameters<typeof saveRoutine>[0]) => {
+    if (await saveRoutine(r)) {
+      setShowRoutineModal(false);
+      setEditingRoutine(null);
     }
   };
 
@@ -197,6 +218,8 @@ export default function Dashboard() {
             tasks={tasks}
             activities={activities}
             projectNotes={allProjectNotes}
+            routines={routines}
+            routineOccurrences={routineOccurrences}
             categoryById={categoryById}
             lastBackup={lastBackup}
             daysSinceBackup={daysSinceBackup}
@@ -210,6 +233,7 @@ export default function Dashboard() {
             }}
             onJumpToTasks={() => setView("tasks")}
             onJumpToIdeas={() => setView("ideas")}
+            onJumpToRoutines={() => setView("routines")}
             onLogUpdate={(p) => {
               setSelectedProject(p);
               setEditingNote(null);
@@ -220,6 +244,12 @@ export default function Dashboard() {
               setEditingTask(task);
               setShowTaskModal(true);
             }}
+            onEditRoutine={(r) => {
+              setEditingRoutine(r);
+              setShowRoutineModal(true);
+            }}
+            onCompleteOccurrence={completeOccurrence}
+            onUncompleteOccurrence={uncompleteOccurrence}
           />
         )}
 
@@ -279,6 +309,26 @@ export default function Dashboard() {
             }}
             onToggleTask={toggleTask}
             onDeleteTask={deleteTask}
+          />
+        )}
+
+        {/* ROUTINES */}
+        {view === "routines" && (
+          <RoutinesView
+            routines={routines}
+            occurrences={routineOccurrences}
+            onNewRoutine={() => {
+              setEditingRoutine(null);
+              setShowRoutineModal(true);
+            }}
+            onEditRoutine={(r) => {
+              setEditingRoutine(r);
+              setShowRoutineModal(true);
+            }}
+            onArchiveRoutine={(r) => archiveRoutine(r.id, !r.archived)}
+            onDeleteRoutine={deleteRoutine}
+            onCompleteOccurrence={completeOccurrence}
+            onUncompleteOccurrence={uncompleteOccurrence}
           />
         )}
 
@@ -361,6 +411,17 @@ export default function Dashboard() {
           onClose={() => {
             setShowIdeaModal(false);
             setEditingIdea(null);
+          }}
+        />
+      )}
+
+      {showRoutineModal && (
+        <RoutineModal
+          routine={editingRoutine}
+          onSave={handleSaveRoutine}
+          onClose={() => {
+            setShowRoutineModal(false);
+            setEditingRoutine(null);
           }}
         />
       )}

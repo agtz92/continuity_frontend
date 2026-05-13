@@ -35,8 +35,11 @@ const emptyDashboard = {
     projects: [],
     tasks: [],
     ideas: [],
-    updates: [],
+    activities: [],
     categories: [],
+    projectNotes: [],
+    routines: [],
+    routineOccurrences: [],
     lastBackup: null,
   },
 };

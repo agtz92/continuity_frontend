@@ -5,6 +5,7 @@ import {
   BarChart3,
   CheckCircle2,
   Lightbulb,
+  Repeat,
   Target,
   TrendingUp,
 } from "lucide-react";
@@ -14,6 +15,7 @@ export type DashboardView =
   | "today"
   | "projects"
   | "tasks"
+  | "routines"
   | "ideas"
   | "log"
   | "analytics";
@@ -22,6 +24,7 @@ const TABS = [
   { id: "today", icon: Target },
   { id: "projects", icon: Activity },
   { id: "tasks", icon: CheckCircle2 },
+  { id: "routines", icon: Repeat },
   { id: "ideas", icon: Lightbulb },
   { id: "log", icon: TrendingUp },
   { id: "analytics", icon: BarChart3 },

@@ -15,6 +15,8 @@ export function useDashboardData() {
   const tasks = data?.dashboard.tasks ?? [];
   const ideas = data?.dashboard.ideas ?? [];
   const categories = data?.dashboard.categories ?? [];
+  const routines = data?.dashboard.routines ?? [];
+  const routineOccurrences = data?.dashboard.routineOccurrences ?? [];
   const lastBackup = data?.dashboard.lastBackup ?? null;
 
   // Notes grouped by project, sorted newest-edited first within each group.
@@ -55,6 +57,8 @@ export function useDashboardData() {
     categories,
     categoryById,
     notesByProject,
+    routines,
+    routineOccurrences,
     lastBackup,
     loading,
     initialLoading,

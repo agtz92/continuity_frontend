@@ -68,6 +68,7 @@
     "today": "Today",
     "projects": "Projects",
     "tasks": "Tasks",
+    "routines": "Routines",
     "ideas": "Ideas",
     "log": "Log",
     "analytics": "Analytics"
@@ -359,6 +360,9 @@
       },
       "launched": {
         "title": "Launched · still has tasks"
+      },
+      "routines": {
+        "title": "Routines for today"
       }
     },
     "tasks": {
@@ -372,6 +376,15 @@
       "pickDayHint": "— schedule them so they happen",
       "upcoming": "Upcoming",
       "completed": "Completed"
+    },
+    "routines": {
+      "title": "Routines",
+      "search": "Search routines...",
+      "empty": "No routines yet. Create one to track recurring or standalone activities.",
+      "todayBucket": "Today & overdue",
+      "todayEmpty": "No routines for today. ✨",
+      "upcoming": "Upcoming",
+      "archived": "Archived"
     },
     "projects": {
       "title": "All Projects",
@@ -455,6 +468,25 @@
     "dueToday": "Due today",
     "addDate": "Add date"
   },
+  "routineRow": {
+    "markDone": "Mark as done",
+    "markNotDone": "Mark as not done",
+    "today": "Today",
+    "editAria": "Edit routine",
+    "archiveAria": "Archive routine",
+    "unarchiveAria": "Restore routine",
+    "deleteAria": "Delete routine"
+  },
+  "recurrence": {
+    "once": "Once · {date}",
+    "weeklyEmpty": "No days selected",
+    "everyN": {
+      "days": "Every {n, plural, one {day} other {# days}}",
+      "weeks": "Every {n, plural, one {week} other {# weeks}}",
+      "months": "Every {n, plural, one {month} other {# months}}"
+    },
+    "monthlyDay": "Day {day} of each month"
+  },
   "projectCard": {
     "comebackBadge": "Comeback · {days}d",
     "comebackTooltip": "Activity resumed within the last 24h after being idle",
@@ -520,6 +552,36 @@
       "whyPlaceholder": "Optional motivation — useful when you promote it later.",
       "notes": "Notes",
       "captureCta": "Capture"
+    },
+    "routine": {
+      "newTitle": "New routine",
+      "editTitle": "Edit routine",
+      "titleField": "Title *",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional — a short reminder.",
+      "recurrenceType": "Recurrence",
+      "type": {
+        "once": "Once",
+        "weeklyDays": "Weekly (days)",
+        "everyN": "Every N…",
+        "monthlyDay": "Day of month"
+      },
+      "dateField": "Date",
+      "startDateField": "Start",
+      "endDateField": "End (optional)",
+      "weekdaysField": "Weekdays",
+      "intervalField": "Every",
+      "unit": {
+        "days": "days",
+        "weeks": "weeks",
+        "months": "months"
+      },
+      "monthlyDayField": "Day of month (1–31)",
+      "errorTitle": "Add a title.",
+      "errorStartDate": "Pick a date.",
+      "errorWeekdays": "Select at least one weekday.",
+      "errorIntervalN": "Interval must be a number ≥ 1.",
+      "errorMonthlyDay": "Day of month must be between 1 and 31."
     },
     "update": {
       "newTitle": "Log update",

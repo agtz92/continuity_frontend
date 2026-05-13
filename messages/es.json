@@ -68,6 +68,7 @@
     "today": "Hoy",
     "projects": "Proyectos",
     "tasks": "Tareas",
+    "routines": "Rutinas",
     "ideas": "Ideas",
     "log": "Bitácora",
     "analytics": "Analíticas"
@@ -359,6 +360,9 @@
       },
       "launched": {
         "title": "Lanzados · aún tienen tareas"
+      },
+      "routines": {
+        "title": "Rutinas para hoy"
       }
     },
     "tasks": {
@@ -372,6 +376,15 @@
       "pickDayHint": "— prográmalas para que sucedan",
       "upcoming": "Próximas",
       "completed": "Completadas"
+    },
+    "routines": {
+      "title": "Rutinas",
+      "search": "Buscar rutinas...",
+      "empty": "Aún no hay rutinas. Crea una para registrar actividades recurrentes o sueltas.",
+      "todayBucket": "Hoy y vencidas",
+      "todayEmpty": "Sin rutinas para hoy. ✨",
+      "upcoming": "Próximas",
+      "archived": "Archivadas"
     },
     "projects": {
       "title": "Todos los proyectos",
@@ -455,6 +468,25 @@
     "dueToday": "Para hoy",
     "addDate": "Agregar fecha"
   },
+  "routineRow": {
+    "markDone": "Marcar como hecha",
+    "markNotDone": "Marcar como no hecha",
+    "today": "Para hoy",
+    "editAria": "Editar rutina",
+    "archiveAria": "Archivar rutina",
+    "unarchiveAria": "Reactivar rutina",
+    "deleteAria": "Eliminar rutina"
+  },
+  "recurrence": {
+    "once": "Una vez · {date}",
+    "weeklyEmpty": "Sin días seleccionados",
+    "everyN": {
+      "days": "Cada {n, plural, one {día} other {# días}}",
+      "weeks": "Cada {n, plural, one {semana} other {# semanas}}",
+      "months": "Cada {n, plural, one {mes} other {# meses}}"
+    },
+    "monthlyDay": "Día {day} de cada mes"
+  },
   "projectCard": {
     "comebackBadge": "Comeback · {days}d",
     "comebackTooltip": "Actividad retomada en las últimas 24h tras un periodo idle",
@@ -520,6 +552,36 @@
       "whyPlaceholder": "Motivación opcional — útil cuando la promuevas más tarde.",
       "notes": "Notas",
       "captureCta": "Capturar"
+    },
+    "routine": {
+      "newTitle": "Nueva rutina",
+      "editTitle": "Editar rutina",
+      "titleField": "Título *",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Opcional — un recordatorio breve.",
+      "recurrenceType": "Tipo de recurrencia",
+      "type": {
+        "once": "Una vez",
+        "weeklyDays": "Semanal (días)",
+        "everyN": "Cada N…",
+        "monthlyDay": "Día del mes"
+      },
+      "dateField": "Fecha",
+      "startDateField": "Inicio",
+      "endDateField": "Fin (opcional)",
+      "weekdaysField": "Días de la semana",
+      "intervalField": "Cada",
+      "unit": {
+        "days": "días",
+        "weeks": "semanas",
+        "months": "meses"
+      },
+      "monthlyDayField": "Día del mes (1–31)",
+      "errorTitle": "Pon un título.",
+      "errorStartDate": "Elige una fecha.",
+      "errorWeekdays": "Selecciona al menos un día.",
+      "errorIntervalN": "El intervalo debe ser un número ≥ 1.",
+      "errorMonthlyDay": "El día del mes debe estar entre 1 y 31."
     },
     "update": {
       "newTitle": "Registrar update",

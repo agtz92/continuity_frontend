@@ -69,7 +69,44 @@ export type ActivityKind =
   | "task_due_date_changed"
   | "idea_created"
   | "idea_deleted"
-  | "idea_promoted";
+  | "idea_promoted"
+  | "routine_created"
+  | "routine_completed"
+  | "routine_deleted";
+
+export type RecurrenceType = "once" | "weekly_days" | "every_n" | "monthly_day";
+
+export type IntervalUnit = "days" | "weeks" | "months";
+
+export interface Routine {
+  id: string;
+  title: string;
+  description: string;
+  recurrenceType: RecurrenceType;
+  startDate: string; // ISO date "YYYY-MM-DD"
+  endDate: string | null;
+  weekdays: number[]; // 0=mon..6=sun
+  intervalN: number | null;
+  intervalUnit: IntervalUnit | null;
+  monthlyDay: number | null;
+  archived: boolean;
+  created: string;
+}
+
+export interface RoutineOccurrence {
+  id: string;
+  routineId: string;
+  scheduledDate: string;
+  completedAt: string;
+  note: string;
+  created: string;
+}
+
+export interface RoutineDueItem {
+  routineId: string;
+  scheduledDate: string;
+  occurrenceId: string | null;
+}
 
 export interface Activity {
   id: string;
@@ -91,6 +128,8 @@ export interface DashboardData {
   activities: Activity[];
   categories: Category[];
   projectNotes: ProjectNote[];
+  routines: Routine[];
+  routineOccurrences: RoutineOccurrence[];
   lastBackup: string | null;
 }
 
