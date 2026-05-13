@@ -193,8 +193,9 @@
       "dailyDigestHint": "Delivered every day at the hour you pick, with overdue tasks and tasks due today.",
       "otherNotifications": "Other notifications",
       "sleepingAlertsToggle": "Sleeping project alerts (≥7, 14, 30 days idle)",
-      "dueRemindersToggle": "Due-date reminders",
-      "leadTime": "Reminder lead time (hours)",
+      "dueRemindersToggle": "End-of-day pending warning",
+      "dueReminderHour": "Warning hour (local)",
+      "dueRemindersHint": "At the chosen hour, if there are still open tasks or routines for today, we'll ping you. If everything's closed, nothing is sent.",
       "manualToggle": "Receive admin / manual announcements",
       "channel": {
         "connected": "Connected",

@@ -31,7 +31,7 @@ type Settings = {
   dailyDigestHour: number;
   sleepingAlertsEnabled: boolean;
   dueRemindersEnabled: boolean;
-  dueReminderLeadHours: number;
+  dueReminderHour: number;
   manualEnabled: boolean;
   isAdmin: boolean;
   links: Link[];
@@ -244,19 +244,23 @@ export function NotificationSettings() {
           onChange={(v) => onSave({ dueRemindersEnabled: v })}
           disabled={saving}
         />
-        <Field label={t("leadTime")}>
-          <input
-            type="number"
-            min={1}
-            max={168}
-            value={settings.dueReminderLeadHours}
+        <Field label={t("dueReminderHour")}>
+          <select
+            value={settings.dueReminderHour}
             onChange={(e) =>
-              onSave({ dueReminderLeadHours: parseInt(e.target.value, 10) || 24 })
+              onSave({ dueReminderHour: parseInt(e.target.value, 10) })
             }
             className="bg-surface border border-border rounded-lg px-3 py-2 text-sm w-32"
             disabled={saving || !settings.dueRemindersEnabled}
-          />
+          >
+            {Array.from({ length: 24 }, (_, h) => (
+              <option key={h} value={h}>
+                {String(h).padStart(2, "0")}:00
+              </option>
+            ))}
+          </select>
         </Field>
+        <p className="text-xs text-text-muted mt-3">{t("dueRemindersHint")}</p>
         <ToggleRow
           label={t("manualToggle")}
           checked={settings.manualEnabled}

@@ -193,8 +193,9 @@
       "dailyDigestHint": "Llega cada día a la hora que elijas con tus tareas vencidas y las que vencen hoy.",
       "otherNotifications": "Otras notificaciones",
       "sleepingAlertsToggle": "Alertas de proyectos durmientes (≥7, 14, 30 días)",
-      "dueRemindersToggle": "Recordatorios de vencimiento",
-      "leadTime": "Anticipación del recordatorio (horas)",
+      "dueRemindersToggle": "Aviso de pendientes a fin de día",
+      "dueReminderHour": "Hora del aviso (local)",
+      "dueRemindersHint": "A la hora elegida, si aún quedan tareas o rutinas abiertas hoy, te llega un recordatorio. Si todo está cerrado, no se envía nada.",
       "manualToggle": "Recibir avisos manuales / del admin",
       "channel": {
         "connected": "Conectado",

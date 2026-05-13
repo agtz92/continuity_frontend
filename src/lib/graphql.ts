@@ -414,7 +414,7 @@ export const NOTIFICATION_SETTINGS_QUERY = gql`
       dailyDigestHour
       sleepingAlertsEnabled
       dueRemindersEnabled
-      dueReminderLeadHours
+      dueReminderHour
       manualEnabled
       isAdmin
       links {
@@ -440,7 +440,7 @@ export const UPDATE_NOTIFICATION_SETTINGS = gql`
       dailyDigestHour
       sleepingAlertsEnabled
       dueRemindersEnabled
-      dueReminderLeadHours
+      dueReminderHour
       manualEnabled
       isAdmin
       links {
