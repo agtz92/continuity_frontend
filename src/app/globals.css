@@ -126,6 +126,35 @@
   --accent-2: #25343F;
 }
 
+/* Admin scope — overrides the active theme + palette when the
+   AdminShell is mounted (it sets data-admin="true" on its root).
+   Goal: a neutral, business-y look that is visually distinct from the
+   user dashboard so it's always obvious which app you're in.
+   - Light: slate-50/100 surface stack with a confident indigo accent.
+   - Dark:  slate-950 bg with desaturated indigo + sky accents.
+   `data-admin="true"` wins over `data-palette` because it's a more
+   specific selector chain (theme + admin scope). */
+
+[data-theme="light"] [data-admin="true"] {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --accent: #4f46e5;
+  --accent-2: #0284c7;
+}
+
+[data-theme="dark"] [data-admin="true"] {
+  --bg: #020617;
+  --surface: #0f172a;
+  --border: #1e293b;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #818cf8;
+  --accent-2: #38bdf8;
+}
+
 html,
 body {
   background: var(--bg);

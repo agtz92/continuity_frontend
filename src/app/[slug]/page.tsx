@@ -56,7 +56,7 @@ export default async function DynamicPage({ params }: Props) {
           />
         )}
         <div
-          className="prose prose-invert max-w-none"
+          className="prose dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: page.contentHtml }}
         />
       </article>

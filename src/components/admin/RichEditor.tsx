@@ -38,7 +38,7 @@ export function RichEditor({
     editorProps: {
       attributes: {
         class:
-          "tiptap min-h-[24rem] focus:outline-none prose prose-invert max-w-none",
+          "tiptap min-h-[24rem] focus:outline-none prose dark:prose-invert max-w-none text-text",
       },
     },
     onUpdate: ({ editor }) => {

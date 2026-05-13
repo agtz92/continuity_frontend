@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { ME_QUERY } from "@/lib/graphql";
+import { AdminThemeToggle } from "./AdminThemeToggle";
 
 type MeData = {
   me: {
@@ -84,15 +85,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div data-admin="true" className="min-h-screen bg-bg text-text">
       <div className="mx-auto flex max-w-[1400px]">
         <aside className="hidden w-64 shrink-0 border-r border-border bg-surface px-4 py-6 md:block">
-          <Link
-            href="/admin"
-            className="mb-6 block text-lg font-semibold tracking-tight"
-          >
-            Continuity Admin
-          </Link>
+          <div className="mb-6 flex items-center justify-between gap-2">
+            <Link
+              href="/admin"
+              className="block text-lg font-semibold tracking-tight"
+            >
+              Continuity Admin
+            </Link>
+            <AdminThemeToggle />
+          </div>
           <nav className="space-y-6">
             {NAV_GROUPS.map((group) => (
               <div key={group.title}>
@@ -153,7 +157,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
 function AdminForbidden() {
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-6">
+    <div
+      data-admin="true"
+      className="min-h-screen bg-bg flex items-center justify-center px-6"
+    >
       <div className="max-w-md rounded-lg border border-border bg-surface p-8 text-center">
         <h1 className="text-xl font-semibold text-text">Acceso denegado</h1>
         <p className="mt-2 text-sm text-text-muted">
