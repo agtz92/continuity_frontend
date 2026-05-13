@@ -5,6 +5,7 @@ import {
   Archive,
   CheckCircle2,
   Clock,
+  Hourglass,
   Plus,
   Repeat,
   Search,
@@ -20,8 +21,11 @@ import {
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { RoutineRow } from "../routines/RoutineRow";
 
-const HORIZON_DAYS = 14; // how far ahead we materialize pending occurrences
+const HORIZON_DAYS = 7; // how far ahead we materialize pending occurrences for "Upcoming"
 const BACKLOG_DAYS = 14; // how far back we surface missed pending occurrences
+// For "Later": next pending occurrence for routines whose next date falls
+// beyond HORIZON_DAYS. One row per routine, collapsed by default.
+const LATER_LOOKAHEAD = 365;
 
 interface DueItem {
   routine: Routine;
@@ -56,6 +60,7 @@ export function RoutinesView({
   const [search, setSearch] = useState("");
   const [showToday, setShowToday] = useState(true);
   const [showUpcoming, setShowUpcoming] = useState(false);
+  const [showLater, setShowLater] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
   const today = todayLocalISODate();
@@ -70,7 +75,18 @@ export function RoutinesView({
     return toLocalISO(d);
   }, []);
 
-  const { todayBucket, upcomingBucket, activeRoutines, archivedRoutines } =
+  const laterHorizonDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + LATER_LOOKAHEAD);
+    return toLocalISO(d);
+  }, []);
+  const dayAfterHorizon = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + HORIZON_DAYS + 1);
+    return toLocalISO(d);
+  }, []);
+
+  const { todayBucket, upcomingBucket, laterBucket, archivedRoutines } =
     useMemo(() => {
       const active = routines.filter((r) => !r.archived);
       const archived = routines.filter((r) => r.archived);
@@ -80,32 +96,63 @@ export function RoutinesView({
       }
       const todayItems: DueItem[] = [];
       const upcomingItems: DueItem[] = [];
+      const laterItems: DueItem[] = [];
+      const seenInUpcoming = new Set<string>();
+      // Primary pass: Today & Upcoming within HORIZON_DAYS.
       for (const r of active) {
         const done = occByRoutine.get(r.id) ?? new Set<string>();
         const dates = computeDueDates(r, backlogStart, horizonDate);
         for (const d of dates) {
           if (done.has(d)) continue;
-          const occId = null;
           if (d <= today) {
-            todayItems.push({ routine: r, scheduledDate: d, occurrenceId: occId });
+            todayItems.push({ routine: r, scheduledDate: d, occurrenceId: null });
           } else {
             upcomingItems.push({
               routine: r,
               scheduledDate: d,
-              occurrenceId: occId,
+              occurrenceId: null,
             });
           }
+          seenInUpcoming.add(r.id);
+        }
+      }
+      // Later pass: one entry per routine — the *next* pending occurrence
+      // beyond the upcoming horizon. Skip routines already visible above.
+      for (const r of active) {
+        if (seenInUpcoming.has(r.id)) continue;
+        const done = occByRoutine.get(r.id) ?? new Set<string>();
+        const futureDates = computeDueDates(
+          r,
+          dayAfterHorizon,
+          laterHorizonDate
+        );
+        const next = futureDates.find((d) => !done.has(d));
+        if (next) {
+          laterItems.push({
+            routine: r,
+            scheduledDate: next,
+            occurrenceId: null,
+          });
         }
       }
       todayItems.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
       upcomingItems.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
+      laterItems.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
       return {
         todayBucket: todayItems,
         upcomingBucket: upcomingItems,
-        activeRoutines: active,
+        laterBucket: laterItems,
         archivedRoutines: archived,
       };
-    }, [routines, occurrences, today, horizonDate]);
+    }, [
+      routines,
+      occurrences,
+      today,
+      horizonDate,
+      backlogStart,
+      dayAfterHorizon,
+      laterHorizonDate,
+    ]);
 
   const q = search.trim().toLowerCase();
   const filterByQuery = <T extends { routine: Routine }>(items: T[]): T[] =>
@@ -119,11 +166,13 @@ export function RoutinesView({
 
   const filteredToday = filterByQuery(todayBucket);
   const filteredUpcoming = filterByQuery(upcomingBucket);
+  const filteredLater = filterByQuery(laterBucket);
   const filteredArchived = filterRoutinesByQuery(archivedRoutines);
 
   const searching = q.length > 0;
   const todayOpen = searching || showToday;
   const upcomingOpen = searching || showUpcoming;
+  const laterOpen = searching || showLater;
   const archivedOpen = searching || showArchived;
 
   return (
@@ -209,6 +258,36 @@ export function RoutinesView({
             >
               <div className="space-y-2">
                 {filteredUpcoming.map((it) => (
+                  <RoutineRow
+                    key={`${it.routine.id}-${it.scheduledDate}`}
+                    routine={it.routine}
+                    scheduledDate={it.scheduledDate}
+                    occurrenceId={it.occurrenceId}
+                    onComplete={onCompleteOccurrence}
+                    onUncomplete={onUncompleteOccurrence}
+                    onEdit={onEditRoutine}
+                    onArchive={onArchiveRoutine}
+                  />
+                ))}
+              </div>
+            </CollapsibleSection>
+          )}
+
+          {filteredLater.length > 0 && (
+            <CollapsibleSection
+              variant="card"
+              open={laterOpen}
+              onToggle={() => setShowLater((s) => !s)}
+              icon={<Hourglass size={14} className="text-text-muted" />}
+              title={t("later")}
+              rightSlot={
+                <span className="text-xs text-text-muted bg-border/50 border border-border rounded-full px-2 py-0.5">
+                  {filteredLater.length}
+                </span>
+              }
+            >
+              <div className="space-y-2">
+                {filteredLater.map((it) => (
                   <RoutineRow
                     key={`${it.routine.id}-${it.scheduledDate}`}
                     routine={it.routine}

@@ -383,7 +383,8 @@
       "empty": "Aún no hay rutinas. Crea una para registrar actividades recurrentes o sueltas.",
       "todayBucket": "Hoy y vencidas",
       "todayEmpty": "Sin rutinas para hoy. ✨",
-      "upcoming": "Próximas",
+      "upcoming": "Próximas (7 días)",
+      "later": "Más adelante",
       "archived": "Archivadas"
     },
     "projects": {
@@ -485,7 +486,18 @@
       "weeks": "Cada {n, plural, one {semana} other {# semanas}}",
       "months": "Cada {n, plural, one {mes} other {# meses}}"
     },
-    "monthlyDay": "Día {day} de cada mes"
+    "monthlyDay": "Día {day} de cada mes",
+    "weekday": {
+      "short": {
+        "0": "L",
+        "1": "M",
+        "2": "M",
+        "3": "J",
+        "4": "V",
+        "5": "S",
+        "6": "D"
+      }
+    }
   },
   "projectCard": {
     "comebackBadge": "Comeback · {days}d",
@@ -576,7 +588,7 @@
         "weeks": "semanas",
         "months": "meses"
       },
-      "monthlyDayField": "Día del mes (1–31)",
+      "monthlyDayHint": "Se repetirá el día {day} de cada mes (tomado de la fecha de inicio).",
       "errorTitle": "Pon un título.",
       "errorStartDate": "Elige una fecha.",
       "errorWeekdays": "Selecciona al menos un día.",

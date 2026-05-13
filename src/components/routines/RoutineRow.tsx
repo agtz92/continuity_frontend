@@ -8,6 +8,7 @@ import {
   Repeat,
   X,
 } from "lucide-react";
+import { useCallback } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Routine } from "@/lib/types";
 import { describeRecurrence } from "@/lib/recurrence";
@@ -40,6 +41,11 @@ export function RoutineRow({
   const t = useTranslations("routineRow");
   const tRec = useTranslations("recurrence");
   const locale = useLocale();
+  const recLabel = useCallback(
+    (key: string, vars?: Record<string, string | number>) =>
+      tRec(key, vars),
+    [tRec]
+  );
   const done = occurrenceId !== null;
   const today = todayLocalISODate();
   const overdue = !done && scheduledDate < today;
@@ -80,11 +86,7 @@ export function RoutineRow({
           </span>
           <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
             <Repeat size={10} />
-            {describeRecurrence(
-              routine,
-              (key, vars) => tRec(key, vars),
-              locale === "es" ? "es" : "en"
-            )}
+            {describeRecurrence(routine, recLabel)}
           </span>
         </div>
         <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 mt-0.5">

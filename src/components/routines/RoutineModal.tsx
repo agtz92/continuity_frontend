@@ -36,6 +36,7 @@ export function RoutineModal({
 }) {
   const t = useTranslations("modals.routine");
   const tCommon = useTranslations("common");
+  const tWeekday = useTranslations("recurrence.weekday.short");
 
   const [title, setTitle] = useState(routine?.title ?? "");
   const [description, setDescription] = useState(routine?.description ?? "");
@@ -52,9 +53,6 @@ export function RoutineModal({
   );
   const [intervalUnit, setIntervalUnit] = useState<IntervalUnit>(
     routine?.intervalUnit ?? "days"
-  );
-  const [monthlyDay, setMonthlyDay] = useState(
-    routine?.monthlyDay != null ? String(routine.monthlyDay) : "1"
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -88,7 +86,10 @@ export function RoutineModal({
     }
     let mDay: number | null = null;
     if (recurrenceType === "monthly_day") {
-      const parsed = parseInt(monthlyDay, 10);
+      // Derived from startDate — the user already picks "the 15th" by
+      // choosing a start date on the 15th. Avoids a redundant input.
+      const [, , dayStr] = startDate.split("-");
+      const parsed = parseInt(dayStr ?? "", 10);
       if (!Number.isFinite(parsed) || parsed < 1 || parsed > 31) {
         setError(t("errorMonthlyDay"));
         return;
@@ -111,7 +112,7 @@ export function RoutineModal({
     });
   };
 
-  const weekdayLabels = weekdayShortLabels("es");
+  const weekdayLabels = weekdayShortLabels(tWeekday);
 
   return (
     <Modal title={routine?.id ? t("editTitle") : t("newTitle")} onClose={onClose}>
@@ -214,16 +215,11 @@ export function RoutineModal({
         )}
 
         {recurrenceType === "monthly_day" && (
-          <Field label={t("monthlyDayField")}>
-            <input
-              type="number"
-              min="1"
-              max="31"
-              value={monthlyDay}
-              onChange={(e) => setMonthlyDay(e.target.value)}
-              className="no-spinner w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            />
-          </Field>
+          <div className="text-xs text-text-muted bg-border/40 border border-border rounded-lg px-3 py-2">
+            {t("monthlyDayHint", {
+              day: parseInt(startDate.split("-")[2] ?? "1", 10),
+            })}
+          </div>
         )}
 
         {recurrenceType !== "once" && (

@@ -152,29 +152,45 @@ export function completedDatesFor(
 }
 
 /**
- * Localized 1-letter weekday labels, Monday-first.
- * Defaults to Spanish; pass {locale: 'en'} for English.
+ * Build the 7 short weekday labels (Monday-first) from a `recurrence.weekday.short`
+ * translator. Pass the namespaced `t` from `useTranslations("recurrence.weekday.short")`.
  */
-export function weekdayShortLabels(locale: "es" | "en" = "es"): string[] {
-  if (locale === "en") return ["M", "T", "W", "T", "F", "S", "S"];
-  return ["L", "M", "M", "J", "V", "S", "D"];
+export function weekdayShortLabels(
+  t: (key: string) => string
+): string[] {
+  return [
+    t("0"),
+    t("1"),
+    t("2"),
+    t("3"),
+    t("4"),
+    t("5"),
+    t("6"),
+  ];
 }
 
 /**
  * Produce a localized human-readable label for the recurrence rule.
- * The translator function `t` is namespaced to `recurrence`.
+ * `t` must be namespaced to `recurrence`.
  */
 export function describeRecurrence(
   routine: Routine,
-  t: (key: string, vars?: Record<string, string | number>) => string,
-  locale: "es" | "en" = "es"
+  t: (key: string, vars?: Record<string, string | number>) => string
 ): string {
   const rt: RecurrenceType = routine.recurrenceType;
   if (rt === "once") {
     return t("once", { date: routine.startDate });
   }
   if (rt === "weekly_days") {
-    const labels = weekdayShortLabels(locale);
+    const labels = [
+      t("weekday.short.0"),
+      t("weekday.short.1"),
+      t("weekday.short.2"),
+      t("weekday.short.3"),
+      t("weekday.short.4"),
+      t("weekday.short.5"),
+      t("weekday.short.6"),
+    ];
     const picked = routine.weekdays
       .slice()
       .sort((a, b) => a - b)

@@ -383,7 +383,8 @@
       "empty": "No routines yet. Create one to track recurring or standalone activities.",
       "todayBucket": "Today & overdue",
       "todayEmpty": "No routines for today. ✨",
-      "upcoming": "Upcoming",
+      "upcoming": "Upcoming (7 days)",
+      "later": "Later",
       "archived": "Archived"
     },
     "projects": {
@@ -485,7 +486,18 @@
       "weeks": "Every {n, plural, one {week} other {# weeks}}",
       "months": "Every {n, plural, one {month} other {# months}}"
     },
-    "monthlyDay": "Day {day} of each month"
+    "monthlyDay": "Day {day} of each month",
+    "weekday": {
+      "short": {
+        "0": "M",
+        "1": "T",
+        "2": "W",
+        "3": "T",
+        "4": "F",
+        "5": "S",
+        "6": "S"
+      }
+    }
   },
   "projectCard": {
     "comebackBadge": "Comeback · {days}d",
@@ -576,7 +588,7 @@
         "weeks": "weeks",
         "months": "months"
       },
-      "monthlyDayField": "Day of month (1–31)",
+      "monthlyDayHint": "Will repeat on day {day} of every month (taken from the start date).",
       "errorTitle": "Add a title.",
       "errorStartDate": "Pick a date.",
       "errorWeekdays": "Select at least one weekday.",
