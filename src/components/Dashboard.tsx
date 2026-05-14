@@ -28,6 +28,7 @@ import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
 import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
+import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
 import { BottomTabBar } from "./dashboard/BottomTabBar";
@@ -201,6 +202,7 @@ export default function Dashboard() {
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
       />
+      <PullToRefresh onRefresh={() => refetch()} />
       <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">
         <div className="hidden md:block">
           <DashboardHeader

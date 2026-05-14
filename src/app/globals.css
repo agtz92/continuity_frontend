@@ -161,6 +161,13 @@ body {
   color: var(--text);
 }
 
+/* Suppress the browser's native pull-to-refresh / overscroll bounce so our
+   custom PullToRefresh component owns the gesture. `contain` keeps inner
+   scroll containers behaving normally — only the document edge is locked. */
+body {
+  overscroll-behavior-y: contain;
+}
+
 /* Theme-aware scrollbars — follow whatever --border/--surface/--text-muted
    the active theme + palette resolve to. Applies to the page and any
    nested scroll container. */

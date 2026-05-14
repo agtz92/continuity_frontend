@@ -459,9 +459,23 @@ export function ProjectsView({
           const reason = q
             ? t("noMatchSearch", { query: projectSearch })
             : t("noMatchFilters");
+          const filtersAreNarrowing = activeFilterCount > 0 && !q;
           return (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
-              {reason}
+            <div className="bg-surface border border-border rounded-xl p-8 text-center text-sm">
+              <p className="text-text-muted mb-3">{reason}</p>
+              {filtersAreNarrowing && (
+                <button
+                  onClick={() => {
+                    setProjectStatusFilter("all");
+                    setProjectPriorityFilter("all");
+                    setProjectCategoryFilter(null);
+                    setProjectDueFilter("all");
+                  }}
+                  className="text-xs px-3 py-1.5 bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30 rounded-md"
+                >
+                  {t("clearFilters")}
+                </button>
+              )}
             </div>
           );
         }

@@ -204,8 +204,14 @@ export function RoutinesView({
       </div>
 
       {routines.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center text-text-muted">
-          {t("empty")}
+        <div className="bg-surface border border-border rounded-xl p-12 text-center">
+          <p className="text-text-muted mb-4">{t("empty")}</p>
+          <button
+            onClick={onNewRoutine}
+            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
+          >
+            {t("addFirst")}
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
