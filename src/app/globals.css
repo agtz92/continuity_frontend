@@ -195,3 +195,16 @@ input.no-spinner::-webkit-inner-spin-button {
 input.no-spinner[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* Prevent iOS Safari from auto-zooming when focusing a form field.
+   Safari triggers the zoom whenever the focused control's font-size is
+   below 16px and never zooms back out, leaving the whole page scaled up.
+   Force a 16px minimum on touch devices only so the desktop typography
+   (text-xs/text-sm) stays unchanged. */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
