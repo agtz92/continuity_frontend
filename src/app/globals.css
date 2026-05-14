@@ -168,6 +168,14 @@ body {
   overscroll-behavior-y: contain;
 }
 
+/* iOS Safari/Chrome paint a translucent gray rectangle on tap. Removing it
+   matches the native-app feel and avoids a flash that some users read as a
+   "sticky" hover. Components that want explicit tap feedback use
+   `active:` Tailwind variants instead. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Theme-aware scrollbars — follow whatever --border/--surface/--text-muted
    the active theme + palette resolve to. Applies to the page and any
    nested scroll container. */

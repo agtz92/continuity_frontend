@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Bell,
@@ -37,6 +38,8 @@ type Props = {
 export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
   const t = useTranslations("accountMenu");
   const [email, setEmail] = useState<string | null>(null);
+  const pathname = usePathname();
+  const openedAtPath = useRef<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -64,11 +67,40 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
     };
   }, [open]);
 
+  // Remember the path at the moment the drawer opens. Tied to `open` only
+  // so pathname changes don't refresh the baseline — that's the whole point.
+  useEffect(() => {
+    if (open) {
+      openedAtPath.current = pathname;
+    } else {
+      openedAtPath.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Close the drawer when the route changes — but not on the initial mount
+  // and not on same-page reopens. This avoids the flicker where closing
+  // happened at tap-time, exposing the source page before the destination
+  // had rendered.
+  useEffect(() => {
+    if (
+      open &&
+      openedAtPath.current !== null &&
+      pathname !== openedAtPath.current
+    ) {
+      onClose();
+    }
+  }, [pathname, open, onClose]);
+
   if (!open) return null;
 
   const initial = email ? email.trim().charAt(0).toUpperCase() : "?";
 
-  const handleNavigate = () => onClose(); // close drawer when a Link is clicked
+  // Link clicks don't close immediately — the route-change effect above
+  // closes the drawer once the destination has rendered. This keeps the
+  // drawer visible across the transition so the user never sees the source
+  // page flash between drawer-close and destination-render.
+  const handleNavigate = () => {};
 
   const handleAction = (fn: () => void) => () => {
     onClose();

@@ -4,6 +4,14 @@ import typography from "@tailwindcss/typography";
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   darkMode: ["selector", '[data-theme="dark"]'],
+  // `hover:` variants only apply on devices that actually support hover
+  // (i.e. a mouse). iOS Safari/Chrome have a long-standing bug where the
+  // :hover state sticks on the last tapped element until another tap or
+  // scroll — gating hover styles by `@media (hover: hover)` eliminates the
+  // "green flash on the next item" artifact when a list reflows after tap.
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
     extend: {
       colors: {

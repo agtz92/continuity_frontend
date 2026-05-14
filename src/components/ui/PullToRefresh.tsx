@@ -29,6 +29,8 @@ export function PullToRefresh({
   const [pulling, setPulling] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const startY = useRef<number | null>(null);
+  const startX = useRef<number | null>(null);
+  const gestureLocked = useRef<"vertical" | "horizontal" | null>(null);
   const refreshingRef = useRef(false);
   const pullingRef = useRef(0);
 
@@ -46,14 +48,36 @@ export function PullToRefresh({
     const onTouchStart = (e: TouchEvent) => {
       if (refreshingRef.current) return;
       if (window.scrollY > 0) return;
-      startY.current = e.touches[0]?.clientY ?? null;
+      const touch = e.touches[0];
+      if (!touch) return;
+      startY.current = touch.clientY;
+      startX.current = touch.clientX;
+      gestureLocked.current = null;
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      if (startY.current === null) return;
+      if (startY.current === null || startX.current === null) return;
       if (refreshingRef.current) return;
-      const current = e.touches[0]?.clientY ?? startY.current;
-      const dy = current - startY.current;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const dy = touch.clientY - startY.current;
+      const dx = touch.clientX - startX.current;
+
+      // Lock the gesture axis on first meaningful move. If the user is
+      // scrolling a horizontal container (e.g. the Analytics chip selector
+      // or the Today counters carousel), abandon the pull entirely so we
+      // never preventDefault their horizontal swipe.
+      if (gestureLocked.current === null) {
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+          gestureLocked.current =
+            Math.abs(dx) > Math.abs(dy) ? "horizontal" : "vertical";
+        }
+      }
+      if (gestureLocked.current === "horizontal") {
+        if (pullingRef.current > 0) setPulling(0);
+        return;
+      }
+
       if (dy <= 0) {
         if (pullingRef.current > 0) setPulling(0);
         return;
@@ -66,6 +90,8 @@ export function PullToRefresh({
       if (startY.current === null) return;
       const distance = pullingRef.current;
       startY.current = null;
+      startX.current = null;
+      gestureLocked.current = null;
       if (distance >= THRESHOLD && !refreshingRef.current) {
         setRefreshing(true);
         Promise.resolve(onRefresh())
