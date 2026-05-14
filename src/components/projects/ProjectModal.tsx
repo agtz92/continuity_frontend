@@ -5,12 +5,21 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
-import type { Category, Priority, Project } from "@/lib/types";
+import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
+import type { Category, Priority, Project, ProjectStatus } from "@/lib/types";
 import {
   CATEGORY_COLORS,
   PRIORITIES,
   categoryColorClass,
 } from "@/lib/types";
+
+const STATUS_OPTIONS: ProjectStatus[] = [
+  "idea",
+  "active",
+  "paused",
+  "launched",
+  "archived",
+];
 
 export function ProjectModal({
   project,
@@ -58,7 +67,9 @@ export function ProjectModal({
   const [description, setDescription] = useState(project?.description || "");
   const [why, setWhy] = useState(project?.why || "");
   const [nextStep, setNextStep] = useState(project?.nextStep || "");
-  const [status, setStatus] = useState<string>(project?.status || "idea");
+  const [status, setStatus] = useState<ProjectStatus>(
+    (project?.status as ProjectStatus) || "idea"
+  );
   const [priority, setPriority] = useState<Priority>(project?.priority || "medium");
   const [categoryId, setCategoryId] = useState<string | null>(
     project?.categoryId ?? null
@@ -96,8 +107,41 @@ export function ProjectModal({
     });
   };
 
+  const statusOptions: ChipOption<ProjectStatus>[] = STATUS_OPTIONS.map((s) => ({
+    value: s,
+    label: tStatus(s),
+  }));
+
+  const priorityOptions: ChipOption<Priority>[] = PRIORITIES.map((p) => ({
+    value: p.value,
+    label: tPriority(p.value),
+    prefix: <span className="text-base leading-none">{p.emoji}</span>,
+  }));
+
+  const canSubmit = name.trim().length > 0;
+
   return (
-    <Modal title={project?.id ? t("editTitle") : t("newTitle")} onClose={onClose}>
+    <Modal
+      title={project?.id ? t("editTitle") : t("newTitle")}
+      onClose={onClose}
+      footer={
+        <div className="flex gap-2">
+          <button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
+          >
+            {tCommon("save")}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
+          >
+            {tCommon("cancel")}
+          </button>
+        </div>
+      }
+    >
       <div className="flex flex-col gap-3 flex-1 min-h-0">
         <Field label={t("name")}>
           <input
@@ -133,34 +177,22 @@ export function ProjectModal({
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
           />
         </Field>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field label={t("status")}>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            >
-              <option value="idea">{tStatus("idea")}</option>
-              <option value="active">{tStatus("active")}</option>
-              <option value="paused">{tStatus("paused")}</option>
-              <option value="launched">{tStatus("launched")}</option>
-              <option value="archived">{tStatus("archived")}</option>
-            </select>
-          </Field>
-          <Field label={t("priority")}>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as Priority)}
-              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            >
-              {PRIORITIES.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.emoji} {tPriority(p.value)}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
+        <Field label={t("status")}>
+          <ChipGroup
+            value={status}
+            options={statusOptions}
+            onChange={setStatus}
+            ariaLabel={t("status")}
+          />
+        </Field>
+        <Field label={t("priority")}>
+          <ChipGroup
+            value={priority}
+            options={priorityOptions}
+            onChange={setPriority}
+            ariaLabel={t("priority")}
+          />
+        </Field>
         <Field label={tTask("dueDate")}>
           <input
             type="date"
@@ -239,20 +271,6 @@ export function ProjectModal({
             </div>
           )}
         </Field>
-        <div className="flex gap-2 pt-2">
-          <button
-            onClick={handleSubmit}
-            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            {tCommon("save")}
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
-          >
-            {tCommon("cancel")}
-          </button>
-        </div>
       </div>
     </Modal>
   );

@@ -9,8 +9,10 @@ import {
   Database,
   Edit2,
   Flag,
+  Flame,
   Lightbulb,
   Moon,
+  Plus,
   Repeat,
   Rocket,
   Sparkles,
@@ -19,7 +21,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type {
   Activity,
   Category,
@@ -32,12 +34,30 @@ import type {
 import { daysOverdue, daysSince, todayLocalISODate, toLocalISO } from "@/lib/date";
 import { completedDatesFor, computeDueDates } from "@/lib/recurrence";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { FAB } from "../ui/FAB";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
 import { RoutineRow } from "../routines/RoutineRow";
 import { useTodayFocus } from "@/hooks/useTodayFocus";
 import type { useProductivityStats } from "@/hooks/useProductivityStats";
+import { TodayActionSheet } from "./TodayActionSheet";
 
 type ProductivityStats = ReturnType<typeof useProductivityStats>;
+
+const STREAK_MILESTONES = [7, 14, 30, 60, 100, 200, 365] as const;
+
+function streakNextGoal(current: number): number {
+  return (
+    STREAK_MILESTONES.find((m) => m > current) ??
+    Math.ceil((current + 1) / 100) * 100
+  );
+}
+
+function greetingKey(): "morning" | "afternoon" | "evening" {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "morning";
+  if (h >= 12 && h < 19) return "afternoon";
+  return "evening";
+}
 
 const sleepingBucketStyle = {
   "7-14": {
@@ -57,6 +77,7 @@ const sleepingBucketStyle = {
 export function TodayView({
   projects,
   tasks,
+  ideasCount,
   activities,
   projectNotes,
   routines,
@@ -72,6 +93,9 @@ export function TodayView({
   onJumpToTasks,
   onJumpToIdeas,
   onJumpToRoutines,
+  onNewTask,
+  onNewProject,
+  onNewIdea,
   onLogUpdate,
   onToggleTask,
   onEditTask,
@@ -81,6 +105,7 @@ export function TodayView({
 }: {
   projects: Project[];
   tasks: Task[];
+  ideasCount: number;
   activities: Activity[];
   projectNotes: ProjectNote[];
   routines: Routine[];
@@ -96,6 +121,9 @@ export function TodayView({
   onJumpToTasks: () => void;
   onJumpToIdeas: () => void;
   onJumpToRoutines: () => void;
+  onNewTask: () => void;
+  onNewProject: () => void;
+  onNewIdea: () => void;
   onLogUpdate: (p: Project) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
   onEditTask: (t: Task) => void;
@@ -113,6 +141,11 @@ export function TodayView({
   const tSleep = useTranslations("views.today.sleeping");
   const tStale = useTranslations("views.today.staleIdeas");
   const tTabs = useTranslations("tabs");
+  const tGreeting = useTranslations("views.today.greeting");
+  const tStreak = useTranslations("views.today.streakCard");
+  const tCounters = useTranslations("views.today.counters");
+  const tFab = useTranslations("views.today.fab");
+  const locale = useLocale();
 
   const {
     stalled,
@@ -141,6 +174,7 @@ export function TodayView({
     comebackGapByProject,
   } = productivityStats;
 
+  const [showFabSheet, setShowFabSheet] = useState(false);
   const [showTodayFocus, setShowTodayFocus] = useState(true);
   const [showDoneToday, setShowDoneToday] = useState(true);
   const [showActiveProjects, setShowActiveProjects] = useState(true);
@@ -190,8 +224,124 @@ export function TodayView({
   const closableTotal =
     closableProjects.quickWins.length + closableProjects.almostThere.length;
 
+  const activeProjectsCount = useMemo(
+    () => projects.filter((p) => p.status === "active").length,
+    [projects]
+  );
+  const launchedProjectsCount = useMemo(
+    () => projects.filter((p) => p.status === "launched").length,
+    [projects]
+  );
+
+  const streakCurrent = productivityStats.streak.current;
+  const streakBest = productivityStats.streak.best;
+  const streakGoal = streakNextGoal(streakCurrent);
+  const streakProgress =
+    streakGoal > 0 ? Math.min(1, streakCurrent / streakGoal) : 0;
+
+  const counters: { id: string; label: string; value: number; tint: string }[] = [
+    {
+      id: "active",
+      label: tCounters("active"),
+      value: activeProjectsCount,
+      tint: "text-accent",
+    },
+    {
+      id: "launched",
+      label: tCounters("launched"),
+      value: launchedProjectsCount,
+      tint: "text-accent-2",
+    },
+    {
+      id: "stalled",
+      label: tCounters("stalled"),
+      value: stalled.length,
+      tint: "text-amber-400",
+    },
+    {
+      id: "ideas",
+      label: tCounters("ideas"),
+      value: ideasCount,
+      tint: "text-purple-400",
+    },
+    {
+      id: "tasks",
+      label: tCounters("tasks"),
+      value: tasks.length,
+      tint: "text-text",
+    },
+  ];
+
+  const formattedDate = new Date().toLocaleDateString(locale, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <div className="space-y-6">
+      {/* Mobile-only header: greeting + streak + counters carousel */}
+      <div className="md:hidden space-y-3">
+        <div>
+          <div className="text-xs text-text-muted capitalize">{formattedDate}</div>
+          <h1 className="text-2xl font-semibold mt-0.5">
+            {tGreeting(greetingKey())}
+          </h1>
+        </div>
+
+        {hasData && (streakCurrent > 0 || streakBest > 0) && (
+          <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Flame size={18} className="text-orange-400" />
+              <span className="text-sm uppercase tracking-wider text-orange-700 dark:text-orange-300 font-medium">
+                {tStreak("title")}
+              </span>
+              <span className="ml-auto text-xl font-bold text-orange-700 dark:text-orange-200">
+                {tStreak("days", { count: streakCurrent })}
+              </span>
+            </div>
+            <div
+              className="h-2 rounded-full bg-orange-500/20 overflow-hidden"
+              aria-valuenow={streakCurrent}
+              aria-valuemax={streakGoal}
+              role="progressbar"
+            >
+              <div
+                className="h-full bg-orange-400 transition-[width] duration-300"
+                style={{ width: `${streakProgress * 100}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-1.5 text-[11px] text-orange-700/80 dark:text-orange-300/80">
+              <span>{tStreak("nextMilestone", { days: streakGoal })}</span>
+              {streakBest > 0 && (
+                <span>{tStreak("best", { days: streakBest })}</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {hasData && (
+          <div
+            className="flex gap-2 overflow-x-auto snap-x snap-mandatory -mx-3 px-3 pb-1"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {counters.map((c) => (
+              <div
+                key={c.id}
+                className="snap-start shrink-0 min-w-[120px] bg-surface border border-border rounded-xl px-4 py-3"
+              >
+                <div className="text-[11px] uppercase tracking-wider text-text-muted">
+                  {c.label}
+                </div>
+                <div className={`text-2xl font-bold mt-0.5 ${c.tint}`}>
+                  {c.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {backupOverdue && hasData && (
         <div className="bg-accent-2/10 border border-accent-2/30 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -903,6 +1053,20 @@ export function TodayView({
           </div>
         </CollapsibleSection>
       )}
+
+      <FAB
+        icon={<Plus size={24} />}
+        label={tFab("open")}
+        onClick={() => setShowFabSheet(true)}
+      />
+
+      <TodayActionSheet
+        open={showFabSheet}
+        onClose={() => setShowFabSheet(false)}
+        onNewTask={onNewTask}
+        onNewProject={onNewProject}
+        onNewIdea={onNewIdea}
+      />
     </div>
   );
 }

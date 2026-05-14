@@ -48,7 +48,9 @@
     "delete": "Delete",
     "close": "Close",
     "new": "New",
-    "clickToEdit": "Click to edit"
+    "clickToEdit": "Click to edit",
+    "showMore": "Show {count} more",
+    "showLess": "Show less"
   },
   "dashboard": {
     "header": {
@@ -71,7 +73,8 @@
     "routines": "Routines",
     "ideas": "Ideas",
     "log": "Log",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "more": "More"
   },
   "status": {
     "idea": "Idea",
@@ -210,6 +213,17 @@
   },
   "analytics": {
     "title": "Analytics",
+    "chips": {
+      "activity": "Activity",
+      "cadence": "Cadence",
+      "status": "Status",
+      "backlog": "Backlog",
+      "weekday": "Days",
+      "topProjects": "Top",
+      "sleeping": "Sleeping",
+      "funnel": "Funnel",
+      "effort": "Effort"
+    },
     "refreshing": "refreshing…",
     "calculating": "Calculating analytics…",
     "loadError": "Couldn't load analytics",
@@ -294,6 +308,30 @@
   },
   "views": {
     "today": {
+      "greeting": {
+        "morning": "Good morning",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening"
+      },
+      "streakCard": {
+        "title": "Streak",
+        "days": "{count, plural, one {# day} other {# days}}",
+        "nextMilestone": "Next goal: {days}d",
+        "best": "Best: {days}d"
+      },
+      "counters": {
+        "active": "Active",
+        "launched": "Launched",
+        "stalled": "Stalled",
+        "ideas": "Ideas",
+        "tasks": "Tasks"
+      },
+      "fab": {
+        "open": "Create",
+        "newTask": "New task",
+        "newProject": "New project",
+        "newIdea": "New idea"
+      },
       "backupAlert": {
         "lastBackupAgo": "Last backup {days, plural, one {# day} other {# days}} ago",
         "noBackup": "No backup yet",
@@ -382,10 +420,28 @@
       "noMatch": "No tasks match \"{query}\"",
       "todayBucket": "Today & overdue",
       "todayEmpty": "All clear — nothing due today. ✨",
+      "overdueBucket": "Overdue",
+      "todayOnlyBucket": "Today",
       "pickDay": "Pick a day",
       "pickDayHint": "— schedule them so they happen",
       "upcoming": "Upcoming",
-      "completed": "Completed"
+      "completed": "Completed",
+      "filterCta": "Filter",
+      "newAria": "New task",
+      "range": {
+        "today": "Today",
+        "week": "Week",
+        "all": "All"
+      },
+      "filterSheet": {
+        "title": "Filter",
+        "clear": "Clear",
+        "apply": "Apply ({count})",
+        "applyEmpty": "No tasks match",
+        "byProject": "By project",
+        "noProject": "No project",
+        "showCompleted": "Show completed"
+      }
     },
     "routines": {
       "title": "Routines",
@@ -395,7 +451,8 @@
       "todayEmpty": "No routines for today. ✨",
       "upcoming": "Upcoming (7 days)",
       "later": "Later",
-      "archived": "Archived"
+      "archived": "Archived",
+      "newAria": "New routine"
     },
     "projects": {
       "title": "All Projects",
@@ -410,6 +467,23 @@
       "sortAria": "Sort projects",
       "allCategories": "All categories",
       "allPriorities": "All priorities",
+      "filterCta": "Filter",
+      "sortCta": "Sort",
+      "newAria": "New project",
+      "filterSheet": {
+        "title": "Filter",
+        "clear": "Clear",
+        "apply": "Apply ({count})",
+        "applyEmpty": "No projects match",
+        "dueDate": "Due date",
+        "dueAny": "Any",
+        "dueOverdue": "Overdue",
+        "dueSoon": "Next 7 days",
+        "dueNone": "No date"
+      },
+      "sortSheet": {
+        "title": "Sort by"
+      },
       "filterLabel": {
         "status": "Status",
         "category": "Category",
@@ -457,6 +531,7 @@
       "title": "Ideas Parking Lot",
       "search": "Search ideas...",
       "capture": "Capture",
+      "captureAria": "Capture new idea",
       "subtitle": "Park new ideas here so you don't abandon current projects. Promote them when you're ready.",
       "empty": "No ideas captured yet.",
       "noMatch": "No ideas match \"{query}\"",
@@ -467,9 +542,24 @@
       "search": "Search log entries or project...",
       "empty": "No activity logged yet. Log updates from your projects to track momentum.",
       "noMatch": "No log entries match \"{query}\"",
+      "noneInFilter": "No items in this filter.",
       "deleteConfirm": "Delete this log entry?",
       "editEntryAria": "Edit log entry",
-      "deleteEntryAria": "Delete log entry"
+      "deleteEntryAria": "Delete log entry",
+      "filters": {
+        "all": "All",
+        "achievements": "Achievements",
+        "notes": "Notes",
+        "changes": "Changes",
+        "deleted": "Deleted"
+      },
+      "buckets": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "thisWeek": "This week",
+        "thisMonth": "This month",
+        "older": "Older"
+      }
     }
   },
   "taskRow": {
@@ -563,7 +653,13 @@
       "effort": "Effort (hours)",
       "effortPlaceholder": "e.g. 2.5",
       "decreaseEffortAria": "Decrease effort",
-      "increaseEffortAria": "Increase effort"
+      "increaseEffortAria": "Increase effort",
+      "chips": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "thisWeek": "This week",
+        "clear": "Clear"
+      }
     },
     "idea": {
       "newTitle": "Capture Idea",

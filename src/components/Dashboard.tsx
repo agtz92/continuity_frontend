@@ -30,6 +30,8 @@ import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
+import { BottomTabBar } from "./dashboard/BottomTabBar";
+import { MoreSheet } from "./dashboard/MoreSheet";
 import { AnalyticsView } from "./dashboard/AnalyticsView";
 import { LogView } from "./views/LogView";
 import { IdeasView } from "./views/IdeasView";
@@ -81,6 +83,7 @@ export default function Dashboard() {
   });
 
   const [view, setView] = useState<DashboardView>("today");
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -198,16 +201,18 @@ export default function Dashboard() {
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
       />
-      <div className="max-w-7xl mx-auto p-3 sm:p-6">
-        <DashboardHeader
-          activeCount={activeCount}
-          launchedCount={launchedCount}
-          stalledCount={stalledCount}
-          streakCurrent={productivityStats.streak.current}
-          streakBest={productivityStats.streak.best}
-          activeThisWeek={productivityStats.activeThisWeek}
-          hasData={hasData}
-        />
+      <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">
+        <div className="hidden md:block">
+          <DashboardHeader
+            activeCount={activeCount}
+            launchedCount={launchedCount}
+            stalledCount={stalledCount}
+            streakCurrent={productivityStats.streak.current}
+            streakBest={productivityStats.streak.best}
+            activeThisWeek={productivityStats.activeThisWeek}
+            hasData={hasData}
+          />
+        </div>
 
         <TabBar view={view} onChange={setView} />
 
@@ -216,6 +221,7 @@ export default function Dashboard() {
           <TodayView
             projects={projects}
             tasks={tasks}
+            ideasCount={ideas.length}
             activities={activities}
             projectNotes={allProjectNotes}
             routines={routines}
@@ -234,6 +240,18 @@ export default function Dashboard() {
             onJumpToTasks={() => setView("tasks")}
             onJumpToIdeas={() => setView("ideas")}
             onJumpToRoutines={() => setView("routines")}
+            onNewTask={() => {
+              setEditingTask(null);
+              setShowTaskModal(true);
+            }}
+            onNewProject={() => {
+              setEditingProject(null);
+              setShowProjectModal(true);
+            }}
+            onNewIdea={() => {
+              setEditingIdea(null);
+              setShowIdeaModal(true);
+            }}
             onLogUpdate={(p) => {
               setSelectedProject(p);
               setEditingNote(null);
@@ -508,6 +526,19 @@ export default function Dashboard() {
           onClose={() => setShowBackupModal(false)}
         />
       )}
+
+      <BottomTabBar
+        view={view}
+        onChange={setView}
+        onOpenMore={() => setMoreSheetOpen(true)}
+      />
+
+      <MoreSheet
+        open={moreSheetOpen}
+        view={view}
+        onSelect={setView}
+        onClose={() => setMoreSheetOpen(false)}
+      />
     </div>
   );
 }

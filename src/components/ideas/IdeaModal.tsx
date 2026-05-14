@@ -37,9 +37,30 @@ export function IdeaModal({
   };
 
   const isEdit = !!idea?.id;
+  const canSubmit = title.trim().length > 0;
 
   return (
-    <Modal title={isEdit ? t("editTitle") : t("newTitle")} onClose={onClose}>
+    <Modal
+      title={isEdit ? t("editTitle") : t("newTitle")}
+      onClose={onClose}
+      footer={
+        <div className="flex gap-2">
+          <button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-text rounded-lg font-medium text-sm"
+          >
+            {isEdit ? tCommon("save") : t("captureCta")}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
+          >
+            {tCommon("cancel")}
+          </button>
+        </div>
+      }
+    >
       <div className="flex flex-col gap-3 flex-1 min-h-0">
         {!isEdit && (
           <p className="text-sm text-text-muted shrink-0">{t("intro")}</p>
@@ -68,20 +89,6 @@ export function IdeaModal({
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
           />
         </Field>
-        <div className="flex gap-2 pt-2 shrink-0">
-          <button
-            onClick={handleSubmit}
-            className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-text rounded-lg font-medium text-sm"
-          >
-            {isEdit ? tCommon("save") : t("captureCta")}
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
-          >
-            {tCommon("cancel")}
-          </button>
-        </div>
       </div>
     </Modal>
   );

@@ -7,9 +7,11 @@ import {
   ChevronRight,
   Clock,
   Edit2,
+  ListFilter,
   Maximize2,
   Plus,
   Search,
+  SlidersHorizontal,
   Trash2,
   X,
 } from "lucide-react";
@@ -30,7 +32,14 @@ import {
   priorityMeta,
   priorityRank,
 } from "@/lib/types";
-import { daysSince, isDueToday, isOverdue } from "@/lib/date";
+import {
+  daysSince,
+  dueDateOnly,
+  isDueToday,
+  isOverdue,
+  toLocalISO,
+  todayLocalISODate,
+} from "@/lib/date";
 import { STATUS_FILTER_ORDER, statusConfig } from "@/lib/status";
 import {
   PRIORITY_FILTER_ORDER,
@@ -39,6 +48,15 @@ import {
   priorityStripeClass,
   type ProjectSortMode,
 } from "@/lib/priority";
+import { FAB } from "@/components/ui/FAB";
+import { ShowMoreList } from "@/components/ui/ShowMoreList";
+import {
+  EMPTY_FILTER,
+  ProjectsFilterSheet,
+  type DueFilter,
+  type ProjectFilterDraft,
+} from "./ProjectsFilterSheet";
+import { ProjectsSortSheet } from "./ProjectsSortSheet";
 
 export function ProjectsView({
   projects,
@@ -95,6 +113,63 @@ export function ProjectsView({
   >("all");
   const [projectSortMode, setProjectSortMode] =
     useState<ProjectSortMode>("smart");
+  const [projectDueFilter, setProjectDueFilter] = useState<DueFilter>("all");
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showSortSheet, setShowSortSheet] = useState(false);
+
+  const horizonISO = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return toLocalISO(d);
+  }, []);
+
+  const matchesDueWith = (p: Project, due: DueFilter) => {
+    if (due === "all") return true;
+    if (due === "none") return !p.dueDate;
+    if (!p.dueDate) return false;
+    const dueIso = dueDateOnly(p.dueDate);
+    const today = todayLocalISODate();
+    if (due === "overdue") return dueIso < today;
+    return dueIso >= today && dueIso <= horizonISO;
+  };
+
+  const matchesStatusWith = (p: Project, status: "all" | ProjectStatus) => {
+    if (status === "all") return true;
+    if (status === "stalled") {
+      if (p.status === "stalled") return true;
+      const idle = daysSince(p.lastActivity) ?? 0;
+      return ["active", "idea"].includes(p.status) && idle >= 7;
+    }
+    return p.status === status;
+  };
+
+  const matchesPriorityWith = (p: Project, priority: "all" | Priority) =>
+    priority === "all" || p.priority === priority;
+
+  const matchesCategoryWith = (p: Project, categoryId: string | null) =>
+    categoryId === null || p.categoryId === categoryId;
+
+  const previewCount = (draft: ProjectFilterDraft) =>
+    projects.filter(
+      (p) =>
+        matchesStatusWith(p, draft.status) &&
+        matchesPriorityWith(p, draft.priority) &&
+        matchesCategoryWith(p, draft.categoryId) &&
+        matchesDueWith(p, draft.due)
+    ).length;
+
+  const filterDraft: ProjectFilterDraft = {
+    status: projectStatusFilter,
+    priority: projectPriorityFilter,
+    categoryId: projectCategoryFilter,
+    due: projectDueFilter,
+  };
+
+  const activeFilterCount =
+    (projectStatusFilter !== "all" ? 1 : 0) +
+    (projectPriorityFilter !== "all" ? 1 : 0) +
+    (projectCategoryFilter !== null ? 1 : 0) +
+    (projectDueFilter !== "all" ? 1 : 0);
 
   const projectStatusCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -150,7 +225,7 @@ export function ProjectsView({
           </div>
           <button
             onClick={onNewProject}
-            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm hidden md:flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {tCommon("new")}
           </button>
@@ -158,87 +233,34 @@ export function ProjectsView({
       </div>
 
       {projects.length > 0 && (
-        <div className="mb-4 bg-surface/40 border border-border/60 rounded-xl p-3">
-          {/* Mobile: compact selects */}
-          <div className="grid grid-cols-2 gap-2 sm:hidden">
-            <select
-              value={projectStatusFilter}
-              onChange={(e) =>
-                setProjectStatusFilter(
-                  e.target.value as "all" | ProjectStatus
-                )
-              }
-              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
-              aria-label={t("filterStatusAria")}
+        <div className="mb-4 md:bg-surface/40 md:border md:border-border/60 md:rounded-xl md:p-3">
+          {/* Mobile: two buttons opening sheets */}
+          <div className="flex gap-2 md:hidden">
+            <button
+              type="button"
+              onClick={() => setShowFilterSheet(true)}
+              className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text flex items-center justify-center gap-2"
             >
-              {STATUS_FILTER_ORDER.map((s) => {
-                const count = projectStatusCounts[s] ?? 0;
-                if (s !== "all" && count === 0) return null;
-                const label = s === "all" ? tStatus("allStatuses") : tStatus(s);
-                return (
-                  <option key={s} value={s}>
-                    {label} ({count})
-                  </option>
-                );
-              })}
-            </select>
-            {categories.length > 0 && (
-              <select
-                value={projectCategoryFilter ?? ""}
-                onChange={(e) =>
-                  setProjectCategoryFilter(e.target.value || null)
-                }
-                className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
-                aria-label={t("filterCategoryAria")}
-              >
-                <option value="">{t("allCategories")}</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            )}
-            <select
-              value={projectPriorityFilter}
-              onChange={(e) =>
-                setProjectPriorityFilter(e.target.value as "all" | Priority)
-              }
-              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
-              aria-label={t("filterPriorityAria")}
+              <ListFilter size={16} />
+              <span>{t("filterCta")}</span>
+              {activeFilterCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-accent text-bg text-[11px] font-semibold tabular-nums">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSortSheet(true)}
+              className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text flex items-center justify-center gap-2"
             >
-              {PRIORITY_FILTER_ORDER.map((pr) => {
-                const count = projectPriorityCounts[pr] ?? 0;
-                if (pr !== "all" && count === 0) return null;
-                const label =
-                  pr === "all"
-                    ? t("allPriorities")
-                    : `${priorityMeta(pr).emoji} ${tPriority(pr)}`;
-                return (
-                  <option key={pr} value={pr}>
-                    {label} ({count})
-                  </option>
-                );
-              })}
-            </select>
-            <select
-              value={projectSortMode}
-              onChange={(e) =>
-                setProjectSortMode(e.target.value as ProjectSortMode)
-              }
-              className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text"
-              aria-label={t("sortAria")}
-            >
-              {PROJECT_SORT_MODES.map((m) => (
-                <option key={m} value={m}>
-                  {t("sortBy.label")}: {t(`sortBy.${m}`)}
-                </option>
-              ))}
-            </select>
+              <SlidersHorizontal size={16} />
+              <span>{t(`sortBy.${projectSortMode}`)}</span>
+            </button>
           </div>
 
           {/* Desktop: labeled rows */}
-          <div className="hidden sm:flex flex-col gap-2">
+          <div className="hidden md:flex flex-col gap-2">
             <div className="flex items-start gap-3">
               <span className="text-[11px] uppercase tracking-wider text-text-muted w-20 shrink-0 mt-1.5">
                 {t("filterLabel.status")}
@@ -429,7 +451,8 @@ export function ProjectsView({
             matchesSearch(p) &&
             matchesStatus(p) &&
             matchesCategory(p) &&
-            matchesPriority(p)
+            matchesPriority(p) &&
+            matchesDueWith(p, projectDueFilter)
         );
 
         if (filtered.length === 0) {
@@ -675,70 +698,85 @@ export function ProjectsView({
                             <div className="text-sm text-text-muted italic">
                               {tCard("noTasks")}
                             </div>
-                          ) : (
-                            <div className="space-y-1">
-                              {projectTasks.map((task) => (
-                                <div
-                                  key={task.id}
-                                  className="flex items-center gap-2 group py-1"
+                          ) : (() => {
+                            const pendingTasks = projectTasks.filter((tk) => !tk.done);
+                            const doneTasks = projectTasks
+                              .filter((tk) => tk.done)
+                              .sort((a, b) =>
+                                (b.completedAt ?? "").localeCompare(a.completedAt ?? "")
+                              );
+                            const renderTaskRow = (task: Task) => (
+                              <div
+                                key={task.id}
+                                className="flex items-center gap-2 group py-1"
+                              >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleTask(task);
+                                  }}
+                                  className={`shrink-0 ${
+                                    task.done
+                                      ? "text-accent"
+                                      : "text-text-muted hover:text-text-muted"
+                                  }`}
                                 >
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onToggleTask(task);
-                                    }}
-                                    className={`shrink-0 ${
-                                      task.done
-                                        ? "text-accent"
-                                        : "text-text-muted hover:text-text-muted"
-                                    }`}
-                                  >
-                                    <CheckCircle2 size={16} />
-                                  </button>
-                                  <span
-                                    className={`text-sm flex-1 ${
-                                      task.done
-                                        ? "line-through text-text-muted"
-                                        : "text-text"
-                                    }`}
-                                  >
-                                    {task.title}
+                                  <CheckCircle2 size={16} />
+                                </button>
+                                <span
+                                  className={`text-sm flex-1 ${
+                                    task.done
+                                      ? "line-through text-text-muted"
+                                      : "text-text"
+                                  }`}
+                                >
+                                  {task.title}
+                                </span>
+                                {task.dueDate && (
+                                  <span className="text-xs text-text-muted">
+                                    {new Date(task.dueDate).toLocaleDateString(locale)}
                                   </span>
-                                  {task.dueDate && (
-                                    <span className="text-xs text-text-muted">
-                                      {new Date(task.dueDate).toLocaleDateString(locale)}
-                                    </span>
-                                  )}
-                                  {task.effortHours != null && (
-                                    <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                                      <Clock size={10} />
-                                      {task.effortHours}h
-                                    </span>
-                                  )}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onEditTask(task);
-                                    }}
-                                    className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                                    aria-label={tCard("editTaskAria")}
-                                  >
-                                    <Edit2 size={14} />
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onDeleteTask(task.id);
-                                    }}
-                                    className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                                    aria-label={tCard("deleteTaskAria")}
-                                  >
-                                    <X size={14} />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                                )}
+                                {task.effortHours != null && (
+                                  <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+                                    <Clock size={10} />
+                                    {task.effortHours}h
+                                  </span>
+                                )}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEditTask(task);
+                                  }}
+                                  className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                  aria-label={tCard("editTaskAria")}
+                                >
+                                  <Edit2 size={14} />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeleteTask(task.id);
+                                  }}
+                                  className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                                  aria-label={tCard("deleteTaskAria")}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            );
+                            return (
+                              <div className="space-y-1">
+                                {pendingTasks.map(renderTaskRow)}
+                                <ShowMoreList
+                                  items={doneTasks}
+                                  initialCount={5}
+                                  renderItem={renderTaskRow}
+                                  itemKey={(task) => task.id}
+                                />
+                              </div>
+                            );
+                          })()}
                         </ProjectSection>
 
                         <ProjectSection
@@ -761,24 +799,32 @@ export function ProjectsView({
                             <Plus size={12} /> {tCard("logUpdate")}
                           </button>
                           <div className="space-y-1">
-                            {projectNotes.slice(0, 3).map((a) => (
-                              <div
-                                key={a.id}
-                                className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
-                              >
-                                <span className="text-text-muted text-xs shrink-0 sm:w-20">
-                                  {new Date(a.created).toLocaleDateString(locale, {
-                                    month: "short",
-                                    day: "numeric",
-                                  })}
-                                </span>
-                                <span className="break-words min-w-0">{a.note}</span>
-                              </div>
-                            ))}
-                            {projectNotes.length === 0 && (
+                            {projectNotes.length === 0 ? (
                               <div className="text-sm text-text-muted italic">
                                 {tCard("noUpdates")}
                               </div>
+                            ) : (
+                              <ShowMoreList
+                                items={[...projectNotes].sort((a, b) =>
+                                  (b.created ?? "").localeCompare(a.created ?? "")
+                                )}
+                                initialCount={5}
+                                renderItem={(a) => (
+                                  <div
+                                    key={a.id}
+                                    className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
+                                  >
+                                    <span className="text-text-muted text-xs shrink-0 sm:w-20">
+                                      {new Date(a.created).toLocaleDateString(locale, {
+                                        month: "short",
+                                        day: "numeric",
+                                      })}
+                                    </span>
+                                    <span className="break-words min-w-0">{a.note}</span>
+                                  </div>
+                                )}
+                                itemKey={(a) => a.id}
+                              />
                             )}
                           </div>
                         </ProjectSection>
@@ -828,6 +874,33 @@ export function ProjectsView({
           </div>
         );
       })()}
+
+      <FAB
+        icon={<Plus size={24} />}
+        label={t("newAria")}
+        onClick={onNewProject}
+      />
+
+      <ProjectsFilterSheet
+        open={showFilterSheet}
+        initial={filterDraft}
+        categories={categories}
+        previewCount={previewCount}
+        onApply={(draft) => {
+          setProjectStatusFilter(draft.status);
+          setProjectPriorityFilter(draft.priority);
+          setProjectCategoryFilter(draft.categoryId);
+          setProjectDueFilter(draft.due);
+        }}
+        onClose={() => setShowFilterSheet(false)}
+      />
+
+      <ProjectsSortSheet
+        open={showSortSheet}
+        value={projectSortMode}
+        onChange={setProjectSortMode}
+        onClose={() => setShowSortSheet(false)}
+      />
     </div>
   );
 }

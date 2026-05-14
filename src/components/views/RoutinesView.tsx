@@ -19,6 +19,7 @@ import {
   computeDueDates,
 } from "@/lib/recurrence";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { FAB } from "../ui/FAB";
 import { RoutineRow } from "../routines/RoutineRow";
 
 const HORIZON_DAYS = 7; // how far ahead we materialize pending occurrences for "Upcoming"
@@ -195,7 +196,7 @@ export function RoutinesView({
           </div>
           <button
             onClick={onNewRoutine}
-            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm hidden md:flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {tCommon("new")}
           </button>
@@ -335,6 +336,12 @@ export function RoutinesView({
           )}
         </div>
       )}
+
+      <FAB
+        icon={<Plus size={24} />}
+        label={t("newAria")}
+        onClick={onNewRoutine}
+      />
     </div>
   );
 }

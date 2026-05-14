@@ -1,11 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { todayLocalISODate, toLocalISO } from "@/lib/date";
 import type { Project, Task } from "@/lib/types";
+
+const HOUR_PRESETS = [0.25, 0.5, 1, 2, 4] as const;
+
+function addDays(iso: string, days: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, (m ?? 1) - 1, d ?? 1);
+  date.setDate(date.getDate() + days);
+  return toLocalISO(date);
+}
+
+function upcomingFridayISO(): string {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun, 5=Fri
+  const daysAhead = (5 - dayOfWeek + 7) % 7 || 7; // if today is Fri, jump to next Fri
+  const target = new Date(today);
+  target.setDate(today.getDate() + daysAhead);
+  return toLocalISO(target);
+}
 
 export function TaskModal({
   task,
@@ -31,7 +49,7 @@ export function TaskModal({
   const isoToInputDate = (iso?: string | null) => {
     if (!iso) return "";
     const d = new Date(iso);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return toLocalISO(d);
   };
   const inputDateToIso = (s: string) => {
     const [y, m, d] = s.split("-").map(Number);
@@ -44,6 +62,15 @@ export function TaskModal({
   const [effortHours, setEffortHours] = useState(
     task?.effortHours != null ? String(task.effortHours) : ""
   );
+
+  const datePresets = useMemo(() => {
+    const today = todayLocalISODate();
+    return {
+      today,
+      tomorrow: addDays(today, 1),
+      friday: upcomingFridayISO(),
+    };
+  }, []);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -58,15 +85,39 @@ export function TaskModal({
     });
   };
 
-  const adjustEffort = (delta: number) => {
-    const current = parseFloat(effortHours);
-    const base = Number.isFinite(current) ? current : 0;
-    const next = Math.max(0, Math.round((base + delta) * 2) / 2);
-    setEffortHours(String(next));
+  const setDueChip = (iso: string) => {
+    setDueDate((current) => (current === iso ? "" : iso));
   };
 
+  const setHourChip = (h: number) => {
+    setEffortHours((current) => (current === String(h) ? "" : String(h)));
+  };
+
+  const currentEffort = effortHours.trim();
+  const canSubmit = title.trim().length > 0;
+
   return (
-    <Modal title={task?.id ? t("editTitle") : t("newTitle")} onClose={onClose}>
+    <Modal
+      title={task?.id ? t("editTitle") : t("newTitle")}
+      onClose={onClose}
+      footer={
+        <div className="flex gap-2">
+          <button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
+          >
+            {tCommon("save")}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
+          >
+            {tCommon("cancel")}
+          </button>
+        </div>
+      }
+    >
       <div className="space-y-3">
         <Field label={t("titleField")}>
           <input
@@ -91,15 +142,62 @@ export function TaskModal({
           </select>
         </Field>
         <Field label={t("dueDate")}>
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-          />
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              <DateChip
+                label={t("chips.today")}
+                active={dueDate === datePresets.today}
+                onClick={() => setDueChip(datePresets.today)}
+              />
+              <DateChip
+                label={t("chips.tomorrow")}
+                active={dueDate === datePresets.tomorrow}
+                onClick={() => setDueChip(datePresets.tomorrow)}
+              />
+              <DateChip
+                label={t("chips.thisWeek")}
+                active={dueDate === datePresets.friday}
+                onClick={() => setDueChip(datePresets.friday)}
+              />
+              {dueDate && (
+                <button
+                  type="button"
+                  onClick={() => setDueDate("")}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-border text-text-muted hover:opacity-80"
+                >
+                  {t("chips.clear")}
+                </button>
+              )}
+            </div>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
         </Field>
         <Field label={t("effort")}>
-          <div className="flex items-stretch gap-2">
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              {HOUR_PRESETS.map((h) => (
+                <DateChip
+                  key={h}
+                  label={`${h}h`}
+                  active={currentEffort === String(h)}
+                  onClick={() => setHourChip(h)}
+                />
+              ))}
+              {currentEffort && !HOUR_PRESETS.some((h) => String(h) === currentEffort) && (
+                <button
+                  type="button"
+                  onClick={() => setEffortHours("")}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-border text-text-muted hover:opacity-80"
+                >
+                  {t("chips.clear")}
+                </button>
+              )}
+            </div>
             <input
               type="number"
               step="0.5"
@@ -107,41 +205,36 @@ export function TaskModal({
               value={effortHours}
               onChange={(e) => setEffortHours(e.target.value)}
               placeholder={t("effortPlaceholder")}
-              className="no-spinner flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
+              className="no-spinner w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             />
-            <button
-              type="button"
-              onClick={() => adjustEffort(-0.5)}
-              className="px-3 bg-border hover:opacity-80 border border-border rounded-lg text-text-muted"
-              aria-label={t("decreaseEffortAria")}
-            >
-              <Minus size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => adjustEffort(0.5)}
-              className="px-3 bg-border hover:opacity-80 border border-border rounded-lg text-text-muted"
-              aria-label={t("increaseEffortAria")}
-            >
-              <Plus size={14} />
-            </button>
           </div>
         </Field>
-        <div className="flex gap-2 pt-2">
-          <button
-            onClick={handleSubmit}
-            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            {tCommon("save")}
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
-          >
-            {tCommon("cancel")}
-          </button>
-        </div>
       </div>
     </Modal>
+  );
+}
+
+function DateChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+        active
+          ? "bg-accent text-bg border-accent"
+          : "bg-border text-text-muted border-border hover:opacity-80"
+      }`}
+    >
+      {label}
+    </button>
   );
 }

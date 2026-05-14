@@ -3,6 +3,22 @@ import { afterEach, beforeEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { __resetToastsForTests } from "@/lib/toast";
 
+// jsdom doesn't implement matchMedia. Components that branch on viewport
+// (e.g. useIsMobile) call it during render — stub it to default to desktop.
+if (typeof window !== "undefined" && !window.matchMedia) {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList;
+}
+
 // Mock Supabase globally so no test ever reaches the real client. Any
 // test that needs different behavior can `vi.mocked(supabase.auth...)`.
 vi.mock("@/lib/supabase", () => ({

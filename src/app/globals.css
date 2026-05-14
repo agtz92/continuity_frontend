@@ -196,6 +196,21 @@ input.no-spinner[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* Subtle fade-in for tab-style content swaps (e.g. AnalyticsView mobile chips). */
+.analytics-fade-in {
+  animation: analytics-fade-in 200ms ease-out;
+}
+@keyframes analytics-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Prevent iOS Safari from auto-zooming when focusing a form field.
    Safari triggers the zoom whenever the focused control's font-size is
    below 16px and never zooms back out, leaving the whole page scaled up.

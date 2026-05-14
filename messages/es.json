@@ -48,7 +48,9 @@
     "delete": "Eliminar",
     "close": "Cerrar",
     "new": "Nuevo",
-    "clickToEdit": "Click para editar"
+    "clickToEdit": "Click para editar",
+    "showMore": "Ver {count} más",
+    "showLess": "Ver menos"
   },
   "dashboard": {
     "header": {
@@ -71,7 +73,8 @@
     "routines": "Rutinas",
     "ideas": "Ideas",
     "log": "Bitácora",
-    "analytics": "Analíticas"
+    "analytics": "Analíticas",
+    "more": "Más"
   },
   "status": {
     "idea": "Idea",
@@ -213,6 +216,17 @@
     "refreshing": "actualizando…",
     "calculating": "Calculando analíticas…",
     "loadError": "No se pudieron cargar las analíticas",
+    "chips": {
+      "activity": "Actividad",
+      "cadence": "Cadencia",
+      "status": "Estado",
+      "backlog": "Backlog",
+      "weekday": "Días",
+      "topProjects": "Top",
+      "sleeping": "Durmiendo",
+      "funnel": "Embudo",
+      "effort": "Esfuerzo"
+    },
     "cadence": {
       "title": "Cadencia",
       "currentStreak": "Racha actual",
@@ -294,6 +308,30 @@
   },
   "views": {
     "today": {
+      "greeting": {
+        "morning": "Buenos días",
+        "afternoon": "Buenas tardes",
+        "evening": "Buenas noches"
+      },
+      "streakCard": {
+        "title": "Racha",
+        "days": "{count, plural, one {# día} other {# días}}",
+        "nextMilestone": "Próximo objetivo: {days}d",
+        "best": "Mejor: {days}d"
+      },
+      "counters": {
+        "active": "Activos",
+        "launched": "Lanzados",
+        "stalled": "Estancados",
+        "ideas": "Ideas",
+        "tasks": "Tareas"
+      },
+      "fab": {
+        "open": "Crear",
+        "newTask": "Nueva tarea",
+        "newProject": "Nuevo proyecto",
+        "newIdea": "Nueva idea"
+      },
       "backupAlert": {
         "lastBackupAgo": "Último respaldo hace {days, plural, one {# día} other {# días}}",
         "noBackup": "Aún no hay respaldo",
@@ -382,10 +420,28 @@
       "noMatch": "No hay tareas que coincidan con \"{query}\"",
       "todayBucket": "Hoy y vencidas",
       "todayEmpty": "Todo en orden — nada para hoy. ✨",
+      "overdueBucket": "Vencidas",
+      "todayOnlyBucket": "Hoy",
       "pickDay": "Asignar día",
       "pickDayHint": "— prográmalas para que sucedan",
       "upcoming": "Próximas",
-      "completed": "Completadas"
+      "completed": "Completadas",
+      "filterCta": "Filtrar",
+      "newAria": "Nueva tarea",
+      "range": {
+        "today": "Hoy",
+        "week": "Semana",
+        "all": "Todas"
+      },
+      "filterSheet": {
+        "title": "Filtrar",
+        "clear": "Limpiar",
+        "apply": "Aplicar ({count})",
+        "applyEmpty": "Ninguna tarea coincide",
+        "byProject": "Por proyecto",
+        "noProject": "Sin proyecto",
+        "showCompleted": "Mostrar completadas"
+      }
     },
     "routines": {
       "title": "Rutinas",
@@ -395,7 +451,8 @@
       "todayEmpty": "Sin rutinas para hoy. ✨",
       "upcoming": "Próximas (7 días)",
       "later": "Más adelante",
-      "archived": "Archivadas"
+      "archived": "Archivadas",
+      "newAria": "Nueva rutina"
     },
     "projects": {
       "title": "Todos los proyectos",
@@ -410,6 +467,23 @@
       "sortAria": "Ordenar proyectos",
       "allCategories": "Todas las categorías",
       "allPriorities": "Todas las prioridades",
+      "filterCta": "Filtrar",
+      "sortCta": "Ordenar",
+      "newAria": "Nuevo proyecto",
+      "filterSheet": {
+        "title": "Filtrar",
+        "clear": "Limpiar",
+        "apply": "Aplicar ({count})",
+        "applyEmpty": "Ningún proyecto coincide",
+        "dueDate": "Fecha de vencimiento",
+        "dueAny": "Cualquiera",
+        "dueOverdue": "Vencidas",
+        "dueSoon": "Próximos 7 días",
+        "dueNone": "Sin fecha"
+      },
+      "sortSheet": {
+        "title": "Ordenar por"
+      },
       "filterLabel": {
         "status": "Estado",
         "category": "Categoría",
@@ -457,6 +531,7 @@
       "title": "Parking lot de ideas",
       "search": "Buscar ideas...",
       "capture": "Capturar",
+      "captureAria": "Capturar nueva idea",
       "subtitle": "Aparca aquí ideas nuevas para no abandonar lo que ya estás haciendo. Promuévelas cuando estés listo.",
       "empty": "Aún no has capturado ideas.",
       "noMatch": "No hay ideas que coincidan con \"{query}\"",
@@ -467,9 +542,24 @@
       "search": "Buscar entradas o proyecto...",
       "empty": "Sin actividad registrada todavía. Registra updates en tus proyectos para llevar momentum.",
       "noMatch": "No hay entradas que coincidan con \"{query}\"",
+      "noneInFilter": "Sin entradas en este filtro.",
       "deleteConfirm": "¿Eliminar esta entrada?",
       "editEntryAria": "Editar entrada",
-      "deleteEntryAria": "Eliminar entrada"
+      "deleteEntryAria": "Eliminar entrada",
+      "filters": {
+        "all": "Todos",
+        "achievements": "Logros",
+        "notes": "Notas",
+        "changes": "Cambios",
+        "deleted": "Eliminados"
+      },
+      "buckets": {
+        "today": "Hoy",
+        "yesterday": "Ayer",
+        "thisWeek": "Esta semana",
+        "thisMonth": "Este mes",
+        "older": "Anteriores"
+      }
     }
   },
   "taskRow": {
@@ -563,7 +653,13 @@
       "effort": "Esfuerzo (horas)",
       "effortPlaceholder": "ej. 2.5",
       "decreaseEffortAria": "Reducir esfuerzo",
-      "increaseEffortAria": "Aumentar esfuerzo"
+      "increaseEffortAria": "Aumentar esfuerzo",
+      "chips": {
+        "today": "Hoy",
+        "tomorrow": "Mañana",
+        "thisWeek": "Esta semana",
+        "clear": "Quitar"
+      }
     },
     "idea": {
       "newTitle": "Capturar idea",

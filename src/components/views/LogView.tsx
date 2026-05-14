@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Calendar,
   CheckCircle2,
@@ -15,8 +15,11 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Activity, ActivityKind, Project } from "@/lib/types";
+import { toLocalISO, todayLocalISODate, weekStartISO } from "@/lib/date";
 
 type Filter = "all" | "achievements" | "notes" | "changes" | "deleted";
+
+const FILTERS: Filter[] = ["all", "achievements", "notes", "changes", "deleted"];
 
 const ACHIEVEMENT_KINDS: ActivityKind[] = [
   "task_completed",
@@ -125,12 +128,14 @@ function describe(a: Activity, locale: string): string {
   }
 }
 
-const FILTERS: { value: Filter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "achievements", label: "Achievements" },
-  { value: "notes", label: "Notes" },
-  { value: "changes", label: "Changes" },
-  { value: "deleted", label: "Deleted" },
+type BucketKey = "today" | "yesterday" | "thisWeek" | "thisMonth" | "older";
+
+const BUCKET_ORDER: BucketKey[] = [
+  "today",
+  "yesterday",
+  "thisWeek",
+  "thisMonth",
+  "older",
 ];
 
 export function LogView({
@@ -145,26 +150,69 @@ export function LogView({
   onDeleteNote: (id: string) => void | Promise<void>;
 }) {
   const t = useTranslations("views.log");
+  const tBuckets = useTranslations("views.log.buckets");
+  const tFilters = useTranslations("views.log.filters");
   const locale = useLocale();
   const [logSearch, setLogSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
+  const bucketBoundaries = useMemo(() => {
+    const today = todayLocalISODate();
+    const yDate = new Date();
+    yDate.setDate(yDate.getDate() - 1);
+    const yesterday = toLocalISO(yDate);
+    const weekStart = weekStartISO();
+    const monthDate = new Date();
+    monthDate.setDate(1);
+    const monthStart = toLocalISO(monthDate);
+    return { today, yesterday, weekStart, monthStart };
+  }, []);
+
+  const bucketFor = (iso: string): BucketKey => {
+    const date = iso.slice(0, 10);
+    if (date === bucketBoundaries.today) return "today";
+    if (date === bucketBoundaries.yesterday) return "yesterday";
+    if (date >= bucketBoundaries.weekStart) return "thisWeek";
+    if (date >= bucketBoundaries.monthStart) return "thisMonth";
+    return "older";
+  };
+
   const q = logSearch.trim().toLowerCase();
-  const visible = activities.filter((a) => {
-    if (!matchesFilter(a.kind, filter)) return false;
-    if (!q) return true;
-    const proj = projects.find((p) => p.id === a.projectId);
-    const haystack = [
-      a.note,
-      a.entityTitle,
-      proj?.name ?? "",
-      a.previousValue,
-      a.newValue,
-    ]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(q);
-  });
+  const visible = activities
+    .filter((a) => {
+      if (!matchesFilter(a.kind, filter)) return false;
+      if (!q) return true;
+      const proj = projects.find((p) => p.id === a.projectId);
+      const haystack = [
+        a.note,
+        a.entityTitle,
+        proj?.name ?? "",
+        a.previousValue,
+        a.newValue,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.created).getTime() - new Date(a.created).getTime()
+    );
+
+  const grouped = useMemo(() => {
+    const buckets: Record<BucketKey, Activity[]> = {
+      today: [],
+      yesterday: [],
+      thisWeek: [],
+      thisMonth: [],
+      older: [],
+    };
+    for (const a of visible) {
+      buckets[bucketFor(a.created)].push(a);
+    }
+    return buckets;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, bucketBoundaries]);
 
   return (
     <div>
@@ -187,18 +235,18 @@ export function LogView({
 
       <div className="flex flex-wrap gap-1.5 mb-3">
         {FILTERS.map((f) => {
-          const active = filter === f.value;
+          const active = filter === f;
           return (
             <button
-              key={f.value}
-              onClick={() => setFilter(f.value)}
+              key={f}
+              onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
                 active
                   ? "bg-accent text-bg border-accent"
                   : "bg-surface border-border text-text-muted hover:text-text"
               }`}
             >
-              {f.label}
+              {tFilters(f)}
             </button>
           );
         })}
@@ -210,53 +258,71 @@ export function LogView({
         </div>
       ) : visible.length === 0 ? (
         <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
-          {q ? t("noMatch", { query: logSearch }) : "No items in this filter."}
+          {q ? t("noMatch", { query: logSearch }) : t("noneInFilter")}
         </div>
       ) : (
-        <div className="space-y-2">
-          {visible.map((a) => {
-            const proj = projects.find((p) => p.id === a.projectId);
-            const isNote = a.kind === "note";
+        <div className="space-y-5">
+          {BUCKET_ORDER.map((bucket) => {
+            const entries = grouped[bucket];
+            if (entries.length === 0) return null;
             return (
-              <div
-                key={a.id}
-                className="bg-surface border border-border rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
-              >
-                <div className="flex items-start gap-2 shrink-0 sm:w-32">
-                  <span className="mt-0.5">{iconFor(a.kind)}</span>
-                  <div className="text-xs text-text-muted">
-                    {formatDate(a.created, locale)}
-                  </div>
+              <section key={bucket}>
+                <div className="text-[11px] uppercase tracking-wider text-text-muted font-semibold mb-2 px-1">
+                  {tBuckets(bucket)}
+                  <span className="ml-1.5 text-text-muted/70 normal-case font-normal">
+                    · {entries.length}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  {proj && (
-                    <div className="text-xs text-accent mb-0.5">{proj.name}</div>
-                  )}
-                  <div className="text-sm text-text break-words">
-                    {describe(a, locale)}
-                  </div>
+                <div className="space-y-2">
+                  {entries.map((a) => {
+                    const proj = projects.find((p) => p.id === a.projectId);
+                    const isNote = a.kind === "note";
+                    return (
+                      <div
+                        key={a.id}
+                        className="bg-surface border border-border rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
+                      >
+                        <div className="flex items-start gap-2 shrink-0 sm:w-32">
+                          <span className="mt-0.5">{iconFor(a.kind)}</span>
+                          <div className="text-xs text-text-muted">
+                            {formatDate(a.created, locale)}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {proj && (
+                            <div className="text-xs text-accent mb-0.5">
+                              {proj.name}
+                            </div>
+                          )}
+                          <div className="text-sm text-text break-words">
+                            {describe(a, locale)}
+                          </div>
+                        </div>
+                        {isNote && (
+                          <div className="flex items-start gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => onEditNote(a)}
+                              className="text-text-muted hover:text-accent"
+                              aria-label={t("editEntryAria")}
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(t("deleteConfirm"))) onDeleteNote(a.id);
+                              }}
+                              className="text-text-muted hover:text-red-400"
+                              aria-label={t("deleteEntryAria")}
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                {isNote && (
-                  <div className="flex items-start gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => onEditNote(a)}
-                      className="text-text-muted hover:text-accent"
-                      aria-label={t("editEntryAria")}
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(t("deleteConfirm"))) onDeleteNote(a.id);
-                      }}
-                      className="text-text-muted hover:text-red-400"
-                      aria-label={t("deleteEntryAria")}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                )}
-              </div>
+              </section>
             );
           })}
         </div>

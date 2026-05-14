@@ -16,12 +16,71 @@ import { SleepingStalePanel } from "./analytics/SleepingStalePanel";
 import { IdeaFunnelPanel } from "./analytics/IdeaFunnelPanel";
 import { EffortPanel } from "./analytics/EffortPanel";
 
+type ChipId =
+  | "activity"
+  | "cadence"
+  | "status"
+  | "backlog"
+  | "weekday"
+  | "topProjects"
+  | "sleeping"
+  | "funnel"
+  | "effort";
+
+const CHIPS: ChipId[] = [
+  "activity",
+  "cadence",
+  "status",
+  "backlog",
+  "weekday",
+  "funnel",
+  "effort",
+  "topProjects",
+  "sleeping",
+];
+
 export function AnalyticsView() {
   const t = useTranslations("analytics");
+  const tChips = useTranslations("analytics.chips");
   const tCommon = useTranslations("common");
   const [range, setRange] = useState<AnalyticsRange>("LAST_30_DAYS");
+  const [activeChip, setActiveChip] = useState<ChipId>("activity");
   const { analytics, initialLoading, loading, error, refetch } =
     useAnalyticsData(range);
+
+  const renderPanel = (id: ChipId) => {
+    if (!analytics) return null;
+    switch (id) {
+      case "activity":
+        return <ActivityChart series={analytics.activitySeries} />;
+      case "cadence":
+        return <CadencePanel cadence={analytics.cadence} />;
+      case "status":
+        return (
+          <StatusBreakdownPanel
+            statusCounts={analytics.statusCounts}
+            categoryBreakdown={analytics.categoryBreakdown}
+          />
+        );
+      case "backlog":
+        return <BacklogPanel backlog={analytics.backlog} />;
+      case "weekday":
+        return <WeekdayHeatmap heatmap={analytics.weekdayHeatmap} />;
+      case "topProjects":
+        return <TopProjectsPanel rows={analytics.topProjects} />;
+      case "sleeping":
+        return (
+          <SleepingStalePanel
+            sleeping={analytics.sleepingProjects}
+            stale={analytics.staleIdeas}
+          />
+        );
+      case "funnel":
+        return <IdeaFunnelPanel funnel={analytics.ideaFunnel} />;
+      case "effort":
+        return <EffortPanel effort={analytics.effort} />;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -59,28 +118,64 @@ export function AnalyticsView() {
           {t("calculating")}
         </div>
       ) : (
-        <div className="space-y-4">
-          <CadencePanel cadence={analytics.cadence} />
-          <ActivityChart series={analytics.activitySeries} />
-          <div className="grid lg:grid-cols-2 gap-4">
-            <TopProjectsPanel rows={analytics.topProjects} />
-            <WeekdayHeatmap heatmap={analytics.weekdayHeatmap} />
+        <>
+          {/* Mobile: chip selector + one panel */}
+          <div className="md:hidden space-y-4">
+            <div
+              role="tablist"
+              className="flex gap-1.5 overflow-x-auto snap-x snap-mandatory -mx-3 px-3 pb-1"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {CHIPS.map((id) => {
+                const active = activeChip === id;
+                return (
+                  <button
+                    key={id}
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setActiveChip(id)}
+                    className={`snap-start shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                      active
+                        ? "bg-accent text-bg border-accent"
+                        : "bg-surface text-text-muted border-border"
+                    }`}
+                  >
+                    {tChips(id)}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div key={activeChip} className="analytics-fade-in">
+              {renderPanel(activeChip)}
+            </div>
           </div>
-          <BacklogPanel backlog={analytics.backlog} />
-          <StatusBreakdownPanel
-            statusCounts={analytics.statusCounts}
-            categoryBreakdown={analytics.categoryBreakdown}
-          />
-          <SleepingStalePanel
-            sleeping={analytics.sleepingProjects}
-            stale={analytics.staleIdeas}
-          />
-          <div className="grid lg:grid-cols-2 gap-4">
-            <IdeaFunnelPanel funnel={analytics.ideaFunnel} />
-            <EffortPanel effort={analytics.effort} />
+
+          {/* Desktop: full grid as before */}
+          <div className="hidden md:block space-y-4">
+            <CadencePanel cadence={analytics.cadence} />
+            <ActivityChart series={analytics.activitySeries} />
+            <div className="grid lg:grid-cols-2 gap-4">
+              <TopProjectsPanel rows={analytics.topProjects} />
+              <WeekdayHeatmap heatmap={analytics.weekdayHeatmap} />
+            </div>
+            <BacklogPanel backlog={analytics.backlog} />
+            <StatusBreakdownPanel
+              statusCounts={analytics.statusCounts}
+              categoryBreakdown={analytics.categoryBreakdown}
+            />
+            <SleepingStalePanel
+              sleeping={analytics.sleepingProjects}
+              stale={analytics.staleIdeas}
+            />
+            <div className="grid lg:grid-cols-2 gap-4">
+              <IdeaFunnelPanel funnel={analytics.ideaFunnel} />
+              <EffortPanel effort={analytics.effort} />
+            </div>
           </div>
-        </div>
+        </>
       )}
+
     </div>
   );
 }

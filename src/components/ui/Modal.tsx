@@ -2,20 +2,44 @@
 
 import { useRef } from "react";
 import { X } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { BottomSheet } from "./BottomSheet";
 
 export function Modal({
   title,
   children,
+  footer,
   onClose,
   widthClassName = "sm:w-[28rem] sm:min-w-[20rem] sm:max-w-[min(95vw,80rem)]",
 }: {
   title: string;
   children: React.ReactNode;
+  /**
+   * Sticky footer area for primary actions (e.g. Save / Cancel). On mobile this
+   * stays pinned to the bottom of the BottomSheet above the safe-area; on desktop
+   * it renders at the bottom of the modal content area.
+   */
+  footer?: React.ReactNode;
   onClose: () => void;
   /** Tailwind width classes for the sm+ breakpoint. Override to make the modal wider by default. */
   widthClassName?: string;
 }) {
+  const isMobile = useIsMobile();
   const mouseDownTargetRef = useRef<EventTarget | null>(null);
+
+  if (isMobile) {
+    return (
+      <BottomSheet
+        title={title}
+        onClose={onClose}
+        initialHeight="auto"
+        footer={footer}
+      >
+        {children}
+      </BottomSheet>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-4 z-50"
@@ -47,6 +71,7 @@ export function Modal({
           </button>
         </div>
         <div className="flex-1 min-h-0 flex flex-col">{children}</div>
+        {footer && <div className="shrink-0 pt-3">{footer}</div>}
         <div
           aria-hidden
           className="hidden sm:block pointer-events-none absolute bottom-1 right-1 text-text-muted"

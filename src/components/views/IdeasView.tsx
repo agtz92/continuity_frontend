@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Edit2, Lightbulb, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Idea } from "@/lib/types";
+import { FAB } from "../ui/FAB";
 
 export function IdeasView({
   ideas,
@@ -42,7 +43,7 @@ export function IdeasView({
           </div>
           <button
             onClick={onCapture}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-text rounded-lg font-medium text-sm flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-text rounded-lg font-medium text-sm hidden md:flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {t("capture")}
           </button>
@@ -120,6 +121,13 @@ export function IdeasView({
           </div>
         );
       })()}
+
+      <FAB
+        icon={<Plus size={24} />}
+        label={t("captureAria")}
+        onClick={onCapture}
+        className="!bg-purple-500 !text-white"
+      />
     </div>
   );
 }

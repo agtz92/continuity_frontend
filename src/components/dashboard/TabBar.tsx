@@ -39,7 +39,7 @@ export function TabBar({
 }) {
   const t = useTranslations("tabs");
   return (
-    <div className="flex gap-1 mb-6 bg-surface p-1 rounded-lg border border-border w-full sm:w-fit overflow-x-auto">
+    <div className="hidden md:flex gap-1 mb-6 bg-surface p-1 rounded-lg border border-border w-full sm:w-fit overflow-x-auto">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         return (

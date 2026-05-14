@@ -1,19 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
 import { weekdayShortLabels } from "@/lib/recurrence";
 import { todayLocalISODate } from "@/lib/date";
-import type {
-  IntervalUnit,
-  RecurrenceType,
-  Routine,
-} from "@/lib/types";
+import type { IntervalUnit, RecurrenceType, Routine } from "@/lib/types";
 
 type RoutineDraft = Partial<Routine> & { id?: string };
+
+const RECURRENCE_TYPES: RecurrenceType[] = [
+  "once",
+  "weekly_days",
+  "every_n",
+  "monthly_day",
+];
+
+const EFFORT_PRESETS = [0.25, 0.5, 1, 2] as const;
 
 export function RoutineModal({
   routine,
@@ -39,6 +44,7 @@ export function RoutineModal({
   const t = useTranslations("modals.routine");
   const tCommon = useTranslations("common");
   const tWeekday = useTranslations("recurrence.weekday.short");
+  const tTask = useTranslations("modals.task");
 
   const [title, setTitle] = useState(routine?.title ?? "");
   const [description, setDescription] = useState(routine?.description ?? "");
@@ -61,17 +67,14 @@ export function RoutineModal({
   );
   const [error, setError] = useState<string | null>(null);
 
-  const adjustEffort = (delta: number) => {
-    const current = parseFloat(effortHours);
-    const base = Number.isFinite(current) ? current : 0;
-    const next = Math.max(0, Math.round((base + delta) * 2) / 2);
-    setEffortHours(String(next));
-  };
-
   const toggleWeekday = (d: number) => {
     setWeekdays((curr) =>
       curr.includes(d) ? curr.filter((x) => x !== d) : [...curr, d].sort()
     );
+  };
+
+  const setHourChip = (h: number) => {
+    setEffortHours((current) => (current === String(h) ? "" : String(h)));
   };
 
   const handleSubmit = () => {
@@ -128,9 +131,45 @@ export function RoutineModal({
   };
 
   const weekdayLabels = weekdayShortLabels(tWeekday);
+  const currentEffort = effortHours.trim();
+  const canSubmit = title.trim().length > 0;
+
+  const recurrenceOptions: ChipOption<RecurrenceType>[] = RECURRENCE_TYPES.map(
+    (type) => ({
+      value: type,
+      label:
+        type === "once"
+          ? t("type.once")
+          : type === "weekly_days"
+          ? t("type.weeklyDays")
+          : type === "every_n"
+          ? t("type.everyN")
+          : t("type.monthlyDay"),
+    })
+  );
 
   return (
-    <Modal title={routine?.id ? t("editTitle") : t("newTitle")} onClose={onClose}>
+    <Modal
+      title={routine?.id ? t("editTitle") : t("newTitle")}
+      onClose={onClose}
+      footer={
+        <div className="flex gap-2">
+          <button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
+          >
+            {tCommon("save")}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
+          >
+            {tCommon("cancel")}
+          </button>
+        </div>
+      }
+    >
       <div className="space-y-3">
         <Field label={t("titleField")}>
           <input
@@ -152,18 +191,12 @@ export function RoutineModal({
         </Field>
 
         <Field label={t("recurrenceType")}>
-          <select
+          <ChipGroup
             value={recurrenceType}
-            onChange={(e) =>
-              setRecurrenceType(e.target.value as RecurrenceType)
-            }
-            className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="once">{t("type.once")}</option>
-            <option value="weekly_days">{t("type.weeklyDays")}</option>
-            <option value="every_n">{t("type.everyN")}</option>
-            <option value="monthly_day">{t("type.monthlyDay")}</option>
-          </select>
+            options={recurrenceOptions}
+            onChange={setRecurrenceType}
+            ariaLabel={t("recurrenceType")}
+          />
         </Field>
 
         <Field
@@ -249,7 +282,36 @@ export function RoutineModal({
         )}
 
         <Field label={t("effort")}>
-          <div className="flex items-stretch gap-2">
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              {EFFORT_PRESETS.map((h) => {
+                const active = currentEffort === String(h);
+                return (
+                  <button
+                    key={h}
+                    type="button"
+                    onClick={() => setHourChip(h)}
+                    aria-pressed={active}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                      active
+                        ? "bg-accent text-bg border-accent"
+                        : "bg-border text-text-muted border-border hover:opacity-80"
+                    }`}
+                  >
+                    {h}h
+                  </button>
+                );
+              })}
+              {currentEffort && !EFFORT_PRESETS.some((h) => String(h) === currentEffort) && (
+                <button
+                  type="button"
+                  onClick={() => setEffortHours("")}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-border text-text-muted hover:opacity-80"
+                >
+                  {tTask("chips.clear")}
+                </button>
+              )}
+            </div>
             <input
               type="number"
               step="0.5"
@@ -257,24 +319,8 @@ export function RoutineModal({
               value={effortHours}
               onChange={(e) => setEffortHours(e.target.value)}
               placeholder={t("effortPlaceholder")}
-              className="no-spinner flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
+              className="no-spinner w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
             />
-            <button
-              type="button"
-              onClick={() => adjustEffort(-0.5)}
-              className="px-3 bg-border hover:opacity-80 border border-border rounded-lg text-text-muted"
-              aria-label={t("decreaseEffortAria")}
-            >
-              <Minus size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => adjustEffort(0.5)}
-              className="px-3 bg-border hover:opacity-80 border border-border rounded-lg text-text-muted"
-              aria-label={t("increaseEffortAria")}
-            >
-              <Plus size={14} />
-            </button>
           </div>
         </Field>
 
@@ -283,21 +329,6 @@ export function RoutineModal({
             {error}
           </div>
         )}
-
-        <div className="flex gap-2 pt-2">
-          <button
-            onClick={handleSubmit}
-            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            {tCommon("save")}
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
-          >
-            {tCommon("cancel")}
-          </button>
-        </div>
       </div>
     </Modal>
   );

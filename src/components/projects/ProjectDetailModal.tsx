@@ -27,6 +27,7 @@ import {
 import { statusConfig } from "@/lib/status";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectSection } from "@/components/projects/ProjectSection";
+import { ShowMoreList } from "@/components/ui/ShowMoreList";
 import {
   InlineText,
   InlineTextarea,
@@ -241,61 +242,76 @@ export function ProjectDetailModal({
               <div className="text-sm text-text-muted italic">
                 {tCard("noTasks")}
               </div>
-            ) : (
-              <div className="space-y-1">
-                {projectTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-2 group py-1"
+            ) : (() => {
+              const pendingTasks = projectTasks.filter((tk) => !tk.done);
+              const doneTasks = projectTasks
+                .filter((tk) => tk.done)
+                .sort((a, b) =>
+                  (b.completedAt ?? "").localeCompare(a.completedAt ?? "")
+                );
+              const renderTaskRow = (task: Task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center gap-2 group py-1"
+                >
+                  <button
+                    onClick={() => onToggleTask(task)}
+                    className={`shrink-0 ${
+                      task.done
+                        ? "text-accent"
+                        : "text-text-muted hover:text-text-muted"
+                    }`}
                   >
-                    <button
-                      onClick={() => onToggleTask(task)}
-                      className={`shrink-0 ${
-                        task.done
-                          ? "text-accent"
-                          : "text-text-muted hover:text-text-muted"
-                      }`}
-                    >
-                      <CheckCircle2 size={16} />
-                    </button>
-                    <span
-                      className={`text-sm flex-1 ${
-                        task.done
-                          ? "line-through text-text-muted"
-                          : "text-text"
-                      }`}
-                    >
-                      {task.title}
+                    <CheckCircle2 size={16} />
+                  </button>
+                  <span
+                    className={`text-sm flex-1 ${
+                      task.done
+                        ? "line-through text-text-muted"
+                        : "text-text"
+                    }`}
+                  >
+                    {task.title}
+                  </span>
+                  {task.dueDate && (
+                    <span className="text-xs text-text-muted">
+                      {new Date(task.dueDate).toLocaleDateString(locale)}
                     </span>
-                    {task.dueDate && (
-                      <span className="text-xs text-text-muted">
-                        {new Date(task.dueDate).toLocaleDateString(locale)}
-                      </span>
-                    )}
-                    {task.effortHours != null && (
-                      <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                        <Clock size={10} />
-                        {task.effortHours}h
-                      </span>
-                    )}
-                    <button
-                      onClick={() => onEditTask(task)}
-                      className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                      aria-label={tCard("editTaskAria")}
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => onDeleteTask(task.id)}
-                      className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                      aria-label={tCard("deleteTaskAria")}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  )}
+                  {task.effortHours != null && (
+                    <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+                      <Clock size={10} />
+                      {task.effortHours}h
+                    </span>
+                  )}
+                  <button
+                    onClick={() => onEditTask(task)}
+                    className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                    aria-label={tCard("editTaskAria")}
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => onDeleteTask(task.id)}
+                    className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                    aria-label={tCard("deleteTaskAria")}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              );
+              return (
+                <div className="space-y-1">
+                  {pendingTasks.map(renderTaskRow)}
+                  <ShowMoreList
+                    items={doneTasks}
+                    initialCount={5}
+                    renderItem={renderTaskRow}
+                    itemKey={(task) => task.id}
+                  />
+                </div>
+              );
+            })()}
           </ProjectSection>
 
           <ProjectSection
@@ -315,25 +331,33 @@ export function ProjectDetailModal({
               <Plus size={12} /> {tCard("logUpdate")}
             </button>
             <div className="space-y-1.5">
-              {projectUpdates.map((a) => (
-                <div
-                  key={a.id}
-                  className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
-                >
-                  <span className="text-text-muted text-xs shrink-0 sm:w-24">
-                    {new Date(a.created).toLocaleDateString(locale, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                  <span className="break-words min-w-0">{a.note}</span>
-                </div>
-              ))}
-              {projectUpdates.length === 0 && (
+              {projectUpdates.length === 0 ? (
                 <div className="text-sm text-text-muted italic">
                   {tCard("noUpdates")}
                 </div>
+              ) : (
+                <ShowMoreList
+                  items={[...projectUpdates].sort((a, b) =>
+                    (b.created ?? "").localeCompare(a.created ?? "")
+                  )}
+                  initialCount={5}
+                  renderItem={(a) => (
+                    <div
+                      key={a.id}
+                      className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
+                    >
+                      <span className="text-text-muted text-xs shrink-0 sm:w-24">
+                        {new Date(a.created).toLocaleDateString(locale, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span className="break-words min-w-0">{a.note}</span>
+                    </div>
+                  )}
+                  itemKey={(a) => a.id}
+                />
               )}
             </div>
           </ProjectSection>
