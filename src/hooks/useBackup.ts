@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import {
   CREATE_PROJECT_NOTE,
   DASHBOARD_QUERY,
@@ -48,6 +49,7 @@ export function useBackup({
   lastBackup: string | null;
   refetch: () => Promise<unknown>;
 }) {
+  const t = useTranslations("modals.backup.toast");
   const [markBackupM] = useMutation(MARK_BACKUP, {
     refetchQueries: [{ query: DASHBOARD_QUERY }],
   });
@@ -80,7 +82,7 @@ export function useBackup({
     URL.revokeObjectURL(url);
     try {
       await markBackupM();
-      toast.success("Backup exported.");
+      toast.success(t("exported"));
     } catch {
       // markBackup failed but the file already downloaded — don't claim success
     }
@@ -102,11 +104,11 @@ export function useBackup({
       parsed = JSON.parse(text);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      toast.error(`Could not read backup file: ${msg}`);
+      toast.error(t("readError", { message: msg }));
       return;
     }
     if (!parsed.version || !Array.isArray(parsed.projects)) {
-      toast.error("Invalid backup file. Expected a Continuity export.");
+      toast.error(t("invalidFile"));
       return;
     }
 
@@ -211,7 +213,13 @@ export function useBackup({
       }
       await refetch();
       toast.success(
-        `Imported ${parsed.projects?.length || 0} projects, ${parsed.tasks?.length || 0} tasks, ${parsed.ideas?.length || 0} ideas, ${restoredNotes} notes, ${parsed.projectNotes?.length || 0} project notes.`
+        t("imported", {
+          projects: parsed.projects?.length || 0,
+          tasks: parsed.tasks?.length || 0,
+          ideas: parsed.ideas?.length || 0,
+          notes: restoredNotes,
+          projectNotes: parsed.projectNotes?.length || 0,
+        })
       );
     } catch {
       // errorLink already toasted whichever mutation failed; refresh state.

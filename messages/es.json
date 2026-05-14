@@ -563,6 +563,25 @@
         "thisWeek": "Esta semana",
         "thisMonth": "Este mes",
         "older": "Anteriores"
+      },
+      "entries": {
+        "untitled": "(sin título)",
+        "taskCompleted": "Completaste la tarea {title}",
+        "taskCreated": "Creaste la tarea {title}",
+        "taskDeleted": "Eliminaste la tarea {title}",
+        "taskRescheduled": "Reagendaste {title} para {date}",
+        "taskDueCleared": "Quitaste la fecha de {title}",
+        "projectCreated": "Creaste el proyecto {title}",
+        "projectDeleted": "Eliminaste el proyecto {title}",
+        "projectStatusChanged": "Moviste {title}: {previous} → {next}",
+        "projectDueSet": "Pusiste la fecha de {title} a {date}",
+        "projectDueCleared": "Quitaste la fecha de {title}",
+        "ideaCreated": "Capturaste la idea {title}",
+        "ideaDeleted": "Descartaste la idea {title}",
+        "ideaPromoted": "Promoviste {title} a proyecto",
+        "routineCreated": "Creaste la rutina {title}",
+        "routineCompleted": "Completaste la rutina {title}",
+        "routineDeleted": "Eliminaste la rutina {title}"
       }
     }
   },
@@ -733,7 +752,13 @@
       "restoreIntro": "Selecciona un JSON exportado previamente. Elige cómo manejar la información actual:",
       "importMerge": "Importar y mezclar con la información actual",
       "importReplace": "Importar y reemplazar todo",
-      "replaceConfirm": "Esto BORRARÁ toda la información actual y la reemplazará con el respaldo. ¿Continuar?"
+      "replaceConfirm": "Esto BORRARÁ toda la información actual y la reemplazará con el respaldo. ¿Continuar?",
+      "toast": {
+        "exported": "Respaldo exportado",
+        "invalidFile": "Archivo inválido. Se esperaba un export de Continuity.",
+        "readError": "No se pudo leer el archivo de respaldo: {message}",
+        "imported": "Importados {projects} proyectos, {tasks} tareas, {ideas} ideas, {notes} notas, {projectNotes} notas de proyecto."
+      }
     }
   },
   "avatars": {
@@ -751,6 +776,14 @@
       "hoshi": "Hoshi",
       "pip": "Pip",
       "tetsu": "Tetsu"
+    }
+  },
+  "admin": {
+    "toast": {
+      "statusUpdated": "Estado actualizado",
+      "postDeleted": "Entrada eliminada",
+      "pageDeleted": "Página eliminada",
+      "imageUploadError": "Error al subir imagen"
     }
   }
 }

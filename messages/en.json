@@ -563,6 +563,25 @@
         "thisWeek": "This week",
         "thisMonth": "This month",
         "older": "Older"
+      },
+      "entries": {
+        "untitled": "(untitled)",
+        "taskCompleted": "Completed task {title}",
+        "taskCreated": "Created task {title}",
+        "taskDeleted": "Deleted task {title}",
+        "taskRescheduled": "Rescheduled {title} to {date}",
+        "taskDueCleared": "Cleared due date on {title}",
+        "projectCreated": "Created project {title}",
+        "projectDeleted": "Deleted project {title}",
+        "projectStatusChanged": "Moved {title}: {previous} → {next}",
+        "projectDueSet": "Set due date of {title} to {date}",
+        "projectDueCleared": "Cleared due date on {title}",
+        "ideaCreated": "Captured idea {title}",
+        "ideaDeleted": "Discarded idea {title}",
+        "ideaPromoted": "Promoted {title} → project",
+        "routineCreated": "Created routine {title}",
+        "routineCompleted": "Completed routine {title}",
+        "routineDeleted": "Deleted routine {title}"
       }
     }
   },
@@ -733,7 +752,13 @@
       "restoreIntro": "Select a previously exported JSON file. Choose how to handle existing data:",
       "importMerge": "Import & merge with current data",
       "importReplace": "Import & replace all data",
-      "replaceConfirm": "This will DELETE all current data and replace it with the backup. Continue?"
+      "replaceConfirm": "This will DELETE all current data and replace it with the backup. Continue?",
+      "toast": {
+        "exported": "Backup exported",
+        "invalidFile": "Invalid file. Expected a Continuity export.",
+        "readError": "Could not read backup file: {message}",
+        "imported": "Imported {projects} projects, {tasks} tasks, {ideas} ideas, {notes} notes, {projectNotes} project notes."
+      }
     }
   },
   "avatars": {
@@ -751,6 +776,14 @@
       "hoshi": "Hoshi",
       "pip": "Pip",
       "tetsu": "Tetsu"
+    }
+  },
+  "admin": {
+    "toast": {
+      "statusUpdated": "Status updated",
+      "postDeleted": "Post deleted",
+      "pageDeleted": "Page deleted",
+      "imageUploadError": "Failed to upload image"
     }
   }
 }

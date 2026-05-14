@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import {
   ADMIN_MEDIA_REGISTER,
   ADMIN_PAGE_DELETE,
@@ -38,6 +39,8 @@ export default function EditPagePage() {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
   const router = useRouter();
+  const tCommon = useTranslations("common");
+  const tToast = useTranslations("admin.toast");
 
   const { data, loading, error, refetch } = useQuery<{
     adminPage: PageFields;
@@ -73,7 +76,7 @@ export default function EditPagePage() {
 
   const [update, { loading: saving }] = useMutation(ADMIN_PAGE_UPDATE, {
     onCompleted: (res) => {
-      toast.success("Guardado");
+      toast.success(tCommon("saved"));
       const updatedPath = res?.adminPageUpdate?.path;
       if (original?.status === "published") {
         revalidateCmsCache({ kind: "page", path: updatedPath });
@@ -83,7 +86,7 @@ export default function EditPagePage() {
   });
   const [publish, { loading: publishing }] = useMutation(ADMIN_PAGE_PUBLISH, {
     onCompleted: (res) => {
-      toast.success("Estado actualizado");
+      toast.success(tToast("statusUpdated"));
       revalidateCmsCache({
         kind: "page",
         path: res?.adminPagePublish?.path,
@@ -94,7 +97,7 @@ export default function EditPagePage() {
   });
   const [del, { loading: deleting }] = useMutation(ADMIN_PAGE_DELETE, {
     onCompleted: () => {
-      toast.success("Página eliminada");
+      toast.success(tToast("pageDeleted"));
       revalidateCmsCache({ kind: "page", path: original?.path });
       router.push("/admin/content/pages");
     },
@@ -148,7 +151,7 @@ export default function EditPagePage() {
   const handleUploadImage = async (file: File): Promise<string | null> => {
     const uploaded = await uploadCmsImage(file);
     if (!uploaded) {
-      toast.error("Error al subir imagen");
+      toast.error(tToast("imageUploadError"));
       return null;
     }
     try {

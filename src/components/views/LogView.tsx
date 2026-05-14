@@ -86,43 +86,61 @@ function formatDate(iso: string | null, locale: string) {
   });
 }
 
-function describe(a: Activity, locale: string): string {
-  const t = a.entityTitle || "(untitled)";
+type DescribeArgs = {
+  activity: Activity;
+  locale: string;
+  tEntry: (key: string, params?: Record<string, string>) => string;
+  tStatus: (key: string) => string;
+};
+
+/** Renders an activity into a human-readable, localized line. */
+function describe({ activity: a, locale, tEntry, tStatus }: DescribeArgs): string {
+  const title = a.entityTitle || tEntry("untitled");
   switch (a.kind) {
     case "note":
       return a.note;
     case "task_completed":
-      return `Completed task ${t}`;
+      return tEntry("taskCompleted", { title });
     case "task_created":
-      return `Created task ${t}`;
+      return tEntry("taskCreated", { title });
     case "task_deleted":
-      return `Deleted task ${t}`;
+      return tEntry("taskDeleted", { title });
     case "task_due_date_changed":
       return a.newValue
-        ? `Rescheduled ${t} to ${formatDate(a.newValue, locale)}`
-        : `Cleared due date on ${t}`;
+        ? tEntry("taskRescheduled", {
+            title,
+            date: formatDate(a.newValue, locale),
+          })
+        : tEntry("taskDueCleared", { title });
     case "project_created":
-      return `Created project ${t}`;
+      return tEntry("projectCreated", { title });
     case "project_deleted":
-      return `Deleted project ${t}`;
+      return tEntry("projectDeleted", { title });
     case "project_status_changed":
-      return `Moved ${t}: ${a.previousValue} → ${a.newValue}`;
+      return tEntry("projectStatusChanged", {
+        title,
+        previous: a.previousValue ? tStatus(a.previousValue) : "",
+        next: a.newValue ? tStatus(a.newValue) : "",
+      });
     case "project_due_date_changed":
       return a.newValue
-        ? `Set ${t} due date to ${formatDate(a.newValue, locale)}`
-        : `Cleared due date on ${t}`;
+        ? tEntry("projectDueSet", {
+            title,
+            date: formatDate(a.newValue, locale),
+          })
+        : tEntry("projectDueCleared", { title });
     case "idea_created":
-      return `Captured idea ${t}`;
+      return tEntry("ideaCreated", { title });
     case "idea_deleted":
-      return `Discarded idea ${t}`;
+      return tEntry("ideaDeleted", { title });
     case "idea_promoted":
-      return `Promoted idea ${t} → project`;
+      return tEntry("ideaPromoted", { title });
     case "routine_created":
-      return `Created routine ${t}`;
+      return tEntry("routineCreated", { title });
     case "routine_completed":
-      return `Completed routine ${t}`;
+      return tEntry("routineCompleted", { title });
     case "routine_deleted":
-      return `Deleted routine ${t}`;
+      return tEntry("routineDeleted", { title });
     default:
       return a.entityTitle;
   }
@@ -152,6 +170,8 @@ export function LogView({
   const t = useTranslations("views.log");
   const tBuckets = useTranslations("views.log.buckets");
   const tFilters = useTranslations("views.log.filters");
+  const tEntry = useTranslations("views.log.entries");
+  const tStatus = useTranslations("status");
   const locale = useLocale();
   const [logSearch, setLogSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -295,7 +315,7 @@ export function LogView({
                             </div>
                           )}
                           <div className="text-sm text-text break-words">
-                            {describe(a, locale)}
+                            {describe({ activity: a, locale, tEntry, tStatus })}
                           </div>
                         </div>
                         {isNote && (

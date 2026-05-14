@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import {
   ADMIN_BLOG_POST_DELETE,
   ADMIN_BLOG_POST_PUBLISH,
@@ -38,6 +39,8 @@ export default function EditBlogPostPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
   const router = useRouter();
+  const tCommon = useTranslations("common");
+  const tToast = useTranslations("admin.toast");
 
   const { data, loading, error, refetch } = useQuery<{
     adminBlogPost: PostFields;
@@ -81,7 +84,7 @@ export default function EditBlogPostPage() {
 
   const [update, { loading: saving }] = useMutation(ADMIN_BLOG_POST_UPDATE, {
     onCompleted: (res) => {
-      toast.success("Guardado");
+      toast.success(tCommon("saved"));
       const slug = res?.adminBlogPostUpdate?.slug;
       if (original?.status === "published") {
         revalidateCmsCache({ kind: "post", slug });
@@ -93,7 +96,7 @@ export default function EditBlogPostPage() {
     ADMIN_BLOG_POST_PUBLISH,
     {
       onCompleted: (res) => {
-        toast.success("Estado actualizado");
+        toast.success(tToast("statusUpdated"));
         revalidateCmsCache({
           kind: "post",
           slug: res?.adminBlogPostPublish?.slug,
@@ -107,7 +110,7 @@ export default function EditBlogPostPage() {
     ADMIN_BLOG_POST_DELETE,
     {
       onCompleted: () => {
-        toast.success("Entrada eliminada");
+        toast.success(tToast("postDeleted"));
         revalidateCmsCache({ kind: "post", slug: original?.slug });
         router.push("/admin/content/posts");
       },
@@ -159,7 +162,7 @@ export default function EditBlogPostPage() {
   const handleUploadImage = async (file: File): Promise<string | null> => {
     const uploaded = await uploadCmsImage(file);
     if (!uploaded) {
-      toast.error("Error al subir imagen");
+      toast.error(tToast("imageUploadError"));
       return null;
     }
     try {
