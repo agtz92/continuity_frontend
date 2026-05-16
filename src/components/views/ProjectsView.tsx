@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   CheckCircle2,
@@ -104,7 +104,7 @@ export function ProjectsView({
   const [projectSearch, setProjectSearch] = useState("");
   const [projectStatusFilter, setProjectStatusFilter] = useState<
     "all" | ProjectStatus
-  >("active");
+  >("all");
   const [projectCategoryFilter, setProjectCategoryFilter] = useState<string | null>(
     null
   );
@@ -157,6 +157,25 @@ export function ProjectsView({
         matchesCategoryWith(p, draft.categoryId) &&
         matchesDueWith(p, draft.due)
     ).length;
+
+  // Safety net for deep links / cross-view jumps: if a project gets selected
+  // (e.g. from TodayView via onJumpToProject) but the current filters would
+  // hide it, reset filters so the user actually sees what they navigated to.
+  useEffect(() => {
+    if (!selectedProject) return;
+    const visible =
+      matchesStatusWith(selectedProject, projectStatusFilter) &&
+      matchesPriorityWith(selectedProject, projectPriorityFilter) &&
+      matchesCategoryWith(selectedProject, projectCategoryFilter) &&
+      matchesDueWith(selectedProject, projectDueFilter);
+    if (!visible) {
+      setProjectStatusFilter("all");
+      setProjectPriorityFilter("all");
+      setProjectCategoryFilter(null);
+      setProjectDueFilter("all");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProject?.id]);
 
   const filterDraft: ProjectFilterDraft = {
     status: projectStatusFilter,

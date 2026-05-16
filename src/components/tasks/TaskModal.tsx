@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 import { todayLocalISODate, toLocalISO } from "@/lib/date";
 import type { Project, Task } from "@/lib/types";
 
@@ -45,6 +46,7 @@ export function TaskModal({
 }) {
   const t = useTranslations("modals.task");
   const tCommon = useTranslations("common");
+  const autoFocus = useAutoFocus();
 
   const isoToInputDate = (iso?: string | null) => {
     if (!iso) return "";
@@ -124,7 +126,8 @@ export function TaskModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            autoFocus
+            autoFocus={autoFocus}
+            enterKeyHint="next"
           />
         </Field>
         <Field label={t("project")}>

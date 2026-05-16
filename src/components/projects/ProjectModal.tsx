@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 import type { Category, Priority, Project, ProjectStatus } from "@/lib/types";
 import {
   CATEGORY_COLORS,
@@ -52,6 +53,7 @@ export function ProjectModal({
   const tStatus = useTranslations("status");
   const tPriority = useTranslations("priority");
   const tTask = useTranslations("modals.task");
+  const autoFocus = useAutoFocus();
 
   const isoToInputDate = (iso?: string | null) => {
     if (!iso) return "";
@@ -148,7 +150,8 @@ export function ProjectModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            autoFocus
+            autoFocus={autoFocus}
+            enterKeyHint="next"
           />
         </Field>
         <Field label={t("why")}>
@@ -231,7 +234,8 @@ export function ProjectModal({
                 onChange={(e) => setNewCatName(e.target.value)}
                 placeholder={t("newCategoryName")}
                 className="w-full bg-border border border-border rounded-md px-2 py-1.5 text-sm"
-                autoFocus
+                autoFocus={autoFocus}
+                enterKeyHint="done"
               />
               <div className="flex flex-wrap gap-1.5">
                 {CATEGORY_COLORS.map((c) => {

@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { ADMIN_PAGES_QUERY, ADMIN_PAGE_CREATE } from "@/lib/graphql";
 import { toast } from "@/lib/toast";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 
 type Row = {
   id: string;
@@ -22,6 +23,7 @@ const EMPTY_DOC = { type: "doc", content: [{ type: "paragraph" }] };
 
 export default function AdminPagesPage() {
   const router = useRouter();
+  const autoFocus = useAutoFocus();
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [path, setPath] = useState("");
@@ -130,7 +132,8 @@ export default function AdminPagesPage() {
               <div>
                 <label className="mb-1 block text-xs text-text-muted">Título</label>
                 <input
-                  autoFocus
+                  autoFocus={autoFocus}
+                  enterKeyHint="next"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full rounded border border-border bg-bg px-3 py-2 text-sm text-text"

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 
 export function NoteModal({
   projectName,
@@ -20,6 +21,7 @@ export function NoteModal({
 }) {
   const t = useTranslations("modals.update");
   const tCommon = useTranslations("common");
+  const autoFocus = useAutoFocus();
   const [note, setNote] = useState(initialNote);
 
   const handleSubmit = () => {
@@ -39,7 +41,7 @@ export function NoteModal({
             onChange={(e) => setNote(e.target.value)}
             placeholder={t("placeholder")}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y flex-1 min-h-[80px]"
-            autoFocus
+            autoFocus={autoFocus}
           />
         </Field>
         <div className="flex gap-2 pt-2 shrink-0">

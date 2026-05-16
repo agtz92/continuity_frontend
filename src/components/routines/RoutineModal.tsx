@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 import { weekdayShortLabels } from "@/lib/recurrence";
 import { todayLocalISODate } from "@/lib/date";
 import type { IntervalUnit, RecurrenceType, Routine } from "@/lib/types";
@@ -45,6 +46,7 @@ export function RoutineModal({
   const tCommon = useTranslations("common");
   const tWeekday = useTranslations("recurrence.weekday.short");
   const tTask = useTranslations("modals.task");
+  const autoFocus = useAutoFocus();
 
   const [title, setTitle] = useState(routine?.title ?? "");
   const [description, setDescription] = useState(routine?.description ?? "");
@@ -176,7 +178,8 @@ export function RoutineModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            autoFocus
+            autoFocus={autoFocus}
+            enterKeyHint="next"
           />
         </Field>
 

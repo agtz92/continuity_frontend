@@ -5,6 +5,7 @@ import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ProjectNote } from "@/lib/types";
 import { useProjectNoteMutations } from "@/hooks/useProjectNoteMutations";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 
 /**
  * List of notes attached to a project + inline editor for new/existing notes.
@@ -218,6 +219,7 @@ function NoteEditor({
   tCommon: ReturnType<typeof useTranslations>;
   t: ReturnType<typeof useTranslations>;
 }) {
+  const autoFocus = useAutoFocus();
   return (
     <div
       className="bg-bg/70 border border-border rounded-lg p-3 space-y-2"
@@ -228,7 +230,8 @@ function NoteEditor({
         onChange={(e) => onTitleChange(e.target.value)}
         placeholder={t("titlePlaceholder")}
         className="w-full bg-transparent border-0 px-0 py-0 text-sm font-medium text-text placeholder:text-text-muted focus:outline-none focus:ring-0"
-        autoFocus
+        autoFocus={autoFocus}
+        enterKeyHint="next"
       />
       <textarea
         value={body}

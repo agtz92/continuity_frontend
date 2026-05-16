@@ -45,10 +45,24 @@ export function BottomSheet({
   } | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setViewportHeight(vv.height);
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,7 +113,30 @@ export function BottomSheet({
   };
 
   const heightClass =
-    initialHeight === "auto" ? "max-h-[95vh]" : HEIGHT_CLASS[initialHeight];
+    viewportHeight !== null
+      ? ""
+      : initialHeight === "auto"
+        ? "max-h-[95vh]"
+        : HEIGHT_CLASS[initialHeight];
+
+  const heightStyle: React.CSSProperties = {};
+  if (viewportHeight !== null) {
+    if (initialHeight === "auto") {
+      heightStyle.maxHeight = `${Math.max(0, viewportHeight - 8)}px`;
+    } else {
+      const fraction = Number(initialHeight) / 100;
+      heightStyle.height = `${viewportHeight * fraction}px`;
+      heightStyle.maxHeight = `${Math.max(0, viewportHeight - 8)}px`;
+    }
+  }
+
+  const handleContentFocus = (e: React.FocusEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (!target.matches("input, textarea, select, [contenteditable]")) return;
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+  };
 
   return (
     <div
@@ -123,6 +160,7 @@ export function BottomSheet({
             : "translateY(100%)",
           transition: dragOffset === 0 ? "transform 250ms ease-out" : "none",
           paddingBottom: "env(safe-area-inset-bottom)",
+          ...heightStyle,
         }}
       >
         <div
@@ -151,7 +189,10 @@ export function BottomSheet({
           </div>
         )}
 
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto px-4 pb-4"
+          onFocus={handleContentFocus}
+        >
           {children}
         </div>
 

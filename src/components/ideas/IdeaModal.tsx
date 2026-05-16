@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 import type { Idea } from "@/lib/types";
 
 export function IdeaModal({
@@ -22,6 +23,7 @@ export function IdeaModal({
 }) {
   const t = useTranslations("modals.idea");
   const tCommon = useTranslations("common");
+  const autoFocus = useAutoFocus();
   const [title, setTitle] = useState(idea?.title ?? "");
   const [description, setDescription] = useState(idea?.description ?? "");
   const [why, setWhy] = useState(idea?.why ?? "");
@@ -70,7 +72,8 @@ export function IdeaModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            autoFocus
+            autoFocus={autoFocus}
+            enterKeyHint="next"
           />
         </Field>
         <Field label={t("why")}>

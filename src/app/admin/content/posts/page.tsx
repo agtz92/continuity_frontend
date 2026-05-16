@@ -9,6 +9,7 @@ import {
 } from "@/lib/graphql";
 import { toast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
+import { useAutoFocus } from "@/hooks/useAutoFocus";
 
 type Row = {
   id: string;
@@ -44,6 +45,7 @@ function slugify(s: string): string {
 
 export default function AdminPostsPage() {
   const router = useRouter();
+  const autoFocus = useAutoFocus();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<string>("");
   const [search, setSearch] = useState("");
@@ -192,7 +194,8 @@ export default function AdminPostsPage() {
               El slug y el contenido se pueden editar después.
             </p>
             <input
-              autoFocus
+              autoFocus={autoFocus}
+              enterKeyHint="done"
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
               placeholder="Título"
