@@ -191,6 +191,8 @@
       "day": "Día",
       "hour": "Hora (local)",
       "timezone": "Zona horaria (IANA)",
+      "timezoneSearchPlaceholder": "Buscar zona horaria...",
+      "timezoneNoMatches": "Sin resultados",
       "dailyDigest": "Pendientes diarios",
       "dailyDigestToggle": "Enviarme los pendientes de hoy",
       "dailyDigestHint": "Llega cada día a la hora que elijas con tus tareas vencidas y las que vencen hoy.",

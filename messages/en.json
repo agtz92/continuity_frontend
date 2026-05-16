@@ -191,6 +191,8 @@
       "day": "Day",
       "hour": "Hour (local)",
       "timezone": "Timezone (IANA)",
+      "timezoneSearchPlaceholder": "Search timezone...",
+      "timezoneNoMatches": "No matches",
       "dailyDigest": "Daily pending",
       "dailyDigestToggle": "Send me today's pending tasks",
       "dailyDigestHint": "Delivered every day at the hour you pick, with overdue tasks and tasks due today.",

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { detectBrowserTimezone } from "@/lib/timezones";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,6 +31,16 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
         return;
+      }
+      if (mode === "signup") {
+        try {
+          localStorage.setItem(
+            "continuity:pending_timezone",
+            detectBrowserTimezone()
+          );
+        } catch {
+          // private mode / localStorage disabled — silently skip
+        }
       }
       router.replace("/");
     } finally {

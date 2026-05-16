@@ -12,6 +12,7 @@ import {
   UPDATE_NOTIFICATION_SETTINGS,
 } from "@/lib/graphql";
 import { toast } from "@/lib/toast";
+import { TimezoneSelect } from "./TimezoneSelect";
 
 type Channel = "telegram" | "whatsapp";
 
@@ -195,12 +196,12 @@ export function NotificationSettings() {
           </Field>
         </div>
         <Field label={t("timezone")}>
-          <input
+          <TimezoneSelect
             value={settings.timezone}
-            onChange={(e) => onSave({ timezone: e.target.value })}
-            className="bg-surface border border-border rounded-lg px-3 py-2 text-sm w-full"
+            onChange={(tz) => onSave({ timezone: tz })}
             disabled={saving}
-            placeholder="America/Mexico_City"
+            searchPlaceholder={t("timezoneSearchPlaceholder")}
+            emptyLabel={t("timezoneNoMatches")}
           />
         </Field>
       </Section>
