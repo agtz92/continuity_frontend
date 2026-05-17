@@ -1016,6 +1016,12 @@ export const GOOGLE_TASKS_CONNECTION_QUERY = gql`
   }
 `;
 
+export const GOOGLE_TASKS_AUTH_URL = gql`
+  mutation GoogleTasksAuthUrl($returnTo: String!) {
+    googleTasksAuthUrl(returnTo: $returnTo)
+  }
+`;
+
 export const GOOGLE_TASK_LISTS_QUERY = gql`
   query GoogleTaskLists {
     googleTaskLists {

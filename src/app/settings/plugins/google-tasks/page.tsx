@@ -11,6 +11,7 @@ import { toast } from "@/lib/toast";
 import {
   DASHBOARD_QUERY,
   DISCONNECT_GOOGLE_TASKS,
+  GOOGLE_TASKS_AUTH_URL,
   GOOGLE_TASKS_CONNECTION_QUERY,
   GOOGLE_TASK_LISTS_QUERY,
   IMPORT_GOOGLE_TASKS,
@@ -34,20 +35,6 @@ type MappingChoice =
   | { kind: "none" }
   | { kind: "existing"; projectId: string }
   | { kind: "new"; name: string };
-
-function deriveBackendBaseUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_GRAPHQL_URL;
-  if (explicit) return explicit.replace(/\/graphql\/?$/, "");
-  if (typeof window !== "undefined") {
-    const isLocal =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-    return isLocal
-      ? "http://localhost:8000"
-      : "https://continuity-backend.onrender.com";
-  }
-  return "";
-}
 
 export default function GoogleTasksPluginPage() {
   const t = useTranslations("settings.plugins.googleTasks");
@@ -89,10 +76,23 @@ export default function GoogleTasksPluginPage() {
 
   const lists = listsQuery.data?.googleTaskLists ?? [];
 
-  const handleConnect = () => {
-    const base = deriveBackendBaseUrl();
-    const ret = encodeURIComponent("/settings/plugins/google-tasks");
-    window.location.href = `${base}/api/google/oauth/start?return=${ret}`;
+  const [authUrlMutation, { loading: connecting }] = useMutation<{
+    googleTasksAuthUrl: string;
+  }>(GOOGLE_TASKS_AUTH_URL);
+
+  const handleConnect = async () => {
+    try {
+      const res = await authUrlMutation({
+        variables: { returnTo: "/settings/plugins/google-tasks" },
+      });
+      const url = res.data?.googleTasksAuthUrl;
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(t("errorConnect", { error: msg }));
+    }
   };
 
   const [importMutation, { loading: importing }] = useMutation(
@@ -207,7 +207,8 @@ export default function GoogleTasksPluginPage() {
             <button
               type="button"
               onClick={handleConnect}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-bg rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+              disabled={connecting}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-bg rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               <ExternalLink size={14} />
               {t("connectButton")}
