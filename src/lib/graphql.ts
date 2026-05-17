@@ -1005,3 +1005,38 @@ export const UPDATE_PROFILE = gql`
     }
   }
 `;
+
+export const GOOGLE_TASKS_CONNECTION_QUERY = gql`
+  query GoogleTasksConnection {
+    googleTasksConnection {
+      connected
+      email
+      connectedAt
+    }
+  }
+`;
+
+export const GOOGLE_TASK_LISTS_QUERY = gql`
+  query GoogleTaskLists {
+    googleTaskLists {
+      id
+      title
+    }
+  }
+`;
+
+export const IMPORT_GOOGLE_TASKS = gql`
+  mutation ImportGoogleTasks($mappings: [GoogleTasksImportMapping!]!) {
+    importGoogleTasks(mappings: $mappings) {
+      imported
+      skipped
+      createdProjects
+    }
+  }
+`;
+
+export const DISCONNECT_GOOGLE_TASKS = gql`
+  mutation DisconnectGoogleTasks {
+    disconnectGoogleTasks
+  }
+`;

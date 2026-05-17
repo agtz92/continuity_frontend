@@ -178,7 +178,33 @@
     "plugins": {
       "title": "Plugins",
       "description": "Connect Continuity with the tools you already use.",
-      "comingSoonBody": "Integrations like GitHub, Linear, Notion, and Slack will live here."
+      "comingSoonBody": "Integrations like GitHub, Linear, Notion, and Slack will live here.",
+      "statusConnected": "Connected",
+      "statusNotConnected": "Not connected",
+      "googleTasks": {
+        "name": "Google Tasks",
+        "shortDescription": "Import your tasks from Google Tasks.",
+        "title": "Google Tasks",
+        "description": "Bring your existing Google Tasks into Continuity. We'll only read your tasks — nothing is sent back to Google.",
+        "notConnectedBody": "Connect your Google account to choose which task lists to import.",
+        "connectButton": "Connect Google Tasks",
+        "connectedAs": "Connected as {email}",
+        "disconnectButton": "Disconnect",
+        "loadingLists": "Loading your task lists…",
+        "noLists": "No task lists were found in this Google account.",
+        "listColumn": "Google Task List",
+        "projectColumn": "Continuity Project",
+        "projectNone": "— Don't assign to a project",
+        "projectExisting": "Existing projects",
+        "projectNew": "Create new project: {name}",
+        "newProjectPlaceholder": "Type a name to create a new project",
+        "importButton": "Import tasks",
+        "importing": "Importing…",
+        "importSuccess": "Imported {imported} tasks. {skipped} skipped (already imported).",
+        "importSuccessWithProjects": "Imported {imported} tasks. Created project(s): {projects}.",
+        "errorConnect": "Could not start Google sign-in: {error}",
+        "errorImport": "Import failed: {error}"
+      }
     },
     "notifications": {
       "title": "Notifications",
