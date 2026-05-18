@@ -91,3 +91,88 @@ function probeImageDimensions(
     img.src = url;
   });
 }
+
+function probeVideoDimensions(
+  file: File
+): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      const dims = { width: video.videoWidth, height: video.videoHeight };
+      URL.revokeObjectURL(url);
+      resolve(dims);
+    };
+    video.onerror = (e) => {
+      URL.revokeObjectURL(url);
+      reject(e);
+    };
+    video.src = url;
+  });
+}
+
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50MB cap for direct uploads
+
+/**
+ * Upload an image or video to the `cms-media` bucket. Mirrors
+ * `uploadCmsImage` but also accepts videos, places them under a
+ * `videos/` prefix, probes dimensions via the appropriate element,
+ * and enforces a size cap for direct (browser) uploads.
+ */
+export async function uploadCmsMedia(file: File): Promise<{
+  publicUrl: string;
+  storagePath: string;
+  mimeType: string;
+  sizeBytes: number;
+  width?: number;
+  height?: number;
+} | null> {
+  const isVideo = file.type.startsWith("video/");
+  if (isVideo && file.size > MAX_VIDEO_BYTES) {
+    console.error("[cmsStorage] video exceeds 50MB cap");
+    return null;
+  }
+
+  const now = new Date();
+  const folder = `${isVideo ? "videos/" : ""}${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  const path = `${folder}/${now.getTime()}-${slugifyFilename(file.name)}`;
+
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+    cacheControl: "31536000",
+    upsert: false,
+  });
+  if (error) {
+    console.error("[cmsStorage] upload error", error);
+    return null;
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(BUCKET).getPublicUrl(path);
+
+  let width: number | undefined;
+  let height: number | undefined;
+  if (file.type.startsWith("image/")) {
+    const probed = await probeImageDimensions(file).catch(() => null);
+    if (probed) {
+      width = probed.width;
+      height = probed.height;
+    }
+  } else if (isVideo) {
+    const probed = await probeVideoDimensions(file).catch(() => null);
+    if (probed) {
+      width = probed.width;
+      height = probed.height;
+    }
+  }
+
+  return {
+    publicUrl,
+    storagePath: path,
+    mimeType: file.type,
+    sizeBytes: file.size,
+    width,
+    height,
+  };
+}

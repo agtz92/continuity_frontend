@@ -43,10 +43,28 @@ export async function POST(request: Request) {
       }
       break;
     }
+    case "resource": {
+      tagsHit.push(PUBLIC_CMS_TAGS.helpResources);
+      tagsHit.push(PUBLIC_CMS_TAGS.helpCategories);
+      if (body.slug) {
+        tagsHit.push(PUBLIC_CMS_TAGS.helpResource(body.slug));
+      }
+      break;
+    }
+    case "category": {
+      tagsHit.push(PUBLIC_CMS_TAGS.helpCategories);
+      tagsHit.push(PUBLIC_CMS_TAGS.helpResources);
+      if (body.slug) {
+        tagsHit.push(PUBLIC_CMS_TAGS.helpCategoryResources(body.slug));
+      }
+      break;
+    }
     case "all": {
       tagsHit.push(
         PUBLIC_CMS_TAGS.blogPosts,
-        PUBLIC_CMS_TAGS.navPages
+        PUBLIC_CMS_TAGS.navPages,
+        PUBLIC_CMS_TAGS.helpCategories,
+        PUBLIC_CMS_TAGS.helpResources,
       );
       break;
     }

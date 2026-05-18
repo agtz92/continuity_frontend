@@ -13,7 +13,7 @@ import {
   ADMIN_PAGE_UPDATE,
 } from "@/lib/graphql";
 import { RichEditor } from "@/components/admin/RichEditor";
-import { uploadCmsImage } from "@/lib/cmsStorage";
+import { uploadCmsImage, uploadCmsMedia } from "@/lib/cmsStorage";
 import { revalidateCmsCache } from "@/lib/revalidateCms";
 import { toast } from "@/lib/toast";
 
@@ -174,6 +174,32 @@ export default function EditPagePage() {
     return uploaded.publicUrl;
   };
 
+  const handleUploadMedia = async (file: File) => {
+    const uploaded = await uploadCmsMedia(file);
+    if (!uploaded) {
+      toast.error(tToast("imageUploadError"));
+      return null;
+    }
+    try {
+      await registerMedia({
+        variables: {
+          data: {
+            storagePath: uploaded.storagePath,
+            publicUrl: uploaded.publicUrl,
+            originalFilename: file.name,
+            mimeType: uploaded.mimeType,
+            sizeBytes: uploaded.sizeBytes,
+            width: uploaded.width ?? null,
+            height: uploaded.height ?? null,
+          },
+        },
+      });
+    } catch {
+      /* best-effort */
+    }
+    return uploaded;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -227,6 +253,7 @@ export default function EditPagePage() {
                 initialContent={contentJson}
                 onChange={setContentJson}
                 onUploadImage={handleUploadImage}
+                onUploadMedia={handleUploadMedia}
               />
             )}
           </Section>

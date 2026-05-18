@@ -312,6 +312,136 @@ export const ADMIN_MEDIA_DELETE = gql`
   }
 `;
 
+const ADMIN_HELP_CATEGORY_FIELDS = `
+  id
+  slug
+  name
+  description
+  icon
+  order
+  locale
+  createdAt
+  updatedAt
+  resourceCount
+`;
+
+const ADMIN_HELP_RESOURCE_FIELDS = `
+  id
+  slug
+  title
+  excerpt
+  contentJson
+  contentHtml
+  coverImageUrl
+  categoryId
+  categorySlug
+  categoryName
+  status
+  publishedAt
+  tags
+  seoTitle
+  seoDescription
+  locale
+  order
+  createdAt
+  updatedAt
+`;
+
+export const ADMIN_HELP_CATEGORIES_QUERY = gql`
+  query AdminHelpCategories($locale: String) {
+    adminHelpCategories(locale: $locale) {
+      ${ADMIN_HELP_CATEGORY_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_CATEGORY_CREATE = gql`
+  mutation AdminHelpCategoryCreate($data: HelpCategoryInput!) {
+    adminHelpCategoryCreate(data: $data) {
+      ${ADMIN_HELP_CATEGORY_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_CATEGORY_UPDATE = gql`
+  mutation AdminHelpCategoryUpdate($id: ID!, $data: HelpCategoryInput!) {
+    adminHelpCategoryUpdate(id: $id, data: $data) {
+      ${ADMIN_HELP_CATEGORY_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_CATEGORY_DELETE = gql`
+  mutation AdminHelpCategoryDelete($id: ID!) {
+    adminHelpCategoryDelete(id: $id)
+  }
+`;
+
+export const ADMIN_HELP_RESOURCES_QUERY = gql`
+  query AdminHelpResources(
+    $page: Int
+    $perPage: Int
+    $status: String
+    $locale: String
+    $categoryId: ID
+    $search: String
+  ) {
+    adminHelpResources(
+      page: $page
+      perPage: $perPage
+      status: $status
+      locale: $locale
+      categoryId: $categoryId
+      search: $search
+    ) {
+      resources {
+        ${ADMIN_HELP_RESOURCE_FIELDS}
+      }
+      page
+      perPage
+      hasNext
+    }
+  }
+`;
+
+export const ADMIN_HELP_RESOURCE_QUERY = gql`
+  query AdminHelpResource($id: ID!) {
+    adminHelpResource(id: $id) {
+      ${ADMIN_HELP_RESOURCE_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_RESOURCE_CREATE = gql`
+  mutation AdminHelpResourceCreate($data: HelpResourceInput!) {
+    adminHelpResourceCreate(data: $data) {
+      ${ADMIN_HELP_RESOURCE_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_RESOURCE_UPDATE = gql`
+  mutation AdminHelpResourceUpdate($id: ID!, $data: HelpResourceInput!) {
+    adminHelpResourceUpdate(id: $id, data: $data) {
+      ${ADMIN_HELP_RESOURCE_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_RESOURCE_PUBLISH = gql`
+  mutation AdminHelpResourcePublish($id: ID!, $published: Boolean!) {
+    adminHelpResourcePublish(id: $id, published: $published) {
+      ${ADMIN_HELP_RESOURCE_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_HELP_RESOURCE_DELETE = gql`
+  mutation AdminHelpResourceDelete($id: ID!) {
+    adminHelpResourceDelete(id: $id)
+  }
+`;
+
 export const ADMIN_NOTIFICATION_JOBS_QUERY = gql`
   query AdminNotificationJobs(
     $page: Int

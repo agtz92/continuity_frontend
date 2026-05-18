@@ -815,6 +815,11 @@
       "statusUpdated": "Estado actualizado",
       "postDeleted": "Entrada eliminada",
       "pageDeleted": "Página eliminada",
+      "resourceCreated": "Recurso creado",
+      "resourceDeleted": "Recurso eliminado",
+      "categoryCreated": "Categoría creada",
+      "categoryDeleted": "Categoría eliminada",
+      "cannotDeleteCategoryInUse": "Mueve o elimina primero los recursos en esta categoría",
       "imageUploadError": "Error al subir imagen"
     }
   },

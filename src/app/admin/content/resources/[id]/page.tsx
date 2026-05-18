@@ -6,10 +6,11 @@ import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_BLOG_POST_DELETE,
-  ADMIN_BLOG_POST_PUBLISH,
-  ADMIN_BLOG_POST_QUERY,
-  ADMIN_BLOG_POST_UPDATE,
+  ADMIN_HELP_CATEGORIES_QUERY,
+  ADMIN_HELP_RESOURCE_DELETE,
+  ADMIN_HELP_RESOURCE_PUBLISH,
+  ADMIN_HELP_RESOURCE_QUERY,
+  ADMIN_HELP_RESOURCE_UPDATE,
   ADMIN_MEDIA_REGISTER,
 } from "@/lib/graphql";
 import { RichEditor } from "@/components/admin/RichEditor";
@@ -17,7 +18,13 @@ import { uploadCmsImage, uploadCmsMedia } from "@/lib/cmsStorage";
 import { revalidateCmsCache } from "@/lib/revalidateCms";
 import { toast } from "@/lib/toast";
 
-type PostFields = {
+type Category = {
+  id: string;
+  slug: string;
+  name: string;
+};
+
+type ResourceFields = {
   id: string;
   slug: string;
   title: string;
@@ -25,17 +32,21 @@ type PostFields = {
   contentJson: object;
   contentHtml: string;
   coverImageUrl: string;
+  categoryId: string;
+  categorySlug: string;
+  categoryName: string;
   status: string;
   publishedAt: string | null;
   tags: string[];
   seoTitle: string;
   seoDescription: string;
   locale: string;
+  order: number;
   createdAt: string;
   updatedAt: string;
 };
 
-export default function EditBlogPostPage() {
+export default function EditResourcePage() {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
   const router = useRouter();
@@ -43,10 +54,15 @@ export default function EditBlogPostPage() {
   const tToast = useTranslations("admin.toast");
 
   const { data, loading, error, refetch } = useQuery<{
-    adminBlogPost: PostFields;
-  }>(ADMIN_BLOG_POST_QUERY, { variables: { id } });
+    adminHelpResource: ResourceFields;
+  }>(ADMIN_HELP_RESOURCE_QUERY, { variables: { id } });
 
-  const original = data?.adminBlogPost;
+  const { data: catsData } = useQuery<{ adminHelpCategories: Category[] }>(
+    ADMIN_HELP_CATEGORIES_QUERY
+  );
+
+  const original = data?.adminHelpResource;
+  const categories = catsData?.adminHelpCategories ?? [];
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -56,6 +72,8 @@ export default function EditBlogPostPage() {
   const [locale, setLocale] = useState("es");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [order, setOrder] = useState(0);
   const [contentJson, setContentJson] = useState<object | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -69,6 +87,8 @@ export default function EditBlogPostPage() {
     setLocale(original.locale || "es");
     setSeoTitle(original.seoTitle);
     setSeoDescription(original.seoDescription);
+    setCategoryId(original.categoryId);
+    setOrder(original.order || 0);
     setContentJson(original.contentJson);
     setHydrated(true);
   }, [original, hydrated]);
@@ -82,37 +102,40 @@ export default function EditBlogPostPage() {
     [tagsRaw]
   );
 
-  const [update, { loading: saving }] = useMutation(ADMIN_BLOG_POST_UPDATE, {
-    onCompleted: (res) => {
-      toast.success(tCommon("saved"));
-      const slug = res?.adminBlogPostUpdate?.slug;
-      if (original?.status === "published") {
-        revalidateCmsCache({ kind: "post", slug });
-      }
-    },
-    onError: (e) => toast.error(e.message),
-  });
+  const [update, { loading: saving }] = useMutation(
+    ADMIN_HELP_RESOURCE_UPDATE,
+    {
+      onCompleted: (res) => {
+        toast.success(tCommon("saved"));
+        const updatedSlug = res?.adminHelpResourceUpdate?.slug;
+        if (original?.status === "published") {
+          revalidateCmsCache({ kind: "resource", slug: updatedSlug });
+        }
+      },
+      onError: (e) => toast.error(e.message),
+    }
+  );
   const [publish, { loading: publishing }] = useMutation(
-    ADMIN_BLOG_POST_PUBLISH,
+    ADMIN_HELP_RESOURCE_PUBLISH,
     {
       onCompleted: (res) => {
         toast.success(tToast("statusUpdated"));
         revalidateCmsCache({
-          kind: "post",
-          slug: res?.adminBlogPostPublish?.slug,
+          kind: "resource",
+          slug: res?.adminHelpResourcePublish?.slug,
         });
         refetch();
       },
       onError: (e) => toast.error(e.message),
     }
   );
-  const [deletePost, { loading: deleting }] = useMutation(
-    ADMIN_BLOG_POST_DELETE,
+  const [deleteResource, { loading: deleting }] = useMutation(
+    ADMIN_HELP_RESOURCE_DELETE,
     {
       onCompleted: () => {
-        toast.success(tToast("postDeleted"));
-        revalidateCmsCache({ kind: "post", slug: original?.slug });
-        router.push("/admin/content/posts");
+        toast.success(tToast("resourceDeleted") || "Recurso eliminado");
+        revalidateCmsCache({ kind: "resource", slug: original?.slug });
+        router.push("/admin/content/resources");
       },
       onError: (e) => toast.error(e.message),
     }
@@ -127,6 +150,7 @@ export default function EditBlogPostPage() {
         data: {
           title,
           slug,
+          categoryId,
           excerpt,
           contentJson,
           coverImageUrl: cover,
@@ -134,6 +158,7 @@ export default function EditBlogPostPage() {
           seoTitle,
           seoDescription,
           locale,
+          order,
         },
       },
     });
@@ -145,8 +170,8 @@ export default function EditBlogPostPage() {
     if (
       !confirm(
         becomingPublic
-          ? "¿Publicar esta entrada en continuu.it/blog?"
-          : "¿Despublicar esta entrada?"
+          ? "¿Publicar este recurso en continuu.it/ayuda?"
+          : "¿Despublicar este recurso?"
       )
     ) {
       return;
@@ -155,8 +180,8 @@ export default function EditBlogPostPage() {
   };
 
   const handleDelete = () => {
-    if (!confirm("¿Eliminar la entrada permanentemente?")) return;
-    deletePost({ variables: { id } });
+    if (!confirm("¿Eliminar el recurso permanentemente?")) return;
+    deleteResource({ variables: { id } });
   };
 
   const handleUploadImage = async (file: File): Promise<string | null> => {
@@ -180,7 +205,7 @@ export default function EditBlogPostPage() {
         },
       });
     } catch {
-      // Registration is best-effort — the file is uploaded either way.
+      /* best-effort */
     }
     return uploaded.publicUrl;
   };
@@ -206,7 +231,7 @@ export default function EditBlogPostPage() {
         },
       });
     } catch {
-      // best-effort
+      /* best-effort */
     }
     return uploaded;
   };
@@ -227,7 +252,7 @@ export default function EditBlogPostPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link
-            href="/admin/content/posts"
+            href="/admin/content/resources"
             className="text-sm text-accent hover:underline"
           >
             ← Volver
@@ -236,9 +261,9 @@ export default function EditBlogPostPage() {
             {title || "Sin título"}
           </h1>
           <div className="mt-1 text-xs text-text-muted">
-            {isPublished ? "Publicado" : "Borrador"} · creado{" "}
-            {new Date(original.createdAt).toLocaleString()} · última edición{" "}
-            {new Date(original.updatedAt).toLocaleString()}
+            {isPublished ? "Publicado" : "Borrador"} · {original.categoryName} ·
+            creado {new Date(original.createdAt).toLocaleString()} · última
+            edición {new Date(original.updatedAt).toLocaleString()}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -297,6 +322,27 @@ export default function EditBlogPostPage() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm font-mono text-text outline-none focus:border-accent"
+              />
+            </Field>
+            <Field label="Categoría">
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Orden en categoría">
+              <input
+                type="number"
+                value={order}
+                onChange={(e) => setOrder(Number(e.target.value) || 0)}
+                className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
               />
             </Field>
             <Field label="Resumen / excerpt">
@@ -364,13 +410,7 @@ export default function EditBlogPostPage() {
   );
 }
 
-function Section({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
       <div className="mb-3 text-xs uppercase tracking-wide text-text-muted">
@@ -381,13 +421,7 @@ function Section({
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="mb-1 block text-xs text-text-muted">{label}</label>

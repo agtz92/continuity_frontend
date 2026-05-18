@@ -7,7 +7,7 @@ import {
   ADMIN_MEDIA_DELETE,
   ADMIN_MEDIA_REGISTER,
 } from "@/lib/graphql";
-import { uploadCmsImage } from "@/lib/cmsStorage";
+import { uploadCmsMedia } from "@/lib/cmsStorage";
 import { toast } from "@/lib/toast";
 
 type Asset = {
@@ -58,7 +58,7 @@ export default function MediaPage() {
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     for (const file of Array.from(files)) {
-      const uploaded = await uploadCmsImage(file);
+      const uploaded = await uploadCmsMedia(file);
       if (!uploaded) {
         toast.error(`Error subiendo ${file.name}`);
         continue;
@@ -100,7 +100,7 @@ export default function MediaPage() {
           <input
             type="file"
             multiple
-            accept="image/*"
+            accept="image/*,video/*"
             onChange={(e) => handleFiles(e.target.files)}
             className="hidden"
             disabled={uploading}
@@ -129,6 +129,13 @@ export default function MediaPage() {
                   alt={a.originalFilename}
                   className="h-full w-full object-cover"
                   loading="lazy"
+                />
+              ) : a.mimeType.startsWith("video/") ? (
+                <video
+                  src={a.publicUrl}
+                  preload="metadata"
+                  muted
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-xs text-text-muted">

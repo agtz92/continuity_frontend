@@ -32,6 +32,8 @@ const NAV_GROUPS: {
     items: [
       { label: "Posts", href: "/admin/content/posts" },
       { label: "Páginas", href: "/admin/content/pages" },
+      { label: "Recursos", href: "/admin/content/resources" },
+      { label: "Categorías de ayuda", href: "/admin/content/resources/categories" },
       { label: "Media", href: "/admin/content/media" },
     ],
   },

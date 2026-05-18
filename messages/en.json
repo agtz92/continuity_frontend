@@ -815,6 +815,11 @@
       "statusUpdated": "Status updated",
       "postDeleted": "Post deleted",
       "pageDeleted": "Page deleted",
+      "resourceCreated": "Resource created",
+      "resourceDeleted": "Resource deleted",
+      "categoryCreated": "Category created",
+      "categoryDeleted": "Category deleted",
+      "cannotDeleteCategoryInUse": "Move or remove the resources in this category first",
       "imageUploadError": "Failed to upload image"
     }
   },

@@ -15,6 +15,10 @@ const TAGS = {
   blogPost: (slug: string) => `cms:blog-post:${slug}`,
   page: (path: string) => `cms:page:${path}`,
   navPages: "cms:nav-pages",
+  helpCategories: "cms:help-categories",
+  helpResources: "cms:help-resources",
+  helpResource: (slug: string) => `cms:help-resource:${slug}`,
+  helpCategoryResources: (slug: string) => `cms:help-category:${slug}`,
 } as const;
 
 export const PUBLIC_CMS_TAGS = TAGS;
@@ -186,4 +190,125 @@ export async function fetchNavPages(
     [TAGS.navPages]
   );
   return data?.publicNavPages ?? [];
+}
+
+export type PublicHelpCategory = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+  order: number;
+  locale: string;
+  resourceCount: number;
+};
+
+export type PublicHelpResource = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  contentHtml: string;
+  coverImageUrl: string;
+  publishedAt: string | null;
+  tags: string[];
+  seoTitle: string;
+  seoDescription: string;
+  locale: string;
+  categorySlug: string;
+  categoryName: string;
+};
+
+const HELP_CATEGORY_FIELDS = `
+  id slug name description icon order locale resourceCount
+`;
+
+const HELP_RESOURCE_FIELDS = `
+  id slug title excerpt contentHtml coverImageUrl publishedAt tags
+  seoTitle seoDescription locale categorySlug categoryName
+`;
+
+export async function fetchHelpCategories(
+  locale?: string
+): Promise<PublicHelpCategory[]> {
+  const query = `
+    query($locale: String) {
+      publicHelpCategories(locale: $locale) { ${HELP_CATEGORY_FIELDS} }
+    }
+  `;
+  const data = await publicFetch<{ publicHelpCategories: PublicHelpCategory[] }>(
+    query,
+    { locale: locale ?? null },
+    [TAGS.helpCategories]
+  );
+  return data?.publicHelpCategories ?? [];
+}
+
+export async function fetchHelpResources(
+  options: {
+    locale?: string;
+    categorySlug?: string;
+    page?: number;
+    perPage?: number;
+  } = {}
+): Promise<{
+  resources: PublicHelpResource[];
+  hasNext: boolean;
+  page: number;
+  perPage: number;
+} | null> {
+  const query = `
+    query($locale: String, $categorySlug: String, $page: Int, $perPage: Int) {
+      publicHelpResources(
+        locale: $locale
+        categorySlug: $categorySlug
+        page: $page
+        perPage: $perPage
+      ) {
+        resources { ${HELP_RESOURCE_FIELDS} }
+        page perPage hasNext
+      }
+    }
+  `;
+  const tags: string[] = [TAGS.helpResources];
+  if (options.categorySlug) {
+    tags.push(TAGS.helpCategoryResources(options.categorySlug));
+  }
+  const data = await publicFetch<{
+    publicHelpResources: {
+      resources: PublicHelpResource[];
+      page: number;
+      perPage: number;
+      hasNext: boolean;
+    };
+  }>(
+    query,
+    {
+      locale: options.locale ?? null,
+      categorySlug: options.categorySlug ?? null,
+      page: options.page ?? 1,
+      perPage: options.perPage ?? 20,
+    },
+    tags
+  );
+  return data?.publicHelpResources ?? null;
+}
+
+export async function fetchHelpResource(
+  slug: string,
+  locale?: string
+): Promise<PublicHelpResource | null> {
+  const query = `
+    query($slug: String!, $locale: String) {
+      publicHelpResource(slug: $slug, locale: $locale) {
+        ${HELP_RESOURCE_FIELDS}
+      }
+    }
+  `;
+  const data = await publicFetch<{ publicHelpResource: PublicHelpResource | null }>(
+    query,
+    { slug, locale: locale ?? null },
+    [TAGS.helpResource(slug), TAGS.helpResources]
+  );
+  return data?.publicHelpResource ?? null;
 }
