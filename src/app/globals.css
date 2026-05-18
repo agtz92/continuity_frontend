@@ -155,10 +155,68 @@
   --accent-2: #38bdf8;
 }
 
+/* Marketing surface — Loop Society brand identity. Scoped via
+   data-surface="marketing" so it never leaks into the dashboard's
+   palette system. The marketing layout applies this attribute on its
+   wrapper; everything inside picks up the fixed brand tokens. The
+   :has() rule below paints html/body navy when the marketing surface
+   is on the page so dynamic-viewport overscroll never reveals the
+   dashboard's dark theme bg behind it. */
+html:has([data-surface="marketing"]),
+body:has([data-surface="marketing"]) {
+  background: #1A1F4D;
+}
+
+[data-surface="marketing"] {
+  --ls-navy: #1A1F4D;
+  --ls-cream: #F5E6C8;
+  --ls-indigo: #3B4A7A;
+  --ls-terracotta: #C84A1F;
+  --ls-forest: #2D4A2E;
+  --ls-vermillion: #A8412F;
+  --ls-ochre: #D4A847;
+  --ls-text-primary: #FAF7F2;
+  --ls-text-secondary: #A8AAB8;
+  --ls-text-on-cream: #1A1F4D;
+  --ls-text-on-cream-muted: #5C5740;
+
+  /* Default page background + text inside the marketing surface */
+  --bg: var(--ls-navy);
+  --surface: var(--ls-indigo);
+  --border: rgba(250, 247, 242, 0.12);
+  --text: var(--ls-text-primary);
+  --text-muted: var(--ls-text-secondary);
+  --accent: var(--ls-ochre);
+  --accent-2: var(--ls-vermillion);
+
+  color-scheme: dark;
+}
+
 html,
 body {
   background: var(--bg);
   color: var(--text);
+}
+
+/* Subtle vertical drift used for hero yokai when reduced-motion is off.
+   Framer Motion handles most animation, but this lightweight CSS variant
+   is used in spots where we don't want to mount motion components. */
+@keyframes ls-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.ls-float {
+  animation: ls-float 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls-float {
+    animation: none;
+  }
 }
 
 /* Suppress the browser's native pull-to-refresh / overscroll bounce so our

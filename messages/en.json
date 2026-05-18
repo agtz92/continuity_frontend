@@ -813,5 +813,383 @@
       "pageDeleted": "Page deleted",
       "imageUploadError": "Failed to upload image"
     }
+  },
+  "landing": {
+    "meta": {
+      "title": "continuu.it — Finish what you start",
+      "description": "The project manager for people who start more than they finish. Built for founders, freelancers, and side-project builders who keep abandoning what matters most."
+    },
+    "nav": {
+      "features": "Features",
+      "loopSociety": "Loop Society",
+      "pricing": "Pricing",
+      "beta": "Beta",
+      "signIn": "Sign in",
+      "ctaShort": "Join beta"
+    },
+    "hero": {
+      "eyebrow": "Currently in private beta. 50 spots available.",
+      "headline": "Finish what you start.",
+      "subheadline": "The project manager for people who start more than they finish. Built for founders, freelancers, and side-project builders who keep abandoning what matters most.",
+      "ctaPrimary": "Get beta access — free",
+      "ctaSecondary": "No credit card. Lifetime free for the first 50 testers.",
+      "scrollHint": "See how it works"
+    },
+    "recognition": {
+      "headline": "You have a graveyard of unfinished projects. You're not alone. You're not lazy.",
+      "p1": "Open your Notion. Count the half-written docs.",
+      "p2": "Open your GitHub. Count the private repos.",
+      "p3": "Open your bookmarks. Count the tools you bought once and never opened.",
+      "p4": "You are not unmotivated. You are not unintelligent. You are not lacking discipline.",
+      "p5": "You have been using productivity tools designed for the wrong problem.",
+      "callout": "Five months on an ERP I never deployed. A web agency while my own websites went stale. A fantasy football tool while my team waited on me. Three weeks coding around a 30-minute bug.",
+      "calloutAuthor": "Alfredo, founder of continuu.it",
+      "readManifesto": "Read the full founder manifesto"
+    },
+    "diagnosis": {
+      "headline": "Every productivity tool was built to help you start. None were built to help you finish.",
+      "p1": "Todoist makes it frictionless to add a task. Notion makes it elegant to start a new doc. Things makes it satisfying to plan a project.",
+      "p2": "These tools all reward the dopamine hit of beginning.",
+      "p3": "That's why you have 47 projects, 12 systems, and 3 productivity apps open right now, and still feel behind on everything.",
+      "p4": "The problem isn't capture. It's closure.",
+      "compare": {
+        "othersTitle": "Other tools",
+        "usTitle": "continuu.it",
+        "rows": [
+          { "others": "Capture more", "us": "Finish more" },
+          { "others": "Plan more", "us": "Close loops" },
+          { "others": "Add new projects", "us": "Confront old ones" },
+          { "others": "Optimize for start", "us": "Optimize for done" }
+        ]
+      }
+    },
+    "promise": {
+      "eyebrow": "Introducing continuu.it",
+      "headline": "The project manager that closes the loop.",
+      "p1": "continuu.it is the first tool designed around a single principle: every project you start must reach a decision.",
+      "p2": "Finished. Killed. Paused with intention.",
+      "p3": "Never abandoned. Never drifting. Never lost in the graveyard of 'I'll get to it later.'",
+      "p4": "Because the cost of unfinished work isn't time. It's competitive position. It's trust. It's the slow erosion of your relationship with your own ideas.",
+      "p5": "We built continuu.it to give you that back.",
+      "cta": "Get beta access"
+    },
+    "features": {
+      "intro": {
+        "eyebrow": "How you'll use it",
+        "headline": "Six rituals that turn drift into shipped work."
+      },
+      "forcedClosure": {
+        "label": "Forced closure",
+        "headline": "No project drifts. Ever.",
+        "body": "Every project lives in one of four states: Active, Paused, Killed, or Completed. After 14 days of silence, continuu.it asks you which one you mean. The drift is what kills builders. We don't let it happen.",
+        "demo": {
+          "projectTitle": "Landing page redesign",
+          "daysSilent": "14 days untouched",
+          "prompt": "You haven't touched this in 14 days. Are you ready to ship? Need help? Or is this project done?",
+          "ship": "Ship it",
+          "help": "I need help",
+          "kill": "Kill it"
+        }
+      },
+      "aiChat": {
+        "label": "AI chat",
+        "headline": "Tell the AI what you're building. It breaks it into tasks that actually move you forward.",
+        "body": "Not generic 'Plan, Build, Test, Launch' templates. Real, specific, actionable next steps tailored to your project, your stack, your scope. You just have to be honest about what you want to build.",
+        "demo": {
+          "projectTitle": "Project: SaaS landing page",
+          "userMessage": "I want to build a landing page for my SaaS in Next.js, but I always get stuck on what to do first.",
+          "aiResponse": "Got it. Three quick questions:",
+          "questions": [
+            "Do you already have copy written, or do you need to start with messaging?",
+            "Are you using a design system or starting from scratch?",
+            "What's your timeline?"
+          ],
+          "footer": "Once I know these, I'll break this into 8–12 tasks ordered by what unblocks what.",
+          "tag": "AI assistant"
+        },
+        "closing": "Most projects don't die from lack of effort. They die from lack of structure. We fix that on day one."
+      },
+      "resumeContext": {
+        "label": "AI resume context",
+        "headline": "Come back to projects without losing where you were.",
+        "body": "You paused a project three weeks ago. You're ready to pick it back up. But you've forgotten where you were, what you decided, and what was blocking you. continuu.it solves that.",
+        "demo": {
+          "title": "Welcome back to Landing Page Redesign",
+          "lastWorked": "You last worked on this 23 days ago.",
+          "nextActionLabel": "Your next action was:",
+          "nextAction": "Write hero copy for new pricing section",
+          "blockersLabel": "Open blockers:",
+          "blockers": [
+            "Pricing strategy not finalized",
+            "Design tokens not migrated to v2",
+            "Demo video pending recording"
+          ],
+          "decisionsLabel": "Decisions you'd already made:",
+          "decisions": ["Stripe over Lemon Squeezy", "Three pricing tiers, annual discount"]
+        },
+        "closing": "The cost of returning drops to zero. Projects you wrote off start finishing themselves."
+      },
+      "notifications": {
+        "label": "Telegram + WhatsApp",
+        "headline": "Wake up to your day. Get reminded before you lose it.",
+        "body": "continuu.it meets you where you already are. Every morning, at the time you choose, it sends you a focused summary on Telegram. WhatsApp coming soon. Same workflow, your chosen channel.",
+        "demo": {
+          "botName": "continuu.it bot",
+          "greeting": "Good morning, Alfredo.",
+          "todayLabel": "Today's pending work:",
+          "topPriorityLabel": "Top priority",
+          "topPriority": "Finish the landing page hero",
+          "topPriorityNote": "Active for 5 days, you committed to shipping it this week",
+          "secondaryLabel": "Secondary",
+          "secondary": ["Review GTM conversion tracking", "Reply to beta tester feedback"],
+          "footer": "Reply STATUS for full report.",
+          "userReply": "STATUS"
+        },
+        "closing": "Notifications work best when they live where your attention already is."
+      },
+      "friction": {
+        "label": "Friction where it matters",
+        "headline": "New ideas have friction. Existing commitments don't.",
+        "body": "Every time you add a new project in continuu.it, you see every active project you already have. Not to abandon them. Just to acknowledge them. To make a decision.",
+        "demo": {
+          "newProjectLabel": "New project",
+          "newProjectPlaceholder": "Workflow automation tool for indie hackers…",
+          "modalTitle": "Before you start a new one…",
+          "modalBody": "You already have 4 active projects. Which decision are you making?",
+          "activeProjects": [
+            { "name": "Landing page redesign", "status": "5 days active" },
+            { "name": "Telegram bot v2", "status": "12 days paused" },
+            { "name": "Newsletter migration", "status": "23 days active" },
+            { "name": "Fantasy football tool", "status": "47 days drifting" }
+          ],
+          "continueNew": "Start anyway",
+          "pauseExisting": "Pause one first",
+          "reconsider": "Reconsider"
+        },
+        "closing": "Often, the decision is to ship one of them first."
+      },
+      "sundayReview": {
+        "label": "Sunday review",
+        "headline": "The most important hour of your week.",
+        "body": "Every Sunday at a time you choose, continuu.it asks five questions. Ten minutes. One ritual. The mechanism that prevents next Friday from being a repeat of last Friday.",
+        "demo": {
+          "title": "Sunday review",
+          "subtitle": "Five questions. Ten minutes.",
+          "questions": [
+            "What did you ship this week?",
+            "What did you avoid?",
+            "What blocker do you keep hitting?",
+            "What will you commit to next week?",
+            "What will you let go of?"
+          ],
+          "placeholder": "Type your answer…",
+          "cta": "Next question"
+        },
+        "closing": "We didn't invent the weekly review. We just made it impossible to skip."
+      }
+    },
+    "loopSociety": {
+      "eyebrow": "Choose your archetype",
+      "headline": "The Loop Society.",
+      "subheadline": "Seven creatures. Seven reasons projects die. Pick the one that's you.",
+      "body": "Every member of continuu.it picks an avatar from The Loop Society. Each one represents a different reason projects fail. Each one carries a story worth knowing.",
+      "premium": "Premium tier",
+      "readMore": "Read all seven backstories",
+      "archetypes": {
+        "momo": {
+          "name": "Momo",
+          "species": "Kitsune",
+          "tagline": "The Procrastinator's Friend",
+          "story": "Tomorrow always sounds better. Momo knows the trick of starting today."
+        },
+        "yuki": {
+          "name": "Yuki",
+          "species": "Moon Rabbit",
+          "tagline": "The Restless Starter",
+          "story": "Every idea looks brighter at midnight. Yuki keeps the old ones alive."
+        },
+        "tako": {
+          "name": "Tako",
+          "species": "Octopus",
+          "tagline": "The Perfectionist",
+          "story": "Eight arms, never enough hands. Tako helps you ship the imperfect version."
+        },
+        "kuma": {
+          "name": "Kuma",
+          "species": "Bear",
+          "tagline": "The Burnout Survivor",
+          "story": "Slow is steady. Steady is shipped. Kuma walks at a builder's pace."
+        },
+        "hoshi": {
+          "name": "Hoshi",
+          "species": "Cosmic Cat",
+          "tagline": "The Strategist",
+          "story": "Hoshi sees the constellations. The pattern in what you keep starting."
+        },
+        "pip": {
+          "name": "Pip",
+          "species": "Chick",
+          "tagline": "The Comeback Kid",
+          "story": "Pip is the project you swore was dead. Reopened. Finished. Held up."
+        },
+        "tetsu": {
+          "name": "Tetsu",
+          "species": "Wolf",
+          "tagline": "The Disciplined Warrior",
+          "story": "No shortcuts. No drama. Tetsu shows up the day after the day you wanted to quit."
+        }
+      }
+    },
+    "howItWorks": {
+      "headline": "How continuu.it works",
+      "steps": [
+        {
+          "title": "Bring in what you're already building.",
+          "body": "Add your half-finished projects. The repo. The Notion doc. The side hustle. Then chat with the AI to break each one into tasks that make sense."
+        },
+        {
+          "title": "Let the system meet you where you are.",
+          "body": "Get your morning briefing on Telegram. Set reminder times. Pick up paused projects with AI context. We close the loop on follow-up so you can stay in the flow of building."
+        },
+        {
+          "title": "Show up on Sundays. Make decisions.",
+          "body": "continuu.it nudges, summarizes, reminds, and ritualizes. You just have to answer five questions every Sunday and pick what's next."
+        }
+      ],
+      "cta": "Start your beta — free for life"
+    },
+    "beta": {
+      "eyebrow": "Currently in private beta",
+      "headline": "50 spots. Lifetime free Pro access.",
+      "body": "We're letting in the first 50 builders to test continuu.it before public launch. In exchange for your honest feedback, you get:",
+      "perks": [
+        "Lifetime free access to Pro tier ($96/year value)",
+        "Direct line to the founder for feature requests",
+        "Influence on what we build next",
+        "Founding member badge in your profile",
+        "Early access to The Loop Society Premium avatars"
+      ],
+      "footer": "Spots are filled on a first-come basis. We're looking for builders willing to articulate what they like and what they don't. No fluff. Just builders willing to help us build.",
+      "form": {
+        "emailLabel": "Your email",
+        "emailPlaceholder": "you@example.com",
+        "submit": "Reserve your spot",
+        "submitting": "Reserving…",
+        "success": "You're in. Check your inbox.",
+        "errorInvalid": "Please enter a valid email.",
+        "errorGeneric": "Something went wrong. Try again."
+      },
+      "counter": {
+        "claimed": "{taken} / {total} spots claimed",
+        "almostFull": "Almost full",
+        "live": "Live"
+      }
+    },
+    "pricing": {
+      "headline": "After beta, this is what it will cost.",
+      "subheadline": "Beta testers get the Pro tier free, forever.",
+      "monthly": "/month",
+      "yearly": "/year",
+      "popular": "Most popular",
+      "tiers": {
+        "starter": {
+          "name": "Starter",
+          "price": "Free, always.",
+          "perks": [
+            "Unlimited projects and tasks",
+            "Up to 5 active projects",
+            "AI chat to structure your projects",
+            "Daily Telegram notifications",
+            "Sunday Review ritual",
+            "Mobile + web + desktop",
+            "Local-first sync across 2 devices",
+            "Basic completion tracking",
+            "7-day project history",
+            "The Loop Society avatars (6 of 7)"
+          ],
+          "cta": "Sign up for free"
+        },
+        "pro": {
+          "name": "Finisher (Pro)",
+          "price": "$8",
+          "priceCadence": "per month, or $72/year",
+          "inheritsFrom": "Everything in Starter, plus:",
+          "perks": [
+            "Unlimited active projects",
+            "AI Project Coach (weekly check-ins)",
+            "AI Resume Context for paused projects",
+            "Advanced AI chat with project memory",
+            "Custom reminder times throughout the day",
+            "WhatsApp notifications (coming soon)",
+            "Public commitment pages",
+            "Calendar integration",
+            "Integrations: Linear, GitHub, Notion, Slack",
+            "Unlimited project history",
+            "Custom project templates",
+            "Priority support",
+            "Tetsu (premium yokai avatar)"
+          ],
+          "cta": "Start 14-day free trial"
+        },
+        "together": {
+          "name": "Together (Accountability)",
+          "price": "$14",
+          "priceCadence": "per month, or $126/year",
+          "inheritsFrom": "Everything in Pro, plus:",
+          "perks": [
+            "Accountability partner matching",
+            "Weekly 1:1 async check-ins",
+            "Group cohorts (6-week sprints)",
+            "Stake feature (financial commitment)",
+            "Premium AI Coach with pattern analysis",
+            "Exclusive Loop Society Premium avatars"
+          ],
+          "cta": "Start 14-day free trial"
+        }
+      },
+      "betaBanner": "Beta testers get the Finisher (Pro) tier free, for life. No catch. Just feedback.",
+      "betaCta": "Apply for beta access"
+    },
+    "finalCall": {
+      "headlineLine1": "The graveyard of unfinished projects in your head is not your failure.",
+      "headlineLine2": "It's a structural problem with how productivity has been designed.",
+      "p1": "You have been given tools for starting. You have not been given tools for closing the loop.",
+      "p2": "Of course you have a graveyard. The system you were handed builds graveyards.",
+      "p3": "What if you stopped accepting that?",
+      "p4": "What if you decided, today, to do something about the seventeen things you started and never finished?",
+      "p5": "Even one of them. Pick one. Open it. Decide if it lives or dies. Make the call.",
+      "p6": "That's the whole game. The rest of your life is downstream of that single habit.",
+      "cta": "Join the beta",
+      "subCta": "Free for life. No credit card. 50 spots.",
+      "tagline": "Finish what you start."
+    },
+    "footer": {
+      "tagline": "Finish what you start.",
+      "product": "Product",
+      "productLinks": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "loopSociety": "The Loop Society",
+        "manifesto": "Founder manifesto"
+      },
+      "community": "Community",
+      "communityLinks": {
+        "reddit": "r/Continuuit",
+        "twitter": "Twitter / X",
+        "newsletter": "Newsletter"
+      },
+      "company": "Company",
+      "companyLinks": {
+        "about": "About",
+        "contact": "hello@continuu.it"
+      },
+      "builtBy": "Built by Alfredo, from Querétaro, Mexico",
+      "copyright": "© {year} continuu.it"
+    },
+    "langSwitcher": {
+      "ariaLabel": "Change language",
+      "en": "English",
+      "es": "Español"
+    }
   }
 }

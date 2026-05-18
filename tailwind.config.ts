@@ -26,6 +26,27 @@ const config: Config = {
           DEFAULT: "var(--accent)",
           2: "var(--accent-2)",
         },
+        // Loop Society brand palette — only resolved when inside a
+        // [data-surface="marketing"] wrapper. Use `bg-ls-navy text-ls-cream`
+        // in marketing components.
+        ls: {
+          navy: "var(--ls-navy)",
+          cream: "var(--ls-cream)",
+          indigo: "var(--ls-indigo)",
+          terracotta: "var(--ls-terracotta)",
+          forest: "var(--ls-forest)",
+          vermillion: "var(--ls-vermillion)",
+          ochre: "var(--ls-ochre)",
+          "text-primary": "var(--ls-text-primary)",
+          "text-secondary": "var(--ls-text-secondary)",
+          "text-on-cream": "var(--ls-text-on-cream)",
+          "text-on-cream-muted": "var(--ls-text-on-cream-muted)",
+        },
+      },
+      fontFamily: {
+        display: ["var(--font-display)", "Fraunces", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
       },
     },
   },
