@@ -168,7 +168,7 @@ function AdminForbidden() {
           Si crees que esto es un error, contacta al equipo.
         </p>
         <Link
-          href="/"
+          href="/dashboard"
           className="mt-6 inline-block rounded bg-accent px-4 py-2 text-sm font-medium text-bg hover:opacity-90"
         >
           Ir al dashboard

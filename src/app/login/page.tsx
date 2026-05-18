@@ -42,7 +42,7 @@ export default function LoginPage() {
           // private mode / localStorage disabled — silently skip
         }
       }
-      router.replace("/");
+      router.replace("/dashboard");
     } finally {
       setLoading(false);
     }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { supabase } from "@/lib/supabase";
 import { setLocale } from "@/i18n/actions";
 import { SUPPORTED_LOCALES, type Locale } from "@/i18n/config";
 import CTAButton from "./primitives/CTAButton";
@@ -14,12 +15,27 @@ export default function MarketingNav() {
   const locale = useLocale() as Locale;
   const reduce = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
+  // null = unknown (still checking), false = anon, true = signed in.
+  // We render anonymous-state UI by default so SSR markup matches the most
+  // common case (visitors hitting the public landing); the client upgrades to
+  // signed-in UI as soon as Supabase resolves the session from localStorage.
+  const [authed, setAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthed(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setAuthed(!!s);
+    });
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   const handleLocaleChange = (next: Locale) => {
@@ -79,15 +95,22 @@ export default function MarketingNav() {
               </button>
             ))}
           </div>
-          <Link
-            href="/login"
-            className="hidden sm:inline text-sm text-ls-text-secondary hover:text-ls-text-primary transition-colors"
-          >
-            {t("signIn")}
-          </Link>
-          <CTAButton href="#beta" variant="primary" size="md">
-            {t("ctaShort")}
-          </CTAButton>
+          {authed ? (
+            <CTAButton href="/dashboard" variant="primary" size="md">
+              {t("dashboard")}
+            </CTAButton>
+          ) : (
+            <>
+              <CTAButton href="/login" variant="ghost" size="md">
+                {t("signIn")}
+              </CTAButton>
+              <span className="hidden sm:inline-block">
+                <CTAButton href="#beta" variant="primary" size="md">
+                  {t("ctaShort")}
+                </CTAButton>
+              </span>
+            </>
+          )}
         </div>
       </div>
     </motion.header>

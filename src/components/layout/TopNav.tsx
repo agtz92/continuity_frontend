@@ -51,7 +51,7 @@ export function TopNav({
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center gap-3 sm:gap-4">
           <AccountMenuTrigger onClick={() => setMenuOpen(true)} />
           <Link
-            href="/"
+            href="/dashboard"
             className="font-bold text-lg bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent shrink-0"
           >
             Continuity

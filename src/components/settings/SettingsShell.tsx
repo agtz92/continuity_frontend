@@ -81,7 +81,7 @@ export function SettingsShell({
       <TopNav />
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-flex items-center gap-1.5 text-text-muted hover:text-text mb-6 text-sm group"
         >
           <ArrowLeft

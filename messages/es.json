@@ -824,7 +824,8 @@
       "loopSociety": "Loop Society",
       "pricing": "Precios",
       "beta": "Beta",
-      "signIn": "Entrar",
+      "signIn": "Iniciar sesión",
+      "dashboard": "Ir al dashboard",
       "ctaShort": "Unirme a la beta"
     },
     "hero": {
