@@ -6,10 +6,13 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Bell,
+  BookOpen,
   Bug,
   ChevronLeft,
   CreditCard,
   Database,
+  Globe,
+  LibraryBig,
   LogOut,
   MessageCircle,
   MessagesSquare,
@@ -193,6 +196,19 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
           )}
 
           <Group label={t("groups.support")}>
+            <RowLink
+              href="/welcome"
+              icon={Globe}
+              label={t("items.viewLanding")}
+              onClick={handleNavigate}
+            />
+            <RowLink
+              href="/blog"
+              icon={BookOpen}
+              label={t("items.blog")}
+              onClick={handleNavigate}
+            />
+            <RowPending icon={LibraryBig} label={t("items.resources")} badge={t("items.comingSoon")} />
             <RowExternal
               href="mailto:support@continuu.it?subject=Bug%20report"
               icon={Bug}
@@ -291,6 +307,29 @@ function RowExternal({
       <Icon size={16} className="text-text-muted" />
       <span>{label}</span>
     </a>
+  );
+}
+
+function RowPending({
+  icon: Icon,
+  label,
+  badge,
+}: {
+  icon: LucideIcon;
+  label: string;
+  badge: string;
+}) {
+  return (
+    <div
+      aria-disabled="true"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-text-muted/60 cursor-not-allowed select-none"
+    >
+      <Icon size={16} className="text-text-muted/60" />
+      <span>{label}</span>
+      <span className="ml-auto rounded-full bg-surface px-2 py-0.5 text-[10px] uppercase tracking-wider text-text-muted border border-border">
+        {badge}
+      </span>
+    </div>
   );
 }
 

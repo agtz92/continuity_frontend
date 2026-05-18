@@ -72,6 +72,9 @@ export default function MarketingNav() {
           <a href="#pricing" className="hover:text-ls-text-primary transition-colors">
             {t("pricing")}
           </a>
+          <Link href="/blog" className="hover:text-ls-text-primary transition-colors">
+            {t("blog")}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
