@@ -762,7 +762,7 @@ export function ProjectsView({
                             const renderTaskRow = (task: Task) => (
                               <div
                                 key={task.id}
-                                className="flex items-center gap-2 group py-1"
+                                className="flex items-center gap-2 group py-1 px-2 rounded-md hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors"
                               >
                                 <button
                                   onClick={(e) => {
