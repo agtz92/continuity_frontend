@@ -13,6 +13,9 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isAdmonHost =
+    typeof window !== "undefined" &&
+    window.location.host.toLowerCase().startsWith("admon.");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +45,10 @@ export default function LoginPage() {
           // private mode / localStorage disabled — silently skip
         }
       }
-      router.replace("/dashboard");
+      // On the admon.* subdomain, the middleware rewrites `/` to
+      // `/admin` internally — send the user there instead of /dashboard
+      // (which is the in-app surface only meaningful on the main host).
+      router.replace(isAdmonHost ? "/" : "/dashboard");
     } finally {
       setLoading(false);
     }
@@ -55,7 +61,11 @@ export default function LoginPage() {
           Continuity
         </h1>
         <p className="text-sm text-text-muted mb-6">
-          {mode === "signin" ? "Sign in to your dashboard." : "Create your account."}
+          {mode === "signin"
+            ? isAdmonHost
+              ? "Sign in to the admin panel."
+              : "Sign in to your dashboard."
+            : "Create your account."}
         </p>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
