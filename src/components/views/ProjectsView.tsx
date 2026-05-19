@@ -517,22 +517,31 @@ export function ProjectsView({
         const recentTs = (p: Project) =>
           new Date(p.lastActivity).getTime();
 
+        const byName = (a: Project, b: Project) =>
+          a.name.localeCompare(b.name, locale);
+
         const compare = (a: Project, b: Project) => {
           switch (projectSortMode) {
             case "priority": {
               const d = priorityRank(a.priority) - priorityRank(b.priority);
-              return d !== 0 ? d : recentTs(b) - recentTs(a);
+              if (d !== 0) return d;
+              const r = recentTs(b) - recentTs(a);
+              return r !== 0 ? r : byName(a, b);
             }
-            case "recent":
-              return recentTs(b) - recentTs(a);
+            case "recent": {
+              const r = recentTs(b) - recentTs(a);
+              return r !== 0 ? r : byName(a, b);
+            }
             case "name":
-              return a.name.localeCompare(b.name, locale);
+              return byName(a, b);
             case "status": {
               const sa = STATUS_FILTER_ORDER.indexOf(a.status);
               const sb = STATUS_FILTER_ORDER.indexOf(b.status);
               if (sa !== sb) return sa - sb;
               const pd = priorityRank(a.priority) - priorityRank(b.priority);
-              return pd !== 0 ? pd : recentTs(b) - recentTs(a);
+              if (pd !== 0) return pd;
+              const r = recentTs(b) - recentTs(a);
+              return r !== 0 ? r : byName(a, b);
             }
             case "smart":
             default: {
@@ -541,13 +550,14 @@ export function ProjectsView({
               if (ba !== bb) return ba - bb;
               const pd = priorityRank(a.priority) - priorityRank(b.priority);
               if (pd !== 0) return pd;
-              return recentTs(b) - recentTs(a);
+              const r = recentTs(b) - recentTs(a);
+              return r !== 0 ? r : byName(a, b);
             }
           }
         };
 
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-min">
+          <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden bg-surface">
             {[...filtered]
               .sort(compare)
               .map((p) => {
@@ -569,13 +579,14 @@ export function ProjectsView({
                 const isStalled =
                   ["active", "idea"].includes(p.status) && days >= 7;
                 const isExpanded = selectedProject?.id === p.id;
+                const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
                 return (
                   <div
                     key={p.id}
-                    className={`relative bg-surface border rounded-xl overflow-hidden transition-all ${
-                      isStalled ? "border-amber-500/40" : "border-border"
-                    } ${isExpanded ? "ring-1 ring-accent/30 lg:col-span-2" : ""}`}
+                    className={`relative transition-colors ${
+                      isExpanded ? "bg-surface/60 ring-1 ring-inset ring-accent/30" : ""
+                    }`}
                   >
                     <div
                       aria-hidden
@@ -583,72 +594,82 @@ export function ProjectsView({
                       title={tPriority(p.priority)}
                     />
                     <div
-                      className="p-4 cursor-pointer hover:bg-surface/50"
+                      className="flex items-center gap-3 pl-5 pr-4 py-2.5 cursor-pointer hover:bg-surface/40"
                       onClick={() => onSelectProject(isExpanded ? null : p)}
                     >
-                      <div className="flex items-start gap-3">
-                        <ChevronRight
-                          size={18}
-                          className={`shrink-0 mt-0.5 text-text-muted transition-transform ${
-                            isExpanded ? "rotate-90" : ""
-                          }`}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <ChevronRight
+                        size={16}
+                        className={`shrink-0 text-text-muted transition-transform ${
+                          isExpanded ? "rotate-90" : ""
+                        }`}
+                      />
+                      <span
+                        className={`inline-flex items-center justify-center w-6 h-6 rounded border shrink-0 ${statusConfig[p.status]?.color}`}
+                        title={tStatus(p.status)}
+                        aria-label={tStatus(p.status)}
+                      >
+                        <StatusIcon size={12} />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold truncate">{p.name}</span>
+                          {p.categoryId && categoryById[p.categoryId] && (
                             <span
-                              className={`inline-flex items-center justify-center w-6 h-6 rounded border ${statusConfig[p.status]?.color}`}
-                              title={tStatus(p.status)}
-                              aria-label={tStatus(p.status)}
+                              className={`text-xs px-2 py-0.5 rounded border shrink-0 ${
+                                categoryColorClass(
+                                  categoryById[p.categoryId].color
+                                ).chip
+                              }`}
                             >
-                              <StatusIcon size={12} />
+                              {categoryById[p.categoryId].name}
                             </span>
-                            <span className="font-semibold">{p.name}</span>
-                            {p.categoryId && categoryById[p.categoryId] && (
-                              <span
-                                className={`text-xs px-2 py-0.5 rounded border ${
-                                  categoryColorClass(
-                                    categoryById[p.categoryId].color
-                                  ).chip
-                                }`}
-                              >
-                                {categoryById[p.categoryId].name}
-                              </span>
-                            )}
-                            {overdueCount > 0 && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40">
-                                {tCard("overdueBadge", { count: overdueCount })}
-                              </span>
-                            )}
-                            {todayCount > 0 && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40">
-                                {tCard("todayBadge", { count: todayCount })}
-                              </span>
-                            )}
-                            {isStalled && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                                {tCard("idleBadge", { count: days })}
-                              </span>
-                            )}
-                            {pendingEffort > 0 && (
-                              <span
-                                className="text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 inline-flex items-center gap-1"
-                                title={tCard("pendingHoursTooltip")}
-                              >
-                                <Clock size={10} />
-                                {tCard("pendingHoursBadge", { hours: pendingEffort })}
-                              </span>
-                            )}
-                          </div>
-                          {p.nextStep && (
-                            <div className="text-sm text-text-muted truncate">
-                              → {p.nextStep}
-                            </div>
                           )}
+                          {overdueCount > 0 ? (
+                            <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40 shrink-0">
+                              {tCard("overdueBadge", { count: overdueCount })}
+                            </span>
+                          ) : todayCount > 0 ? (
+                            <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 shrink-0">
+                              {tCard("todayBadge", { count: todayCount })}
+                            </span>
+                          ) : isStalled ? (
+                            <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
+                              {tCard("idleBadge", { count: days })}
+                            </span>
+                          ) : pendingEffort > 0 ? (
+                            <span
+                              className="text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 inline-flex items-center gap-1 shrink-0"
+                              title={tCard("pendingHoursTooltip")}
+                            >
+                              <Clock size={10} />
+                              {tCard("pendingHoursBadge", { hours: pendingEffort })}
+                            </span>
+                          ) : null}
                         </div>
-                        <div className="text-xs text-text-muted shrink-0">
-                          {total > 0 && `${done}/${total}`}
-                        </div>
+                        {p.nextStep && (
+                          <div className="text-xs text-text-muted truncate mt-0.5">
+                            → {p.nextStep}
+                          </div>
+                        )}
                       </div>
+                      {total > 0 && (
+                        <>
+                          <div className="hidden sm:flex items-center gap-2 shrink-0 w-32">
+                            <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-accent transition-all"
+                                style={{ width: `${percent}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-text-muted tabular-nums w-10 text-right">
+                              {done}/{total}
+                            </span>
+                          </div>
+                          <span className="sm:hidden text-xs text-text-muted tabular-nums shrink-0">
+                            {done}/{total}
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     {isExpanded && (() => {
