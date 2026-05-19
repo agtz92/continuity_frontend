@@ -1201,6 +1201,14 @@
       "ariaLabel": "Change language",
       "en": "English",
       "es": "Español"
+    },
+    "blog": {
+      "eyebrow": "Founder notes",
+      "title": "Blog",
+      "subtitle": "How to stop running from the work that matters. Honest reflections on building, abandoning, and finishing.",
+      "empty": "No posts published yet.",
+      "readMore": "Read the post",
+      "backToBlog": "Back to blog"
     }
   }
 }

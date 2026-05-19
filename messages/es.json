@@ -1201,6 +1201,14 @@
       "ariaLabel": "Cambiar idioma",
       "en": "English",
       "es": "Español"
+    },
+    "blog": {
+      "eyebrow": "Notas del fundador",
+      "title": "Blog",
+      "subtitle": "Cómo dejar de huir del trabajo que importa. Reflexiones honestas sobre construir, abandonar y terminar.",
+      "empty": "Aún no hay entradas publicadas.",
+      "readMore": "Leer la entrada",
+      "backToBlog": "Volver al blog"
     }
   }
 }
