@@ -62,7 +62,7 @@ export function useAssistant() {
   }, [refreshUsage]);
 
   const send = useCallback(
-    async (content: string) => {
+    async (content: string, deepMode = false) => {
       if (state.streaming) return;
       const trimmed = content.trim();
       if (!trimmed) return;
@@ -95,6 +95,7 @@ export function useAssistant() {
         await streamChat({
           conversationId: state.conversationId ?? undefined,
           content: trimmed,
+          deepMode,
           signal: ctrl.signal,
           onEvent: (event: AssistantEvent) => {
             if (event.kind === "meta") {

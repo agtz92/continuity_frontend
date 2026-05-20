@@ -8,6 +8,8 @@
     "close": "Cerrar",
     "send": "Enviar",
     "stop": "Detener",
+    "deepMode": "Modo profundo",
+    "deepModeHint": "Usa el modelo Sonnet, más capaz, para esta respuesta. Cuesta más — solo admin.",
     "inputPlaceholder": "Pregunta sobre tus proyectos, tareas o ideas…",
     "welcome": {
       "title": "¡Hola! Estoy aquí para ayudar.",

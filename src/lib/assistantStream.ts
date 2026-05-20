@@ -47,6 +47,8 @@ export type AssistantEvent =
 export type StreamArgs = {
   conversationId?: string;
   content: string;
+  /** Opt in to the costlier Sonnet model (admin plan only). */
+  deepMode?: boolean;
   signal?: AbortSignal;
   onEvent: (event: AssistantEvent) => void;
 };
@@ -83,6 +85,7 @@ export async function streamChat(args: StreamArgs): Promise<void> {
     body: JSON.stringify({
       conversation_id: args.conversationId,
       content: args.content,
+      deep_mode: args.deepMode ?? false,
     }),
     signal: args.signal,
   });

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Send, Square, Sparkles, X, Plus, AlertCircle } from "lucide-react";
+import { Send, Square, Sparkles, X, Plus, AlertCircle, Brain } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
 import { MessageList } from "./MessageList";
 import { PlanBadge } from "./PlanBadge";
@@ -29,6 +29,7 @@ export function AssistantPanel({ open, onClose }: Props) {
     newConversation,
   } = useAssistant();
   const [input, setInput] = useState("");
+  const [deepMode, setDeepMode] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -46,12 +47,12 @@ export function AssistantPanel({ open, onClose }: Props) {
     if (streaming || !input.trim()) return;
     const text = input;
     setInput("");
-    await send(text);
+    await send(text, deepMode);
   };
 
   const handleQuickAction = (prompt: string) => {
     if (streaming) return;
-    send(prompt);
+    send(prompt, deepMode);
   };
 
   return (
@@ -130,6 +131,26 @@ export function AssistantPanel({ open, onClose }: Props) {
         )}
 
         <QuickActionChips onPick={handleQuickAction} disabled={streaming} />
+
+        {plan === "admin" && (
+          <div className="px-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setDeepMode((v) => !v)}
+              disabled={streaming}
+              title={t("deepModeHint")}
+              aria-pressed={deepMode}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                deepMode
+                  ? "border-accent text-accent bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
+                  : "border-border text-text-muted hover:text-text"
+              }`}
+            >
+              <Brain size={12} />
+              {t("deepMode")}
+            </button>
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
