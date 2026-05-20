@@ -60,6 +60,7 @@ export function RoutinesView({
   const tCommon = useTranslations("common");
   const [search, setSearch] = useState("");
   const [showToday, setShowToday] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
   const [showUpcoming, setShowUpcoming] = useState(false);
   const [showLater, setShowLater] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
@@ -87,10 +88,16 @@ export function RoutinesView({
     return toLocalISO(d);
   }, []);
 
-  const { todayBucket, upcomingBucket, laterBucket, archivedRoutines } =
-    useMemo(() => {
+  const {
+    todayBucket,
+    upcomingBucket,
+    laterBucket,
+    completedTodayBucket,
+    archivedRoutines,
+  } = useMemo(() => {
       const active = routines.filter((r) => !r.archived);
       const archived = routines.filter((r) => r.archived);
+      const routineById = new Map(routines.map((r) => [r.id, r]));
       const occByRoutine = new Map<string, Set<string>>();
       for (const r of active) {
         occByRoutine.set(r.id, completedDatesFor(occurrences, r.id));
@@ -136,13 +143,30 @@ export function RoutinesView({
           });
         }
       }
+      // Occurrences completed today — surfaced so an accidental completion
+      // can be undone (toggling the checkbox calls onUncompleteOccurrence).
+      const completedTodayItems: DueItem[] = [];
+      for (const occ of occurrences) {
+        if (toLocalISO(new Date(occ.completedAt)) !== today) continue;
+        const r = routineById.get(occ.routineId);
+        if (!r) continue;
+        completedTodayItems.push({
+          routine: r,
+          scheduledDate: occ.scheduledDate,
+          occurrenceId: occ.id,
+        });
+      }
       todayItems.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
       upcomingItems.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
       laterItems.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
+      completedTodayItems.sort((a, b) =>
+        a.scheduledDate.localeCompare(b.scheduledDate)
+      );
       return {
         todayBucket: todayItems,
         upcomingBucket: upcomingItems,
         laterBucket: laterItems,
+        completedTodayBucket: completedTodayItems,
         archivedRoutines: archived,
       };
     }, [
@@ -166,12 +190,14 @@ export function RoutinesView({
     q ? rs.filter((r) => r.title.toLowerCase().includes(q)) : rs;
 
   const filteredToday = filterByQuery(todayBucket);
+  const filteredCompleted = filterByQuery(completedTodayBucket);
   const filteredUpcoming = filterByQuery(upcomingBucket);
   const filteredLater = filterByQuery(laterBucket);
   const filteredArchived = filterRoutinesByQuery(archivedRoutines);
 
   const searching = q.length > 0;
   const todayOpen = searching || showToday;
+  const completedOpen = searching || showCompleted;
   const upcomingOpen = searching || showUpcoming;
   const laterOpen = searching || showLater;
   const archivedOpen = searching || showArchived;
@@ -249,6 +275,35 @@ export function RoutinesView({
               </div>
             )}
           </CollapsibleSection>
+
+          {filteredCompleted.length > 0 && (
+            <CollapsibleSection
+              variant="card"
+              open={completedOpen}
+              onToggle={() => setShowCompleted((s) => !s)}
+              icon={<CheckCircle2 size={14} className="text-accent" />}
+              title={t("completedToday")}
+              rightSlot={
+                <span className="text-xs text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
+                  {filteredCompleted.length}
+                </span>
+              }
+            >
+              <div className="space-y-2">
+                {filteredCompleted.map((it) => (
+                  <RoutineRow
+                    key={`${it.routine.id}-${it.scheduledDate}`}
+                    routine={it.routine}
+                    scheduledDate={it.scheduledDate}
+                    occurrenceId={it.occurrenceId}
+                    onComplete={onCompleteOccurrence}
+                    onUncomplete={onUncompleteOccurrence}
+                    onEdit={onEditRoutine}
+                  />
+                ))}
+              </div>
+            </CollapsibleSection>
+          )}
 
           {filteredUpcoming.length > 0 && (
             <CollapsibleSection

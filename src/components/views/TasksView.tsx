@@ -225,7 +225,10 @@ export function TasksView({
 
         const showUpcoming = taskRange !== "today";
         const showUnscheduled = taskRange === "all";
-        const showDone = taskRange === "all" && taskFilter.showCompleted;
+        // Independent of taskRange: the range filter scopes by due-date
+        // horizon, but completed tasks have no horizon — keep the bucket
+        // reachable in every range so an accidental completion can be undone.
+        const showDone = taskFilter.showCompleted;
 
         const renderRow = (task: Task, opts?: { canSchedule?: boolean }) => (
           <TaskRow

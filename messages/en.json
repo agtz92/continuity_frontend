@@ -483,6 +483,7 @@
       "addFirst": "Create first routine",
       "todayBucket": "Today & overdue",
       "todayEmpty": "No routines for today. ✨",
+      "completedToday": "Completed today",
       "upcoming": "Upcoming (7 days)",
       "later": "Later",
       "archived": "Archived",

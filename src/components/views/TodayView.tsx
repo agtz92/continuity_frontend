@@ -773,7 +773,7 @@ export function TodayView({
                     return (
                       <div
                         key={`routine-${item.occurrenceId}`}
-                        className="flex items-start gap-2 border-l-2 border-accent/40 pl-2.5"
+                        className="flex items-start gap-2 group border-l-2 border-accent/40 pl-2.5"
                       >
                         <CheckCircle2
                           size={16}
@@ -800,6 +800,14 @@ export function TodayView({
                             )}
                           </div>
                         </div>
+                        <button
+                          onClick={() => onUncompleteOccurrence(item.occurrenceId)}
+                          className="text-text-muted hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
+                          title={tDone("undo")}
+                          aria-label={tDone("undoAria")}
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
                     );
                   }
