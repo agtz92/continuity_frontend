@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="absolute top-1/2 right-0 h-[360px] w-[480px] rounded-full bg-ls-vermillion/10 blur-[120px]" />
         </div>
 
-        <div className="mx-auto w-full max-w-3xl px-6 sm:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12">
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
@@ -109,7 +109,7 @@ export default async function BlogPostPage({ params }: Props) {
       </header>
 
       {post.coverImageUrl && (
-        <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12 mb-14">
+        <div className="mx-auto w-full max-w-5xl px-6 sm:px-8 lg:px-12 mb-14">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={post.coverImageUrl}
@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: Props) {
       )}
 
       <article className="pb-24">
-        <div className="mx-auto w-full max-w-2xl px-6 sm:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12">
           <div
             className="prose prose-invert prose-lg max-w-none
               prose-headings:font-display prose-headings:font-light prose-headings:tracking-tight prose-headings:text-ls-text-primary

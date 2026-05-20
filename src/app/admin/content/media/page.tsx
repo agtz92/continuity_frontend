@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   ADMIN_MEDIA_ASSETS_QUERY,
   ADMIN_MEDIA_DELETE,
   ADMIN_MEDIA_REGISTER,
 } from "@/lib/graphql";
-import { uploadCmsMedia } from "@/lib/cmsStorage";
+import { listBucketFiles, uploadCmsMedia } from "@/lib/cmsStorage";
+import type { StorageFile } from "@/lib/cmsStorage";
 import { toast } from "@/lib/toast";
 
 type Asset = {
@@ -31,13 +32,65 @@ type Data = {
   };
 };
 
+type Tab = "cms-media" | "blog" | "avatars";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "cms-media", label: "cms-media (registro)" },
+  { id: "blog", label: "blog" },
+  { id: "avatars", label: "avatars" },
+];
+
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function isImage(mime: string, path: string): boolean {
+  if (mime.startsWith("image/")) return true;
+  return /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(path);
+}
+
+function isVideo(mime: string, path: string): boolean {
+  if (mime.startsWith("video/")) return true;
+  return /\.(mp4|webm|mov)$/i.test(path);
+}
+
 export default function MediaPage() {
+  const [tab, setTab] = useState<Tab>("cms-media");
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold text-text">Biblioteca de medios</h1>
+        <p className="mt-1 text-sm text-text-muted">
+          Archivos del registro CMS y de los buckets de Supabase Storage.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 border-b border-border">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
+              tab === t.id
+                ? "border-accent text-accent"
+                : "border-transparent text-text-muted hover:text-text"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "cms-media" ? <RegistryView /> : <BucketView bucket={tab} />}
+    </div>
+  );
+}
+
+function RegistryView() {
   const [page, setPage] = useState(1);
   const { data, loading, refetch } = useQuery<Data>(ADMIN_MEDIA_ASSETS_QUERY, {
     variables: { page, perPage: 36 },
@@ -77,7 +130,7 @@ export default function MediaPage() {
             },
           },
         });
-      } catch (e) {
+      } catch {
         toast.error(`Subió pero falló al registrar: ${file.name}`);
       }
     }
@@ -88,13 +141,7 @@ export default function MediaPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-text">Biblioteca de medios</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Imágenes y archivos subidos al bucket cms-media.
-          </p>
-        </div>
+      <div className="flex justify-end">
         <label className="cursor-pointer rounded bg-accent px-3 py-1.5 text-sm font-medium text-bg hover:opacity-90">
           {uploading ? "Subiendo…" : "Subir archivos"}
           <input
@@ -202,6 +249,102 @@ export default function MediaPage() {
             Siguiente
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BucketView({ bucket }: { bucket: string }) {
+  const [files, setFiles] = useState<StorageFile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    listBucketFiles(bucket).then((result) => {
+      if (cancelled) return;
+      setFiles(result);
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [bucket, reloadKey]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-text-muted">
+          {loading
+            ? "Leyendo bucket…"
+            : `${files.length} archivo${files.length === 1 ? "" : "s"} en "${bucket}".`}
+        </p>
+        <button
+          type="button"
+          onClick={() => setReloadKey((k) => k + 1)}
+          className="rounded border border-border bg-surface px-3 py-1.5 text-sm text-text hover:bg-bg"
+        >
+          Refrescar
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        {loading && (
+          <div className="col-span-full text-center text-text-muted">Cargando…</div>
+        )}
+        {!loading && files.length === 0 && (
+          <div className="col-span-full text-center text-text-muted">
+            El bucket está vacío o no es accesible. Verifica que tenga una
+            política RLS de lectura.
+          </div>
+        )}
+        {files.map((f) => (
+          <div
+            key={f.path}
+            className="group overflow-hidden rounded-lg border border-border bg-surface"
+          >
+            <div className="aspect-square bg-bg/40">
+              {isImage(f.mimeType, f.path) ? (
+                <img
+                  src={f.publicUrl}
+                  alt={f.path}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : isVideo(f.mimeType, f.path) ? (
+                <video
+                  src={f.publicUrl}
+                  preload="metadata"
+                  muted
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs text-text-muted">
+                  {f.mimeType || "archivo"}
+                </div>
+              )}
+            </div>
+            <div className="space-y-1 p-2 text-xs">
+              <div className="truncate text-text" title={f.path}>
+                {f.path.split("/").pop()}
+              </div>
+              <div className="text-text-muted">{formatSize(f.sizeBytes)}</div>
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(f.publicUrl);
+                    toast.success("URL copiada");
+                  }}
+                  className="text-accent hover:underline"
+                >
+                  Copiar URL
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -126,6 +126,56 @@ export async function uploadCoverImage(file: File): Promise<string | null> {
   return publicUrl;
 }
 
+export type StorageFile = {
+  path: string;
+  publicUrl: string;
+  sizeBytes: number;
+  mimeType: string;
+  updatedAt: string | null;
+};
+
+/**
+ * Recursively list every file in a Supabase Storage bucket and resolve
+ * each one to its public URL. Walks nested folders (Supabase's `list`
+ * is one level deep; folder entries have a null `id`). Requires a
+ * `select` RLS policy on the bucket for the current session.
+ */
+export async function listBucketFiles(
+  bucket: string,
+  prefix = ""
+): Promise<StorageFile[]> {
+  const { data, error } = await supabase.storage.from(bucket).list(prefix, {
+    limit: 1000,
+    sortBy: { column: "name", order: "asc" },
+  });
+  if (error || !data) {
+    console.error("[cmsStorage] list error", bucket, prefix, error);
+    return [];
+  }
+
+  const files: StorageFile[] = [];
+  for (const entry of data) {
+    const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.id === null) {
+      // Folder — recurse.
+      files.push(...(await listBucketFiles(bucket, path)));
+      continue;
+    }
+    if (entry.name === ".emptyFolderPlaceholder") continue;
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucket).getPublicUrl(path);
+    files.push({
+      path,
+      publicUrl,
+      sizeBytes: entry.metadata?.size ?? 0,
+      mimeType: entry.metadata?.mimetype ?? "",
+      updatedAt: entry.updated_at ?? null,
+    });
+  }
+  return files;
+}
+
 function probeVideoDimensions(
   file: File
 ): Promise<{ width: number; height: number }> {
