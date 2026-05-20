@@ -14,7 +14,8 @@
       "body": "I can read your projects and tasks to summarize, suggest priorities, and find things. I can't edit anything yet — that's coming soon."
     },
     "message": {
-      "thinking": "Thinking…"
+      "thinking": "Thinking…",
+      "working": "Claude is working…"
     },
     "tools": {
       "running": "Running",

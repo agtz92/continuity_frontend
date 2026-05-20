@@ -14,7 +14,8 @@
       "body": "Puedo leer tus proyectos y tareas para resumir, sugerir prioridades y buscar cosas. Aún no puedo editar nada — eso llega pronto."
     },
     "message": {
-      "thinking": "Pensando…"
+      "thinking": "Pensando…",
+      "working": "Claude está trabajando…"
     },
     "tools": {
       "running": "Ejecutando",

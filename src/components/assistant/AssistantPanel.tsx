@@ -119,7 +119,7 @@ export function AssistantPanel({ open, onClose }: Props) {
             </div>
           </div>
         ) : (
-          <MessageList messages={messages} />
+          <MessageList messages={messages} streaming={streaming} />
         )}
 
         {error && (
@@ -147,7 +147,7 @@ export function AssistantPanel({ open, onClose }: Props) {
             placeholder={t("inputPlaceholder")}
             rows={2}
             disabled={streaming}
-            className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent/50 resize-none disabled:opacity-60"
+            className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent/50 resize-none disabled:opacity-60 disabled:cursor-not-allowed"
           />
           {streaming ? (
             <button
