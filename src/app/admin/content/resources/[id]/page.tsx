@@ -14,7 +14,7 @@ import {
   ADMIN_MEDIA_REGISTER,
 } from "@/lib/graphql";
 import { RichEditor } from "@/components/admin/RichEditor";
-import { uploadCmsImage, uploadCmsMedia } from "@/lib/cmsStorage";
+import { uploadCmsImage, uploadCmsMedia, uploadCoverImage } from "@/lib/cmsStorage";
 import { revalidateCmsCache } from "@/lib/revalidateCms";
 import { toast } from "@/lib/toast";
 
@@ -76,6 +76,7 @@ export default function EditResourcePage() {
   const [order, setOrder] = useState(0);
   const [contentJson, setContentJson] = useState<object | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
 
   useEffect(() => {
     if (!original || hydrated) return;
@@ -208,6 +209,17 @@ export default function EditResourcePage() {
       /* best-effort */
     }
     return uploaded.publicUrl;
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    setCoverUploading(true);
+    const url = await uploadCoverImage(file);
+    setCoverUploading(false);
+    if (!url) {
+      toast.error(tToast("imageUploadError"));
+      return;
+    }
+    setCover(url);
   };
 
   const handleUploadMedia = async (file: File) => {
@@ -353,13 +365,42 @@ export default function EditResourcePage() {
                 className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
               />
             </Field>
-            <Field label="Imagen de portada (URL)">
+            <Field label="Imagen de portada">
               <input
                 value={cover}
                 onChange={(e) => setCover(e.target.value)}
-                placeholder="https://…"
+                placeholder="https://… o sube una imagen"
                 className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
               />
+              <div className="mt-2 flex items-center gap-2">
+                <label
+                  className={`cursor-pointer rounded border border-border bg-bg px-2 py-1 text-xs text-text hover:bg-surface ${
+                    coverUploading ? "pointer-events-none opacity-50" : ""
+                  }`}
+                >
+                  {coverUploading ? "Subiendo…" : "Subir imagen"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={coverUploading}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleCoverUpload(f);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                {cover && (
+                  <button
+                    type="button"
+                    onClick={() => setCover("")}
+                    className="text-xs text-text-muted hover:underline"
+                  >
+                    Quitar
+                  </button>
+                )}
+              </div>
               {cover && (
                 <img
                   src={cover}

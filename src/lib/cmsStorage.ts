@@ -4,6 +4,10 @@ import { supabase } from "./supabase";
 
 const BUCKET = "cms-media";
 
+// Cover images for blog posts and help resources live in their own
+// bucket so they can be managed independently of inline editor media.
+const COVER_BUCKET = "blog";
+
 function slugifyFilename(name: string): string {
   const dot = name.lastIndexOf(".");
   const stem = dot > 0 ? name.slice(0, dot) : name;
@@ -90,6 +94,36 @@ function probeImageDimensions(
     };
     img.src = url;
   });
+}
+
+/**
+ * Upload a cover image to the Supabase `blog` bucket and return its
+ * public URL. Used for the cover photo of blog posts and help
+ * resources. The bucket must be public-read with an RLS policy that
+ * allows authenticated uploads.
+ */
+export async function uploadCoverImage(file: File): Promise<string | null> {
+  if (!file.type.startsWith("image/")) {
+    console.error("[cmsStorage] cover must be an image");
+    return null;
+  }
+
+  const now = new Date();
+  const folder = `covers/${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  const path = `${folder}/${now.getTime()}-${slugifyFilename(file.name)}`;
+
+  const { error } = await supabase.storage
+    .from(COVER_BUCKET)
+    .upload(path, file, { cacheControl: "31536000", upsert: false });
+  if (error) {
+    console.error("[cmsStorage] cover upload error", error);
+    return null;
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(COVER_BUCKET).getPublicUrl(path);
+  return publicUrl;
 }
 
 function probeVideoDimensions(
