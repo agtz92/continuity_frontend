@@ -216,6 +216,14 @@ export function TasksView({
             return tb - ta;
           });
 
+        const todayEffort =
+          Math.round(
+            todayBucket.reduce(
+              (sum, task) => sum + (task.effortHours ?? 0),
+              0
+            ) * 100
+          ) / 100;
+
         const searching = q.length > 0;
         const overdueOpen = searching || showOverdueTasks;
         const todayOpen = searching || showTodayTasks;
@@ -225,7 +233,10 @@ export function TasksView({
 
         const showUpcoming = taskRange !== "today";
         const showUnscheduled = taskRange === "all";
-        const showDone = taskRange === "all" && taskFilter.showCompleted;
+        // Independent of taskRange: the range filter scopes by due-date
+        // horizon, but completed tasks have no horizon — keep the bucket
+        // reachable in every range so an accidental completion can be undone.
+        const showDone = taskFilter.showCompleted;
 
         const renderRow = (task: Task, opts?: { canSchedule?: boolean }) => (
           <TaskRow
@@ -267,9 +278,20 @@ export function TasksView({
               icon={<Target size={14} className="text-orange-400" />}
               title={t("todayOnlyBucket")}
               rightSlot={
-                <span className="text-xs text-orange-700 dark:text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
-                  {todayBucket.length}
-                </span>
+                <>
+                  <span className="text-xs text-orange-700 dark:text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
+                    {todayBucket.length}
+                  </span>
+                  {todayEffort > 0 && (
+                    <span
+                      className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1"
+                      title={t("totalEffort")}
+                    >
+                      <Clock size={10} />
+                      {todayEffort}h
+                    </span>
+                  )}
+                </>
               }
             >
               {todayBucket.length === 0 ? (
