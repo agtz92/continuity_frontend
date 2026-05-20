@@ -615,7 +615,7 @@ export function ProjectsView({
                           <span className="font-semibold truncate">{p.name}</span>
                           {p.categoryId && categoryById[p.categoryId] && (
                             <span
-                              className={`text-xs px-2 py-0.5 rounded border shrink-0 ${
+                              className={`hidden md:inline-block text-xs px-2 py-0.5 rounded border shrink-0 ${
                                 categoryColorClass(
                                   categoryById[p.categoryId].color
                                 ).chip
@@ -633,12 +633,12 @@ export function ProjectsView({
                               {tCard("todayBadge", { count: todayCount })}
                             </span>
                           ) : isStalled ? (
-                            <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
+                            <span className="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
                               {tCard("idleBadge", { count: days })}
                             </span>
                           ) : pendingEffort > 0 ? (
                             <span
-                              className="text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 inline-flex items-center gap-1 shrink-0"
+                              className="hidden md:inline-flex text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 items-center gap-1 shrink-0"
                               title={tCard("pendingHoursTooltip")}
                             >
                               <Clock size={10} />
