@@ -381,6 +381,7 @@
         "overdueExtra": "· {count} overdue",
         "totalHoursTooltip": "Total estimated hours for tasks due today + overdue",
         "totalHoursLabel": "{hours}h total",
+        "markDone": "Mark task as done",
         "emptyTitle": "Nothing pressing today.",
         "emptyHintFirst": "Add your first project to get started.",
         "emptyHintNext": "Add tasks or next steps to your active projects.",

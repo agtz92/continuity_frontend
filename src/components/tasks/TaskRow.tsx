@@ -45,6 +45,7 @@ export function TaskRow({
           task.done ? "text-accent" : "text-text-muted hover:text-text-muted"
         }
         aria-label={task.done ? t("markNotDone") : t("markDone")}
+        title={task.done ? t("markNotDone") : t("markDone")}
       >
         <CheckCircle2 size={18} />
       </button>
@@ -86,6 +87,7 @@ export function TaskRow({
                 onSchedule(task);
               }}
               className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200 hover:underline"
+              title={t("addDate")}
             >
               <CalendarPlus size={12} /> {t("addDate")}
             </button>
@@ -96,6 +98,7 @@ export function TaskRow({
         onClick={() => onDelete(task.id)}
         className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
         aria-label={t("deleteAria")}
+        title={t("deleteAria")}
       >
         <X size={16} />
       </button>

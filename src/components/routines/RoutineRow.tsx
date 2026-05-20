@@ -74,6 +74,7 @@ export function RoutineRow({
         onClick={handleToggle}
         className={done ? "text-accent" : "text-text-muted hover:text-text"}
         aria-label={done ? t("markNotDone") : t("markDone")}
+        title={done ? t("markNotDone") : t("markDone")}
       >
         <CheckCircle2 size={18} />
       </button>
@@ -121,6 +122,7 @@ export function RoutineRow({
           }}
           className="text-text-muted hover:text-text sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
           aria-label={t("editAria")}
+          title={t("editAria")}
         >
           <Pencil size={14} />
         </button>
@@ -133,6 +135,7 @@ export function RoutineRow({
           }}
           className="text-text-muted hover:text-text sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
           aria-label={routine.archived ? t("unarchiveAria") : t("archiveAria")}
+          title={routine.archived ? t("unarchiveAria") : t("archiveAria")}
         >
           {routine.archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
         </button>
@@ -145,6 +148,7 @@ export function RoutineRow({
           }}
           className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
           aria-label={t("deleteAria")}
+          title={t("deleteAria")}
         >
           <X size={16} />
         </button>

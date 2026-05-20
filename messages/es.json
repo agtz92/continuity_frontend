@@ -381,6 +381,7 @@
         "overdueExtra": "· {count} vencidas",
         "totalHoursTooltip": "Horas estimadas totales para tareas de hoy + vencidas",
         "totalHoursLabel": "{hours}h en total",
+        "markDone": "Marcar tarea como hecha",
         "emptyTitle": "Nada apremiante hoy.",
         "emptyHintFirst": "Agrega tu primer proyecto para empezar.",
         "emptyHintNext": "Agrega tareas o próximos pasos a tus proyectos activos.",
