@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
-import { Lock, X as XIcon } from "lucide-react";
+import { ChevronDown, Lock, Search, X as XIcon } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
@@ -273,42 +273,54 @@ export function TaskModal({
             </div>
             {blockers.length > 0 && (
               <div className="space-y-1">
-                {blockers.map((b) => (
-                  <div
-                    key={b.id}
-                    className="flex items-center gap-2 text-sm bg-border/40 rounded-lg px-3 py-1.5"
-                  >
-                    <Lock size={12} className="text-text-muted shrink-0" />
-                    <span className="flex-1 text-text-muted truncate">
-                      {b.blockingTaskId
-                        ? (tasks.find((t2) => t2.id === b.blockingTaskId)?.title ?? t("unknownTask"))
-                        : b.externalDescription}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveBlocker(b.id)}
-                      className="text-text-muted hover:text-red-400 shrink-0"
+                {blockers.map((b) => {
+                  const found = b.blockingTaskId
+                    ? tasks.find((t2) => t2.id === b.blockingTaskId)
+                    : null;
+                  const proj = found?.projectId
+                    ? projects.find((p) => p.id === found.projectId)
+                    : null;
+                  return (
+                    <div
+                      key={b.id}
+                      className="flex items-center gap-2 text-sm bg-border/40 rounded-lg px-3 py-1.5"
                     >
-                      <XIcon size={12} />
-                    </button>
-                  </div>
-                ))}
+                      <Lock size={12} className="text-text-muted shrink-0" />
+                      <span className="flex-1 flex items-center gap-1.5 min-w-0 text-text-muted">
+                        {b.blockingTaskId ? (
+                          <>
+                            {proj && (
+                              <span className="shrink-0 text-[10px] bg-border border border-border rounded px-1.5 py-0.5 font-medium">
+                                {proj.name}
+                              </span>
+                            )}
+                            <span className="truncate">{found?.title ?? t("unknownTask")}</span>
+                          </>
+                        ) : (
+                          <span className="truncate">{b.externalDescription}</span>
+                        )}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBlocker(b.id)}
+                        className="text-text-muted hover:text-red-400 shrink-0"
+                      >
+                        <XIcon size={12} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
             {availableBlockerTasks.length > 0 && (
               <div className="flex gap-2">
-                <select
+                <BlockerTaskCombobox
+                  tasks={availableBlockerTasks}
+                  projects={projects}
                   value={blockerTaskId}
-                  onChange={(e) => setBlockerTaskId(e.target.value)}
-                  className="flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value="">{t("selectBlockingTask")}</option>
-                  {availableBlockerTasks.map((t2) => (
-                    <option key={t2.id} value={t2.id}>
-                      {t2.title}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setBlockerTaskId}
+                  placeholder={t("selectBlockingTask")}
+                />
                 <button
                   type="button"
                   onClick={handleAddTaskBlocker}
@@ -371,5 +383,140 @@ function DateChip({
     >
       {label}
     </button>
+  );
+}
+
+function BlockerTaskCombobox({
+  tasks,
+  projects,
+  value,
+  onChange,
+  placeholder,
+}: {
+  tasks: Task[];
+  projects: Project[];
+  value: string;
+  onChange: (id: string) => void;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  const selectedTask = tasks.find((t) => t.id === value) ?? null;
+  const selectedProject = selectedTask?.projectId
+    ? projects.find((p) => p.id === selectedTask.projectId) ?? null
+    : null;
+
+  const groups = useMemo(() => {
+    const q = query.toLowerCase();
+    const matched = q ? tasks.filter((t) => t.title.toLowerCase().includes(q)) : tasks;
+    const byProject = new Map<string | null, Task[]>();
+    for (const task of matched) {
+      const key = task.projectId ?? null;
+      if (!byProject.has(key)) byProject.set(key, []);
+      byProject.get(key)!.push(task);
+    }
+    const result: { id: string | null; name: string | null; tasks: Task[] }[] = [];
+    for (const p of projects) {
+      const pTasks = byProject.get(p.id);
+      if (pTasks?.length) result.push({ id: p.id, name: p.name, tasks: pTasks });
+    }
+    const unassigned = byProject.get(null);
+    if (unassigned?.length) result.push({ id: null, name: null, tasks: unassigned });
+    return result;
+  }, [tasks, projects, query]);
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 bg-border border border-border rounded-lg px-3 py-2 text-sm text-left"
+      >
+        {selectedTask ? (
+          <>
+            {selectedProject && (
+              <span className="shrink-0 text-[10px] bg-bg border border-border rounded px-1.5 py-0.5 font-medium text-text-muted">
+                {selectedProject.name}
+              </span>
+            )}
+            <span className="flex-1 truncate text-text">{selectedTask.title}</span>
+          </>
+        ) : (
+          <span className="flex-1 text-text-muted">{placeholder}</span>
+        )}
+        <ChevronDown size={14} className="text-text-muted shrink-0" />
+      </button>
+
+      {open && (
+        <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-surface border border-border rounded-lg shadow-lg overflow-hidden">
+          <div className="p-2 border-b border-border">
+            <div className="flex items-center gap-2 bg-border rounded-lg px-2 py-1.5">
+              <Search size={13} className="text-text-muted shrink-0" />
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar..."
+                className="flex-1 bg-transparent text-sm outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setOpen(false);
+                    setQuery("");
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <div className="max-h-56 overflow-y-auto">
+            {groups.length === 0 ? (
+              <div className="px-3 py-4 text-sm text-text-muted text-center">Sin resultados</div>
+            ) : (
+              groups.map((g) => (
+                <div key={g.id ?? "__none__"}>
+                  <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-wider text-text-muted sticky top-0 bg-surface">
+                    {g.name ?? "Sin proyecto"}
+                  </div>
+                  {g.tasks.map((task) => (
+                    <button
+                      key={task.id}
+                      type="button"
+                      onClick={() => {
+                        onChange(task.id);
+                        setOpen(false);
+                        setQuery("");
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm truncate ${
+                        task.id === value ? "bg-accent text-bg" : "text-text hover:bg-border"
+                      }`}
+                    >
+                      {task.title}
+                    </button>
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
