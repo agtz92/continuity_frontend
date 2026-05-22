@@ -12,7 +12,8 @@ import {
   Target,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { Routine, RoutineOccurrence } from "@/lib/types";
+import type { Category, Project, Routine, RoutineOccurrence } from "@/lib/types";
+import { categoryColorClass } from "@/lib/types";
 import { todayLocalISODate, toLocalISO } from "@/lib/date";
 import {
   completedDatesFor,
@@ -37,6 +38,8 @@ interface DueItem {
 export function RoutinesView({
   routines,
   occurrences,
+  projects,
+  categories,
   onNewRoutine,
   onEditRoutine,
   onArchiveRoutine,
@@ -46,6 +49,8 @@ export function RoutinesView({
 }: {
   routines: Routine[];
   occurrences: RoutineOccurrence[];
+  projects: Project[];
+  categories: Category[];
   onNewRoutine: () => void;
   onEditRoutine: (r: Routine) => void;
   onArchiveRoutine: (r: Routine) => void | Promise<void>;
@@ -58,6 +63,17 @@ export function RoutinesView({
 }) {
   const t = useTranslations("views.routines");
   const tCommon = useTranslations("common");
+  const categoryById = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.id, c])),
+    [categories]
+  );
+  const resolveRoutineProject = (r: Routine) => {
+    if (!r.projectId) return undefined;
+    const proj = projects.find((p) => p.id === r.projectId);
+    if (!proj) return undefined;
+    const cat = proj.categoryId ? categoryById[proj.categoryId] : undefined;
+    return { name: proj.name, color: cat?.color ?? "emerald" };
+  };
   const [search, setSearch] = useState("");
   const [showToday, setShowToday] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -265,6 +281,7 @@ export function RoutinesView({
                     routine={it.routine}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
+                    project={resolveRoutineProject(it.routine)}
                     onComplete={onCompleteOccurrence}
                     onUncomplete={onUncompleteOccurrence}
                     onEdit={onEditRoutine}
@@ -296,6 +313,7 @@ export function RoutinesView({
                     routine={it.routine}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
+                    project={resolveRoutineProject(it.routine)}
                     onComplete={onCompleteOccurrence}
                     onUncomplete={onUncompleteOccurrence}
                     onEdit={onEditRoutine}
@@ -325,6 +343,7 @@ export function RoutinesView({
                     routine={it.routine}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
+                    project={resolveRoutineProject(it.routine)}
                     onComplete={onCompleteOccurrence}
                     onUncomplete={onUncompleteOccurrence}
                     onEdit={onEditRoutine}
@@ -355,6 +374,7 @@ export function RoutinesView({
                     routine={it.routine}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
+                    project={resolveRoutineProject(it.routine)}
                     onComplete={onCompleteOccurrence}
                     onUncomplete={onUncompleteOccurrence}
                     onEdit={onEditRoutine}
@@ -385,6 +405,7 @@ export function RoutinesView({
                     routine={r}
                     scheduledDate={r.startDate}
                     occurrenceId={null}
+                    project={resolveRoutineProject(r)}
                     onComplete={() => Promise.resolve()}
                     onUncomplete={() => Promise.resolve()}
                     onEdit={onEditRoutine}

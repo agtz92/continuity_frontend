@@ -12,6 +12,7 @@ import {
 import { useCallback } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Routine } from "@/lib/types";
+import { categoryColorClass } from "@/lib/types";
 import { describeRecurrence } from "@/lib/recurrence";
 import { todayLocalISODate } from "@/lib/date";
 
@@ -24,6 +25,7 @@ export function RoutineRow({
   routine,
   scheduledDate,
   occurrenceId,
+  project,
   onComplete,
   onUncomplete,
   onEdit,
@@ -33,6 +35,7 @@ export function RoutineRow({
   routine: Routine;
   scheduledDate: string;
   occurrenceId: string | null;
+  project?: { name: string; color: string } | null;
   onComplete: (routineId: string, scheduledDate: string) => void | Promise<void>;
   onUncomplete: (occurrenceId: string) => void | Promise<void>;
   onEdit?: (r: Routine) => void;
@@ -111,6 +114,14 @@ export function RoutineRow({
               ? t("today")
               : new Date(scheduledDate + "T00:00:00").toLocaleDateString(locale)}
           </span>
+          {project && (
+            <span className="inline-flex items-center gap-1">
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${categoryColorClass(project.color).dot}`}
+              />
+              {project.name}
+            </span>
+          )}
           {routine.description && <span>· {routine.description}</span>}
         </div>
       </div>

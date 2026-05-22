@@ -9,11 +9,13 @@ export type TaskFilterDraft = {
   /** Project IDs to include; `null` element represents "no project". Empty set = no filter. */
   projectIds: ReadonlySet<string | null>;
   showCompleted: boolean;
+  showBlocked: boolean;
 };
 
 export const EMPTY_TASK_FILTER: TaskFilterDraft = {
   projectIds: new Set(),
   showCompleted: true,
+  showBlocked: true,
 };
 
 export function TasksFilterSheet({
@@ -116,6 +118,17 @@ export function TasksFilterSheet({
             checked={draft.showCompleted}
             onChange={(e) =>
               setDraft((d) => ({ ...d, showCompleted: e.target.checked }))
+            }
+            className="w-5 h-5 accent-accent"
+          />
+        </label>
+        <label className="flex items-center justify-between gap-3 cursor-pointer px-1 py-2">
+          <span className="text-sm text-text">{tSheet("showBlocked")}</span>
+          <input
+            type="checkbox"
+            checked={draft.showBlocked}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, showBlocked: e.target.checked }))
             }
             className="w-5 h-5 accent-accent"
           />

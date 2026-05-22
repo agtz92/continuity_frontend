@@ -478,7 +478,8 @@
         "applyEmpty": "No tasks match",
         "byProject": "By project",
         "noProject": "No project",
-        "showCompleted": "Show completed"
+        "showCompleted": "Show completed",
+        "showBlocked": "Show blocked"
       }
     },
     "routines": {
@@ -628,7 +629,8 @@
     "markNotDone": "Mark as not done",
     "deleteAria": "Delete task",
     "dueToday": "Due today",
-    "addDate": "Add date"
+    "addDate": "Add date",
+    "blocked": "Blocked"
   },
   "routineRow": {
     "markDone": "Mark as done",
@@ -715,6 +717,11 @@
       "effortPlaceholder": "e.g. 2.5",
       "decreaseEffortAria": "Decrease effort",
       "increaseEffortAria": "Increase effort",
+      "blockers": "Blockers",
+      "selectBlockingTask": "Select a blocking task…",
+      "addBlocker": "Add",
+      "externalBlockerPlaceholder": "External blocker (e.g. waiting on client)",
+      "unknownTask": "Unknown task",
       "chips": {
         "today": "Today",
         "tomorrow": "Tomorrow",

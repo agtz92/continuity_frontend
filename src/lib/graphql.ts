@@ -572,6 +572,13 @@ export const DASHBOARD_QUERY = gql`
         completedAt
         created
         effortHours
+        blockers {
+          id
+          blockedTaskId
+          blockingTaskId
+          externalDescription
+          created
+        }
       }
       ideas {
         id
@@ -620,6 +627,7 @@ export const DASHBOARD_QUERY = gql`
         effortHours
         archived
         created
+        projectId
       }
       routineOccurrences {
         id
@@ -647,6 +655,15 @@ const ROUTINE_FIELDS = `
   monthlyDay
   effortHours
   archived
+  created
+  projectId
+`;
+
+const TASK_BLOCKER_FIELDS = `
+  id
+  blockedTaskId
+  blockingTaskId
+  externalDescription
   created
 `;
 
@@ -824,6 +841,9 @@ export const CREATE_TASK = gql`
       completedAt
       created
       effortHours
+      blockers {
+        ${TASK_BLOCKER_FIELDS}
+      }
     }
   }
 `;
@@ -839,6 +859,9 @@ export const UPDATE_TASK = gql`
       completedAt
       created
       effortHours
+      blockers {
+        ${TASK_BLOCKER_FIELDS}
+      }
     }
   }
 `;
@@ -854,7 +877,24 @@ export const TOGGLE_TASK = gql`
       completedAt
       created
       effortHours
+      blockers {
+        ${TASK_BLOCKER_FIELDS}
+      }
     }
+  }
+`;
+
+export const ADD_TASK_BLOCKER = gql`
+  mutation AddTaskBlocker($data: TaskBlockerInput!) {
+    addTaskBlocker(data: $data) {
+      ${TASK_BLOCKER_FIELDS}
+    }
+  }
+`;
+
+export const REMOVE_TASK_BLOCKER = gql`
+  mutation RemoveTaskBlocker($id: ID!) {
+    removeTaskBlocker(id: $id)
   }
 `;
 

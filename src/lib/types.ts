@@ -38,6 +38,14 @@ export interface ProjectNote {
   updatedAt: string;
 }
 
+export interface TaskBlocker {
+  id: string;
+  blockedTaskId: string;
+  blockingTaskId: string | null;
+  externalDescription: string;
+  created: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -47,6 +55,7 @@ export interface Task {
   completedAt: string | null;
   created: string;
   effortHours: number | null;
+  blockers: TaskBlocker[];
 }
 
 export interface Idea {
@@ -92,6 +101,7 @@ export interface Routine {
   effortHours: number | null;
   archived: boolean;
   created: string;
+  projectId: string | null;
 }
 
 export interface RoutineOccurrence {

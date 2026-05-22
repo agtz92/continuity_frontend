@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlus, CheckCircle2, Clock, X } from "lucide-react";
+import { CalendarPlus, CheckCircle2, Clock, Lock, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
 import { isDueToday, isOverdue } from "@/lib/date";
@@ -29,6 +29,7 @@ export function TaskRow({
   const locale = useLocale();
   const overdue = !task.done && isOverdue(task.dueDate);
   const dueToday = !task.done && isDueToday(task.dueDate);
+  const isBlocked = !task.done && task.blockers.length > 0;
   return (
     <div
       className={`bg-surface border rounded-lg p-3 flex items-center gap-3 group ${
@@ -37,7 +38,7 @@ export function TaskRow({
           : dueToday
           ? "border-orange-500/30"
           : "border-border"
-      }`}
+      } ${isBlocked ? "opacity-60" : ""}`}
     >
       <button
         onClick={() => onToggle(task)}
@@ -61,6 +62,12 @@ export function TaskRow({
             <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
               <Clock size={10} />
               {task.effortHours}h
+            </span>
+          )}
+          {isBlocked && (
+            <span className="text-xs px-2 py-0.5 rounded border bg-gray-500/10 text-gray-500 border-gray-500/30 inline-flex items-center gap-1">
+              <Lock size={10} />
+              {t("blocked")}
             </span>
           )}
         </div>

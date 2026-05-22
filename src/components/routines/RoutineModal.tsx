@@ -8,7 +8,7 @@ import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
 import { weekdayShortLabels } from "@/lib/recurrence";
 import { todayLocalISODate } from "@/lib/date";
-import type { IntervalUnit, RecurrenceType, Routine } from "@/lib/types";
+import type { IntervalUnit, Project, RecurrenceType, Routine } from "@/lib/types";
 
 type RoutineDraft = Partial<Routine> & { id?: string };
 
@@ -23,10 +23,12 @@ const EFFORT_PRESETS = [0.25, 0.5, 1, 2] as const;
 
 export function RoutineModal({
   routine,
+  projects,
   onSave,
   onClose,
 }: {
   routine: RoutineDraft | null;
+  projects: Project[];
   onSave: (r: {
     id?: string;
     title: string;
@@ -39,6 +41,7 @@ export function RoutineModal({
     intervalUnit: IntervalUnit | null;
     monthlyDay: number | null;
     effortHours: number | null;
+    projectId: string | null;
   }) => void | Promise<void>;
   onClose: () => void;
 }) {
@@ -67,6 +70,7 @@ export function RoutineModal({
   const [effortHours, setEffortHours] = useState(
     routine?.effortHours != null ? String(routine.effortHours) : ""
   );
+  const [projectId, setProjectId] = useState(routine?.projectId ?? "");
   const [error, setError] = useState<string | null>(null);
 
   const toggleWeekday = (d: number) => {
@@ -129,6 +133,7 @@ export function RoutineModal({
       intervalUnit: recurrenceType === "every_n" ? intervalUnit : null,
       monthlyDay: recurrenceType === "monthly_day" ? mDay : null,
       effortHours: Number.isFinite(parsedEffort) ? parsedEffort : null,
+      projectId: projectId || null,
     });
   };
 
@@ -192,6 +197,23 @@ export function RoutineModal({
             placeholder={t("descriptionPlaceholder")}
           />
         </Field>
+
+        {projects.length > 0 && (
+          <Field label={tTask("project")}>
+            <select
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="">{tTask("noProject")}</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
 
         <Field label={t("recurrenceType")}>
           <ChipGroup

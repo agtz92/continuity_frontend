@@ -1,12 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
+import { Lock, X as XIcon } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
 import { todayLocalISODate, toLocalISO } from "@/lib/date";
-import type { Project, Task } from "@/lib/types";
+import { ADD_TASK_BLOCKER, DASHBOARD_QUERY, REMOVE_TASK_BLOCKER } from "@/lib/graphql";
+import type { Project, Task, TaskBlocker } from "@/lib/types";
 
 const HOUR_PRESETS = [0.25, 0.5, 1, 2, 4] as const;
 
@@ -29,11 +32,13 @@ function upcomingFridayISO(): string {
 export function TaskModal({
   task,
   projects,
+  tasks,
   onSave,
   onClose,
 }: {
   task: Partial<Task> | null;
   projects: Project[];
+  tasks: Task[];
   onSave: (t: {
     id?: string;
     title: string;
@@ -47,6 +52,12 @@ export function TaskModal({
   const t = useTranslations("modals.task");
   const tCommon = useTranslations("common");
   const autoFocus = useAutoFocus();
+  const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+  const [addBlockerMutation] = useMutation(ADD_TASK_BLOCKER, refetchAfter);
+  const [removeBlockerMutation] = useMutation(REMOVE_TASK_BLOCKER, refetchAfter);
+  const [blockers, setBlockers] = useState<TaskBlocker[]>(task?.blockers ?? []);
+  const [blockerTaskId, setBlockerTaskId] = useState("");
+  const [externalBlocker, setExternalBlocker] = useState("");
 
   const isoToInputDate = (iso?: string | null) => {
     if (!iso) return "";
@@ -97,6 +108,49 @@ export function TaskModal({
 
   const currentEffort = effortHours.trim();
   const canSubmit = title.trim().length > 0;
+
+  const handleAddTaskBlocker = async () => {
+    if (!task?.id || !blockerTaskId) return;
+    try {
+      const result = await addBlockerMutation({
+        variables: { data: { blockedTaskId: task.id, blockingTaskId: blockerTaskId } },
+      });
+      if (result.data?.addTaskBlocker) {
+        setBlockers((prev) => [...prev, result.data.addTaskBlocker]);
+        setBlockerTaskId("");
+      }
+    } catch {
+      /* errorLink toasts */
+    }
+  };
+
+  const handleAddExternalBlocker = async () => {
+    if (!task?.id || !externalBlocker.trim()) return;
+    try {
+      const result = await addBlockerMutation({
+        variables: { data: { blockedTaskId: task.id, externalDescription: externalBlocker.trim() } },
+      });
+      if (result.data?.addTaskBlocker) {
+        setBlockers((prev) => [...prev, result.data.addTaskBlocker]);
+        setExternalBlocker("");
+      }
+    } catch {
+      /* errorLink toasts */
+    }
+  };
+
+  const handleRemoveBlocker = async (blockerId: string) => {
+    try {
+      await removeBlockerMutation({ variables: { id: blockerId } });
+      setBlockers((prev) => prev.filter((b) => b.id !== blockerId));
+    } catch {
+      /* errorLink toasts */
+    }
+  };
+
+  const availableBlockerTasks = tasks.filter(
+    (t2) => t2.id !== task?.id && !t2.done && !blockers.some((b) => b.blockingTaskId === t2.id)
+  );
 
   return (
     <Modal
@@ -212,6 +266,84 @@ export function TaskModal({
             />
           </div>
         </Field>
+        {task?.id && (
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-text-muted uppercase tracking-wide">
+              {t("blockers")}
+            </div>
+            {blockers.length > 0 && (
+              <div className="space-y-1">
+                {blockers.map((b) => (
+                  <div
+                    key={b.id}
+                    className="flex items-center gap-2 text-sm bg-border/40 rounded-lg px-3 py-1.5"
+                  >
+                    <Lock size={12} className="text-text-muted shrink-0" />
+                    <span className="flex-1 text-text-muted truncate">
+                      {b.blockingTaskId
+                        ? (tasks.find((t2) => t2.id === b.blockingTaskId)?.title ?? t("unknownTask"))
+                        : b.externalDescription}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveBlocker(b.id)}
+                      className="text-text-muted hover:text-red-400 shrink-0"
+                    >
+                      <XIcon size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {availableBlockerTasks.length > 0 && (
+              <div className="flex gap-2">
+                <select
+                  value={blockerTaskId}
+                  onChange={(e) => setBlockerTaskId(e.target.value)}
+                  className="flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">{t("selectBlockingTask")}</option>
+                  {availableBlockerTasks.map((t2) => (
+                    <option key={t2.id} value={t2.id}>
+                      {t2.title}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleAddTaskBlocker}
+                  disabled={!blockerTaskId}
+                  className="px-3 py-2 bg-border border border-border rounded-lg text-sm disabled:opacity-50 hover:opacity-80"
+                >
+                  {t("addBlocker")}
+                </button>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={externalBlocker}
+                onChange={(e) => setExternalBlocker(e.target.value)}
+                placeholder={t("externalBlockerPlaceholder")}
+                className="flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddExternalBlocker();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddExternalBlocker}
+                disabled={!externalBlocker.trim()}
+                className="px-3 py-2 bg-border border border-border rounded-lg text-sm disabled:opacity-50 hover:opacity-80"
+              >
+                {t("addBlocker")}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );

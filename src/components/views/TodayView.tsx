@@ -184,6 +184,14 @@ export function TodayView({
   const [showRoutinesToday, setShowRoutinesToday] = useState(true);
   const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
 
+  const resolveRoutineProject = (r: Routine) => {
+    if (!r.projectId) return undefined;
+    const proj = projects.find((p) => p.id === r.projectId);
+    if (!proj) return undefined;
+    const cat = proj.categoryId ? categoryById[proj.categoryId] : undefined;
+    return { name: proj.name, color: cat?.color ?? "emerald" };
+  };
+
   const todayRoutineItems = useMemo(() => {
     const today = todayLocalISODate();
     const lookback = new Date();
@@ -608,6 +616,7 @@ export function TodayView({
                 routine={it.routine}
                 scheduledDate={it.scheduledDate}
                 occurrenceId={null}
+                project={resolveRoutineProject(it.routine)}
                 onComplete={onCompleteOccurrence}
                 onUncomplete={onUncompleteOccurrence}
                 onEdit={onEditRoutine}

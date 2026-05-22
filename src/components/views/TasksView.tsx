@@ -71,21 +71,28 @@ export function TasksView({
   const matchesCompletedFilter = (task: Task, draft: TaskFilterDraft) =>
     draft.showCompleted || !task.done;
 
+  const matchesBlockedFilter = (task: Task, draft: TaskFilterDraft) =>
+    draft.showBlocked || task.done || task.blockers.length === 0;
+
   const passesUserFilter = (task: Task) =>
     matchesProjectFilter(task, taskFilter) &&
-    matchesCompletedFilter(task, taskFilter);
+    matchesCompletedFilter(task, taskFilter) &&
+    matchesBlockedFilter(task, taskFilter);
 
   const previewCount = (draft: TaskFilterDraft) =>
     tasks.filter(
       (task) =>
         matchesProjectFilter(task, draft) &&
-        matchesCompletedFilter(task, draft)
+        matchesCompletedFilter(task, draft) &&
+        matchesBlockedFilter(task, draft)
     ).length;
 
   const hasUnassigned = tasks.some((task) => !task.projectId);
 
   const activeFilterCount =
-    taskFilter.projectIds.size + (taskFilter.showCompleted ? 0 : 1);
+    taskFilter.projectIds.size +
+    (taskFilter.showCompleted ? 0 : 1) +
+    (taskFilter.showBlocked ? 0 : 1);
 
   return (
     <div>

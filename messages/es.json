@@ -478,7 +478,8 @@
         "applyEmpty": "Ninguna tarea coincide",
         "byProject": "Por proyecto",
         "noProject": "Sin proyecto",
-        "showCompleted": "Mostrar completadas"
+        "showCompleted": "Mostrar completadas",
+        "showBlocked": "Mostrar bloqueadas"
       }
     },
     "routines": {
@@ -628,7 +629,8 @@
     "markNotDone": "Marcar como no hecha",
     "deleteAria": "Eliminar tarea",
     "dueToday": "Para hoy",
-    "addDate": "Agregar fecha"
+    "addDate": "Agregar fecha",
+    "blocked": "Bloqueada"
   },
   "routineRow": {
     "markDone": "Marcar como hecha",
@@ -715,6 +717,11 @@
       "effortPlaceholder": "ej. 2.5",
       "decreaseEffortAria": "Reducir esfuerzo",
       "increaseEffortAria": "Aumentar esfuerzo",
+      "blockers": "Bloqueadores",
+      "selectBlockingTask": "Selecciona una tarea bloqueante…",
+      "addBlocker": "Agregar",
+      "externalBlockerPlaceholder": "Bloqueo externo (ej. esperando al cliente)",
+      "unknownTask": "Tarea desconocida",
       "chips": {
         "today": "Hoy",
         "tomorrow": "Mañana",

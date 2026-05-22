@@ -337,6 +337,8 @@ export default function Dashboard() {
           <RoutinesView
             routines={routines}
             occurrences={routineOccurrences}
+            projects={projects}
+            categories={categories}
             onNewRoutine={() => {
               setEditingRoutine(null);
               setShowRoutineModal(true);
@@ -422,6 +424,7 @@ export default function Dashboard() {
         <TaskModal
           task={editingTask}
           projects={projects}
+          tasks={tasks}
           onSave={handleSaveTask}
           onClose={() => {
             setShowTaskModal(false);
@@ -444,6 +447,7 @@ export default function Dashboard() {
       {showRoutineModal && (
         <RoutineModal
           routine={editingRoutine}
+          projects={projects}
           onSave={handleSaveRoutine}
           onClose={() => {
             setShowRoutineModal(false);
