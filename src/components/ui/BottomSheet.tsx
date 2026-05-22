@@ -45,7 +45,10 @@ export function BottomSheet({
   } | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [viewport, setViewport] = useState<{
+    height: number;
+    offsetTop: number;
+  } | null>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -55,7 +58,8 @@ export function BottomSheet({
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const update = () => setViewportHeight(vv.height);
+    const update = () =>
+      setViewport({ height: vv.height, offsetTop: vv.offsetTop });
     update();
     vv.addEventListener("resize", update);
     vv.addEventListener("scroll", update);
@@ -113,22 +117,26 @@ export function BottomSheet({
   };
 
   const heightClass =
-    viewportHeight !== null
+    viewport !== null
       ? ""
       : initialHeight === "auto"
         ? "max-h-[95vh]"
         : HEIGHT_CLASS[initialHeight];
 
   const heightStyle: React.CSSProperties = {};
-  if (viewportHeight !== null) {
+  if (viewport !== null) {
     if (initialHeight === "auto") {
-      heightStyle.maxHeight = `${Math.max(0, viewportHeight - 8)}px`;
+      heightStyle.maxHeight = `${Math.max(0, viewport.height - 8)}px`;
     } else {
       const fraction = Number(initialHeight) / 100;
-      heightStyle.height = `${viewportHeight * fraction}px`;
-      heightStyle.maxHeight = `${Math.max(0, viewportHeight - 8)}px`;
+      heightStyle.height = `${viewport.height * fraction}px`;
+      heightStyle.maxHeight = `${Math.max(0, viewport.height - 8)}px`;
     }
   }
+
+  const containerStyle: React.CSSProperties = viewport
+    ? { top: viewport.offsetTop, height: viewport.height }
+    : {};
 
   const handleContentFocus = (e: React.FocusEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -140,7 +148,8 @@ export function BottomSheet({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed left-0 right-0 z-50 flex items-end justify-center"
+      style={containerStyle}
       role="dialog"
       aria-modal="true"
       aria-label={title}
