@@ -57,10 +57,11 @@ export function Modal({
       }}
     >
       <div
-        className={`bg-surface border border-border rounded-xl p-4 sm:p-5 w-full ${widthClassName} h-auto max-h-[90vh] overflow-auto sm:resize relative flex flex-col`}
+        className={`bg-surface border border-border rounded-xl w-full ${widthClassName} h-auto max-h-[90vh] sm:resize relative flex flex-col`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4 shrink-0">
+        {/* Header — always visible, never scrolls */}
+        <div className="flex items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-4 shrink-0">
           <h3 className="font-semibold text-lg">{title}</h3>
           <button
             onClick={onClose}
@@ -70,8 +71,14 @@ export function Modal({
             <X size={18} />
           </button>
         </div>
-        <div className="flex-1 min-h-0 flex flex-col">{children}</div>
-        {footer && <div className="shrink-0 pt-3">{footer}</div>}
+        {/* Scrollable content area */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 pb-4 sm:pb-5 flex flex-col">{children}</div>
+        {/* Footer — always pinned to the bottom, never scrolls */}
+        {footer && (
+          <div className="shrink-0 px-4 sm:px-5 py-3 border-t border-border">
+            {footer}
+          </div>
+        )}
         <div
           aria-hidden
           className="hidden sm:block pointer-events-none absolute bottom-1 right-1 text-text-muted"
