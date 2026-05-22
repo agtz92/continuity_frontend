@@ -5,6 +5,7 @@ import {
   CREATE_CATEGORY,
   DASHBOARD_QUERY,
   DELETE_CATEGORY,
+  UPDATE_CATEGORY,
 } from "@/lib/graphql";
 import type { Category } from "@/lib/types";
 
@@ -12,6 +13,7 @@ const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
 
 export function useCategoryMutations() {
   const [createCategoryM] = useMutation(CREATE_CATEGORY, refetchAfter);
+  const [updateCategoryM] = useMutation(UPDATE_CATEGORY, refetchAfter);
   const [deleteCategoryM] = useMutation(DELETE_CATEGORY, refetchAfter);
 
   const createCategory = async (input: {
@@ -23,6 +25,15 @@ export function useCategoryMutations() {
       return (res.data?.createCategory as Category | undefined) ?? null;
     } catch {
       return null;
+    }
+  };
+
+  const updateCategory = async (id: string, input: { name: string; color: string }): Promise<boolean> => {
+    try {
+      await updateCategoryM({ variables: { id, data: input } });
+      return true;
+    } catch {
+      return false;
     }
   };
 
@@ -38,5 +49,5 @@ export function useCategoryMutations() {
     }
   };
 
-  return { createCategory, deleteCategory };
+  return { createCategory, updateCategory, deleteCategory };
 }

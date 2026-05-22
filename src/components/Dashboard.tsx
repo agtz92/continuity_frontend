@@ -65,7 +65,7 @@ export default function Dashboard() {
   const { saveTask, toggleTask, deleteTask } = useTaskMutations();
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
   const { addNote, editNote, deleteNote } = useNoteMutations();
-  const { createCategory, deleteCategory } = useCategoryMutations();
+  const { createCategory, updateCategory, deleteCategory } = useCategoryMutations();
   const {
     saveRoutine,
     archiveRoutine,
@@ -405,6 +405,12 @@ export default function Dashboard() {
       {showCategoriesModal && (
         <CategoryManagementModal
           categories={categories}
+          onCreate={async (name, color) => {
+            await createCategory({ name, color });
+          }}
+          onUpdate={async (id, name, color) => {
+            await updateCategory(id, { name, color });
+          }}
           onDelete={async (id) => {
             await deleteCategory(id);
           }}

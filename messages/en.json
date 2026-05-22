@@ -775,7 +775,13 @@
     },
     "category": {
       "title": "Manage categories",
-      "empty": "No categories yet. Create one from a project.",
+      "empty": "No categories yet.",
+      "add": "New category",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel",
+      "namePlaceholder": "Name",
+      "editAria": "Edit category",
       "deleteAria": "Delete category",
       "footnote": "Deleting a category leaves its projects intact (just uncategorized)."
     },

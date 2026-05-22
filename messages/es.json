@@ -775,7 +775,13 @@
     },
     "category": {
       "title": "Administrar categorías",
-      "empty": "Aún no hay categorías. Crea una desde un proyecto.",
+      "empty": "Aún no hay categorías.",
+      "add": "Nueva categoría",
+      "create": "Crear",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "namePlaceholder": "Nombre",
+      "editAria": "Editar categoría",
       "deleteAria": "Eliminar categoría",
       "footnote": "Al eliminar una categoría sus proyectos quedan sin categoría (no se borran)."
     },
