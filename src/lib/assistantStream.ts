@@ -19,7 +19,7 @@ export type AssistantEvent =
         conversation_id: string;
         user_message_id: string;
         model: string;
-        plan: "free" | "pro" | "admin";
+        plan: "free" | "pro" | "studio" | "admin";
         messages_remaining_today: number | null;
       };
     }

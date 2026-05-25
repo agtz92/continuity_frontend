@@ -35,12 +35,18 @@ async function authHeaders(): Promise<Record<string, string>> {
 }
 
 export type UsageSnapshot = {
-  plan: "free" | "pro" | "admin";
+  plan: "free" | "pro" | "studio" | "admin";
   messages_sent_today: number;
   daily_message_cap: number | null;
   tokens_used_month: number;
   monthly_token_cap: number | null;
   reset_at: string;
+  is_billing_exempt: boolean;
+  has_subscription: boolean;
+  plan_renews_at: string | null;
+  had_retention_offer: boolean;
+  subscription_period: "monthly" | "annual" | null;
+  cancel_at_period_end: boolean;
 };
 
 export async function getUsage(): Promise<UsageSnapshot> {

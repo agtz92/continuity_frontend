@@ -1,20 +1,27 @@
 "use client";
 
-import { Crown, Sparkle, Star } from "lucide-react";
+import { Crown, Gem, Sparkle, Star } from "lucide-react";
+
+type Plan = "free" | "pro" | "studio" | "admin";
 
 const STYLES: Record<
-  "free" | "pro" | "admin",
+  Plan,
   { label: string; tone: string; Icon: typeof Crown }
 > = {
   free: {
     label: "Free",
-    tone: "border-border text-text-muted bg-surface/60",
+    tone: "border-border text-text-muted bg-[color-mix(in_srgb,var(--surface)_60%,transparent)]",
     Icon: Sparkle,
   },
   pro: {
     label: "Pro",
-    tone: "border-accent/40 text-accent bg-accent/10",
+    tone: "border-[color-mix(in_srgb,var(--accent)_40%,transparent)] text-accent bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]",
     Icon: Star,
+  },
+  studio: {
+    label: "Studio",
+    tone: "border-purple-500/40 text-purple-700 dark:text-purple-300 bg-purple-500/10",
+    Icon: Gem,
   },
   admin: {
     label: "Admin",
@@ -23,8 +30,8 @@ const STYLES: Record<
   },
 };
 
-export function PlanBadge({ plan }: { plan: "free" | "pro" | "admin" }) {
-  const style = STYLES[plan];
+export function PlanBadge({ plan }: { plan: Plan }) {
+  const style = STYLES[plan] ?? STYLES.free;
   const Icon = style.Icon;
   return (
     <span

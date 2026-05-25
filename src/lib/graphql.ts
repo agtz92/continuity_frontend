@@ -9,6 +9,104 @@ export const ME_QUERY = gql`
   }
 `;
 
+export const NOTIFICATIONS_QUERY = gql`
+  query InAppNotifications {
+    notifications {
+      id
+      kind
+      severity
+      title
+      body
+      ctaLabel
+      ctaUrl
+      dismissible
+      i18nKind
+      i18nVarsJson
+    }
+  }
+`;
+
+export const ADMIN_ANNOUNCEMENTS_QUERY = gql`
+  query AdminAnnouncements($status: String) {
+    adminAnnouncements(status: $status) {
+      id
+      title
+      body
+      severity
+      status
+      audiencePlans
+      audienceUserIds
+      startsAt
+      endsAt
+      dismissible
+      ctaLabel
+      ctaUrl
+      createdBy
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const ADMIN_ANNOUNCEMENT_QUERY = gql`
+  query AdminAnnouncement($id: ID!) {
+    adminAnnouncement(id: $id) {
+      id
+      title
+      body
+      severity
+      status
+      audiencePlans
+      audienceUserIds
+      startsAt
+      endsAt
+      dismissible
+      ctaLabel
+      ctaUrl
+      createdBy
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const ADMIN_ANNOUNCEMENT_CREATE = gql`
+  mutation AdminAnnouncementCreate($data: AnnouncementInput!) {
+    adminAnnouncementCreate(data: $data) {
+      id
+      title
+      status
+      severity
+    }
+  }
+`;
+
+export const ADMIN_ANNOUNCEMENT_UPDATE = gql`
+  mutation AdminAnnouncementUpdate($id: ID!, $data: AnnouncementInput!) {
+    adminAnnouncementUpdate(id: $id, data: $data) {
+      id
+      title
+      status
+      severity
+    }
+  }
+`;
+
+export const ADMIN_ANNOUNCEMENT_SET_STATUS = gql`
+  mutation AdminAnnouncementSetStatus($id: ID!, $status: String!) {
+    adminAnnouncementSetStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`;
+
+export const ADMIN_ANNOUNCEMENT_DELETE = gql`
+  mutation AdminAnnouncementDelete($id: ID!) {
+    adminAnnouncementDelete(id: $id)
+  }
+`;
+
 export const ADMIN_USERS_QUERY = gql`
   query AdminUsers(
     $page: Int
@@ -29,6 +127,7 @@ export const ADMIN_USERS_QUERY = gql`
         email
         plan
         isAdmin
+        isBillingExempt
         createdAt
         lastSignInAt
         lastActivity
@@ -54,6 +153,7 @@ export const ADMIN_USER_QUERY = gql`
       email
       plan
       isAdmin
+      isBillingExempt
       planRenewsAt
       stripeCustomerId
       stripeSubscriptionId
@@ -107,6 +207,87 @@ export const ADMIN_SET_USER_IS_ADMIN = gql`
     adminSetUserIsAdmin(userId: $userId, isAdmin: $isAdmin) {
       userId
       isAdmin
+    }
+  }
+`;
+
+export const ADMIN_SET_USER_IS_BILLING_EXEMPT = gql`
+  mutation AdminSetUserIsBillingExempt(
+    $userId: ID!
+    $isBillingExempt: Boolean!
+  ) {
+    adminSetUserIsBillingExempt(
+      userId: $userId
+      isBillingExempt: $isBillingExempt
+    ) {
+      userId
+      isBillingExempt
+    }
+  }
+`;
+
+export const CREATE_CHECKOUT_SESSION = gql`
+  mutation CreateCheckoutSession(
+    $plan: PurchasablePlan!
+    $period: BillingPeriod!
+    $locale: String
+  ) {
+    createCheckoutSession(plan: $plan, period: $period, locale: $locale) {
+      url
+    }
+  }
+`;
+
+export const CREATE_PORTAL_SESSION = gql`
+  mutation CreatePortalSession($locale: String) {
+    createPortalSession(locale: $locale) {
+      url
+    }
+  }
+`;
+
+export const APPLY_RETENTION_OFFER = gql`
+  mutation ApplyRetentionOffer(
+    $reason: CancellationReason!
+    $feedbackText: String
+  ) {
+    applyRetentionOffer(reason: $reason, feedbackText: $feedbackText) {
+      applied
+      couponId
+      reason
+    }
+  }
+`;
+
+export const CANCEL_SUBSCRIPTION = gql`
+  mutation CancelSubscription(
+    $reason: CancellationReason!
+    $feedbackText: String
+  ) {
+    cancelSubscription(reason: $reason, feedbackText: $feedbackText) {
+      scheduled
+      currentPeriodEnd
+    }
+  }
+`;
+
+export const REACTIVATE_SUBSCRIPTION = gql`
+  mutation ReactivateSubscription {
+    reactivateSubscription {
+      success
+    }
+  }
+`;
+
+export const DOWNGRADE_TO_PLAN = gql`
+  mutation DowngradeToPlan(
+    $plan: PurchasablePlan!
+    $period: BillingPeriod!
+  ) {
+    downgradeToPlan(plan: $plan, period: $period) {
+      success
+      fromPlan
+      toPlan
     }
   }
 `;

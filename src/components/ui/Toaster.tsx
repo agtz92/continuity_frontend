@@ -4,17 +4,19 @@ import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { subscribeToasts, toast as toastApi, type Toast } from "@/lib/toast";
 
+// Toasts use a solid surface background so text always reads cleanly,
+// regardless of what's underneath. The color comes from the border + icon.
 const styles: Record<Toast["kind"], { ring: string; icon: React.ReactNode }> = {
   error: {
-    ring: "border-red-500/40 bg-red-500/10 text-red-800 dark:text-red-100",
-    icon: <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />,
+    ring: "border-red-500/60 bg-red-50 dark:bg-red-950/95 text-red-900 dark:text-red-50",
+    icon: <AlertCircle size={18} className="text-red-500 dark:text-red-400 shrink-0 mt-0.5" />,
   },
   success: {
-    ring: "border-accent/40 bg-accent/10 text-accent",
+    ring: "border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-surface text-text",
     icon: <CheckCircle2 size={18} className="text-accent shrink-0 mt-0.5" />,
   },
   info: {
-    ring: "border-accent-2/40 bg-accent-2/10 text-accent-2",
+    ring: "border-[color-mix(in_srgb,var(--accent-2)_60%,transparent)] bg-surface text-text",
     icon: <Info size={18} className="text-accent-2 shrink-0 mt-0.5" />,
   },
 };
@@ -38,7 +40,7 @@ export function Toaster() {
           <div
             key={t.id}
             role={t.kind === "error" ? "alert" : "status"}
-            className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 shadow-lg backdrop-blur-sm ${s.ring}`}
+            className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 shadow-lg ${s.ring}`}
           >
             {s.icon}
             <div className="flex-1 text-sm leading-snug whitespace-pre-wrap break-words">

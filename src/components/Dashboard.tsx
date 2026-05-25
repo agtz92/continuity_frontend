@@ -26,6 +26,7 @@ import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { RoutineModal } from "./routines/RoutineModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
+import { NotificationStack } from "./notifications/NotificationStack";
 import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
 import { PullToRefresh } from "./ui/PullToRefresh";
@@ -204,6 +205,7 @@ export default function Dashboard() {
       />
       <PullToRefresh onRefresh={() => refetch()} />
       <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">
+        <NotificationStack />
         <div className="hidden md:block">
           <DashboardHeader
             activeCount={activeCount}

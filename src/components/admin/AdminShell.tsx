@@ -26,6 +26,7 @@ const NAV_GROUPS: {
     items: [
       { label: "Dashboard", href: "/admin" },
       { label: "Usuarios", href: "/admin/users" },
+      { label: "Anuncios", href: "/admin/announcements" },
     ],
   },
   {

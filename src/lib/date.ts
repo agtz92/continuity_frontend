@@ -5,6 +5,14 @@ export const daysSince = (dateStr?: string | null) => {
   );
 };
 
+/** Whole days from now until `dateStr`. Negative if already past. */
+export const daysUntil = (dateStr?: string | null) => {
+  if (!dateStr) return null;
+  return Math.ceil(
+    (new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  );
+};
+
 export const hoursSince = (dateStr?: string | null) => {
   if (!dateStr) return null;
   return Math.floor(

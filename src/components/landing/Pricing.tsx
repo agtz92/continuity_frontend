@@ -1,28 +1,43 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
 
-type TierKey = "starter" | "pro" | "together";
+type TierKey = "free" | "pro" | "studio";
+type Period = "monthly" | "annual";
 
 function PricingCard({
   tierKey,
   popular,
   index,
+  period,
 }: {
   tierKey: TierKey;
   popular?: boolean;
   index: number;
+  period: Period;
 }) {
   const t = useTranslations(`landing.pricing.tiers.${tierKey}`);
   const tCommon = useTranslations("landing.pricing");
   const perks = t.raw("perks") as string[];
 
-  const hasInherits = tierKey !== "starter";
-  const hasCadence = tierKey !== "starter";
+  const isPaid = tierKey !== "free";
+  const price = isPaid && period === "annual" ? t("priceAnnual") : t("price");
+  const cadence =
+    isPaid && period === "annual" ? t("priceCadenceAnnual") : t("priceCadence");
+
+  // Free → signup; paid → login that redirects to billing with the upgrade
+  // pre-selected so checkout fires automatically once the user has a session.
+  const ctaHref =
+    tierKey === "free"
+      ? "/login"
+      : `/login?next=${encodeURIComponent(
+          `/settings/billing?upgrade=${tierKey}&period=${period}`
+        )}`;
 
   return (
     <motion.div
@@ -50,16 +65,12 @@ function PricingCard({
       <h3 className="font-display text-2xl text-ls-text-primary">{t("name")}</h3>
       <div className="mt-4 flex items-baseline gap-1">
         <span className="font-display text-4xl text-ls-text-primary">
-          {t("price")}
+          {price}
         </span>
-        {hasCadence ? (
-          <span className="text-sm text-ls-text-secondary">
-            {t("priceCadence")}
-          </span>
-        ) : null}
+        <span className="text-sm text-ls-text-secondary">{cadence}</span>
       </div>
 
-      {hasInherits ? (
+      {isPaid ? (
         <p className="mt-4 text-sm text-ls-text-secondary">
           {t("inheritsFrom")}
         </p>
@@ -88,7 +99,7 @@ function PricingCard({
 
       <div className="mt-8">
         <CTAButton
-          href="#beta"
+          href={ctaHref}
           variant={popular ? "primary" : "ghost"}
           size="md"
           className="w-full"
@@ -100,12 +111,56 @@ function PricingCard({
   );
 }
 
+function BillingToggle({
+  period,
+  onChange,
+}: {
+  period: Period;
+  onChange: (p: Period) => void;
+}) {
+  const t = useTranslations("landing.pricing.billingToggle");
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1">
+        <button
+          type="button"
+          onClick={() => onChange("monthly")}
+          className={`px-4 py-1.5 text-sm rounded-full transition-colors ${
+            period === "monthly"
+              ? "bg-ls-ochre text-ls-navy font-medium"
+              : "text-ls-text-secondary hover:text-ls-text-primary"
+          }`}
+        >
+          {t("monthly")}
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("annual")}
+          className={`px-4 py-1.5 text-sm rounded-full transition-colors ${
+            period === "annual"
+              ? "bg-ls-ochre text-ls-navy font-medium"
+              : "text-ls-text-secondary hover:text-ls-text-primary"
+          }`}
+        >
+          {t("annual")}
+        </button>
+      </div>
+      {period === "annual" ? (
+        <span className="text-xs text-ls-ochre">{t("annualHint")}</span>
+      ) : (
+        <span className="text-xs text-transparent select-none">.</span>
+      )}
+    </div>
+  );
+}
+
 export default function Pricing() {
   const t = useTranslations("landing.pricing");
+  const [period, setPeriod] = useState<Period>("monthly");
 
   return (
     <SectionContainer id="pricing" surface="navy">
-      <div className="max-w-3xl mx-auto text-center mb-16">
+      <div className="max-w-3xl mx-auto text-center mb-10">
         <AnimatedHeadline
           text={t("headline")}
           className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight font-light text-ls-text-primary"
@@ -121,10 +176,14 @@ export default function Pricing() {
         </motion.p>
       </div>
 
+      <div className="flex justify-center mb-10">
+        <BillingToggle period={period} onChange={setPeriod} />
+      </div>
+
       <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-        <PricingCard tierKey="starter" index={0} />
-        <PricingCard tierKey="pro" popular index={1} />
-        <PricingCard tierKey="together" index={2} />
+        <PricingCard tierKey="free" index={0} period={period} />
+        <PricingCard tierKey="pro" popular index={1} period={period} />
+        <PricingCard tierKey="studio" index={2} period={period} />
       </div>
 
       <motion.div
@@ -135,7 +194,7 @@ export default function Pricing() {
         className="mt-16 mx-auto max-w-2xl rounded-2xl border border-ls-ochre/30 bg-gradient-to-r from-ls-ochre/10 via-ls-vermillion/10 to-ls-ochre/10 p-6 text-center"
       >
         <p className="text-base text-ls-text-primary leading-relaxed">
-          🎁 {t("betaBanner")}
+          {t("betaBanner")}
         </p>
         <div className="mt-5">
           <CTAButton href="#beta" variant="primary" size="md">

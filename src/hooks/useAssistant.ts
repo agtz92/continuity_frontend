@@ -31,7 +31,7 @@ export type AssistantState = {
   conversationId: string | null;
   streaming: boolean;
   error: string | null;
-  plan: "free" | "pro" | "admin";
+  plan: "free" | "pro" | "studio" | "admin";
   usage: UsageSnapshot | null;
 };
 

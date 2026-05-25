@@ -10,6 +10,7 @@ type AdminUserRow = {
   email: string;
   plan: string;
   isAdmin: boolean;
+  isBillingExempt: boolean;
   createdAt: string | null;
   lastSignInAt: string | null;
   lastActivity: string | null;
@@ -97,7 +98,8 @@ export default function AdminUsersPage() {
               <option value="">Todos</option>
               <option value="free">Free</option>
               <option value="pro">Pro</option>
-              <option value="admin">Admin (tier)</option>
+              <option value="studio">Studio</option>
+              <option value="admin">Admin (staff)</option>
             </select>
           </div>
           <label className="flex items-center gap-2 text-sm text-text">
@@ -132,6 +134,7 @@ export default function AdminUsersPage() {
               <th className="px-4 py-2.5 font-semibold">Email</th>
               <th className="px-4 py-2.5 font-semibold">Plan</th>
               <th className="px-4 py-2.5 font-semibold">Admin</th>
+              <th className="px-4 py-2.5 font-semibold">Exento</th>
               <th className="px-4 py-2.5 font-semibold">Creado</th>
               <th className="px-4 py-2.5 font-semibold">Último ingreso</th>
               <th className="px-4 py-2.5 font-semibold">Proyectos</th>
@@ -142,14 +145,14 @@ export default function AdminUsersPage() {
           <tbody className="divide-y divide-border">
             {loading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-text-muted">
+                <td colSpan={9} className="px-4 py-6 text-center text-text-muted">
                   Cargando…
                 </td>
               </tr>
             )}
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-text-muted">
+                <td colSpan={9} className="px-4 py-6 text-center text-text-muted">
                   Sin resultados en esta página.
                 </td>
               </tr>
@@ -164,8 +167,17 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="px-4 py-2.5">
                   {u.isAdmin ? (
-                    <span className="rounded bg-accent/20 px-2 py-0.5 text-xs font-medium text-accent">
+                    <span className="rounded bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] px-2 py-0.5 text-xs font-medium text-accent">
                       sí
+                    </span>
+                  ) : (
+                    <span className="text-text-muted">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-2.5">
+                  {u.isBillingExempt ? (
+                    <span className="rounded bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] px-2 py-0.5 text-xs font-medium text-accent">
+                      cortesía
                     </span>
                   ) : (
                     <span className="text-text-muted">—</span>

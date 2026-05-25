@@ -55,6 +55,80 @@
     "showMore": "Ver {count} más",
     "showLess": "Ver menos"
   },
+  "notifications": {
+    "dismiss": "Cerrar",
+    "quotaWillExceed": {
+      "projects": {
+        "title": "Vas a quedar sobre la cuota de proyectos",
+        "body": "Tienes {current} proyectos activos. Cuando bajes a Free el {date}, el plan permite solo {cap}. Archiva {over_by} antes de esa fecha para evitar bloqueos.",
+        "cta": "Ir a proyectos"
+      },
+      "tasks_total": {
+        "title": "Vas a quedar sobre la cuota de tareas",
+        "body": "Tienes {current} tareas abiertas. Cuando bajes a Free el {date}, el plan permite solo {cap}. Cierra o elimina {over_by} antes.",
+        "cta": "Ir a tareas"
+      },
+      "routines": {
+        "title": "Vas a quedar sobre la cuota de rutinas",
+        "body": "Tienes {current} rutinas activas. Cuando bajes a Free el {date}, el plan permite solo {cap}. Archiva {over_by} antes.",
+        "cta": "Ir a rutinas"
+      },
+      "ideas": {
+        "title": "Vas a quedar sobre la cuota de ideas",
+        "body": "Tienes {current} ideas. Cuando bajes a Free el {date}, el plan permite solo {cap}. Elimina o promueve {over_by} antes.",
+        "cta": "Ir a ideas"
+      },
+      "categories": {
+        "title": "Vas a quedar sobre la cuota de categorías",
+        "body": "Tienes {current} categorías. Cuando bajes a Free el {date}, el plan permite solo {cap}. Elimina {over_by} antes.",
+        "cta": "Gestionar categorías"
+      }
+    },
+    "quotaOver": {
+      "projects": {
+        "title": "Excediste tu cuota de proyectos",
+        "body": "Tienes {current} proyectos activos pero el plan {plan} permite solo {cap}. Archiva {over_by} para evitar bloqueos al crear nuevos.",
+        "cta": "Ir a proyectos"
+      },
+      "tasks_total": {
+        "title": "Excediste tu cuota de tareas",
+        "body": "Tienes {current} tareas abiertas pero el plan {plan} permite solo {cap}. Cierra o elimina {over_by} para volver dentro del límite.",
+        "cta": "Ir a tareas"
+      },
+      "routines": {
+        "title": "Excediste tu cuota de rutinas",
+        "body": "Tienes {current} rutinas activas pero el plan {plan} permite solo {cap}. Archiva {over_by} para volver dentro del límite.",
+        "cta": "Ir a rutinas"
+      },
+      "ideas": {
+        "title": "Excediste tu cuota de ideas",
+        "body": "Tienes {current} ideas pero el plan {plan} permite solo {cap}. Elimina o convierte {over_by} en proyectos.",
+        "cta": "Ir a ideas"
+      },
+      "categories": {
+        "title": "Excediste tu cuota de categorías",
+        "body": "Tienes {current} categorías pero el plan {plan} permite solo {cap}. Elimina {over_by} para volver dentro del límite.",
+        "cta": "Gestionar categorías"
+      }
+    }
+  },
+  "errors": {
+    "quota": {
+      "default": "Llegaste al límite de tu plan {plan} ({current}/{cap}). Sube de plan para seguir.",
+      "projects": "Llegaste al límite de proyectos activos en el plan {plan} ({current}/{cap}). Archiva alguno o sube de plan.",
+      "tasks_total": "Llegaste al límite de tareas abiertas en el plan {plan} ({current}/{cap}). Cierra algunas o sube de plan.",
+      "tasks_per_project": "Llegaste al límite de tareas para este proyecto en el plan {plan} ({current}/{cap}).",
+      "routines": "Llegaste al límite de rutinas activas en el plan {plan} ({current}/{cap}). Archiva alguna o sube de plan.",
+      "ideas": "Llegaste al límite de ideas en el plan {plan} ({current}/{cap}). Convierte alguna en proyecto o elimínala.",
+      "categories": "Llegaste al límite de categorías en el plan {plan} ({current}/{cap}).",
+      "notes_per_project": "Llegaste al límite de notas para este proyecto en el plan {plan} ({current}/{cap})."
+    },
+    "retentionAlreadyUsed": "Ya usaste una oferta de retención antes. Si quieres cancelar, te llevamos a la confirmación.",
+    "noActiveSubscription": "Esta cuenta no tiene una suscripción activa en Stripe.",
+    "billingNotConfigured": "El sistema de pagos aún no está configurado. Avísanos si esto persiste.",
+    "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+    "badInput": "La información que enviaste no es válida. Revisa e inténtalo otra vez."
+  },
   "dashboard": {
     "header": {
       "active": "Activos",
@@ -175,12 +249,104 @@
       "title": "Facturación y plan",
       "description": "Administra tu suscripción, método de pago y facturas.",
       "currentPlan": "Plan actual",
-      "free": "Gratis",
+      "free": "Free",
       "pro": "Pro",
-      "admin": "Admin",
-      "freeBlurb": "Proyectos, tareas e ideas ilimitadas durante la beta.",
+      "studio": "Studio",
+      "admin": "Admin (staff)",
+      "freeBlurb": "Sube a Pro o Studio cuando necesites más espacio o más asistente.",
+      "exemptBadge": "Cortesía del equipo",
+      "exemptBlurb": "Tu cuenta tiene el plan {plan} sin costo, cortesía del equipo. No verás cobros de Stripe mientras tengas esta exención.",
+      "renewsAt": "Renueva el {date}",
+      "renewsAtWithDays": "Próximo cobro el {date} — en {days, plural, =0 {hoy} =1 {1 día} other {# días}}",
+      "renewsToday": "Renueva hoy",
+      "cancelScheduled": "Cancelación programada",
+      "cancelScheduledBlurb": "Tu plan {plan} sigue activo hasta el {date} ({days, plural, =0 {hoy} =1 {1 día restante} other {# días restantes}}). Después pasarás automáticamente a Free. Tus proyectos y datos se conservan.",
+      "reactivate": "Reactivar suscripción",
+      "reactivateSuccess": "Listo. Tu suscripción sigue activa.",
       "upgrade": "Mejorar plan",
-      "comingSoonBody": "Aquí vivirán los planes pagados y las facturas."
+      "upgradeToPro": "Subir a Pro",
+      "upgradeToStudio": "Subir a Studio",
+      "upgradeSectionTitle": "Sube de plan",
+      "upgradeSectionTitlePro": "Lleva tu cuenta al siguiente nivel",
+      "popular": "Más popular",
+      "manageSubscription": "Administrar suscripción",
+      "cancelSubscription": "Bajar a Free",
+      "downgradeToProButton": "Bajar a Pro",
+      "billingPeriod": {
+        "label": "Período de facturación",
+        "currentMonthly": "Estás en plan mensual",
+        "currentAnnual": "Estás en plan anual",
+        "switchToAnnual": "Cambiar a anual",
+        "switchToMonthly": "Cambiar a mensual",
+        "annualSavingsHint": "Pagar anual ahorra ~22%",
+        "confirmTitle": "Cambiar a {period}",
+        "confirmTitleAnnual": "Cambiar a facturación anual",
+        "confirmTitleMonthly": "Cambiar a facturación mensual",
+        "confirmBodyToAnnual": "Cambiaremos tu plan {plan} a facturación anual. Pasarás de {currentPrice} USD/mes a {newPrice} USD/mes facturado una vez al año. Stripe prorrateará la diferencia automáticamente.",
+        "confirmBodyToMonthly": "Cambiaremos tu plan {plan} a facturación mensual. Pasarás de {currentPrice} USD/mes (facturado anual) a {newPrice} USD/mes. El cambio aplica desde tu próximo ciclo.",
+        "confirm": "Confirmar cambio",
+        "back": "Atrás",
+        "successAnnual": "Listo. Ahora pagas anual.",
+        "successMonthly": "Listo. Ahora pagas mensual."
+      },
+      "downgradeConfirm": {
+        "title": "¿Bajar a Pro?",
+        "body": "Bajarás de Studio a Pro inmediatamente. Stripe prorrateará la diferencia en tu próxima factura — verás un crédito automático. Conservas todos tus proyectos, tareas y conversaciones.",
+        "noteAnnual": "Tu plan actual es anual. El downgrade te deja en Pro mensual; si prefieres Pro anual, cámbialo desde 'Administrar suscripción' después.",
+        "confirm": "Confirmar downgrade",
+        "back": "Atrás",
+        "success": "Listo. Tu plan ahora es Pro."
+      },
+      "retention": {
+        "title": "Bajar a Free",
+        "stepReasonTitle": "¿Qué te lleva a bajar de plan?",
+        "stepReasonSubtitle": "Tu respuesta nos ayuda a mejorar.",
+        "reasonTooExpensive": "Muy caro",
+        "reasonNotUsed": "No lo uso lo suficiente",
+        "reasonMissingFeatures": "Faltan funciones que necesito",
+        "reasonSwitching": "Encontré otra herramienta",
+        "reasonTrialOnly": "Solo era para probar",
+        "reasonOther": "Otro motivo",
+        "feedbackPlaceholder": "Cuéntanos un poco más (opcional)…",
+        "continue": "Continuar",
+        "cancel": "Cerrar",
+        "back": "Atrás",
+        "stepOfferTitleTooExpensive": "Entendemos. El precio importa.",
+        "stepOfferBodyTooExpensive": "Quédate con nosotros y aplicamos 30% de descuento los próximos 3 meses, automáticamente.",
+        "stepOfferTitleNotUsed": "¿Te ayudamos a usarlo más?",
+        "stepOfferBodyNotUsed": "Te aplicamos 25% off los próximos 3 meses y te enviamos tips semanales para sacarle más jugo.",
+        "stepOfferTitleMissingFeatures": "Queremos saber qué te falta.",
+        "stepOfferBodyMissingFeatures": "Lee tu feedback nuestro equipo. Mientras tanto, te dejamos 25% off los próximos 3 meses.",
+        "stepOfferTitleSwitching": "Antes de irte…",
+        "stepOfferBodySwitching": "Aplicamos 20% off los próximos 3 meses por si quieres reconsiderar.",
+        "stepOfferTitleTrialOnly": "Una probada más larga, por nuestra cuenta.",
+        "stepOfferBodyTrialOnly": "Tienes 30% off el siguiente mes para decidir con calma.",
+        "stepOfferTitleOther": "Antes de irte…",
+        "stepOfferBodyOther": "Te dejamos 20% off los próximos 3 meses como agradecimiento.",
+        "acceptOffer": "Aceptar oferta",
+        "declineOffer": "No, gracias",
+        "stepDowngradeTitle": "¿Probar con Pro en lugar de cancelar?",
+        "stepDowngradeBody": "Pro ({price}/mes) conserva el asistente con escritura, brainstorming, integraciones y Deep Mode. Solo se reducen los caps.",
+        "downgradeToPro": "Bajar a Pro",
+        "stepConfirmTitle": "Confirma el cambio a Free",
+        "stepConfirmBody": "Tu plan actual sigue activo hasta el {date}. Después pasarás al plan Free. Tus proyectos, tareas e ideas se conservan — solo cambian los límites del plan.",
+        "confirmCancel": "Confirmar cambio a Free",
+        "stepDoneTitleCancelled": "Listo. Bajaremos tu plan a Free el {date}.",
+        "stepDoneBodyCancelled": "Conservas acceso completo hasta esa fecha. Si cambias de opinión, puedes volver a suscribir desde aquí.",
+        "stepDoneTitleOffer": "¡Aplicamos tu descuento!",
+        "stepDoneBodyOffer": "Verás el ajuste en tu próxima factura. Gracias por quedarte.",
+        "stepDoneTitleDowngrade": "Cambiamos tu plan a Pro.",
+        "stepDoneBodyDowngrade": "Stripe prorrateó el cambio. Verás el ajuste en tu próxima factura.",
+        "close": "Cerrar",
+        "retentionAlreadyUsed": "Ya usaste tu oferta de retención anterior. Vamos directo a confirmar el cambio a Free."
+      },
+      "billingMonthly": "Mensual",
+      "billingAnnual": "Anual",
+      "billingAnnualHint": "Ahorra ~22% con pago anual",
+      "checkoutSuccess": "¡Listo! Tu plan se activará en cuanto Stripe confirme el pago.",
+      "checkoutCancelled": "Cancelaste el pago. Cuando quieras, vuelve a intentarlo.",
+      "checkoutError": "No se pudo abrir el checkout. Intenta de nuevo en unos segundos.",
+      "portalError": "No se pudo abrir el portal. Intenta de nuevo en unos segundos."
     },
     "plugins": {
       "title": "Integraciones",
@@ -1116,68 +1282,75 @@
       }
     },
     "pricing": {
-      "headline": "Después de la beta, este será el precio.",
-      "subheadline": "Los beta testers se quedan con el tier Pro gratis, para siempre.",
+      "headline": "Elige el plan que termina contigo.",
+      "subheadline": "Empieza gratis. Sube cuando lo necesites.",
       "monthly": "/mes",
       "yearly": "/año",
       "popular": "Más popular",
+      "billingToggle": {
+        "monthly": "Mensual",
+        "annual": "Anual",
+        "annualHint": "Ahorra ~22% pagando anual"
+      },
       "tiers": {
-        "starter": {
-          "name": "Starter",
-          "price": "Gratis, siempre.",
+        "free": {
+          "name": "Free",
+          "price": "Gratis",
+          "priceCadence": "para siempre",
           "perks": [
-            "Proyectos y tareas ilimitadas",
-            "Hasta 5 proyectos activos",
-            "Chat con IA para estructurar tus proyectos",
-            "Notificaciones diarias en Telegram",
-            "Ritual de revisión del domingo",
-            "Móvil + web + escritorio",
-            "Sync local-first entre 2 dispositivos",
-            "Tracking básico de avance",
-            "Historial de 7 días",
-            "Avatares de la Loop Society (6 de 7)"
+            "3 proyectos activos",
+            "50 tareas abiertas",
+            "2 rutinas activas",
+            "Asistente IA — 15 mensajes/día (solo lectura)",
+            "Notificaciones por Email y Telegram",
+            "Today view, analíticas y bitácora completos",
+            "Historial de 30 días",
+            "Hasta 30 ideas"
           ],
           "cta": "Crear cuenta gratis"
         },
         "pro": {
-          "name": "Finisher (Pro)",
-          "price": "$8",
-          "priceCadence": "al mes, o $72/año",
-          "inheritsFrom": "Todo lo de Starter, más:",
+          "name": "Pro",
+          "price": "$9",
+          "priceAnnual": "$7",
+          "priceCadence": "USD al mes",
+          "priceCadenceAnnual": "USD al mes, facturado anual",
+          "inheritsFrom": "Todo lo de Free, más:",
           "perks": [
-            "Proyectos activos ilimitados",
-            "Coach de IA (check-ins semanales)",
-            "Contexto IA para proyectos pausados",
-            "Chat avanzado con memoria de proyecto",
-            "Horarios de recordatorio personalizables",
-            "Notificaciones por WhatsApp (próximamente)",
-            "Páginas públicas de compromiso",
-            "Integración con calendario",
-            "Integraciones: Linear, GitHub, Notion, Slack",
-            "Historial ilimitado",
-            "Plantillas de proyecto personalizadas",
-            "Soporte prioritario",
-            "Tetsu (avatar yokai premium)"
+            "25 proyectos activos, 200 tareas por proyecto",
+            "20 rutinas activas, 500 ideas",
+            "Asistente IA — 200 mensajes/día con escritura y brainstorming",
+            "Deep Mode (Sonnet) — 5 mensajes/día",
+            "WhatsApp — 100 mensajes/mes incluidos",
+            "Google Tasks + Calendar sync",
+            "Sleeping alerts y digest diario",
+            "Export CSV/JSON",
+            "Soporte por email en 48h"
           ],
-          "cta": "Empezar trial de 14 días"
+          "cta": "Probar Pro 14 días gratis"
         },
-        "together": {
-          "name": "Together (Accountability)",
-          "price": "$14",
-          "priceCadence": "al mes, o $126/año",
+        "studio": {
+          "name": "Studio",
+          "price": "$24",
+          "priceAnnual": "$19",
+          "priceCadence": "USD al mes",
+          "priceCadenceAnnual": "USD al mes, facturado anual",
           "inheritsFrom": "Todo lo de Pro, más:",
           "perks": [
-            "Matching de accountability partner",
-            "Check-ins 1:1 asíncronos semanales",
-            "Cohortes grupales (sprints de 6 semanas)",
-            "Feature de stake (compromiso financiero)",
-            "Coach IA premium con análisis de patrones",
-            "Avatares exclusivos Premium de la Loop Society"
+            "Proyectos, tareas y rutinas ilimitadas",
+            "Asistente IA — 600 mensajes/día",
+            "Deep Mode (Sonnet) — 25 mensajes/día",
+            "WhatsApp — 500 mensajes/mes + tu asistente vía WhatsApp (próximamente)",
+            "All-time analytics",
+            "Webhooks salientes y API key personal",
+            "Reglas personalizadas de notificación",
+            "Onboarding 1:1 y early access a features",
+            "Soporte prioritario en menos de 24h"
           ],
-          "cta": "Empezar trial de 14 días"
+          "cta": "Probar Studio 14 días gratis"
         }
       },
-      "betaBanner": "Los beta testers se quedan con Finisher (Pro) gratis, de por vida. Sin truco. Solo feedback.",
+      "betaBanner": "Los usuarios beta se quedan con Studio gratis, de por vida. Sin truco. Solo feedback.",
       "betaCta": "Solicitar acceso a la beta"
     },
     "finalCall": {

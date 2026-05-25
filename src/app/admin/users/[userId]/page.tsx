@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   ADMIN_SET_USER_IS_ADMIN,
+  ADMIN_SET_USER_IS_BILLING_EXEMPT,
   ADMIN_SET_USER_PLAN,
   ADMIN_USER_QUERY,
 } from "@/lib/graphql";
@@ -47,6 +48,7 @@ type AdminUserDetail = {
   email: string;
   plan: string;
   isAdmin: boolean;
+  isBillingExempt: boolean;
   planRenewsAt: string | null;
   stripeCustomerId: string;
   stripeSubscriptionId: string;
@@ -72,7 +74,8 @@ function formatDate(value: string | null): string {
 const PLAN_OPTIONS = [
   { value: "free", label: "Free" },
   { value: "pro", label: "Pro" },
-  { value: "admin", label: "Admin (tier)" },
+  { value: "studio", label: "Studio" },
+  { value: "admin", label: "Admin (staff)" },
 ];
 
 export default function AdminUserDetailPage() {
@@ -100,6 +103,16 @@ export default function AdminUserDetailPage() {
     {
       onCompleted: () => {
         toast.success("Rol actualizado");
+        refetch();
+      },
+      onError: (e) => toast.error(e.message),
+    }
+  );
+  const [setIsBillingExempt, { loading: settingExempt }] = useMutation(
+    ADMIN_SET_USER_IS_BILLING_EXEMPT,
+    {
+      onCompleted: () => {
+        toast.success("Exención de pago actualizada");
         refetch();
       },
       onError: (e) => toast.error(e.message),
@@ -203,6 +216,41 @@ export default function AdminUserDetailPage() {
               className="h-4 w-4 accent-accent"
             />
             <span>{user.isAdmin ? "Sí — acceso completo" : "No"}</span>
+          </label>
+        </DataCard>
+
+        <DataCard label="Exención de pago">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={user.isBillingExempt}
+              disabled={settingExempt}
+              onChange={(e) => {
+                const next = e.target.checked;
+                if (
+                  !confirm(
+                    next
+                      ? `Marcar a ${user.email} como exento de pago? Mantendrá su plan sin que Stripe le cobre.`
+                      : `Quitar la exención de pago de ${user.email}? Volverá al flujo normal de Stripe.`
+                  )
+                ) {
+                  e.target.checked = user.isBillingExempt;
+                  return;
+                }
+                setIsBillingExempt({
+                  variables: {
+                    userId: user.userId,
+                    isBillingExempt: next,
+                  },
+                });
+              }}
+              className="h-4 w-4 accent-accent"
+            />
+            <span>
+              {user.isBillingExempt
+                ? "Sí — cortesía del equipo"
+                : "No — Stripe cobra normal"}
+            </span>
           </label>
         </DataCard>
 
