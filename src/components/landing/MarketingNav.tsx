@@ -66,9 +66,6 @@ export default function MarketingNav() {
           <a href="#features" className="hover:text-ls-text-primary transition-colors">
             {t("features")}
           </a>
-          <a href="#loop-society" className="hover:text-ls-text-primary transition-colors">
-            {t("loopSociety")}
-          </a>
           <a href="#pricing" className="hover:text-ls-text-primary transition-colors">
             {t("pricing")}
           </a>

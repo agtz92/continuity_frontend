@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { fetchPlatformStats } from "@/lib/publicGraphql";
 import LenisProvider from "./primitives/LenisProvider";
 import MarketingNav from "./MarketingNav";
 import Hero from "./Hero";
@@ -22,7 +23,9 @@ export async function generateLandingMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Landing() {
+export default async function Landing() {
+  const stats = await fetchPlatformStats();
+
   return (
     <div
       id="top"
@@ -39,7 +42,7 @@ export default function Landing() {
         <Features />
         <LoopSociety />
         <HowItWorks />
-        <BetaProgram />
+        <BetaProgram userCount={stats.userCount} />
         <Pricing />
         <FinalCall />
       </main>

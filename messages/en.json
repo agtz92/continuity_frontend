@@ -1014,8 +1014,7 @@
       "description": "The project manager for people who start more than they finish. Built for founders, freelancers, and side-project builders who keep abandoning what matters most."
     },
     "nav": {
-      "features": "Features",
-      "loopSociety": "Loop Society",
+      "features": "How it works",
       "pricing": "Pricing",
       "blog": "Blog",
       "beta": "Beta",
@@ -1185,54 +1184,30 @@
       }
     },
     "loopSociety": {
-      "eyebrow": "Choose your archetype",
-      "headline": "The Loop Society.",
-      "subheadline": "Seven creatures. Seven reasons projects die. Pick the one that's you.",
-      "body": "Every member of continuu.it picks an avatar from The Loop Society. Each one represents a different reason projects fail. Each one carries a story worth knowing.",
-      "premium": "Premium tier",
-      "readMore": "Read all seven backstories",
-      "archetypes": {
-        "momo": {
-          "name": "Momo",
-          "species": "Kitsune",
-          "tagline": "The Procrastinator's Friend",
-          "story": "Tomorrow always sounds better. Momo knows the trick of starting today."
+      "eyebrow": "The math of unfinished work",
+      "headline": "Every builder is carrying a graveyard.",
+      "subheadline": "The pattern repeats. The numbers don't lie.",
+      "body": "This is the shape of the problem — the gravity continuu.it was built against.",
+      "stats": {
+        "one": {
+          "value": "47",
+          "label": "Open projects",
+          "body": "The number of half-finished projects the average builder carries in their head. Most never reach a decision."
         },
-        "yuki": {
-          "name": "Yuki",
-          "species": "Moon Rabbit",
-          "tagline": "The Restless Starter",
-          "story": "Every idea looks brighter at midnight. Yuki keeps the old ones alive."
+        "two": {
+          "value": "3 weeks",
+          "label": "Half-life",
+          "body": "The point at which a side project drifts from \"I'm working on it\" to \"I'll get back to it\" — and never does."
         },
-        "tako": {
-          "name": "Tako",
-          "species": "Octopus",
-          "tagline": "The Perfectionist",
-          "story": "Eight arms, never enough hands. Tako helps you ship the imperfect version."
+        "three": {
+          "value": "4 tools",
+          "label": "Open right now",
+          "body": "Productivity apps competing for your attention. None of them are designed to close a loop. All of them reward starting."
         },
-        "kuma": {
-          "name": "Kuma",
-          "species": "Bear",
-          "tagline": "The Burnout Survivor",
-          "story": "Slow is steady. Steady is shipped. Kuma walks at a builder's pace."
-        },
-        "hoshi": {
-          "name": "Hoshi",
-          "species": "Cosmic Cat",
-          "tagline": "The Strategist",
-          "story": "Hoshi sees the constellations. The pattern in what you keep starting."
-        },
-        "pip": {
-          "name": "Pip",
-          "species": "Chick",
-          "tagline": "The Comeback Kid",
-          "story": "Pip is the project you swore was dead. Reopened. Finished. Held up."
-        },
-        "tetsu": {
-          "name": "Tetsu",
-          "species": "Wolf",
-          "tagline": "The Disciplined Warrior",
-          "story": "No shortcuts. No drama. Tetsu shows up the day after the day you wanted to quit."
+        "four": {
+          "value": "0 apps",
+          "label": "Until now",
+          "body": "Built around forced closure. Every other tool makes starting easier. We make finishing the only way out."
         }
       }
     },
@@ -1266,15 +1241,7 @@
         "Early access to The Loop Society Premium avatars"
       ],
       "footer": "Spots are filled on a first-come basis. We're looking for builders willing to articulate what they like and what they don't. No fluff. Just builders willing to help us build.",
-      "form": {
-        "emailLabel": "Your email",
-        "emailPlaceholder": "you@example.com",
-        "submit": "Reserve your spot",
-        "submitting": "Reserving…",
-        "success": "You're in. Check your inbox.",
-        "errorInvalid": "Please enter a valid email.",
-        "errorGeneric": "Something went wrong. Try again."
-      },
+      "cta": "Reserve your spot",
       "counter": {
         "claimed": "{taken} / {total} spots claimed",
         "almostFull": "Almost full",
@@ -1370,9 +1337,8 @@
       "tagline": "Finish what you start.",
       "product": "Product",
       "productLinks": {
-        "features": "Features",
+        "features": "How it works",
         "pricing": "Pricing",
-        "loopSociety": "The Loop Society",
         "manifesto": "Founder manifesto"
       },
       "community": "Community",
@@ -1386,7 +1352,6 @@
         "about": "About",
         "contact": "hello@continuu.it"
       },
-      "builtBy": "Built by Alfredo, from Querétaro, Mexico",
       "copyright": "© {year} continuu.it"
     },
     "langSwitcher": {

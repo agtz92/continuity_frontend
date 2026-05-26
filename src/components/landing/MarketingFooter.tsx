@@ -45,14 +45,6 @@ export default function MarketingFooter() {
                 </a>
               </li>
               <li>
-                <a
-                  href="#loop-society"
-                  className="text-ls-text-primary hover:text-ls-ochre transition-colors"
-                >
-                  {t("productLinks.loopSociety")}
-                </a>
-              </li>
-              <li>
                 <span className="text-ls-text-secondary">
                   {t("productLinks.manifesto")}
                 </span>
@@ -105,8 +97,7 @@ export default function MarketingFooter() {
           </div>
         </div>
 
-        <div className="mt-14 pt-6 border-t border-white/5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-xs text-ls-text-secondary">
-          <p>{t("builtBy")}</p>
+        <div className="mt-14 pt-6 border-t border-white/5 flex justify-end text-xs text-ls-text-secondary">
           <p>{t("copyright", { year })}</p>
         </div>
       </div>

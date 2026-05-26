@@ -1014,8 +1014,7 @@
       "description": "El gestor de proyectos para quienes empiezan más de lo que terminan. Pensado para founders, freelancers y constructores de side projects que abandonan justo lo que más importa."
     },
     "nav": {
-      "features": "Funcionalidades",
-      "loopSociety": "Loop Society",
+      "features": "Cómo funciona",
       "pricing": "Precios",
       "blog": "Blog",
       "beta": "Beta",
@@ -1185,54 +1184,30 @@
       }
     },
     "loopSociety": {
-      "eyebrow": "Elige tu arquetipo",
-      "headline": "La Loop Society.",
-      "subheadline": "Siete criaturas. Siete razones por las que mueren los proyectos. Elige la que eres tú.",
-      "body": "Cada miembro de continuu.it elige un avatar de la Loop Society. Cada uno representa una razón distinta por la que fallan los proyectos. Cada uno carga una historia que vale la pena conocer.",
-      "premium": "Tier premium",
-      "readMore": "Lee las siete historias",
-      "archetypes": {
-        "momo": {
-          "name": "Momo",
-          "species": "Kitsune",
-          "tagline": "La amiga de quien procrastina",
-          "story": "Mañana siempre suena mejor. Momo conoce el truco de empezar hoy."
+      "eyebrow": "Las matemáticas del trabajo a medias",
+      "headline": "Cada builder carga un cementerio.",
+      "subheadline": "El patrón se repite. Los números no mienten.",
+      "body": "Este es el contorno del problema — la gravedad contra la que diseñamos continuu.it.",
+      "stats": {
+        "one": {
+          "value": "47",
+          "label": "Proyectos abiertos",
+          "body": "El número de proyectos a medias que el builder promedio carga en la cabeza. La mayoría nunca llega a una decisión."
         },
-        "yuki": {
-          "name": "Yuki",
-          "species": "Conejo lunar",
-          "tagline": "La que empieza sin parar",
-          "story": "Toda idea brilla más a medianoche. Yuki mantiene vivas las viejas."
+        "two": {
+          "value": "3 semanas",
+          "label": "Media vida",
+          "body": "El punto donde un side project pasa de \"sigo en eso\" a \"ya le entro después\" — y nunca regresa."
         },
-        "tako": {
-          "name": "Tako",
-          "species": "Pulpo",
-          "tagline": "El perfeccionista",
-          "story": "Ocho brazos, nunca suficientes manos. Tako te ayuda a enviar la versión imperfecta."
+        "three": {
+          "value": "4 herramientas",
+          "label": "Abiertas ahora mismo",
+          "body": "Apps de productividad peleando por tu atención. Ninguna está diseñada para cerrar un bucle. Todas premian empezar."
         },
-        "kuma": {
-          "name": "Kuma",
-          "species": "Oso",
-          "tagline": "El sobreviviente del burnout",
-          "story": "Lento es constante. Constante es enviado. Kuma camina al paso del que construye."
-        },
-        "hoshi": {
-          "name": "Hoshi",
-          "species": "Gato cósmico",
-          "tagline": "El estratega",
-          "story": "Hoshi ve las constelaciones. El patrón en lo que sigues empezando."
-        },
-        "pip": {
-          "name": "Pip",
-          "species": "Polluelo",
-          "tagline": "El que regresa",
-          "story": "Pip es ese proyecto que jurabas muerto. Reabierto. Terminado. Sostenido."
-        },
-        "tetsu": {
-          "name": "Tetsu",
-          "species": "Lobo",
-          "tagline": "El guerrero disciplinado",
-          "story": "Sin atajos. Sin drama. Tetsu aparece el día después del día en que quisiste rendirte."
+        "four": {
+          "value": "0 apps",
+          "label": "Hasta ahora",
+          "body": "Construidas alrededor del cierre forzado. Todas las demás herramientas hacen más fácil empezar. Nosotros hacemos que terminar sea la única salida."
         }
       }
     },
@@ -1266,15 +1241,7 @@
         "Acceso temprano a los avatares Premium de la Loop Society"
       ],
       "footer": "Los lugares se llenan por orden de llegada. Buscamos builders capaces de decirnos qué les gusta y qué no. Sin paja. Solo builders dispuestos a ayudarnos a construir.",
-      "form": {
-        "emailLabel": "Tu correo",
-        "emailPlaceholder": "tu@ejemplo.com",
-        "submit": "Apartar mi lugar",
-        "submitting": "Apartando…",
-        "success": "Estás dentro. Revisa tu bandeja.",
-        "errorInvalid": "Ingresa un correo válido.",
-        "errorGeneric": "Algo salió mal. Inténtalo otra vez."
-      },
+      "cta": "Apartar mi lugar",
       "counter": {
         "claimed": "{taken} / {total} lugares apartados",
         "almostFull": "Casi lleno",
@@ -1370,9 +1337,8 @@
       "tagline": "Termina lo que empiezas.",
       "product": "Producto",
       "productLinks": {
-        "features": "Funcionalidades",
+        "features": "Cómo funciona",
         "pricing": "Precios",
-        "loopSociety": "La Loop Society",
         "manifesto": "Manifiesto del fundador"
       },
       "community": "Comunidad",
@@ -1386,7 +1352,6 @@
         "about": "Sobre nosotros",
         "contact": "hello@continuu.it"
       },
-      "builtBy": "Construido por Alfredo, desde Querétaro, México",
       "copyright": "© {year} continuu.it"
     },
     "langSwitcher": {

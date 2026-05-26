@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import SectionContainer from "./primitives/SectionContainer";
@@ -9,42 +8,16 @@ import CTAButton from "./primitives/CTAButton";
 
 const TOTAL_SPOTS = 50;
 
-// Live signup count is wired up post-MVP; for now show a friendly placeholder
-// so the section ships visually-complete. When the Supabase table lands we
-// switch this to a server-side fetch + subscribe.
-const PLACEHOLDER_TAKEN = 23;
+type Props = {
+  userCount: number;
+};
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export default function BetaProgram() {
+export default function BetaProgram({ userCount }: Props) {
   const t = useTranslations("landing.beta");
   const perks = t.raw("perks") as string[];
 
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "submitting" | "success" | "error"
-  >("idle");
-  const [errorKey, setErrorKey] = useState<"invalid" | "generic">("invalid");
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!EMAIL_RE.test(email)) {
-      setErrorKey("invalid");
-      setStatus("error");
-      return;
-    }
-    setStatus("submitting");
-    try {
-      // TODO: wire to Supabase `beta_signups` table or external service.
-      await new Promise((r) => setTimeout(r, 900));
-      setStatus("success");
-    } catch {
-      setErrorKey("generic");
-      setStatus("error");
-    }
-  };
-
-  const percent = (PLACEHOLDER_TAKEN / TOTAL_SPOTS) * 100;
+  const taken = Math.min(userCount, TOTAL_SPOTS);
+  const percent = (taken / TOTAL_SPOTS) * 100;
 
   return (
     <SectionContainer id="beta" surface="indigo">
@@ -113,7 +86,6 @@ export default function BetaProgram() {
           {t("footer")}
         </p>
 
-        {/* Counter */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -128,7 +100,7 @@ export default function BetaProgram() {
             </span>
             <span className="font-mono">
               {t("counter.claimed", {
-                taken: PLACEHOLDER_TAKEN,
+                taken,
                 total: TOTAL_SPOTS,
               })}
             </span>
@@ -144,50 +116,11 @@ export default function BetaProgram() {
           </div>
         </motion.div>
 
-        {/* Form */}
-        <form
-          onSubmit={onSubmit}
-          className="mt-10 max-w-md mx-auto"
-          aria-live="polite"
-        >
-          {status === "success" ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
-              className="rounded-2xl border border-ls-ochre/40 bg-ls-ochre/10 px-6 py-5 text-center"
-            >
-              <p className="text-ls-ochre font-medium">{t("form.success")}</p>
-            </motion.div>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <label className="flex-1">
-                <span className="sr-only">{t("form.emailLabel")}</span>
-                <input
-                  type="email"
-                  required
-                  placeholder={t("form.emailPlaceholder")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-14 rounded-full border border-white/20 bg-white/5 px-5 text-base text-ls-text-primary placeholder:text-ls-text-secondary/60 focus:outline-none focus:ring-2 focus:ring-ls-ochre focus:border-ls-ochre/60"
-                />
-              </label>
-              <CTAButton
-                type="submit"
-                disabled={status === "submitting"}
-                variant="primary"
-                size="lg"
-              >
-                {status === "submitting" ? t("form.submitting") : t("form.submit")}
-              </CTAButton>
-            </div>
-          )}
-          {status === "error" ? (
-            <p className="mt-3 text-sm text-red-300">
-              {errorKey === "invalid" ? t("form.errorInvalid") : t("form.errorGeneric")}
-            </p>
-          ) : null}
-        </form>
+        <div className="mt-10 max-w-md mx-auto">
+          <CTAButton href="/login?mode=signup" variant="primary" size="lg">
+            {t("cta")}
+          </CTAButton>
+        </div>
       </div>
     </SectionContainer>
   );

@@ -1,19 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { detectBrowserTimezone } from "@/lib/timezones";
 
 type Mode = "signin" | "signup" | "forgot";
 type View = "form" | "check_email_signup" | "check_email_reset";
 
+function parseMode(raw: string | null): Mode {
+  return raw === "signup" || raw === "forgot" ? raw : "signin";
+}
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialMode = parseMode(searchParams.get("mode"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [view, setView] = useState<View>("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -19,6 +19,7 @@ const TAGS = {
   helpResources: "cms:help-resources",
   helpResource: (slug: string) => `cms:help-resource:${slug}`,
   helpCategoryResources: (slug: string) => `cms:help-category:${slug}`,
+  platformStats: "public:platform-stats",
 } as const;
 
 export const PUBLIC_CMS_TAGS = TAGS;
@@ -39,14 +40,15 @@ type GraphqlResponse<T> = {
 async function publicFetch<T>(
   query: string,
   variables: Record<string, unknown>,
-  tags: string[]
+  tags: string[],
+  revalidate: number = 600
 ): Promise<T | null> {
   const url = resolvePublicGraphqlUrl();
   const res = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ query, variables }),
-    next: { tags, revalidate: 600 },
+    next: { tags, revalidate },
   });
   if (!res.ok) {
     console.error("[publicGraphql] HTTP", res.status, await res.text());
@@ -292,6 +294,27 @@ export async function fetchHelpResources(
     tags
   );
   return data?.publicHelpResources ?? null;
+}
+
+export type PublicPlatformStats = {
+  userCount: number;
+};
+
+export async function fetchPlatformStats(): Promise<PublicPlatformStats> {
+  const query = `
+    query {
+      publicPlatformStats { userCount }
+    }
+  `;
+  // Short revalidate window — the backend already caches 5 min, so the
+  // frontend cache just adds dev-iteration friction without much gain.
+  const data = await publicFetch<{ publicPlatformStats: PublicPlatformStats }>(
+    query,
+    {},
+    [TAGS.platformStats],
+    30
+  );
+  return data?.publicPlatformStats ?? { userCount: 0 };
 }
 
 export async function fetchHelpResource(
