@@ -16,7 +16,13 @@ import type { NextRequest } from "next/server";
 // subdomain — login is shared with the main app (so the same Supabase
 // session works on both hosts), API routes are universal, and Next.js
 // internals must never be rewritten.
-const ADMON_PASSTHROUGH = ["/login", "/api/", "/_next/"];
+const ADMON_PASSTHROUGH = [
+  "/login",
+  "/reset-password",
+  "/auth/",
+  "/api/",
+  "/_next/",
+];
 
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
