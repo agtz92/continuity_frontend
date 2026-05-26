@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client";
 import { ADMIN_SYSTEM_STATS_QUERY } from "@/lib/graphql";
 
 type Stats = {
+  totalUsers: number;
   totalAccounts: number;
   admins: number;
   dau: number;
@@ -14,6 +15,9 @@ type Stats = {
   pagesPublished: number;
   pendingJobs: number;
   failedJobs: number;
+  tasksOpen: number;
+  tasksDone30d: number;
+  ideasTotal: number;
   planCounts: { plan: string; count: number }[];
   jobStatusCounts: { status: string; count: number }[];
 };
@@ -52,11 +56,15 @@ export default function StatsPage() {
       {s && (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            <Stat label="Usuarios (Supabase)" value={s.totalUsers} />
             <Stat label="Cuentas (AccountProfile)" value={s.totalAccounts} />
             <Stat label="Administradores" value={s.admins} />
             <Stat label="DAU (24h)" value={s.dau} />
             <Stat label="WAU (7d)" value={s.wau} />
             <Stat label="MAU (30d)" value={s.mau} />
+            <Stat label="Tareas abiertas" value={s.tasksOpen} />
+            <Stat label="Tareas cerradas 30d" value={s.tasksDone30d} />
+            <Stat label="Ideas totales" value={s.ideasTotal} />
             <Stat label="Posts publicados" value={s.blogPostsPublished} />
             <Stat label="Posts en borrador" value={s.blogPostsDraft} />
             <Stat label="Páginas publicadas" value={s.pagesPublished} />

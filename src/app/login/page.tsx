@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { detectBrowserTimezone } from "@/lib/timezones";
+import MarketingNav from "@/components/landing/MarketingNav";
+import CTAButton from "@/components/landing/primitives/CTAButton";
 
 type Mode = "signin" | "signup" | "forgot";
 type View = "form" | "check_email_signup" | "check_email_reset";
@@ -12,10 +15,36 @@ function parseMode(raw: string | null): Mode {
   return raw === "signup" || raw === "forgot" ? raw : "signin";
 }
 
+const inputClass =
+  "w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-ls-text-primary placeholder:text-ls-text-secondary/60 transition-colors focus:border-ls-ochre/60 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ls-ochre/30";
+
+const labelClass =
+  "block text-xs uppercase tracking-[0.18em] text-ls-text-secondary mb-1.5";
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      data-surface="marketing"
+      className="relative min-h-screen bg-ls-navy text-ls-text-primary font-sans antialiased selection:bg-ls-ochre/30 selection:text-ls-text-primary"
+    >
+      <MarketingNav />
+      {/* Ambient brand glow — matches Hero/FinalCall */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-32 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-ls-ochre/10 blur-[120px]" />
+        <div className="absolute bottom-0 right-0 h-[420px] w-[620px] translate-x-1/4 translate-y-1/4 rounded-full bg-ls-vermillion/10 blur-[100px]" />
+      </div>
+      <main className="flex min-h-screen items-center justify-center px-6 pb-16 pt-28 sm:pt-32">
+        {children}
+      </main>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode = parseMode(searchParams.get("mode"));
+  const reduce = useReducedMotion();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -107,48 +136,64 @@ export default function LoginPage() {
   if (view !== "form") {
     const isSignup = view === "check_email_signup";
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-bg">
-        <div className="w-full max-w-sm bg-surface border border-border rounded-xl p-6">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] px-3 py-1 text-xs font-medium text-accent">
-            <span
-              aria-hidden
-              className="inline-block h-1.5 w-1.5 rounded-full bg-accent"
-            />
+      <Shell>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]"
+        >
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-ls-ochre/40 bg-ls-ochre/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-ls-ochre">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ls-ochre opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ls-ochre" />
+            </span>
             Check your inbox
           </div>
-          <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">
-            {isSignup ? "One step left, builder." : "Reset link sent."}
+          <h1 className="font-display text-3xl sm:text-4xl font-light leading-tight tracking-tight text-ls-text-primary">
+            {isSignup ? (
+              <>
+                One step left,{" "}
+                <span className="italic text-ls-ochre">builder</span>.
+              </>
+            ) : (
+              <>
+                Reset link <span className="italic text-ls-ochre">sent</span>.
+              </>
+            )}
           </h1>
-          <p className="text-sm text-text-muted mb-2 leading-relaxed">
+          <p className="mt-4 text-sm leading-relaxed text-ls-text-secondary">
             {isSignup ? (
               <>
                 We sent a confirmation link to{" "}
-                <span className="text-text font-medium">{email}</span>. Click it
-                and you&apos;re in.
+                <span className="font-medium text-ls-text-primary">{email}</span>.
+                Click it and you&apos;re in.
               </>
             ) : (
               <>
                 We sent a reset link to{" "}
-                <span className="text-text font-medium">{email}</span>. It
-                expires in 1 hour.
+                <span className="font-medium text-ls-text-primary">{email}</span>.
+                It expires in 1 hour.
               </>
             )}
           </p>
-          <p className="text-xs text-text-muted mb-6">
+          <p className="mt-2 text-xs text-ls-text-secondary/80">
             Didn&apos;t get it? Check spam. Or wait 60 seconds and try again.
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              setView("form");
-              switchMode("signin");
-            }}
-            className="w-full px-4 py-2.5 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            Back to sign in
-          </button>
-        </div>
-      </div>
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setView("form");
+                switchMode("signin");
+              }}
+              className="text-sm text-ls-ochre hover:text-ls-text-primary transition-colors"
+            >
+              ← Back to sign in
+            </button>
+          </div>
+        </motion.div>
+      </Shell>
     );
   }
 
@@ -160,117 +205,181 @@ export default function LoginPage() {
         ? "Create account"
         : "Send reset link";
 
+  const eyebrow =
+    mode === "signin"
+      ? isAdmonHost
+        ? "Admin panel"
+        : "Welcome back"
+      : mode === "signup"
+        ? "Join the loop"
+        : "Reset password";
+
+  const headline =
+    mode === "signin" ? (
+      <>
+        Sign in to{" "}
+        <span className="italic text-ls-ochre">continuu.it</span>
+      </>
+    ) : mode === "signup" ? (
+      <>
+        Start <span className="italic text-ls-ochre">finishing</span>.
+      </>
+    ) : (
+      <>
+        Forgot your <span className="italic text-ls-ochre">password</span>?
+      </>
+    );
+
   const subhead =
     mode === "signin"
       ? isAdmonHost
-        ? "Sign in to the admin panel."
-        : "Sign in to your dashboard."
+        ? "Sign in to manage the platform."
+        : "Pick up where you left off."
       : mode === "signup"
-        ? "Create your account."
+        ? "Create your account. We'll handle the rest."
         : "Enter your email and we'll send a reset link.";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-bg">
-      <div className="w-full max-w-sm bg-surface border border-border rounded-xl p-6">
-        <h1 className="text-2xl font-bold mb-1 bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">
-          Continuity
-        </h1>
-        <p className="text-sm text-text-muted mb-6">{subhead}</p>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-text-muted mb-1.5">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-            />
-          </div>
-          {mode !== "forgot" && (
+    <Shell>
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-md"
+      >
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]">
+          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-ls-text-secondary">
+            <span className="h-1.5 w-1.5 rounded-full bg-ls-ochre" />
+            {eyebrow}
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-light leading-[1.1] tracking-tight text-ls-text-primary">
+            {headline}
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-ls-text-secondary">
+            {subhead}
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-text-muted mb-1.5">
-                Password
+              <label htmlFor="email" className={labelClass}>
+                Email
               </label>
               <input
-                type="password"
+                id="email"
+                type="email"
                 required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                autoComplete="email"
               />
             </div>
-          )}
-          {mode === "signup" && (
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-text-muted mb-1.5">
-                Confirm password
-              </label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
-              />
+            {mode !== "forgot" && (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="password" className={`${labelClass} mb-0`}>
+                    Password
+                  </label>
+                  {mode === "signin" && (
+                    <button
+                      type="button"
+                      onClick={() => switchMode("forgot")}
+                      className="text-[11px] uppercase tracking-wider text-ls-text-secondary hover:text-ls-ochre transition-colors"
+                    >
+                      Forgot?
+                    </button>
+                  )}
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass}
+                  autoComplete={
+                    mode === "signin" ? "current-password" : "new-password"
+                  }
+                />
+              </div>
+            )}
+            {mode === "signup" && (
+              <div>
+                <label htmlFor="confirm-password" className={labelClass}>
+                  Confirm password
+                </label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={inputClass}
+                  autoComplete="new-password"
+                />
+              </div>
+            )}
+            {error && (
+              <div className="rounded-lg border border-ls-vermillion/40 bg-ls-vermillion/10 p-3 text-xs text-ls-text-primary">
+                {error}
+              </div>
+            )}
+            <div className="pt-2">
+              <CTAButton
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={loading}
+                className="w-full"
+              >
+                {submitLabel}
+              </CTAButton>
             </div>
-          )}
-          {error && (
-            <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-md p-2">
-              {error}
-            </div>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-4 py-2.5 bg-accent hover:opacity-90 disabled:opacity-50 text-bg rounded-lg font-medium text-sm"
-          >
-            {submitLabel}
-          </button>
-        </form>
-        <div className="mt-4 flex flex-col items-center gap-2">
-          {mode === "signin" && (
-            <>
+          </form>
+
+          <div className="mt-6 flex flex-col items-center gap-2 text-center">
+            {mode === "signin" && (
               <button
                 type="button"
                 onClick={() => switchMode("signup")}
-                className="text-xs text-text-muted hover:text-text"
+                className="text-sm text-ls-text-secondary hover:text-ls-ochre transition-colors"
               >
-                No account? Create one
+                No account yet?{" "}
+                <span className="text-ls-text-primary underline-offset-4 hover:underline">
+                  Create one
+                </span>
               </button>
+            )}
+            {mode === "signup" && (
               <button
                 type="button"
-                onClick={() => switchMode("forgot")}
-                className="text-xs text-text-muted hover:text-text"
+                onClick={() => switchMode("signin")}
+                className="text-sm text-ls-text-secondary hover:text-ls-ochre transition-colors"
               >
-                Forgot password?
+                Already a builder?{" "}
+                <span className="text-ls-text-primary underline-offset-4 hover:underline">
+                  Sign in
+                </span>
               </button>
-            </>
-          )}
-          {mode === "signup" && (
-            <button
-              type="button"
-              onClick={() => switchMode("signin")}
-              className="text-xs text-text-muted hover:text-text"
-            >
-              Already have an account? Sign in
-            </button>
-          )}
-          {mode === "forgot" && (
-            <button
-              type="button"
-              onClick={() => switchMode("signin")}
-              className="text-xs text-text-muted hover:text-text"
-            >
-              Back to sign in
-            </button>
-          )}
+            )}
+            {mode === "forgot" && (
+              <button
+                type="button"
+                onClick={() => switchMode("signin")}
+                className="text-sm text-ls-text-secondary hover:text-ls-ochre transition-colors"
+              >
+                ← Back to sign in
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+
+        <p className="mt-6 text-center text-xs italic text-ls-text-secondary/80 font-display">
+          Finish what you start.
+        </p>
+      </motion.div>
+    </Shell>
   );
 }

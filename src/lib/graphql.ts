@@ -675,6 +675,7 @@ export const ADMIN_NOTIFICATION_JOB_RETRY = gql`
 export const ADMIN_SYSTEM_STATS_QUERY = gql`
   query AdminSystemStats {
     adminSystemStats {
+      totalUsers
       totalAccounts
       admins
       dau
@@ -685,6 +686,9 @@ export const ADMIN_SYSTEM_STATS_QUERY = gql`
       pagesPublished
       pendingJobs
       failedJobs
+      tasksOpen
+      tasksDone30d
+      ideasTotal
       planCounts {
         plan
         count
@@ -692,6 +696,28 @@ export const ADMIN_SYSTEM_STATS_QUERY = gql`
       jobStatusCounts {
         status
         count
+      }
+      signupsSeries {
+        date
+        value
+      }
+      activitySeries {
+        date
+        value
+      }
+      activityByKind {
+        label
+        count
+      }
+      projectStateCounts {
+        label
+        count
+      }
+      recentSignups {
+        userId
+        email
+        createdAt
+        plan
       }
     }
   }

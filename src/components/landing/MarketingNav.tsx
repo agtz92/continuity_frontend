@@ -56,19 +56,19 @@ export default function MarketingNav() {
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 sm:px-8 lg:px-12">
         <Link
-          href="#top"
+          href="/"
           className="font-display text-lg font-medium tracking-tight text-ls-text-primary"
         >
           continuu<span className="text-ls-ochre">.</span>it
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-ls-text-secondary">
-          <a href="#features" className="hover:text-ls-text-primary transition-colors">
+          <Link href="/#features" className="hover:text-ls-text-primary transition-colors">
             {t("features")}
-          </a>
-          <a href="#pricing" className="hover:text-ls-text-primary transition-colors">
+          </Link>
+          <Link href="/#pricing" className="hover:text-ls-text-primary transition-colors">
             {t("pricing")}
-          </a>
+          </Link>
           <Link href="/blog" className="hover:text-ls-text-primary transition-colors">
             {t("blog")}
           </Link>
@@ -105,7 +105,7 @@ export default function MarketingNav() {
                 {t("signIn")}
               </CTAButton>
               <span className="hidden sm:inline-block">
-                <CTAButton href="#beta" variant="primary" size="md">
+                <CTAButton href="/#beta" variant="primary" size="md">
                   {t("ctaShort")}
                 </CTAButton>
               </span>
