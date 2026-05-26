@@ -5,15 +5,20 @@
 :root,
 [data-theme="continuuit"] {
   /* Continuuit brand theme — mirrors the landing page identity (navy bg,
-     cream text, ochre + vermillion accents). Acts as the global default
-     so first-paint and unauthenticated visitors see the brand colors. */
+     cream text, ochre + warm-coral accents). Acts as the global default
+     so first-paint and unauthenticated visitors see the brand colors.
+     Note: accent-2 is a brightened terracotta (#F08C5C) instead of the
+     landing's pure vermillion (#A8412F) — vermillion fails contrast on
+     navy at small text sizes (~2.8:1). Marketing surface keeps the
+     darker vermillion via --ls-vermillion since it's used on large
+     headlines and accent shapes, not body-sized chips. */
   --bg: #1A1F4D;
   --surface: #3B4A7A;
   --border: rgba(250, 247, 242, 0.12);
   --text: #FAF7F2;
   --text-muted: #A8AAB8;
   --accent: #D4A847;
-  --accent-2: #A8412F;
+  --accent-2: #F08C5C;
 }
 
 [data-theme="dark"] {
@@ -40,10 +45,13 @@
    block above still provides bg/surface/border/text, and acts as the
    fallback when no palette attribute is set on <html>. */
 
-[data-theme="dark"][data-palette="continuuit"],
-[data-theme="continuuit"][data-palette="continuuit"] {
+[data-theme="dark"][data-palette="continuuit"] {
   --accent: #D4A847;
   --accent-2: #A8412F;
+}
+[data-theme="continuuit"][data-palette="continuuit"] {
+  --accent: #D4A847;
+  --accent-2: #F08C5C;
 }
 [data-theme="light"][data-palette="continuuit"] {
   --accent: #A37D1A;

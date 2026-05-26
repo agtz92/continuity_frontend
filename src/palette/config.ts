@@ -57,12 +57,12 @@ export const PALETTE_SWATCHES: Record<
   default: {
     dark: ["#34d399", "#60a5fa"],
     light: ["#4f46e5", "#d97706"],
-    continuuit: ["#D4A847", "#A8412F"],
+    continuuit: ["#D4A847", "#F08C5C"],
   },
   continuuit: {
     dark: ["#D4A847", "#A8412F"],
     light: ["#A37D1A", "#8C3522"],
-    continuuit: ["#D4A847", "#A8412F"],
+    continuuit: ["#D4A847", "#F08C5C"],
   },
   pink: {
     dark: ["#f472b6", "#e879f9"],
