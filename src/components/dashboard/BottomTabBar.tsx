@@ -72,6 +72,7 @@ export function BottomTabBar({
                 role="tab"
                 aria-selected={active}
                 onClick={() => handleTabPress(tab.id)}
+                data-tour={tab.id === "projects" || tab.id === "tasks" || tab.id === "routines" ? tab.id : undefined}
                 className={`relative w-full h-full flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors ${
                   active ? "text-accent" : "text-text-muted"
                 }`}

@@ -28,7 +28,7 @@ export const AVATAR_CATALOG: Avatar[] = AVATAR_STYLES.flatMap((style) =>
 );
 
 export function getAvatarUrl(id: string): string {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${id}.png`;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${id}.webp`;
 }
 
 export function isValidAvatarId(id: string | null | undefined): id is string {

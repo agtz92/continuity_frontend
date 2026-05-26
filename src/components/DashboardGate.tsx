@@ -2,12 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
-import { UPDATE_NOTIFICATION_SETTINGS } from "@/lib/graphql";
+import {
+  ONBOARDING_STATE_QUERY,
+  UPDATE_NOTIFICATION_SETTINGS,
+} from "@/lib/graphql";
 import { isKnownTimezone } from "@/lib/timezones";
 import Dashboard from "@/components/Dashboard";
+
+type OnboardingProbe = {
+  onboardingState: { status: string };
+};
 
 /**
  * Client-side gate that hydrates from a known-authenticated state. The server
@@ -24,6 +31,10 @@ export default function DashboardGate({
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(initialSession);
   const [updateSettings] = useMutation(UPDATE_NOTIFICATION_SETTINGS);
+  const { data: onboardingProbe } = useQuery<OnboardingProbe>(
+    ONBOARDING_STATE_QUERY,
+    { fetchPolicy: "cache-and-network", skip: !session },
+  );
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
@@ -32,6 +43,17 @@ export default function DashboardGate({
     });
     return () => sub.subscription.unsubscribe();
   }, [router]);
+
+  // First-time users who haven't completed setup get bounced into the
+  // onboarding flow. `completed` / `skipped` both pass through — the
+  // skipped path is intentional ("I'll do it later" stays sticky).
+  useEffect(() => {
+    if (!session || !onboardingProbe) return;
+    const status = onboardingProbe.onboardingState.status;
+    if (status === "pending" || status === "in_progress") {
+      router.replace("/onboarding");
+    }
+  }, [session, onboardingProbe, router]);
 
   useEffect(() => {
     if (!session) return;
@@ -64,6 +86,16 @@ export default function DashboardGate({
   }, [session, updateSettings]);
 
   if (!session) return null;
+
+  // Until the onboarding probe resolves, render nothing rather than the
+  // dashboard. Without this gate, first-time users see a Dashboard mount
+  // (which also mounts the tour) for one frame before the effect above
+  // redirects to /onboarding.
+  if (!onboardingProbe) return null;
+  const onboardingStatus = onboardingProbe.onboardingState.status;
+  if (onboardingStatus === "pending" || onboardingStatus === "in_progress") {
+    return null;
+  }
 
   return <Dashboard />;
 }

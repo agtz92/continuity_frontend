@@ -8,6 +8,82 @@ const BUCKET = "cms-media";
 // bucket so they can be managed independently of inline editor media.
 const COVER_BUCKET = "blog";
 
+// Browser-side compression: every image that goes into Supabase Storage is
+// re-encoded as WebP before upload. Avatars are a closed catalog uploaded
+// separately by the backfill script — these helpers handle everything the
+// admin UI sends (cover images, inline editor media).
+const COMPRESSIBLE_MIME = /^image\/(jpeg|jpg|png|webp)$/i;
+const COMPRESS_QUALITY = 0.8;
+const COMPRESS_MAX_WIDTH = 1920;
+
+function swapExt(name: string, newExt: string): string {
+  const dot = name.lastIndexOf(".");
+  const stem = dot > 0 ? name.slice(0, dot) : name;
+  return stem + newExt;
+}
+
+/**
+ * Re-encode an image as WebP, capping width at `maxWidth`. Returns the
+ * original File untouched if the MIME is not a compressible raster
+ * (videos, GIFs, SVGs), if the browser fails to decode it, or if
+ * compression would have grown the file. EXIF orientation is honored.
+ */
+async function compressImageToWebp(
+  file: File,
+  opts?: { maxWidth?: number; quality?: number }
+): Promise<File> {
+  if (!COMPRESSIBLE_MIME.test(file.type)) return file;
+
+  const maxWidth = opts?.maxWidth ?? COMPRESS_MAX_WIDTH;
+  const quality = opts?.quality ?? COMPRESS_QUALITY;
+
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch (err) {
+    console.warn("[cmsStorage] compress: decode failed, uploading original", err);
+    return file;
+  }
+
+  const ratio = bitmap.width > maxWidth ? maxWidth / bitmap.width : 1;
+  const width = Math.max(1, Math.round(bitmap.width * ratio));
+  const height = Math.max(1, Math.round(bitmap.height * ratio));
+
+  let blob: Blob | null = null;
+  if (typeof OffscreenCanvas !== "undefined") {
+    const canvas = new OffscreenCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    blob = await canvas.convertToBlob({ type: "image/webp", quality });
+  } else {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/webp", quality)
+    );
+  }
+
+  if (!blob || blob.size >= file.size) return file;
+
+  return new File([blob], swapExt(file.name, ".webp"), {
+    type: "image/webp",
+    lastModified: Date.now(),
+  });
+}
+
 function slugifyFilename(name: string): string {
   const dot = name.lastIndexOf(".");
   const stem = dot > 0 ? name.slice(0, dot) : name;
@@ -40,11 +116,13 @@ export async function uploadCmsImage(file: File): Promise<{
   width?: number;
   height?: number;
 } | null> {
+  const compressed = await compressImageToWebp(file);
+
   const now = new Date();
   const folder = `${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-  const path = `${folder}/${now.getTime()}-${slugifyFilename(file.name)}`;
+  const path = `${folder}/${now.getTime()}-${slugifyFilename(compressed.name)}`;
 
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(BUCKET).upload(path, compressed, {
     cacheControl: "31536000",
     upsert: false,
   });
@@ -59,8 +137,8 @@ export async function uploadCmsImage(file: File): Promise<{
 
   let width: number | undefined;
   let height: number | undefined;
-  if (file.type.startsWith("image/")) {
-    const probed = await probeImageDimensions(file).catch(() => null);
+  if (compressed.type.startsWith("image/")) {
+    const probed = await probeImageDimensions(compressed).catch(() => null);
     if (probed) {
       width = probed.width;
       height = probed.height;
@@ -70,8 +148,8 @@ export async function uploadCmsImage(file: File): Promise<{
   return {
     publicUrl,
     storagePath: path,
-    mimeType: file.type,
-    sizeBytes: file.size,
+    mimeType: compressed.type,
+    sizeBytes: compressed.size,
     width,
     height,
   };
@@ -108,13 +186,15 @@ export async function uploadCoverImage(file: File): Promise<string | null> {
     return null;
   }
 
+  const compressed = await compressImageToWebp(file);
+
   const now = new Date();
   const folder = `covers/${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-  const path = `${folder}/${now.getTime()}-${slugifyFilename(file.name)}`;
+  const path = `${folder}/${now.getTime()}-${slugifyFilename(compressed.name)}`;
 
   const { error } = await supabase.storage
     .from(COVER_BUCKET)
-    .upload(path, file, { cacheControl: "31536000", upsert: false });
+    .upload(path, compressed, { cacheControl: "31536000", upsert: false });
   if (error) {
     console.error("[cmsStorage] cover upload error", error);
     return null;
@@ -218,11 +298,14 @@ export async function uploadCmsMedia(file: File): Promise<{
     return null;
   }
 
+  // Videos pass through untouched; images go through the WebP compressor.
+  const toUpload = isVideo ? file : await compressImageToWebp(file);
+
   const now = new Date();
   const folder = `${isVideo ? "videos/" : ""}${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-  const path = `${folder}/${now.getTime()}-${slugifyFilename(file.name)}`;
+  const path = `${folder}/${now.getTime()}-${slugifyFilename(toUpload.name)}`;
 
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(BUCKET).upload(path, toUpload, {
     cacheControl: "31536000",
     upsert: false,
   });
@@ -237,14 +320,14 @@ export async function uploadCmsMedia(file: File): Promise<{
 
   let width: number | undefined;
   let height: number | undefined;
-  if (file.type.startsWith("image/")) {
-    const probed = await probeImageDimensions(file).catch(() => null);
+  if (toUpload.type.startsWith("image/")) {
+    const probed = await probeImageDimensions(toUpload).catch(() => null);
     if (probed) {
       width = probed.width;
       height = probed.height;
     }
   } else if (isVideo) {
-    const probed = await probeVideoDimensions(file).catch(() => null);
+    const probed = await probeVideoDimensions(toUpload).catch(() => null);
     if (probed) {
       width = probed.width;
       height = probed.height;
@@ -254,8 +337,8 @@ export async function uploadCmsMedia(file: File): Promise<{
   return {
     publicUrl,
     storagePath: path,
-    mimeType: file.type,
-    sizeBytes: file.size,
+    mimeType: toUpload.type,
+    sizeBytes: toUpload.size,
     width,
     height,
   };

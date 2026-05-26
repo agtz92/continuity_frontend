@@ -26,6 +26,7 @@ import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { RoutineModal } from "./routines/RoutineModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
+import { DashboardTour } from "./dashboard/DashboardTour";
 import { NotificationStack } from "./notifications/NotificationStack";
 import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
@@ -202,6 +203,12 @@ export default function Dashboard() {
       <AssistantPanel
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
+      />
+      <DashboardTour
+        onFinalCta={() => {
+          setEditingProject(null);
+          setShowProjectModal(true);
+        }}
       />
       <PullToRefresh onRefresh={() => refetch()} />
       <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">

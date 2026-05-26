@@ -1408,6 +1408,51 @@ export const PROFILE_QUERY = gql`
   query Profile {
     profile {
       avatar
+      firstName
+    }
+  }
+`;
+
+const ONBOARDING_STATE_FIELDS = `
+  status
+  currentStep
+  tourStatus
+  completedAt
+  completedVia
+  firstName
+  avatar
+  plan
+  isBillingExempt
+`;
+
+export const ONBOARDING_STATE_QUERY = gql`
+  query OnboardingState {
+    onboardingState {
+      ${ONBOARDING_STATE_FIELDS}
+    }
+  }
+`;
+
+export const SET_ONBOARDING_STEP = gql`
+  mutation SetOnboardingStep($step: Int!) {
+    setOnboardingStep(step: $step) {
+      ${ONBOARDING_STATE_FIELDS}
+    }
+  }
+`;
+
+export const COMPLETE_ONBOARDING = gql`
+  mutation CompleteOnboarding($mode: String) {
+    completeOnboarding(mode: $mode) {
+      ${ONBOARDING_STATE_FIELDS}
+    }
+  }
+`;
+
+export const MARK_TOUR = gql`
+  mutation MarkTour($seen: Boolean!) {
+    markTour(seen: $seen) {
+      ${ONBOARDING_STATE_FIELDS}
     }
   }
 `;
@@ -1442,9 +1487,10 @@ export const ACTIVITY_QUERY = gql`
 `;
 
 export const UPDATE_PROFILE = gql`
-  mutation UpdateProfile($avatar: String) {
-    updateProfile(avatar: $avatar) {
+  mutation UpdateProfile($avatar: String, $firstName: String) {
+    updateProfile(avatar: $avatar, firstName: $firstName) {
       avatar
+      firstName
     }
   }
 `;

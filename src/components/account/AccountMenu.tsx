@@ -9,6 +9,7 @@ import {
   BookOpen,
   Bug,
   ChevronLeft,
+  Compass,
   CreditCard,
   Database,
   Globe,
@@ -176,6 +177,12 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               href="/settings/plugins"
               icon={Plug}
               label={t("items.plugins")}
+              onClick={handleNavigate}
+            />
+            <RowLink
+              href="/onboarding?replay=true"
+              icon={Compass}
+              label={t("items.gettingStarted")}
               onClick={handleNavigate}
             />
           </Group>

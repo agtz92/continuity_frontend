@@ -187,6 +187,7 @@
       "appearance": "Appearance & language",
       "billing": "Billing & plan",
       "plugins": "Plugins",
+      "gettingStarted": "Getting started",
       "categories": "Categories",
       "exportBackup": "Export / backup",
       "viewLanding": "Home page",
@@ -197,6 +198,91 @@
       "reddit": "Reddit community",
       "discord": "Discord support",
       "signOut": "Sign out"
+    }
+  },
+  "onboarding": {
+    "progress": "Step {current} of {total}",
+    "skip": "Skip setup",
+    "next": "Next",
+    "back": "Back",
+    "continue": "Continue",
+    "saving": "Saving",
+    "step1": {
+      "heading": "Welcome, builder.",
+      "sub": "This takes 90 seconds. What should I call you?",
+      "label": "First name",
+      "placeholder": "Just your first name",
+      "helperPrefilled": "From your Google account. Edit it if you want.",
+      "errorEmpty": "Type your first name.",
+      "errorTooLong": "50 characters max."
+    },
+    "step2": {
+      "heading": "How should this look?",
+      "sub": "You can change this anytime in Settings.",
+      "mode": "Mode",
+      "palette": "Palette"
+    },
+    "step3": {
+      "heading": "Pick an avatar, {name}.",
+      "sub": "Whichever feels like you."
+    },
+    "step4Beta": {
+      "heading": "Thanks for being here, {name}.",
+      "body": "You're on the {plan} plan, no charge. You're part of the first builders testing this.",
+      "body2": "If something breaks or feels off, tell me. Reply to any email I send. I read all of them.",
+      "signoff": "Alfredo",
+      "primary": "Go to dashboard"
+    },
+    "step4Plan": {
+      "heading": "Pick a plan, or don't.",
+      "sub": "Free works fine for most builders starting out. You can change this whenever.",
+      "decideLater": "Decide later",
+      "primary": "Continue",
+      "currentBadge": "Current",
+      "selectButton": "Select",
+      "selectedButton": "Selected",
+      "cards": {
+        "free": "Start here. Upgrade whenever.",
+        "pro": "More room. AI can write.",
+        "studio": "No limits, all features."
+      }
+    },
+    "replay": {
+      "banner": "Editing your setup. Saving applies to your account.",
+      "planHeading": "Your plan.",
+      "planInfo": "You're on the {plan} plan.",
+      "planChangeCta": "Manage in Billing",
+      "finishButton": "Done",
+      "replayTourButton": "Watch the dashboard tour again"
+    },
+    "tour": {
+      "next": "Next",
+      "skip": "Skip tour",
+      "step1": {
+        "title": "Projects live here.",
+        "body": "Each one is active, paused with intention, or killed. None of them sit in limbo."
+      },
+      "step2": {
+        "title": "Tasks belong to a project.",
+        "body": "If there's no project, there's no task. That's the rule."
+      },
+      "step3": {
+        "title": "Routines are what you do without thinking.",
+        "body": "The stuff that happens every day. Track it here. The rest is noise."
+      },
+      "step4": {
+        "title": "Stuck? Ask your AI.",
+        "body": "This button opens the assistant. It reads your projects and tasks, and answers in your context."
+      },
+      "finalCta": {
+        "title": "Now build something.",
+        "body": "Create your first project. Even if you're not sure what it is yet.",
+        "more": "There's more (ideas, log, analytics, chat) but we don't want to bore you. Here are the links when you need them. Anything else, ask your AI.",
+        "resourcesLink": "Resources",
+        "resourcesComingSoon": "Soon",
+        "primary": "Create first project",
+        "secondary": "I'll do it later"
+      }
     }
   },
   "settings": {
