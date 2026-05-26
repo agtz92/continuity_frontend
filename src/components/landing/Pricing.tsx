@@ -156,7 +156,7 @@ function BillingToggle({
 
 export default function Pricing() {
   const t = useTranslations("landing.pricing");
-  const [period, setPeriod] = useState<Period>("monthly");
+  const [period, setPeriod] = useState<Period>("annual");
 
   return (
     <SectionContainer id="pricing" surface="navy">
