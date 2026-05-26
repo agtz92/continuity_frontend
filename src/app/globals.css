@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 :root,
+[data-theme="continuuit"] {
+  /* Continuuit brand theme — mirrors the landing page identity (navy bg,
+     cream text, ochre + vermillion accents). Acts as the global default
+     so first-paint and unauthenticated visitors see the brand colors. */
+  --bg: #1A1F4D;
+  --surface: #3B4A7A;
+  --border: rgba(250, 247, 242, 0.12);
+  --text: #FAF7F2;
+  --text-muted: #A8AAB8;
+  --accent: #D4A847;
+  --accent-2: #A8412F;
+}
+
 [data-theme="dark"] {
   --bg: #09090b;
   --surface: #18181b;
@@ -26,6 +39,16 @@
 /* Palette overrides — only swap --accent and --accent-2. The base theme
    block above still provides bg/surface/border/text, and acts as the
    fallback when no palette attribute is set on <html>. */
+
+[data-theme="dark"][data-palette="continuuit"],
+[data-theme="continuuit"][data-palette="continuuit"] {
+  --accent: #D4A847;
+  --accent-2: #A8412F;
+}
+[data-theme="light"][data-palette="continuuit"] {
+  --accent: #A37D1A;
+  --accent-2: #8C3522;
+}
 
 [data-theme="dark"][data-palette="pink"] {
   --accent: #f472b6;
@@ -126,6 +149,55 @@
   --accent-2: #25343F;
 }
 
+/* Continuuit palette overrides — same accent pairs as the dark theme so
+   palette switching feels consistent across themes. The `default` palette
+   intentionally has no override here: it falls through to the base
+   [data-theme="continuuit"] block (ochre + vermillion brand accents). */
+[data-theme="continuuit"][data-palette="pink"] {
+  --accent: #f472b6;
+  --accent-2: #e879f9;
+}
+[data-theme="continuuit"][data-palette="business"] {
+  --accent: #93c5fd;
+  --accent-2: #94a3b8;
+}
+[data-theme="continuuit"][data-palette="neon"] {
+  --accent: #a3e635;
+  --accent-2: #22d3ee;
+}
+[data-theme="continuuit"][data-palette="green"] {
+  --accent: #6FCF97;
+  --accent-2: #2FA084;
+}
+[data-theme="continuuit"][data-palette="turquoise"] {
+  --accent: #5DF8D8;
+  --accent-2: #6FD1D7;
+}
+[data-theme="continuuit"][data-palette="cute"] {
+  --accent: #FFF0BE;
+  --accent-2: #FFD6A6;
+}
+[data-theme="continuuit"][data-palette="midnight"] {
+  --accent: #A5B4FC;
+  --accent-2: #818CF8;
+}
+[data-theme="continuuit"][data-palette="boho"] {
+  --accent: #CAAA98;
+  --accent-2: #9A8678;
+}
+[data-theme="continuuit"][data-palette="complimentary"] {
+  --accent: #F0E9B6;
+  --accent-2: #B891C2;
+}
+[data-theme="continuuit"][data-palette="sunset"] {
+  --accent: #EA5252;
+  --accent-2: #FF9D23;
+}
+[data-theme="continuuit"][data-palette="retro"] {
+  --accent: #FF9B51;
+  --accent-2: #7A9CB3;
+}
+
 /* Admin scope — overrides the active theme + palette when the
    AdminShell is mounted (it sets data-admin="true" on its root).
    Goal: a neutral, business-y look that is visually distinct from the
@@ -145,7 +217,8 @@
   --accent-2: #0284c7;
 }
 
-[data-theme="dark"] [data-admin="true"] {
+[data-theme="dark"] [data-admin="true"],
+[data-theme="continuuit"] [data-admin="true"] {
   --bg: #020617;
   --surface: #0f172a;
   --border: #1e293b;

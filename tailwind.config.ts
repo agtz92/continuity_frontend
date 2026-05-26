@@ -3,7 +3,7 @@ import typography from "@tailwindcss/typography";
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
-  darkMode: ["selector", '[data-theme="dark"]'],
+  darkMode: ["selector", '[data-theme="dark"], [data-theme="continuuit"]'],
   // `hover:` variants only apply on devices that actually support hover
   // (i.e. a mouse). iOS Safari/Chrome have a long-standing bug where the
   // :hover state sticks on the last tapped element until another tap or

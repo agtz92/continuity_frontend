@@ -1,6 +1,6 @@
-export const SUPPORTED_THEMES = ["light", "dark", "system"] as const;
+export const SUPPORTED_THEMES = ["continuuit", "light", "dark", "system"] as const;
 export type Theme = (typeof SUPPORTED_THEMES)[number];
-export const DEFAULT_THEME: Theme = "system";
+export const DEFAULT_THEME: Theme = "continuuit";
 
 export const THEME_COOKIE = "NEXT_THEME";
 
@@ -9,6 +9,7 @@ export function isTheme(value: unknown): value is Theme {
 }
 
 export const THEME_LABEL_KEY: Record<Theme, string> = {
+  continuuit: "themeContinuuit",
   light: "themeLight",
   dark: "themeDark",
   system: "themeSystem",

@@ -21,10 +21,10 @@ import {
 } from "@/palette/config";
 import { toast } from "@/lib/toast";
 
-function detectEffectiveTheme(): "dark" | "light" {
-  if (typeof document === "undefined") return "dark";
+function detectEffectiveTheme(): "dark" | "light" | "continuuit" {
+  if (typeof document === "undefined") return "continuuit";
   const attr = document.documentElement.dataset.theme;
-  if (attr === "light" || attr === "dark") return attr;
+  if (attr === "light" || attr === "dark" || attr === "continuuit") return attr;
   // attr === "system" or missing → read OS preference
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
@@ -60,7 +60,9 @@ export function PaletteSelector() {
   });
   const [pending, startTransition] = useTransition();
   const [savingValue, setSavingValue] = useState<Palette | null>(null);
-  const [effectiveTheme, setEffectiveTheme] = useState<"dark" | "light">("dark");
+  const [effectiveTheme, setEffectiveTheme] = useState<"dark" | "light" | "continuuit">(
+    "continuuit",
+  );
 
   // Refresh the effective theme whenever the underlying data-theme attribute
   // changes (ThemeSelector flips it for instant feedback) or when the OS

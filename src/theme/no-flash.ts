@@ -19,8 +19,10 @@ export const NO_FLASH_SCRIPT = `
       return match ? decodeURIComponent(match[1]) : 'system';
     }
     function effective(pref) {
-      if (pref === 'light' || pref === 'dark') return pref;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (pref === 'system' || !pref) {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      return pref;
     }
     function apply() {
       document.documentElement.setAttribute('data-theme', effective(readCookie()));
