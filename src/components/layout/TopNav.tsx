@@ -52,9 +52,9 @@ export function TopNav({
           <AccountMenuTrigger onClick={() => setMenuOpen(true)} />
           <Link
             href="/dashboard"
-            className="font-bold text-lg bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent shrink-0"
+            className="font-display text-lg font-medium tracking-tight text-text shrink-0"
           >
-            Continuity
+            continuu<span className="text-[#D4A847]">.</span>it
           </Link>
 
           {links.length > 0 && (

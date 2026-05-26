@@ -723,6 +723,72 @@ export const ADMIN_SYSTEM_STATS_QUERY = gql`
   }
 `;
 
+export const ADMIN_BILLING_OVERVIEW_QUERY = gql`
+  query AdminBillingOverview {
+    adminBillingOverview {
+      currency
+      isTestMode
+      payingSubscribers
+      mrrCents
+      arrCents
+      billingExemptCount
+      pendingCancellations
+      breakdown {
+        plan
+        period
+        count
+        monthlyCentsEach
+        totalMonthlyCents
+      }
+      upcomingChurn {
+        userId
+        email
+        plan
+        period
+        planRenewsAt
+        monthlyCents
+      }
+    }
+  }
+`;
+
+export const ADMIN_SUBSCRIBERS_QUERY = gql`
+  query AdminSubscribers(
+    $page: Int
+    $perPage: Int
+    $plan: String
+    $period: String
+    $emailContains: String
+    $includeExempt: Boolean
+  ) {
+    adminSubscribers(
+      page: $page
+      perPage: $perPage
+      plan: $plan
+      period: $period
+      emailContains: $emailContains
+      includeExempt: $includeExempt
+    ) {
+      rows {
+        userId
+        email
+        plan
+        period
+        monthlyCents
+        planRenewsAt
+        cancelAtPeriodEnd
+        isBillingExempt
+        stripeCustomerId
+        stripeSubscriptionId
+      }
+      page
+      perPage
+      hasNext
+      total
+    }
+  }
+`;
+
 export const ADMIN_AUDIT_LOG_QUERY = gql`
   query AdminAuditLog(
     $page: Int
