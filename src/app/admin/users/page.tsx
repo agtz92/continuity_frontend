@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@apollo/client";
-import { ADMIN_USERS_QUERY } from "@/lib/graphql";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  ADMIN_SET_USER_IS_ADMIN,
+  ADMIN_SET_USER_IS_BILLING_EXEMPT,
+  ADMIN_SET_USER_PLAN,
+  ADMIN_USERS_QUERY,
+} from "@/lib/graphql";
+import { toast } from "@/lib/toast";
 
 type AdminUserRow = {
   userId: string;
@@ -32,6 +38,13 @@ type AdminUsersData = {
   };
 };
 
+const PLAN_OPTIONS = [
+  { value: "free", label: "Free" },
+  { value: "pro", label: "Pro" },
+  { value: "studio", label: "Studio" },
+  { value: "admin", label: "Admin (staff)" },
+];
+
 function formatDate(value: string | null): string {
   if (!value) return "—";
   try {
@@ -46,6 +59,7 @@ export default function AdminUsersPage() {
   const [emailContains, setEmailContains] = useState("");
   const [plan, setPlan] = useState<string>("");
   const [adminsOnly, setAdminsOnly] = useState(false);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const { data, loading, error, refetch } = useQuery<AdminUsersData>(
     ADMIN_USERS_QUERY,
@@ -60,6 +74,97 @@ export default function AdminUsersPage() {
       fetchPolicy: "cache-and-network",
     }
   );
+
+  const markPending = (id: string, pending: boolean) => {
+    setPendingIds((prev) => {
+      const next = new Set(prev);
+      if (pending) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const [setUserPlan] = useMutation(ADMIN_SET_USER_PLAN);
+  const [setUserIsAdmin] = useMutation(ADMIN_SET_USER_IS_ADMIN);
+  const [setUserIsBillingExempt] = useMutation(
+    ADMIN_SET_USER_IS_BILLING_EXEMPT
+  );
+
+  const handlePlanChange = async (u: AdminUserRow, nextPlan: string) => {
+    if (nextPlan === u.plan) return;
+    if (
+      !confirm(
+        `Cambiar plan de ${u.email || u.userId} a "${nextPlan}"?`
+      )
+    ) {
+      return;
+    }
+    markPending(u.userId, true);
+    try {
+      await setUserPlan({
+        variables: { userId: u.userId, plan: nextPlan },
+      });
+      toast.success("Plan actualizado");
+      await refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al actualizar plan");
+    } finally {
+      markPending(u.userId, false);
+    }
+  };
+
+  const handleAdminToggle = async (u: AdminUserRow, nextIsAdmin: boolean) => {
+    if (
+      !confirm(
+        nextIsAdmin
+          ? `Otorgar privilegios admin a ${u.email || u.userId}?`
+          : `Revocar privilegios admin de ${u.email || u.userId}?`
+      )
+    ) {
+      return;
+    }
+    markPending(u.userId, true);
+    try {
+      await setUserIsAdmin({
+        variables: { userId: u.userId, isAdmin: nextIsAdmin },
+      });
+      toast.success("Rol actualizado");
+      await refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al actualizar rol");
+    } finally {
+      markPending(u.userId, false);
+    }
+  };
+
+  const handleExemptToggle = async (
+    u: AdminUserRow,
+    nextExempt: boolean
+  ) => {
+    if (
+      !confirm(
+        nextExempt
+          ? `Marcar a ${u.email || u.userId} como exento de pago?`
+          : `Quitar la exención de pago de ${u.email || u.userId}?`
+      )
+    ) {
+      return;
+    }
+    markPending(u.userId, true);
+    try {
+      await setUserIsBillingExempt({
+        variables: { userId: u.userId, isBillingExempt: nextExempt },
+      });
+      toast.success("Exención de pago actualizada");
+      await refetch();
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Error al actualizar cortesía"
+      );
+    } finally {
+      markPending(u.userId, false);
+    }
+  };
 
   const rows = data?.adminUsers.users ?? [];
   const hasNext = data?.adminUsers.hasNext ?? false;
@@ -96,10 +201,11 @@ export default function AdminUsersPage() {
               className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent"
             >
               <option value="">Todos</option>
-              <option value="free">Free</option>
-              <option value="pro">Pro</option>
-              <option value="studio">Studio</option>
-              <option value="admin">Admin (staff)</option>
+              {PLAN_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
           <label className="flex items-center gap-2 text-sm text-text">
@@ -157,52 +263,70 @@ export default function AdminUsersPage() {
                 </td>
               </tr>
             )}
-            {rows.map((u) => (
-              <tr key={u.userId} className="hover:bg-bg/40">
-                <td className="px-4 py-2.5 text-text">{u.email || "—"}</td>
-                <td className="px-4 py-2.5">
-                  <span className="rounded bg-bg px-2 py-0.5 text-xs uppercase text-text-muted">
-                    {u.plan}
-                  </span>
-                </td>
-                <td className="px-4 py-2.5">
-                  {u.isAdmin ? (
-                    <span className="rounded bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] px-2 py-0.5 text-xs font-medium text-accent">
-                      sí
-                    </span>
-                  ) : (
-                    <span className="text-text-muted">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-2.5">
-                  {u.isBillingExempt ? (
-                    <span className="rounded bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] px-2 py-0.5 text-xs font-medium text-accent">
-                      cortesía
-                    </span>
-                  ) : (
-                    <span className="text-text-muted">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-2.5 text-text-muted">
-                  {formatDate(u.createdAt)}
-                </td>
-                <td className="px-4 py-2.5 text-text-muted">
-                  {formatDate(u.lastSignInAt)}
-                </td>
-                <td className="px-4 py-2.5 text-text">{u.counts.projects}</td>
-                <td className="px-4 py-2.5 text-text">
-                  {u.counts.tasksOpen}/{u.counts.tasksDone}
-                </td>
-                <td className="px-4 py-2.5 text-right">
-                  <Link
-                    href={`/admin/users/${u.userId}`}
-                    className="text-accent hover:underline"
-                  >
-                    Ver
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {rows.map((u) => {
+              const busy = pendingIds.has(u.userId);
+              return (
+                <tr key={u.userId} className="hover:bg-bg/40">
+                  <td className="px-4 py-2.5 text-text">{u.email || "—"}</td>
+                  <td className="px-4 py-2.5">
+                    <select
+                      value={u.plan}
+                      disabled={busy}
+                      onChange={(e) => handlePlanChange(u, e.target.value)}
+                      className="rounded border border-border bg-bg px-2 py-1 text-xs uppercase text-text outline-none focus:border-accent disabled:opacity-50"
+                    >
+                      {PLAN_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={u.isAdmin}
+                      disabled={busy}
+                      onChange={(e) =>
+                        handleAdminToggle(u, e.target.checked)
+                      }
+                      className="h-4 w-4 accent-accent disabled:opacity-50"
+                      aria-label={`Admin ${u.email}`}
+                    />
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={u.isBillingExempt}
+                      disabled={busy}
+                      onChange={(e) =>
+                        handleExemptToggle(u, e.target.checked)
+                      }
+                      className="h-4 w-4 accent-accent disabled:opacity-50"
+                      aria-label={`Exento ${u.email}`}
+                    />
+                  </td>
+                  <td className="px-4 py-2.5 text-text-muted">
+                    {formatDate(u.createdAt)}
+                  </td>
+                  <td className="px-4 py-2.5 text-text-muted">
+                    {formatDate(u.lastSignInAt)}
+                  </td>
+                  <td className="px-4 py-2.5 text-text">{u.counts.projects}</td>
+                  <td className="px-4 py-2.5 text-text">
+                    {u.counts.tasksOpen}/{u.counts.tasksDone}
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <Link
+                      href={`/admin/users/${u.userId}`}
+                      className="text-accent hover:underline"
+                    >
+                      Ver
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
