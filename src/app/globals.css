@@ -368,12 +368,14 @@ input.no-spinner[type="number"] {
 /* Prevent iOS Safari from auto-zooming when focusing a form field.
    Safari triggers the zoom whenever the focused control's font-size is
    below 16px and never zooms back out, leaving the whole page scaled up.
-   Force a 16px minimum on touch devices only so the desktop typography
+   `!important` is required: Tailwind utilities like `text-sm` are class
+   selectors (specificity 0,1,0) and would otherwise beat the bare element
+   selectors here. Force 16px on touch widths only so desktop typography
    (text-xs/text-sm) stays unchanged. */
 @media (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
   textarea,
   select {
-    font-size: 16px;
+    font-size: 16px !important;
   }
 }

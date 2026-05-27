@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Send, Square, Sparkles, X, Plus, AlertCircle, Brain } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
@@ -30,6 +30,13 @@ export function AssistantPanel({ open, onClose }: Props) {
   } = useAssistant();
   const [input, setInput] = useState("");
   const [deepMode, setDeepMode] = useState(false);
+  // Track the visual viewport so the panel resizes with the iOS keyboard
+  // and the collapsing Safari URL bar. Without this the form (Send button)
+  // ends up below the visible area on iPhone the moment the keyboard opens.
+  const [viewport, setViewport] = useState<{
+    height: number;
+    offsetTop: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -39,6 +46,21 @@ export function AssistantPanel({ open, onClose }: Props) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose, streaming]);
+
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () =>
+      setViewport({ height: vv.height, offsetTop: vv.offsetTop });
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -55,9 +77,16 @@ export function AssistantPanel({ open, onClose }: Props) {
     send(prompt, deepMode);
   };
 
+  // Anchor the dialog to the visual viewport when available; otherwise fall
+  // back to dynamic viewport units (works on iOS 15.4+ as a sane default).
+  const containerStyle: CSSProperties = viewport
+    ? { top: viewport.offsetTop, height: viewport.height }
+    : { top: 0, height: "100dvh" };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end"
+      className="fixed left-0 right-0 z-50 flex justify-end overflow-hidden"
+      style={containerStyle}
       role="dialog"
       aria-modal="true"
       aria-label={t("title")}
@@ -66,7 +95,7 @@ export function AssistantPanel({ open, onClose }: Props) {
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
         onClick={() => !streaming && onClose()}
       />
-      <aside className="relative w-full sm:w-[28rem] h-full bg-bg border-l border-border flex flex-col shadow-2xl">
+      <aside className="relative w-full sm:w-[28rem] h-full min-h-0 bg-bg border-l border-border flex flex-col shadow-2xl overflow-hidden">
         <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/80">
           <div className="flex items-center gap-2 min-w-0">
             <div className="shrink-0 w-8 h-8 rounded-md bg-gradient-to-br from-accent to-accent-2 text-bg flex items-center justify-center">
@@ -154,7 +183,8 @@ export function AssistantPanel({ open, onClose }: Props) {
 
         <form
           onSubmit={handleSubmit}
-          className="border-t border-border/80 p-3 flex items-end gap-2"
+          className="shrink-0 border-t border-border/80 p-3 flex items-end gap-2"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
         >
           <textarea
             value={input}

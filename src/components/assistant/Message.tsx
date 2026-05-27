@@ -11,7 +11,7 @@ export function Message({ message }: { message: ChatMessage }) {
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl bg-accent/15 border border-accent/30 px-3 py-2 text-sm text-accent whitespace-pre-wrap">
+        <div className="max-w-[85%] rounded-2xl bg-accent/15 border border-accent/30 px-3 py-2 text-sm text-accent whitespace-pre-wrap break-words">
           {message.text}
         </div>
       </div>
@@ -36,7 +36,7 @@ export function Message({ message }: { message: ChatMessage }) {
               return (
                 <div
                   key={i}
-                  className="text-sm text-text whitespace-pre-wrap leading-relaxed"
+                  className="text-sm text-text whitespace-pre-wrap break-words leading-relaxed"
                 >
                   {block.text}
                 </div>
