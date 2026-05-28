@@ -199,7 +199,7 @@ export function BottomSheet({
         )}
 
         <div
-          className="flex-1 min-h-0 overflow-y-auto px-4 pb-4"
+          className="flex-1 min-h-0 overflow-y-auto px-4 pb-8"
           onFocus={handleContentFocus}
         >
           {children}
