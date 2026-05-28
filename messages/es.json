@@ -1447,7 +1447,8 @@
       "company": "Compañía",
       "companyLinks": {
         "about": "Sobre nosotros",
-        "contact": "hello@continuu.it"
+        "contact": "hello@continuu.it",
+        "privacy": "Privacidad"
       },
       "copyright": "© {year} continuu.it"
     },
@@ -1463,6 +1464,98 @@
       "empty": "Aún no hay entradas publicadas.",
       "readMore": "Leer la entrada",
       "backToBlog": "Volver al blog"
+    },
+    "privacy": {
+      "title": "Política de privacidad",
+      "lastUpdated": "Última actualización: 28 de mayo de 2026",
+      "intro": "En continuu.it nos tomamos tu privacidad en serio. Esta política explica qué datos recopilamos, por qué los recopilamos, cómo los usamos y qué control tienes sobre ellos cuando usas nuestra aplicación y sitio web.",
+      "sections": [
+        {
+          "heading": "Información que recopilamos",
+          "body": [
+            "Datos de cuenta: tu nombre, dirección de correo electrónico y la contraseña con la que te autenticas. Si te registras con un proveedor externo, recibimos los datos básicos de identificación que ese proveedor comparte con nosotros.",
+            "Contenido que creas: los proyectos, tareas, ideas, rutinas y notas que añades a la aplicación, junto con los mensajes que intercambias con el asistente de IA.",
+            "Datos de uso y técnicos: información sobre cómo interactúas con el producto, así como datos del dispositivo y del navegador (tipo, idioma, dirección IP aproximada) recopilados de forma automática para mantener el servicio seguro y funcional."
+          ]
+        },
+        {
+          "heading": "Cómo usamos tu información",
+          "body": [
+            "Usamos tus datos para prestarte el servicio: autenticar tu cuenta, guardar y sincronizar tu contenido, y ofrecerte las funciones que correspondan a tu plan.",
+            "También los usamos para mejorar el producto, prevenir fraude y abuso, prestar soporte y comunicarnos contigo sobre cambios relevantes en el servicio.",
+            "No vendemos tus datos personales ni los compartimos con terceros con fines publicitarios."
+          ]
+        },
+        {
+          "heading": "El asistente de IA",
+          "body": [
+            "Cuando usas el asistente de IA, el contenido relevante de tus proyectos y los mensajes que envías se procesan con proveedores de modelos de lenguaje para generar respuestas.",
+            "Solo se envía la información necesaria para responder a tu solicitud. No usamos tu contenido privado para entrenar modelos de IA de terceros."
+          ]
+        },
+        {
+          "heading": "Compartir con terceros",
+          "body": [
+            "Trabajamos con proveedores que nos ayudan a operar el servicio: alojamiento e infraestructura, procesamiento de pagos (Stripe), envío de correos transaccionales y proveedores de modelos de IA.",
+            "Estos proveedores solo acceden a los datos necesarios para prestar su función y están obligados a protegerlos. También podemos divulgar información cuando lo exija la ley."
+          ]
+        },
+        {
+          "heading": "Pagos",
+          "body": [
+            "Los pagos se procesan a través de Stripe. No almacenamos los datos completos de tu tarjeta en nuestros servidores; Stripe gestiona esa información conforme a sus propios estándares de seguridad."
+          ]
+        },
+        {
+          "heading": "Cookies y tecnologías similares",
+          "body": [
+            "Usamos cookies y almacenamiento local para mantener tu sesión iniciada, recordar tus preferencias (como el idioma y el tema) y entender de forma agregada cómo se usa el producto.",
+            "Puedes controlar las cookies desde la configuración de tu navegador, aunque deshabilitarlas puede afectar al funcionamiento del servicio."
+          ]
+        },
+        {
+          "heading": "Seguridad de los datos",
+          "body": [
+            "Aplicamos medidas técnicas y organizativas razonables para proteger tu información, incluido el cifrado en tránsito. Ningún sistema es completamente infalible, pero trabajamos para mantener tus datos seguros."
+          ]
+        },
+        {
+          "heading": "Conservación de los datos",
+          "body": [
+            "Conservamos tus datos mientras mantengas una cuenta activa. Si eliminas tu cuenta, borramos o anonimizamos tu información personal, salvo lo que debamos conservar por obligaciones legales o de facturación."
+          ]
+        },
+        {
+          "heading": "Tus derechos",
+          "body": [
+            "Puedes acceder a tus datos, corregirlos, exportarlos o solicitar su eliminación. Para ejercer cualquiera de estos derechos, escríbenos a hello@continuu.it y atenderemos tu solicitud."
+          ]
+        },
+        {
+          "heading": "Transferencias internacionales",
+          "body": [
+            "Tus datos pueden procesarse en servidores ubicados fuera de tu país. Cuando esto ocurre, aplicamos salvaguardas adecuadas para proteger tu información conforme a la legislación aplicable."
+          ]
+        },
+        {
+          "heading": "Privacidad de menores",
+          "body": [
+            "El servicio no está dirigido a menores de 16 años y no recopilamos de forma consciente datos de menores. Si crees que un menor nos ha facilitado información, contáctanos para eliminarla."
+          ]
+        },
+        {
+          "heading": "Cambios en esta política",
+          "body": [
+            "Podemos actualizar esta política de vez en cuando. Cuando hagamos cambios significativos, actualizaremos la fecha de \"última actualización\" y, si corresponde, te lo notificaremos dentro del producto."
+          ]
+        },
+        {
+          "heading": "Contacto",
+          "body": [
+            "Si tienes preguntas sobre esta política o sobre cómo tratamos tus datos, escríbenos a hello@continuu.it."
+          ]
+        }
+      ]
     }
   }
 }

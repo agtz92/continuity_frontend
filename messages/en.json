@@ -1447,7 +1447,8 @@
       "company": "Company",
       "companyLinks": {
         "about": "About",
-        "contact": "hello@continuu.it"
+        "contact": "hello@continuu.it",
+        "privacy": "Privacy"
       },
       "copyright": "© {year} continuu.it"
     },
@@ -1463,6 +1464,98 @@
       "empty": "No posts published yet.",
       "readMore": "Read the post",
       "backToBlog": "Back to blog"
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "lastUpdated": "Last updated: May 28, 2026",
+      "intro": "At continuu.it we take your privacy seriously. This policy explains what data we collect, why we collect it, how we use it, and the control you have over it when you use our app and website.",
+      "sections": [
+        {
+          "heading": "Information we collect",
+          "body": [
+            "Account data: your name, email address, and the password you authenticate with. If you sign up with a third-party provider, we receive the basic identifying details that provider shares with us.",
+            "Content you create: the projects, tasks, ideas, routines, and notes you add to the app, along with the messages you exchange with the AI assistant.",
+            "Usage and technical data: information about how you interact with the product, as well as device and browser details (type, language, approximate IP address) collected automatically to keep the service secure and functional."
+          ]
+        },
+        {
+          "heading": "How we use your information",
+          "body": [
+            "We use your data to provide the service: authenticate your account, store and sync your content, and deliver the features that match your plan.",
+            "We also use it to improve the product, prevent fraud and abuse, provide support, and communicate with you about relevant changes to the service.",
+            "We do not sell your personal data, and we do not share it with third parties for advertising purposes."
+          ]
+        },
+        {
+          "heading": "The AI assistant",
+          "body": [
+            "When you use the AI assistant, the relevant content from your projects and the messages you send are processed by language-model providers to generate responses.",
+            "Only the information needed to answer your request is sent. We do not use your private content to train third-party AI models."
+          ]
+        },
+        {
+          "heading": "Sharing with third parties",
+          "body": [
+            "We work with providers that help us operate the service: hosting and infrastructure, payment processing (Stripe), transactional email delivery, and AI model providers.",
+            "These providers only access the data needed to perform their function and are required to protect it. We may also disclose information when required by law."
+          ]
+        },
+        {
+          "heading": "Payments",
+          "body": [
+            "Payments are processed through Stripe. We do not store your full card details on our servers; Stripe handles that information under its own security standards."
+          ]
+        },
+        {
+          "heading": "Cookies and similar technologies",
+          "body": [
+            "We use cookies and local storage to keep you signed in, remember your preferences (such as language and theme), and understand in aggregate how the product is used.",
+            "You can control cookies through your browser settings, though disabling them may affect how the service works."
+          ]
+        },
+        {
+          "heading": "Data security",
+          "body": [
+            "We apply reasonable technical and organizational measures to protect your information, including encryption in transit. No system is completely foolproof, but we work to keep your data safe."
+          ]
+        },
+        {
+          "heading": "Data retention",
+          "body": [
+            "We keep your data while you maintain an active account. If you delete your account, we delete or anonymize your personal information, except for what we must retain for legal or billing obligations."
+          ]
+        },
+        {
+          "heading": "Your rights",
+          "body": [
+            "You can access, correct, export, or request deletion of your data. To exercise any of these rights, write to us at hello@continuu.it and we will handle your request."
+          ]
+        },
+        {
+          "heading": "International transfers",
+          "body": [
+            "Your data may be processed on servers located outside your country. When this happens, we apply appropriate safeguards to protect your information in line with applicable law."
+          ]
+        },
+        {
+          "heading": "Children's privacy",
+          "body": [
+            "The service is not directed to children under 16, and we do not knowingly collect data from minors. If you believe a minor has provided us with information, contact us so we can delete it."
+          ]
+        },
+        {
+          "heading": "Changes to this policy",
+          "body": [
+            "We may update this policy from time to time. When we make significant changes, we will update the \"last updated\" date and, where appropriate, notify you within the product."
+          ]
+        },
+        {
+          "heading": "Contact",
+          "body": [
+            "If you have questions about this policy or how we handle your data, write to us at hello@continuu.it."
+          ]
+        }
+      ]
     }
   }
 }
