@@ -30,6 +30,11 @@ export function AssistantPanel({ open, onClose }: Props) {
   } = useAssistant();
   const [input, setInput] = useState("");
   const [deepMode, setDeepMode] = useState(false);
+
+  // Free is read-only; pro/studio/admin can create and edit (write tools
+  // require plan_required="pro"). Keep this in sync with the backend gating.
+  const canWrite = plan !== "free";
+
   // Track the visual viewport so the panel resizes with the iOS keyboard
   // and the collapsing Safari URL bar. Without this the form (Send button)
   // ends up below the visible area on iPhone the moment the keyboard opens.
@@ -106,7 +111,9 @@ export function AssistantPanel({ open, onClose }: Props) {
                 {t("title")}
                 <PlanBadge plan={plan} />
               </div>
-              <div className="text-[11px] text-text-muted">{t("subtitle")}</div>
+              <div className="text-[11px] text-text-muted">
+                {t(canWrite ? "subtitleReadWrite" : "subtitle")}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -144,7 +151,7 @@ export function AssistantPanel({ open, onClose }: Props) {
                 {t("welcome.title")}
               </div>
               <div className="text-xs text-text-muted leading-relaxed">
-                {t("welcome.body")}
+                {t(canWrite ? "welcome.bodyReadWrite" : "welcome.body")}
               </div>
             </div>
           </div>
@@ -161,7 +168,7 @@ export function AssistantPanel({ open, onClose }: Props) {
 
         <QuickActionChips onPick={handleQuickAction} disabled={streaming} />
 
-        {plan === "admin" && (
+        {(plan === "studio" || plan === "admin") && (
           <div className="px-3 pt-2">
             <button
               type="button"

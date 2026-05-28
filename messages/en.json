@@ -2,6 +2,7 @@
   "assistant": {
     "title": "Assistant",
     "subtitle": "Read-only Claude beta",
+    "subtitleReadWrite": "Claude beta — reads & updates",
     "buttonLabel": "Ask Claude",
     "openTooltip": "Ask Claude about your projects",
     "newChat": "New conversation",
@@ -9,11 +10,12 @@
     "send": "Send",
     "stop": "Stop",
     "deepMode": "Deep mode",
-    "deepModeHint": "Use the more capable Sonnet model for this reply. Costs more — admin only.",
+    "deepModeHint": "Use the more capable Sonnet model for this reply. Costs more — daily limit applies.",
     "inputPlaceholder": "Ask about your projects, tasks, or ideas…",
     "welcome": {
       "title": "Hi! I'm here to help.",
-      "body": "I can read your projects and tasks to summarize, suggest priorities, and find things. I can't edit anything yet — that's coming soon."
+      "body": "I can read your projects and tasks to summarize, suggest priorities, and find things. I can't edit anything yet — that's coming soon.",
+      "bodyReadWrite": "I can read and organize your work — create and update tasks, set priorities, draft routines, and tidy up projects. Just tell me what you need."
     },
     "message": {
       "thinking": "Thinking…",
