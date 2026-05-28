@@ -8,6 +8,7 @@ import { Providers } from "./providers";
 import { resolveTheme } from "@/theme/resolve";
 import { NO_FLASH_SCRIPT } from "@/theme/no-flash";
 import { resolvePalette } from "@/palette/resolve";
+import { resolveSiteUrl } from "@/lib/siteUrl";
 
 const fontDisplay = Fraunces({
   subsets: ["latin"],
@@ -28,10 +29,38 @@ const fontMono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+const SITE_URL = resolveSiteUrl();
+
 export const metadata: Metadata = {
-  title: "continuu.it — Finish what you start",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "continuu.it — Finish what you start",
+    template: "%s — continuu.it",
+  },
   description:
     "The project manager for people who start more than they finish. Built for founders, freelancers, and side-project builders.",
+  applicationName: "continuu.it",
+  openGraph: {
+    type: "website",
+    siteName: "continuu.it",
+    url: SITE_URL,
+    title: "continuu.it — Finish what you start",
+    description:
+      "The project manager for people who start more than they finish.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "continuu.it — Finish what you start",
+    description:
+      "The project manager for people who start more than they finish.",
+    images: ["/opengraph-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-import type { Metadata } from "next";
 import { fetchPlatformStats } from "@/lib/publicGraphql";
 import LenisProvider from "./primitives/LenisProvider";
 import MarketingNav from "./MarketingNav";
@@ -14,14 +12,6 @@ import BetaProgram from "./BetaProgram";
 import Pricing from "./Pricing";
 import FinalCall from "./FinalCall";
 import MarketingFooter from "./MarketingFooter";
-
-export async function generateLandingMetadata(): Promise<Metadata> {
-  const t = await getTranslations("landing.meta");
-  return {
-    title: t("title"),
-    description: t("description"),
-  };
-}
 
 export default async function Landing() {
   const stats = await fetchPlatformStats();
