@@ -263,6 +263,10 @@ export default function Dashboard() {
               setEditingIdea(null);
               setShowIdeaModal(true);
             }}
+            onNewRoutine={() => {
+              setEditingRoutine(null);
+              setShowRoutineModal(true);
+            }}
             onLogUpdate={(p) => {
               setSelectedProject(p);
               setEditingNote(null);

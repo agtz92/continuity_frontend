@@ -96,6 +96,7 @@ export function TodayView({
   onNewTask,
   onNewProject,
   onNewIdea,
+  onNewRoutine,
   onLogUpdate,
   onToggleTask,
   onEditTask,
@@ -124,6 +125,7 @@ export function TodayView({
   onNewTask: () => void;
   onNewProject: () => void;
   onNewIdea: () => void;
+  onNewRoutine: () => void;
   onLogUpdate: (p: Project) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
   onEditTask: (t: Task) => void;
@@ -1085,6 +1087,7 @@ export function TodayView({
         onNewTask={onNewTask}
         onNewProject={onNewProject}
         onNewIdea={onNewIdea}
+        onNewRoutine={onNewRoutine}
       />
     </div>
   );

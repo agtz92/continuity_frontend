@@ -4,13 +4,14 @@ import {
   CheckCircle2,
   Folder,
   Lightbulb,
+  Repeat,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 
 type Action = {
-  id: "newTask" | "newProject" | "newIdea";
+  id: "newTask" | "newProject" | "newIdea" | "newRoutine";
   icon: LucideIcon;
   tint: string;
 };
@@ -18,6 +19,7 @@ type Action = {
 const ACTIONS: Action[] = [
   { id: "newTask", icon: CheckCircle2, tint: "text-accent" },
   { id: "newProject", icon: Folder, tint: "text-accent-2" },
+  { id: "newRoutine", icon: Repeat, tint: "text-accent-2" },
   { id: "newIdea", icon: Lightbulb, tint: "text-purple-400" },
 ];
 
@@ -27,12 +29,14 @@ export function TodayActionSheet({
   onNewTask,
   onNewProject,
   onNewIdea,
+  onNewRoutine,
 }: {
   open: boolean;
   onClose: () => void;
   onNewTask: () => void;
   onNewProject: () => void;
   onNewIdea: () => void;
+  onNewRoutine: () => void;
 }) {
   const t = useTranslations("views.today.fab");
 
@@ -42,6 +46,7 @@ export function TodayActionSheet({
     newTask: onNewTask,
     newProject: onNewProject,
     newIdea: onNewIdea,
+    newRoutine: onNewRoutine,
   };
 
   return (
