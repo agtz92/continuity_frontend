@@ -90,9 +90,9 @@ export const PALETTE_SWATCHES: Record<
     continuuit: ["#5DF8D8", "#6FD1D7"],
   },
   cute: {
-    dark: ["#FFF0BE", "#FFD6A6"],
-    light: ["#9B7C20", "#A6582B"],
-    continuuit: ["#FFF0BE", "#FFD6A6"],
+    dark: ["#C0E1D2", "#DC9B9B"],
+    light: ["#EF88AD", "#9BC09C"],
+    continuuit: ["#C0E1D2", "#DC9B9B"],
   },
   midnight: {
     dark: ["#A5B4FC", "#818CF8"],

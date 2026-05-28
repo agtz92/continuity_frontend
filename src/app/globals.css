@@ -104,12 +104,12 @@
 }
 
 [data-theme="dark"][data-palette="cute"] {
-  --accent: #FFF0BE;
-  --accent-2: #FFD6A6;
+  --accent: #C0E1D2;
+  --accent-2: #DC9B9B;
 }
 [data-theme="light"][data-palette="cute"] {
-  --accent: #9B7C20;
-  --accent-2: #A6582B;
+  --accent: #EF88AD;
+  --accent-2: #9BC09C;
 }
 
 [data-theme="dark"][data-palette="midnight"] {
@@ -182,8 +182,8 @@
   --accent-2: #6FD1D7;
 }
 [data-theme="continuuit"][data-palette="cute"] {
-  --accent: #FFF0BE;
-  --accent-2: #FFD6A6;
+  --accent: #C0E1D2;
+  --accent-2: #DC9B9B;
 }
 [data-theme="continuuit"][data-palette="midnight"] {
   --accent: #A5B4FC;
