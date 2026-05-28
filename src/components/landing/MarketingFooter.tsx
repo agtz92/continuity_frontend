@@ -101,6 +101,14 @@ export default function MarketingFooter() {
                   {t("companyLinks.privacy")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-ls-text-primary hover:text-ls-ochre transition-colors"
+                >
+                  {t("companyLinks.terms")}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

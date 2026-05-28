@@ -1448,7 +1448,8 @@
       "companyLinks": {
         "about": "Sobre nosotros",
         "contact": "hello@continuu.it",
-        "privacy": "Privacidad"
+        "privacy": "Privacidad",
+        "terms": "Términos del servicio"
       },
       "copyright": "© {year} continuu.it"
     },
@@ -1553,6 +1554,100 @@
           "heading": "Contacto",
           "body": [
             "Si tienes preguntas sobre esta política o sobre cómo tratamos tus datos, escríbenos a hello@continuu.it."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Términos del servicio",
+      "lastUpdated": "Última actualización: 28 de mayo de 2026",
+      "intro": "Estos términos rigen tu uso de continuu.it. Al crear una cuenta o usar el servicio, aceptas estas condiciones. Léelas con atención.",
+      "sections": [
+        {
+          "heading": "Aceptación de los términos",
+          "body": [
+            "Al acceder o usar continuu.it (\"el servicio\") aceptas quedar vinculado por estos Términos del servicio y por nuestra Política de privacidad. Si no estás de acuerdo con ellos, no uses el servicio.",
+            "Si usas el servicio en nombre de una organización, declaras que tienes autoridad para vincular a dicha organización a estos términos."
+          ]
+        },
+        {
+          "heading": "Descripción del servicio",
+          "body": [
+            "continuu.it es una herramienta para organizar proyectos, tareas, ideas y rutinas, con un asistente de IA opcional. Podemos añadir, modificar o retirar funciones del servicio con el tiempo."
+          ]
+        },
+        {
+          "heading": "Tu cuenta",
+          "body": [
+            "Para usar la mayoría de las funciones necesitas crear una cuenta. Eres responsable de mantener la confidencialidad de tus credenciales y de toda la actividad que ocurra bajo tu cuenta.",
+            "Debes proporcionar información veraz y actualizada, y notificarnos de inmediato cualquier uso no autorizado de tu cuenta."
+          ]
+        },
+        {
+          "heading": "Planes, pagos y renovaciones",
+          "body": [
+            "Algunas funciones requieren un plan de pago. Los precios y las características de cada plan se muestran en el sitio y pueden cambiar con aviso razonable.",
+            "Las suscripciones se renuevan automáticamente al final de cada periodo salvo que las canceles antes. Los pagos se procesan a través de Stripe.",
+            "Salvo que la ley exija lo contrario, los importes pagados no son reembolsables por periodos ya iniciados."
+          ]
+        },
+        {
+          "heading": "Uso aceptable",
+          "body": [
+            "Te comprometes a no usar el servicio para fines ilícitos ni a vulnerar derechos de terceros.",
+            "No debes intentar acceder sin autorización a los sistemas, interferir con el funcionamiento del servicio, ni usarlo para enviar spam, malware o contenido abusivo o ilegal."
+          ]
+        },
+        {
+          "heading": "Tu contenido",
+          "body": [
+            "Conservas la titularidad del contenido que creas en el servicio (proyectos, tareas, ideas, notas y mensajes).",
+            "Nos concedes una licencia limitada para alojar, procesar y mostrar ese contenido con el único fin de prestarte el servicio. Eres responsable del contenido que subes y de que tengas derecho a usarlo."
+          ]
+        },
+        {
+          "heading": "El asistente de IA",
+          "body": [
+            "El asistente de IA genera respuestas de forma automática y puede contener errores o imprecisiones. No debes considerar sus respuestas como asesoramiento profesional.",
+            "Eres responsable de revisar y validar cualquier resultado del asistente antes de actuar en consecuencia."
+          ]
+        },
+        {
+          "heading": "Propiedad intelectual",
+          "body": [
+            "El servicio, su software, diseño, marcas y contenido (excluido tu contenido) son propiedad de continuu.it o de sus licenciantes y están protegidos por las leyes aplicables. No se te concede ningún derecho salvo el uso del servicio conforme a estos términos."
+          ]
+        },
+        {
+          "heading": "Servicios de terceros",
+          "body": [
+            "El servicio se apoya en proveedores externos (por ejemplo, alojamiento, pagos y modelos de IA). El uso de esos componentes puede estar sujeto a sus propios términos, y no somos responsables de sus servicios."
+          ]
+        },
+        {
+          "heading": "Suspensión y cancelación",
+          "body": [
+            "Puedes cancelar tu cuenta en cualquier momento. Podemos suspender o cancelar tu acceso si incumples estos términos o si es necesario para proteger el servicio o a otros usuarios.",
+            "Tras la cancelación, tu derecho a usar el servicio finaliza y podemos eliminar tu contenido conforme a nuestra Política de privacidad."
+          ]
+        },
+        {
+          "heading": "Garantías y limitación de responsabilidad",
+          "body": [
+            "El servicio se presta \"tal cual\" y \"según disponibilidad\", sin garantías de ningún tipo. No garantizamos que sea ininterrumpido o libre de errores.",
+            "En la máxima medida permitida por la ley, continuu.it no será responsable de daños indirectos, incidentales o consecuentes, ni de la pérdida de datos o beneficios derivada del uso del servicio."
+          ]
+        },
+        {
+          "heading": "Cambios en los términos",
+          "body": [
+            "Podemos actualizar estos términos de vez en cuando. Cuando los cambios sean significativos, actualizaremos la fecha de \"última actualización\" y, si corresponde, te lo notificaremos. El uso continuado del servicio implica la aceptación de los términos revisados."
+          ]
+        },
+        {
+          "heading": "Contacto",
+          "body": [
+            "Si tienes preguntas sobre estos términos, escríbenos a hello@continuu.it."
           ]
         }
       ]
