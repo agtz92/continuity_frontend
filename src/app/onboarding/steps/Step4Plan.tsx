@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import {
   COMPLETE_ONBOARDING,
   CREATE_CHECKOUT_SESSION,
@@ -41,6 +41,7 @@ export function Step4Plan({
 }) {
   const t = useTranslations("onboarding");
   const tBilling = useTranslations("settings.billing");
+  const tPricing = useTranslations("landing.pricing.tiers");
 
   const [selected, setSelected] = useState<PlanKey>("free");
   const [checkingOut, setCheckingOut] = useState(false);
@@ -191,24 +192,54 @@ export function Step4Plan({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {SELECTABLE_PLANS.map((p) => {
           const isSelected = selected === p;
+          const isPaid = p !== "free";
+          const perks = (tPricing.raw(`${p}.perks`) as string[]).slice(0, 3);
           return (
             <button
               key={p}
               type="button"
               onClick={() => setSelected(p)}
               disabled={total}
-              className={`text-left rounded-xl border p-4 transition-colors disabled:opacity-50 ${
+              className={`text-left rounded-xl border p-4 flex flex-col transition-colors disabled:opacity-50 ${
                 isSelected
                   ? "border-accent bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
                   : "border-border bg-surface/30 hover:bg-surface/60"
               }`}
               aria-pressed={isSelected}
             >
-              <div className="font-display text-lg text-text mb-1">
+              <div className="font-display text-lg text-text">
                 {tBilling(p)}
               </div>
-              <div className="text-xs text-text-muted">
+              <div className="mt-1 flex items-baseline gap-1">
+                <span className="font-display text-2xl text-text">
+                  {tPricing(`${p}.price`)}
+                </span>
+                <span className="text-xs text-text-muted">
+                  {tPricing(`${p}.priceCadence`)}
+                </span>
+              </div>
+              <div className="text-xs text-text-muted mt-1">
                 {t(`step4Plan.cards.${p}`)}
+              </div>
+              {isPaid && (
+                <div className="text-[11px] text-text-muted mt-3">
+                  {tPricing(`${p}.inheritsFrom`)}
+                </div>
+              )}
+              <div className={`space-y-1.5 ${isPaid ? "mt-1.5" : "mt-3"}`}>
+                {perks.map((perk) => (
+                  <div
+                    key={perk}
+                    className="flex items-start gap-1.5 text-xs text-text"
+                  >
+                    <Check
+                      size={13}
+                      className="mt-0.5 text-accent shrink-0"
+                      aria-hidden
+                    />
+                    <span>{perk}</span>
+                  </div>
+                ))}
               </div>
             </button>
           );

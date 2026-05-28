@@ -306,7 +306,13 @@
       "changeAvatar": "Change avatar",
       "clearAvatar": "Remove avatar",
       "pickerTitle": "Choose your avatar",
-      "moreSoon": "Editable profile fields are coming soon."
+      "moreSoon": "Editable profile fields are coming soon.",
+      "connectedAccounts": "Connected accounts",
+      "googleConnect": "Connect Google account",
+      "googleConnectDescription": "Link your Google account to sign in with one tap.",
+      "googleConnected": "Google connected",
+      "googleConnecting": "Connecting…",
+      "googleLinkError": "Couldn't connect Google. Please try again."
     },
     "appearance": {
       "title": "Appearance & language",

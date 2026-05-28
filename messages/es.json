@@ -306,7 +306,13 @@
       "changeAvatar": "Cambiar avatar",
       "clearAvatar": "Quitar avatar",
       "pickerTitle": "Elige tu avatar",
-      "moreSoon": "Pronto podrás editar más campos del perfil."
+      "moreSoon": "Pronto podrás editar más campos del perfil.",
+      "connectedAccounts": "Cuentas vinculadas",
+      "googleConnect": "Conectar cuenta de Google",
+      "googleConnectDescription": "Vincula tu cuenta de Google para iniciar sesión con un toque.",
+      "googleConnected": "Google conectado",
+      "googleConnecting": "Conectando…",
+      "googleLinkError": "No se pudo conectar Google. Inténtalo de nuevo."
     },
     "appearance": {
       "title": "Apariencia e idioma",
