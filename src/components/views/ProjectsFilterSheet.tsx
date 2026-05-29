@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { ChipGroup, type ChipOption } from "@/components/ui/ChipGroup";
 import type { Category, Priority, ProjectStatus } from "@/lib/types";
-import { categoryColorClass, priorityMeta } from "@/lib/types";
+import { categoryColorClass } from "@/lib/types";
 import { STATUS_FILTER_ORDER } from "@/lib/status";
 import { PRIORITY_FILTER_ORDER } from "@/lib/priority";
 
@@ -65,10 +65,6 @@ export function ProjectsFilterSheet({
     PRIORITY_FILTER_ORDER.map((p) => ({
       value: p,
       label: p === "all" ? t("allPriorities") : tPriority(p),
-      prefix:
-        p === "all" ? undefined : (
-          <span className="text-base leading-none">{priorityMeta(p).emoji}</span>
-        ),
     }));
 
   const dueOptions: ChipOption<DueFilter>[] = [

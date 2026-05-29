@@ -19,11 +19,8 @@ import type {
   ProjectStatus,
   Task,
 } from "@/lib/types";
-import {
-  PRIORITIES,
-  categoryColorClass,
-  priorityMeta,
-} from "@/lib/types";
+import { PRIORITIES, categoryColorClass } from "@/lib/types";
+import { priorityStripeClass } from "@/lib/priority";
 import { statusConfig } from "@/lib/status";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectSection } from "@/components/projects/ProjectSection";
@@ -429,9 +426,7 @@ function PrioritySelect({
       className="relative inline-flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
       title={tPriority(value)}
     >
-      <span className="text-base leading-none">
-        {priorityMeta(value).emoji}
-      </span>
+      <span className={`w-3 h-3 rounded-full ${priorityStripeClass[value]}`} />
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as Priority)}
@@ -439,8 +434,8 @@ function PrioritySelect({
         aria-label={tPriority(value)}
       >
         {PRIORITIES.map((p) => (
-          <option key={p.value} value={p.value} className="bg-surface text-text">
-            {p.emoji} {tPriority(p.value)}
+          <option key={p} value={p} className="bg-surface text-text">
+            {tPriority(p)}
           </option>
         ))}
       </select>

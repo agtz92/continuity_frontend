@@ -115,9 +115,8 @@ export function ProjectModal({
   }));
 
   const priorityOptions: ChipOption<Priority>[] = PRIORITIES.map((p) => ({
-    value: p.value,
-    label: tPriority(p.value),
-    prefix: <span className="text-base leading-none">{p.emoji}</span>,
+    value: p,
+    label: tPriority(p),
   }));
 
   const canSubmit = name.trim().length > 0;

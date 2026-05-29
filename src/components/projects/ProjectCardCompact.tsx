@@ -3,12 +3,13 @@
 import { Clock, Rocket, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Category, Project, Task } from "@/lib/types";
-import { categoryColorClass, priorityMeta } from "@/lib/types";
+import { categoryColorClass } from "@/lib/types";
+import { priorityStripeClass } from "@/lib/priority";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
 
 /**
  * Compact card used in Today's "Active Projects" and "Launched · still has tasks" grids.
- * Variants share layout but differ in: background tint, header lead (priority emoji vs Rocket),
+ * Variants share layout but differ in: background tint, header lead (priority dot vs Rocket),
  * footer ("Xd ago" only for active), and an extra "X open" badge for launched.
  */
 export function ProjectCardCompact({
@@ -66,9 +67,10 @@ export function ProjectCardCompact({
         {variant === "launched" ? (
           <Rocket size={14} className="text-accent-2 shrink-0" />
         ) : (
-          <span title={tPriority(p.priority)}>
-            {priorityMeta(p.priority).emoji}
-          </span>
+          <span
+            title={tPriority(p.priority)}
+            className={`w-2.5 h-2.5 rounded-full shrink-0 ${priorityStripeClass[p.priority]}`}
+          />
         )}
         <span className="font-semibold truncate flex-1">{p.name}</span>
         {comebackGapDays != null && comebackGapDays > 0 && (

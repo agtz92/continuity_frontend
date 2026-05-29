@@ -27,11 +27,7 @@ import type {
 } from "@/lib/types";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectSection } from "@/components/projects/ProjectSection";
-import {
-  categoryColorClass,
-  priorityMeta,
-  priorityRank,
-} from "@/lib/types";
+import { categoryColorClass, priorityRank } from "@/lib/types";
 import {
   daysSince,
   dueDateOnly,
@@ -373,7 +369,7 @@ export function ProjectsView({
                   const label =
                     pr === "all"
                       ? t("allPriorities")
-                      : `${priorityMeta(pr).emoji} ${tPriority(pr)}`;
+                      : tPriority(pr);
                   return (
                     <button
                       key={pr}
