@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import {
@@ -19,6 +19,12 @@ type Row = {
   publishedAt: string | null;
   updatedAt: string;
   locale: string;
+  excerpt: string;
+  contentJson: object;
+  coverImageUrl: string;
+  tags: string[];
+  seoTitle: string;
+  seoDescription: string;
 };
 
 type ListData = {
@@ -43,6 +49,14 @@ function slugify(s: string): string {
     .slice(0, 120);
 }
 
+function uniqueCopySlug(base: string, taken: Set<string>): string {
+  const root = `${base}-copia`;
+  if (!taken.has(root)) return root;
+  let n = 2;
+  while (taken.has(`${root}-${n}`)) n++;
+  return `${root}-${n}`;
+}
+
 export default function AdminPostsPage() {
   const router = useRouter();
   const autoFocus = useAutoFocus();
@@ -51,6 +65,7 @@ export default function AdminPostsPage() {
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
   const { data, loading, refetch } = useQuery<ListData>(ADMIN_BLOG_POSTS_QUERY, {
     variables: {
@@ -74,6 +89,40 @@ export default function AdminPostsPage() {
   );
 
   const rows = data?.adminBlogPosts.posts ?? [];
+  const existingSlugs = useMemo(
+    () => new Set(rows.map((r) => r.slug)),
+    [rows]
+  );
+
+  const [duplicate] = useMutation(ADMIN_BLOG_POST_CREATE, {
+    onCompleted: (res) => {
+      toast.success("Entrada duplicada");
+      router.push(`/admin/content/posts/${res.adminBlogPostCreate.id}`);
+    },
+    onError: (e) => {
+      setDuplicatingId(null);
+      toast.error(e.message);
+    },
+  });
+
+  const handleDuplicate = (p: Row) => {
+    setDuplicatingId(p.id);
+    duplicate({
+      variables: {
+        data: {
+          title: `${p.title} (copia)`,
+          slug: uniqueCopySlug(p.slug, existingSlugs),
+          excerpt: p.excerpt ?? "",
+          contentJson: p.contentJson ?? EMPTY_DOC,
+          coverImageUrl: p.coverImageUrl ?? "",
+          tags: p.tags ?? [],
+          seoTitle: p.seoTitle ?? "",
+          seoDescription: p.seoDescription ?? "",
+          locale: p.locale,
+        },
+      },
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -166,12 +215,22 @@ export default function AdminPostsPage() {
                   {new Date(p.updatedAt).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  <Link
-                    href={`/admin/content/posts/${p.id}`}
-                    className="text-accent hover:underline"
-                  >
-                    Editar
-                  </Link>
+                  <div className="flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleDuplicate(p)}
+                      disabled={duplicatingId === p.id}
+                      className="text-text-muted hover:text-text disabled:opacity-50"
+                    >
+                      {duplicatingId === p.id ? "Duplicando…" : "Duplicar"}
+                    </button>
+                    <Link
+                      href={`/admin/content/posts/${p.id}`}
+                      className="text-accent hover:underline"
+                    >
+                      Editar
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

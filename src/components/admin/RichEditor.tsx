@@ -13,7 +13,7 @@ import { Table } from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableHeader from "@tiptap/extension-table-header";
 import TableCell from "@tiptap/extension-table-cell";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bold,
   Italic,
@@ -54,6 +54,13 @@ type UploadResult = {
   height?: number;
 };
 
+type SlashCommand = {
+  title: string;
+  keywords: string;
+  icon: React.ReactNode;
+  run: (editor: Editor) => void;
+};
+
 type RichEditorProps = {
   initialContent: object | null;
   onChange: (doc: object) => void;
@@ -86,6 +93,36 @@ export function RichEditor({
   const [embedOpen, setEmbedOpen] = useState(false);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
 
+  // Slash (/) command menu — lets the editor insert blocks (H2, image, list…)
+  // at the cursor without scrolling up to the toolbar.
+  const [slash, setSlash] = useState<{
+    query: string;
+    top: number;
+    left: number;
+  } | null>(null);
+  const [slashIndex, setSlashIndex] = useState(0);
+  const slashRef = useRef<{ open: boolean; items: SlashCommand[]; index: number }>(
+    { open: false, items: [], index: 0 }
+  );
+  const applyCmdRef = useRef<(cmd: SlashCommand) => void>(() => {});
+
+  const syncSlash = useCallback((ed: Editor) => {
+    const { selection } = ed.state;
+    const { $from, empty } = selection;
+    if (!empty || $from.parent.type.name !== "paragraph") {
+      setSlash(null);
+      return;
+    }
+    const text = $from.parent.textContent;
+    if (!text.startsWith("/") || $from.parentOffset !== text.length) {
+      setSlash(null);
+      return;
+    }
+    const coords = ed.view.coordsAtPos($from.pos);
+    setSlash({ query: text.slice(1), top: coords.bottom + 4, left: coords.left });
+    setSlashIndex(0);
+  }, []);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -113,6 +150,27 @@ export function RichEditor({
         class:
           "tiptap min-h-[24rem] focus:outline-none prose dark:prose-invert max-w-none text-text",
       },
+      handleKeyDown: (_view, event) => {
+        const s = slashRef.current;
+        if (!s.open || s.items.length === 0) return false;
+        if (event.key === "ArrowDown") {
+          setSlashIndex((i) => (i + 1) % s.items.length);
+          return true;
+        }
+        if (event.key === "ArrowUp") {
+          setSlashIndex((i) => (i - 1 + s.items.length) % s.items.length);
+          return true;
+        }
+        if (event.key === "Enter" || event.key === "Tab") {
+          applyCmdRef.current(s.items[Math.min(s.index, s.items.length - 1)]);
+          return true;
+        }
+        if (event.key === "Escape") {
+          setSlash(null);
+          return true;
+        }
+        return false;
+      },
     },
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
@@ -121,7 +179,9 @@ export function RichEditor({
         lastEmittedRef.current = serialized;
         onChange(json);
       }
+      syncSlash(editor);
     },
+    onSelectionUpdate: ({ editor }) => syncSlash(editor),
     immediatelyRender: false,
   });
 
@@ -141,6 +201,117 @@ export function RichEditor({
     },
     [editor]
   );
+
+  const slashCommands = useMemo<SlashCommand[]>(() => {
+    const list: SlashCommand[] = [
+      {
+        title: "Título 1",
+        keywords: "h1 heading titulo encabezado",
+        icon: <Heading1 className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleHeading({ level: 1 }).run(),
+      },
+      {
+        title: "Título 2",
+        keywords: "h2 heading titulo encabezado subtitulo",
+        icon: <Heading2 className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        title: "Título 3",
+        keywords: "h3 heading titulo encabezado",
+        icon: <Heading3 className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
+      },
+      {
+        title: "Lista con viñetas",
+        keywords: "bullet list ul vinetas puntos",
+        icon: <List className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleBulletList().run(),
+      },
+      {
+        title: "Lista numerada",
+        keywords: "ordered list ol numerada",
+        icon: <ListOrdered className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleOrderedList().run(),
+      },
+      {
+        title: "Cita",
+        keywords: "quote blockquote cita",
+        icon: <Quote className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleBlockquote().run(),
+      },
+      {
+        title: "Bloque de código",
+        keywords: "code codigo pre",
+        icon: <Code className="h-4 w-4" />,
+        run: (e) => e.chain().focus().toggleCodeBlock().run(),
+      },
+      {
+        title: "Tabla",
+        keywords: "table tabla",
+        icon: <TableIcon className="h-4 w-4" />,
+        run: (e) =>
+          e
+            .chain()
+            .focus()
+            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+            .run(),
+      },
+      {
+        title: "Línea horizontal",
+        keywords: "divider hr separador linea",
+        icon: <Minus className="h-4 w-4" />,
+        run: (e) => e.chain().focus().setHorizontalRule().run(),
+      },
+    ];
+    if (onUploadImage) {
+      list.push({
+        title: "Imagen",
+        keywords: "image img imagen foto",
+        icon: <ImageIcon className="h-4 w-4" />,
+        run: () => setImagePickerOpen(true),
+      });
+    }
+    return list;
+  }, [onUploadImage]);
+
+  const slashItems = useMemo(() => {
+    if (!slash) return [];
+    const q = slash.query.trim().toLowerCase();
+    if (!q) return slashCommands;
+    return slashCommands.filter((c) =>
+      `${c.title} ${c.keywords}`.toLowerCase().includes(q)
+    );
+  }, [slash, slashCommands]);
+
+  const activeIndex = slashItems.length
+    ? Math.min(slashIndex, slashItems.length - 1)
+    : 0;
+
+  const applyCmd = useCallback(
+    (cmd: SlashCommand) => {
+      if (!editor || !cmd) return;
+      const { $from } = editor.state.selection;
+      const from = $from.start();
+      const to = $from.pos;
+      editor.chain().focus().deleteRange({ from, to }).run();
+      cmd.run(editor);
+      setSlash(null);
+    },
+    [editor]
+  );
+
+  useEffect(() => {
+    slashRef.current = {
+      open: !!slash && slashItems.length > 0,
+      items: slashItems,
+      index: activeIndex,
+    };
+  }, [slash, slashItems, activeIndex]);
+
+  useEffect(() => {
+    applyCmdRef.current = applyCmd;
+  }, [applyCmd]);
 
   const insertVideoFile = useCallback(async () => {
     if (!editor || !onUploadMedia) return;
@@ -198,6 +369,20 @@ export function RichEditor({
       <div className="px-4 py-3" data-placeholder={placeholder}>
         <EditorContent editor={editor} />
       </div>
+      <div className="border-t border-border px-4 py-1.5 text-[11px] text-text-muted">
+        Escribe <kbd className="rounded border border-border px-1">/</kbd> para
+        insertar bloques · Markdown: <code>## </code> título, <code>- </code>{" "}
+        lista, <code>&gt; </code> cita
+      </div>
+      {slash && slashItems.length > 0 && (
+        <SlashMenu
+          items={slashItems}
+          activeIndex={activeIndex}
+          top={slash.top}
+          left={slash.left}
+          onPick={applyCmd}
+        />
+      )}
       <EmbedModal
         open={embedOpen}
         onClose={() => setEmbedOpen(false)}
@@ -234,7 +419,7 @@ function Toolbar({
   onLink: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-border bg-bg/40 px-2 py-1.5">
+    <div className="sticky top-[60px] z-10 flex flex-wrap items-center gap-1 rounded-t-md border-b border-border bg-surface px-2 py-1.5 md:top-0">
       <Btn label="Negrita" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
         <Bold className="h-4 w-4" />
       </Btn>
@@ -433,4 +618,46 @@ function ColorPicker({
 
 function Sep() {
   return <div className="mx-1 h-4 w-px bg-border" />;
+}
+
+function SlashMenu({
+  items,
+  activeIndex,
+  top,
+  left,
+  onPick,
+}: {
+  items: SlashCommand[];
+  activeIndex: number;
+  top: number;
+  left: number;
+  onPick: (cmd: SlashCommand) => void;
+}) {
+  return (
+    <div
+      className="fixed z-50 max-h-72 w-60 overflow-y-auto rounded-md border border-border bg-surface py-1 shadow-xl"
+      style={{ top, left }}
+    >
+      {items.map((cmd, i) => (
+        <button
+          key={cmd.title}
+          type="button"
+          // onMouseDown (not onClick) so the editor keeps its selection while we apply.
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onPick(cmd);
+          }}
+          className={
+            "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors " +
+            (i === activeIndex
+              ? "bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-accent"
+              : "text-text hover:bg-bg")
+          }
+        >
+          <span className="text-text-muted">{cmd.icon}</span>
+          {cmd.title}
+        </button>
+      ))}
+    </div>
+  );
 }
