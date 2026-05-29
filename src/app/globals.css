@@ -45,17 +45,19 @@
    block above still provides bg/surface/border/text, and acts as the
    fallback when no palette attribute is set on <html>. */
 
+/* La paleta continuuit usa los accents del tema continuuit en cualquier
+   tema (dark/light/continuuit) — se mantiene constante a propósito. */
 [data-theme="dark"][data-palette="continuuit"] {
   --accent: #D4A847;
-  --accent-2: #A8412F;
+  --accent-2: #F08C5C;
 }
 [data-theme="continuuit"][data-palette="continuuit"] {
   --accent: #D4A847;
   --accent-2: #F08C5C;
 }
 [data-theme="light"][data-palette="continuuit"] {
-  --accent: #A37D1A;
-  --accent-2: #8C3522;
+  --accent: #D4A847;
+  --accent-2: #F08C5C;
 }
 
 [data-theme="dark"][data-palette="pink"] {
@@ -81,8 +83,8 @@
   --accent-2: #22d3ee;
 }
 [data-theme="light"][data-palette="neon"] {
-  --accent: #65a30d;
-  --accent-2: #0891b2;
+  --accent: #008BFF;
+  --accent-2: #9929EA;
 }
 
 [data-theme="dark"][data-palette="green"] {
@@ -126,8 +128,8 @@
   --accent-2: #9A8678;
 }
 [data-theme="light"][data-palette="boho"] {
-  --accent: #7A5D4A;
-  --accent-2: #5C4434;
+  --accent: #DF9152;
+  --accent-2: #A3573A;
 }
 
 [data-theme="dark"][data-palette="complimentary"] {
@@ -135,8 +137,8 @@
   --accent-2: #B891C2;
 }
 [data-theme="light"][data-palette="complimentary"] {
-  --accent: #9B7A1F;
-  --accent-2: #744577;
+  --accent: #62109F;
+  --accent-2: #EEA727;
 }
 
 [data-theme="dark"][data-palette="sunset"] {
@@ -144,8 +146,8 @@
   --accent-2: #FF9D23;
 }
 [data-theme="light"][data-palette="sunset"] {
-  --accent: #B83232;
-  --accent-2: #B86317;
+  --accent: #CF0F0F;
+  --accent-2: #E67E22;
 }
 
 [data-theme="dark"][data-palette="retro"] {

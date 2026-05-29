@@ -13,6 +13,7 @@ import {
   ADMIN_PAGE_UPDATE,
 } from "@/lib/graphql";
 import { RichEditor } from "@/components/admin/RichEditor";
+import { CoverImageField } from "@/components/admin/CoverImageField";
 import { uploadCmsImage, uploadCmsMedia } from "@/lib/cmsStorage";
 import { revalidateCmsCache } from "@/lib/revalidateCms";
 import { toast } from "@/lib/toast";
@@ -283,12 +284,8 @@ export default function EditPagePage() {
                 className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text"
               />
             </Field>
-            <Field label="Imagen de portada (URL)">
-              <input
-                value={cover}
-                onChange={(e) => setCover(e.target.value)}
-                className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text"
-              />
+            <Field label="Imagen de portada">
+              <CoverImageField value={cover} onChange={setCover} />
             </Field>
             <Field label="Idioma">
               <select

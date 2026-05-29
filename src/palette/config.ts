@@ -60,8 +60,8 @@ export const PALETTE_SWATCHES: Record<
     continuuit: ["#D4A847", "#F08C5C"],
   },
   continuuit: {
-    dark: ["#D4A847", "#A8412F"],
-    light: ["#A37D1A", "#8C3522"],
+    dark: ["#D4A847", "#F08C5C"],
+    light: ["#D4A847", "#F08C5C"],
     continuuit: ["#D4A847", "#F08C5C"],
   },
   pink: {
@@ -76,7 +76,7 @@ export const PALETTE_SWATCHES: Record<
   },
   neon: {
     dark: ["#a3e635", "#22d3ee"],
-    light: ["#65a30d", "#0891b2"],
+    light: ["#008BFF", "#9929EA"],
     continuuit: ["#a3e635", "#22d3ee"],
   },
   green: {
@@ -101,17 +101,17 @@ export const PALETTE_SWATCHES: Record<
   },
   boho: {
     dark: ["#CAAA98", "#9A8678"],
-    light: ["#7A5D4A", "#5C4434"],
+    light: ["#DF9152", "#A3573A"],
     continuuit: ["#CAAA98", "#9A8678"],
   },
   complimentary: {
     dark: ["#F0E9B6", "#B891C2"],
-    light: ["#9B7A1F", "#744577"],
+    light: ["#62109F", "#EEA727"],
     continuuit: ["#F0E9B6", "#B891C2"],
   },
   sunset: {
     dark: ["#EA5252", "#FF9D23"],
-    light: ["#B83232", "#B86317"],
+    light: ["#CF0F0F", "#E67E22"],
     continuuit: ["#EA5252", "#FF9D23"],
   },
   retro: {

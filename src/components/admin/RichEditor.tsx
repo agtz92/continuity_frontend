@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { Video } from "./tiptap/VideoNode";
 import { EmbedModal } from "./tiptap/EmbedModal";
+import { MediaPickerModal } from "./MediaPickerModal";
 
 type UploadResult = {
   publicUrl: string;
@@ -83,6 +84,7 @@ export function RichEditor({
 }: RichEditorProps) {
   const lastEmittedRef = useRef<string>("");
   const [embedOpen, setEmbedOpen] = useState(false);
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -131,20 +133,14 @@ export function RichEditor({
     editor.commands.setContent(initialContent);
   }, [editor, initialContent]);
 
-  const insertImage = useCallback(async () => {
-    if (!editor || !onUploadImage) return;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      const url = await onUploadImage(file);
-      if (!url) return;
-      editor.chain().focus().setImage({ src: url, alt: file.name }).run();
-    };
-    input.click();
-  }, [editor, onUploadImage]);
+  const insertImageUrl = useCallback(
+    (url: string) => {
+      if (!editor) return;
+      const alt = decodeURIComponent(url.split("/").pop() ?? "").split("?")[0];
+      editor.chain().focus().setImage({ src: url, alt }).run();
+    },
+    [editor]
+  );
 
   const insertVideoFile = useCallback(async () => {
     if (!editor || !onUploadMedia) return;
@@ -194,7 +190,7 @@ export function RichEditor({
     <div className="rounded-md border border-border bg-surface">
       <Toolbar
         editor={editor}
-        onImage={onUploadImage ? insertImage : null}
+        onImage={onUploadImage ? () => setImagePickerOpen(true) : null}
         onVideoFile={onUploadMedia ? insertVideoFile : null}
         onEmbed={() => setEmbedOpen(true)}
         onLink={insertLink}
@@ -208,6 +204,16 @@ export function RichEditor({
         onSubmit={({ src, provider, caption }) => {
           editor.chain().focus().setVideo({ src, provider, caption }).run();
           setEmbedOpen(false);
+        }}
+      />
+      <MediaPickerModal
+        open={imagePickerOpen}
+        onClose={() => setImagePickerOpen(false)}
+        defaultBucket="cms-media"
+        onUpload={onUploadImage ?? undefined}
+        onSelect={(url) => {
+          insertImageUrl(url);
+          setImagePickerOpen(false);
         }}
       />
     </div>

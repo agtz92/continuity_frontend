@@ -1,5 +1,9 @@
 # Frontend — notas para agentes
 
+## Paletas de colores
+
+Para editar las paletas (cambiar hex de una existente o agregar una nueva), consulta `../docs/paletas-de-colores.md`. Resumen: hay que sincronizar **dos archivos** — `src/app/globals.css` (colores reales) y `src/palette/config.ts` (`PALETTE_SWATCHES`, swatches del selector). Replica siempre el mismo cambio en el repo móvil (`continuity-mobile`).
+
 ## Tailwind: opacidad sobre colores del tema
 
 **No uses `bg-accent/40`, `text-accent/60`, etc. con los colores del tema** (`accent`, `accent-2`, `bg`, `surface`, `border`, `text`, `text-muted`). En este setup **no se procesan correctamente** y la regla se ignora visualmente — el hover/bg se ve como si la clase no existiera.
