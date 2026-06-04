@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
-  Database,
   Edit2,
   Flag,
   Flame,
@@ -178,11 +177,11 @@ export function TodayView({
 
   const [showFabSheet, setShowFabSheet] = useState(false);
   const [showTodayFocus, setShowTodayFocus] = useState(true);
-  const [showDoneToday, setShowDoneToday] = useState(true);
-  const [showActiveProjects, setShowActiveProjects] = useState(true);
-  const [showLaunchedWithTasks, setShowLaunchedWithTasks] = useState(true);
-  const [showSleepingProjects, setShowSleepingProjects] = useState(true);
-  const [showCloseable, setShowCloseable] = useState(true);
+  const [showDoneToday, setShowDoneToday] = useState(false);
+  const [showActiveProjects, setShowActiveProjects] = useState(false);
+  const [showLaunchedWithTasks, setShowLaunchedWithTasks] = useState(false);
+  const [showSleepingProjects, setShowSleepingProjects] = useState(false);
+  const [showCloseable, setShowCloseable] = useState(false);
   const [showRoutinesToday, setShowRoutinesToday] = useState(true);
   const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
 
@@ -351,30 +350,6 @@ export function TodayView({
           </div>
         )}
       </div>
-
-      {backupOverdue && hasData && (
-        <div className="bg-accent-2/10 border border-accent-2/30 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <Database className="text-accent-2 shrink-0 mt-0.5" size={18} />
-            <div className="flex-1">
-              <div className="font-semibold text-accent-2 mb-1">
-                {lastBackup
-                  ? t("backupAlert.lastBackupAgo", { days: daysSinceBackup ?? 0 })
-                  : t("backupAlert.noBackup")}
-              </div>
-              <div className="text-sm text-accent-2/80 mb-2">
-                {t("backupAlert.explanation")}
-              </div>
-              <button
-                onClick={onOpenBackupModal}
-                className="text-xs px-3 py-1.5 bg-accent-2/20 hover:bg-accent-2/30 rounded-md text-accent-2"
-              >
-                {t("backupAlert.openTools")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {stalled.length > 0 && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
