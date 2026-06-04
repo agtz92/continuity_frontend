@@ -1217,14 +1217,16 @@ export function TodayView({
         </>
       )}
 
-      <FAB
-        icon={<Plus size={24} />}
-        label={tFab("open")}
-        onClick={() => setShowFabSheet(true)}
-      />
+      {!layout.editMode && (
+        <FAB
+          icon={<Plus size={24} />}
+          label={tFab("open")}
+          onClick={() => setShowFabSheet(true)}
+        />
+      )}
 
       <TodayActionSheet
-        open={showFabSheet}
+        open={showFabSheet && !layout.editMode}
         onClose={() => setShowFabSheet(false)}
         onNewTask={onNewTask}
         onNewProject={onNewProject}

@@ -59,31 +59,48 @@ export function useTodayLayout() {
   const [hidden, setHidden] = useState<Set<TodaySectionId>>(serverState.hidden);
   const [editMode, setEditMode] = useState(false);
 
-  // Sync when the server response arrives or refreshes. We don't overwrite
-  // local state once a user is actively in edit mode (avoid clobbering a
-  // drag that hasn't been flushed yet).
+  // Initialize local state from server ONCE, when the first response lands.
+  // After that, the cache update inside the mutation keeps things in sync —
+  // resyncing on every server-data change would clobber pending optimistic
+  // edits when the user exits edit mode before the debounce fires.
   const initializedRef = useRef(false);
   useEffect(() => {
-    if (editMode) return;
+    if (initializedRef.current) return;
     if (!data) return;
     setOrder(serverState.order);
     setHidden(serverState.hidden);
     initializedRef.current = true;
-  }, [data, editMode, serverState.order, serverState.hidden]);
+  }, [data, serverState.order, serverState.hidden]);
 
-  // Debounced flush.
+  // Debounced flush. Writes the new layout to both the server and Apollo
+  // cache so the next query read matches the optimistic UI.
   const pendingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flush = useCallback(
     (nextOrder: TodaySectionId[], nextHidden: Set<TodaySectionId>) => {
       if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
+      const hiddenArr = Array.from(nextHidden);
       pendingTimerRef.current = setTimeout(() => {
         updateMutation({
-          variables: {
-            order: nextOrder,
-            hidden: Array.from(nextHidden),
+          variables: { order: nextOrder, hidden: hiddenArr },
+          optimisticResponse: {
+            updateTodayLayout: {
+              __typename: "TodayLayout",
+              order: nextOrder,
+              hidden: hiddenArr,
+            },
           },
-        }).catch(() => {
-          // Rollback to server truth if write fails.
+          update: (cache, { data: mutData }) => {
+            const payload = mutData?.updateTodayLayout;
+            if (!payload) return;
+            cache.writeQuery({
+              query: TODAY_LAYOUT_QUERY,
+              data: { todayLayout: payload },
+            });
+          },
+        }).catch((err) => {
+          // Roll back to last known server state and surface the reason.
+          // eslint-disable-next-line no-console
+          console.error("[useTodayLayout] update failed:", err);
           setOrder(serverState.order);
           setHidden(serverState.hidden);
         });
@@ -137,13 +154,25 @@ export function useTodayLayout() {
   const reset = useCallback(async () => {
     if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
     try {
-      const result = await resetMutation();
-      const payload = result.data?.resetTodayLayout as LayoutPayload | undefined;
-      const next = reconcile(payload);
+      const result = await resetMutation({
+        update: (cache, { data: mutData }) => {
+          const payload = (mutData as { resetTodayLayout?: LayoutPayload } | null)
+            ?.resetTodayLayout;
+          if (!payload) return;
+          cache.writeQuery({
+            query: TODAY_LAYOUT_QUERY,
+            data: { todayLayout: payload },
+          });
+        },
+      });
+      const payload = (result.data as { resetTodayLayout?: LayoutPayload } | null)
+        ?.resetTodayLayout;
+      const next = reconcile(payload ?? undefined);
       setOrder(next.order);
       setHidden(next.hidden);
-    } catch {
-      // Keep current state — user can retry.
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[useTodayLayout] reset failed:", err);
     }
   }, [resetMutation]);
 
