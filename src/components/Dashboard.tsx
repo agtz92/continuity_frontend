@@ -283,6 +283,7 @@ export default function Dashboard() {
             }}
             onCompleteOccurrence={completeOccurrence}
             onUncompleteOccurrence={uncompleteOccurrence}
+            onRefresh={refetch}
           />
         )}
 

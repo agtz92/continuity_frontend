@@ -145,6 +145,7 @@ export function TodayView({
   onEditRoutine,
   onCompleteOccurrence,
   onUncompleteOccurrence,
+  onRefresh,
 }: {
   projects: Project[];
   tasks: Task[];
@@ -177,6 +178,13 @@ export function TodayView({
     scheduledDate: string
   ) => void | Promise<void>;
   onUncompleteOccurrence: (occurrenceId: string) => void | Promise<void>;
+  /**
+   * Refetch the dashboard data. Called when the user finishes customizing
+   * the Today layout so any new sections that became visible reflect the
+   * latest server state, and as a safety net in case mutations elsewhere
+   * (e.g. opening this view after creating something) left cache stale.
+   */
+  onRefresh?: () => void | Promise<unknown>;
 }) {
   const t = useTranslations("views.today");
   const tFocus = useTranslations("views.today.focus");
@@ -1114,7 +1122,14 @@ export function TodayView({
   // ---------- Render ---------- //
 
   const enterEdit = () => layout.setEditMode(true);
-  const exitEdit = () => layout.setEditMode(false);
+  const exitEdit = () => {
+    layout.setEditMode(false);
+    // Refresh dashboard so any section that gained data while customizing
+    // (or was hidden then unhidden) reflects the latest server state.
+    if (onRefresh) {
+      void Promise.resolve(onRefresh()).catch(() => undefined);
+    }
+  };
 
   const hideLabels = {
     show: tCustom("show"),
