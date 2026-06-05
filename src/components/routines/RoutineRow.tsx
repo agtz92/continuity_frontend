@@ -71,7 +71,7 @@ export function RoutineRow({
       }
     } else {
       setOptimisticDone(true);
-      toast.success(t("completedToast"));
+      toast.success(t("completedToast"), 2500);
       onComplete(routine.id, scheduledDate);
     }
   };

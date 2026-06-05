@@ -42,7 +42,7 @@ export function TaskRow({
   const handleToggle = () => {
     if (!done) {
       setOptimisticDone(true);
-      toast.success(t("completedToast"));
+      toast.success(t("completedToast"), 2500);
     } else {
       setOptimisticDone(false);
     }
