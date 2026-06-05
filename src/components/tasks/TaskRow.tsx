@@ -1,14 +1,20 @@
 "use client";
 
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { CalendarPlus, CheckCircle2, Clock, Lock, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
 import { isDueToday, isOverdue } from "@/lib/date";
+import { toast } from "@/lib/toast";
 
 /**
  * Bordered task row used inside the TasksView buckets. Shows checkbox + title +
  * project/due meta + delete button. When `onSchedule` is provided and the task
  * has no due date, an "Add date" inline action appears in the meta line.
+ *
+ * Marking done confirms instantly (optimistic check + "✓ completed" toast) and
+ * the row fades out as the refetch drops it — instead of freezing then popping.
  */
 export function TaskRow({
   task,
@@ -27,11 +33,28 @@ export function TaskRow({
 }) {
   const t = useTranslations("taskRow");
   const locale = useLocale();
-  const overdue = !task.done && isOverdue(task.dueDate);
-  const dueToday = !task.done && isDueToday(task.dueDate);
-  const isBlocked = !task.done && task.blockers.length > 0;
+  const [optimisticDone, setOptimisticDone] = useState(false);
+  const done = task.done || optimisticDone;
+  const overdue = !done && isOverdue(task.dueDate);
+  const dueToday = !done && isDueToday(task.dueDate);
+  const isBlocked = !done && task.blockers.length > 0;
+
+  const handleToggle = () => {
+    if (!done) {
+      setOptimisticDone(true);
+      toast.success(t("completedToast"));
+    } else {
+      setOptimisticDone(false);
+    }
+    onToggle(task);
+  };
+
   return (
-    <div
+    <motion.div
+      layout
+      initial={false}
+      animate={{ opacity: optimisticDone ? 0 : 1 }}
+      transition={{ duration: 0.2 }}
       className={`bg-surface border rounded-lg p-3 flex items-center gap-3 group ${
         overdue
           ? "border-red-500/30"
@@ -41,12 +64,12 @@ export function TaskRow({
       } ${isBlocked ? "opacity-60" : ""}`}
     >
       <button
-        onClick={() => onToggle(task)}
+        onClick={handleToggle}
         className={
-          task.done ? "text-accent" : "text-text-muted hover:text-text-muted"
+          done ? "text-accent" : "text-text-muted hover:text-text-muted"
         }
-        aria-label={task.done ? t("markNotDone") : t("markDone")}
-        title={task.done ? t("markNotDone") : t("markDone")}
+        aria-label={done ? t("markNotDone") : t("markDone")}
+        title={done ? t("markNotDone") : t("markDone")}
       >
         <CheckCircle2 size={18} />
       </button>
@@ -55,7 +78,7 @@ export function TaskRow({
         onClick={onEdit ? () => onEdit(task) : undefined}
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={task.done ? "line-through text-text-muted" : "text-text"}>
+          <span className={done ? "line-through text-text-muted" : "text-text"}>
             {task.title}
           </span>
           {task.effortHours != null && (
@@ -109,6 +132,6 @@ export function TaskRow({
       >
         <X size={16} />
       </button>
-    </div>
+    </motion.div>
   );
 }

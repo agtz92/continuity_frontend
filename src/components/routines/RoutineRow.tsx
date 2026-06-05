@@ -9,17 +9,22 @@ import {
   Repeat,
   X,
 } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import type { Routine } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import { describeRecurrence } from "@/lib/recurrence";
 import { todayLocalISODate } from "@/lib/date";
+import { toast } from "@/lib/toast";
 
 /**
  * Row for an individual routine occurrence. Used inside RoutinesView and
  * TodayView. `scheduledDate` is the specific date this row represents;
  * `occurrenceId` is non-null iff the user already completed that day.
+ *
+ * Completing confirms instantly (optimistic check + "✓ completed" toast) and the
+ * row fades out as the refetch drops it — instead of freezing then popping.
  */
 export function RoutineRow({
   routine,
@@ -50,21 +55,33 @@ export function RoutineRow({
       tRec(key, vars),
     [tRec]
   );
-  const done = occurrenceId !== null;
+  const [optimisticDone, setOptimisticDone] = useState(false);
+  const isDone = occurrenceId !== null || optimisticDone;
   const today = todayLocalISODate();
-  const overdue = !done && scheduledDate < today;
-  const dueToday = !done && scheduledDate === today;
+  const overdue = !isDone && scheduledDate < today;
+  const dueToday = !isDone && scheduledDate === today;
 
   const handleToggle = () => {
-    if (done && occurrenceId) {
-      onUncomplete(occurrenceId);
+    if (isDone) {
+      // Un-complete only once the server occurrence exists; ignore taps while
+      // an optimistic completion is still in flight.
+      if (occurrenceId) {
+        setOptimisticDone(false);
+        onUncomplete(occurrenceId);
+      }
     } else {
+      setOptimisticDone(true);
+      toast.success(t("completedToast"));
       onComplete(routine.id, scheduledDate);
     }
   };
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={false}
+      animate={{ opacity: optimisticDone ? 0 : 1 }}
+      transition={{ duration: 0.2 }}
       className={`bg-surface border rounded-lg p-3 flex items-center gap-3 group ${
         overdue
           ? "border-red-500/30"
@@ -75,9 +92,9 @@ export function RoutineRow({
     >
       <button
         onClick={handleToggle}
-        className={done ? "text-accent" : "text-text-muted hover:text-text"}
-        aria-label={done ? t("markNotDone") : t("markDone")}
-        title={done ? t("markNotDone") : t("markDone")}
+        className={isDone ? "text-accent" : "text-text-muted hover:text-text"}
+        aria-label={isDone ? t("markNotDone") : t("markDone")}
+        title={isDone ? t("markNotDone") : t("markDone")}
       >
         <CheckCircle2 size={18} />
       </button>
@@ -86,7 +103,7 @@ export function RoutineRow({
         onClick={onEdit ? () => onEdit(routine) : undefined}
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={done ? "line-through text-text-muted" : "text-text"}>
+          <span className={isDone ? "line-through text-text-muted" : "text-text"}>
             {routine.title}
           </span>
           <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
@@ -164,6 +181,6 @@ export function RoutineRow({
           <X size={16} />
         </button>
       )}
-    </div>
+    </motion.div>
   );
 }
