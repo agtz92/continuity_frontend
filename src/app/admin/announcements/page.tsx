@@ -341,7 +341,7 @@ export default function AdminAnnouncementsPage() {
 function severityChip(s: string): string {
   if (s === "error") return "bg-red-500/15 text-red-400";
   if (s === "warn") return "bg-amber-500/15 text-amber-400";
-  return "bg-accent/15 text-accent";
+  return "bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-accent";
 }
 
 function statusChip(s: string): string {

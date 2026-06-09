@@ -103,7 +103,8 @@ export default function AdminResourcesPage() {
         <div>
           <h1 className="text-2xl font-semibold text-text">Recursos de ayuda</h1>
           <p className="mt-1 text-sm text-text-muted">
-            Centro de ayuda público en continuu.it/ayuda.
+            Centro de ayuda público: continuu.it/recursos (es) y
+            continuu.it/resources (en), según el idioma del recurso.
           </p>
         </div>
         <div className="flex gap-2">
@@ -365,7 +366,7 @@ export default function AdminResourcesPage() {
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     draft: { label: "Borrador", cls: "bg-bg text-text-muted" },
-    published: { label: "Publicado", cls: "bg-accent/20 text-accent" },
+    published: { label: "Publicado", cls: "bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-accent" },
     archived: { label: "Archivado", cls: "bg-bg text-text-muted line-through" },
   };
   const cfg = map[status] ?? { label: status, cls: "bg-bg text-text-muted" };

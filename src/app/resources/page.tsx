@@ -11,6 +11,6 @@ const CONFIG: ResourceRouteConfig = { locale: "en", basePath: "/resources" };
 
 export const metadata: Metadata = hubMetadata(CONFIG);
 
-export default function ResourcesIndexPage() {
+export default async function ResourcesIndexPage() {
   return ResourcesHub(CONFIG);
 }

@@ -139,7 +139,7 @@ export function AnnouncementForm({
               className={
                 "px-3 py-1 text-xs rounded-full border " +
                 (state.audiencePlans.includes(p)
-                  ? "border-accent bg-accent/10 text-accent"
+                  ? "border-accent bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-accent"
                   : "border-border text-text-muted hover:bg-bg")
               }
             >

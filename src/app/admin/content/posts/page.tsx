@@ -371,7 +371,7 @@ export default function AdminPostsPage() {
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     draft: { label: "Borrador", cls: "bg-bg text-text-muted" },
-    published: { label: "Publicado", cls: "bg-accent/20 text-accent" },
+    published: { label: "Publicado", cls: "bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-accent" },
     archived: { label: "Archivado", cls: "bg-bg text-text-muted line-through" },
   };
   const cfg = map[status] ?? { label: status, cls: "bg-bg text-text-muted" };

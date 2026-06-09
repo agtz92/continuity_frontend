@@ -35,7 +35,7 @@ type Data = {
 
 const STATUS_COLOR: Record<string, string> = {
   pending: "bg-bg text-text-muted",
-  sent: "bg-accent/20 text-accent",
+  sent: "bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-accent",
   failed: "bg-red-500/15 text-red-400",
   skipped: "bg-bg text-text-muted opacity-70",
 };

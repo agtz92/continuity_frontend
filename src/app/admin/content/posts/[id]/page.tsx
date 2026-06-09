@@ -335,10 +335,14 @@ export default function EditBlogPostPage() {
           </Section>
 
           <Section label="SEO">
+            <p className="-mt-1 text-xs text-text-muted">
+              Si los dejas vacíos, se usan el título y el resumen.
+            </p>
             <Field label="Título SEO">
               <input
                 value={seoTitle}
                 onChange={(e) => setSeoTitle(e.target.value)}
+                placeholder={title || "Se usa el título"}
                 className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
               />
             </Field>
@@ -347,6 +351,7 @@ export default function EditBlogPostPage() {
                 value={seoDescription}
                 onChange={(e) => setSeoDescription(e.target.value)}
                 rows={3}
+                placeholder={excerpt || "Se usa el resumen / excerpt"}
                 className="w-full rounded border border-border bg-bg px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
               />
             </Field>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { driver, type Driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import {
@@ -178,6 +179,8 @@ function FinalCtaModal({
   onSecondary: () => void;
 }) {
   const t = useTranslations("onboarding.tour.finalCta");
+  const locale = useLocale();
+  const resourcesHref = locale === "es" ? "/recursos" : "/resources";
 
   // Esc dismisses (counts as "later").
   useEffect(() => {
@@ -199,23 +202,19 @@ function FinalCtaModal({
         <h2 className="font-display text-2xl text-text mb-2">{t("title")}</h2>
         <p className="text-text-muted text-sm mb-5">{t("body")}</p>
 
-        {/* "There's more" footer block. Resources is a placeholder until
-            the resources hub ships; for now we render it disabled with a
-            "Soon" badge so the link doesn't dead-end. */}
+        {/* "There's more" footer block — links to the resources hub. */}
         <div className="border-t border-border pt-4 mb-6">
           <p className="text-xs text-text-muted leading-relaxed mb-3">
             {t("more")}
           </p>
           <div className="flex items-center gap-2">
-            <span
-              aria-disabled="true"
-              className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs text-text-muted/70 border border-border bg-surface/40 cursor-not-allowed select-none"
+            <Link
+              href={resourcesHref}
+              onClick={onSecondary}
+              className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs text-text border border-border bg-surface hover:border-accent transition-colors"
             >
               {t("resourcesLink")}
-              <span className="rounded-full bg-surface px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-text-muted border border-border">
-                {t("resourcesComingSoon")}
-              </span>
-            </span>
+            </Link>
           </div>
         </div>
 

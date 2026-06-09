@@ -40,7 +40,7 @@ function formatDate(s: string | null): string {
 }
 
 function statusChip(s: string): string {
-  if (s === "new") return "bg-accent/15 text-accent";
+  if (s === "new") return "bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-accent";
   if (s === "read") return "bg-emerald-500/15 text-emerald-400";
   return "bg-bg text-text-muted"; // archived
 }

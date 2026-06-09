@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Bell,
   BookOpen,
@@ -41,6 +41,8 @@ type Props = {
 
 export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
   const t = useTranslations("accountMenu");
+  const locale = useLocale();
+  const resourcesHref = locale === "es" ? "/recursos" : "/resources";
   const [email, setEmail] = useState<string | null>(null);
   const pathname = usePathname();
   const openedAtPath = useRef<string | null>(null);
@@ -215,7 +217,12 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               label={t("items.blog")}
               onClick={handleNavigate}
             />
-            <RowPending icon={LibraryBig} label={t("items.resources")} badge={t("items.comingSoon")} />
+            <RowLink
+              href={resourcesHref}
+              icon={LibraryBig}
+              label={t("items.resources")}
+              onClick={handleNavigate}
+            />
             <RowLink
               href="/report-bug"
               icon={Bug}
@@ -317,28 +324,6 @@ function RowExternal({
   );
 }
 
-function RowPending({
-  icon: Icon,
-  label,
-  badge,
-}: {
-  icon: LucideIcon;
-  label: string;
-  badge: string;
-}) {
-  return (
-    <div
-      aria-disabled="true"
-      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-text-muted/60 cursor-not-allowed select-none"
-    >
-      <Icon size={16} className="text-text-muted/60" />
-      <span>{label}</span>
-      <span className="ml-auto rounded-full bg-surface px-2 py-0.5 text-[10px] uppercase tracking-wider text-text-muted border border-border">
-        {badge}
-      </span>
-    </div>
-  );
-}
 
 function RowButton({
   icon: Icon,

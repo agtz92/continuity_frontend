@@ -150,7 +150,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                       className={
                         "flex items-center justify-between gap-2 rounded px-2 py-1 text-sm transition-colors " +
                         (active
-                          ? "bg-accent/15 text-accent"
+                          ? "bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-accent"
                           : "text-text hover:bg-bg")
                       }
                     >

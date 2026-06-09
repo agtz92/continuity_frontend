@@ -613,7 +613,7 @@ function Btn({
       className={
         "inline-flex h-7 w-7 items-center justify-center rounded text-xs transition-colors " +
         (active
-          ? "bg-accent/20 text-accent"
+          ? "bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-accent"
           : "text-text-muted hover:bg-bg hover:text-text")
       }
     >
