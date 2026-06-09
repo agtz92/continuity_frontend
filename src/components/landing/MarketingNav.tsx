@@ -43,6 +43,11 @@ export default function MarketingNav() {
     void setLocale(next);
   };
 
+  // The resources hub is split into two monolingual route trees keyed by the
+  // URL (see ResourcePages.tsx): Spanish lives at /recursos, every other
+  // locale at /resources.
+  const resourcesHref = locale === "es" ? "/recursos" : "/resources";
+
   return (
     <motion.header
       initial={reduce ? false : { y: -20, opacity: 0 }}
@@ -71,6 +76,9 @@ export default function MarketingNav() {
           </Link>
           <Link href="/blog" className="hover:text-ls-text-primary transition-colors">
             {t("blog")}
+          </Link>
+          <Link href={resourcesHref} className="hover:text-ls-text-primary transition-colors">
+            {t("resources")}
           </Link>
         </nav>
 
