@@ -8,7 +8,6 @@ import {
   Clock,
   Edit2,
   Flag,
-  Flame,
   Lightbulb,
   Moon,
   Plus,
@@ -62,15 +61,6 @@ import { TodayActionSheet } from "./TodayActionSheet";
 
 type ProductivityStats = ReturnType<typeof useProductivityStats>;
 
-const STREAK_MILESTONES = [7, 14, 30, 60, 100, 200, 365] as const;
-
-function streakNextGoal(current: number): number {
-  return (
-    STREAK_MILESTONES.find((m) => m > current) ??
-    Math.ceil((current + 1) / 100) * 100
-  );
-}
-
 function greetingKey(): "morning" | "afternoon" | "evening" {
   const h = new Date().getHours();
   if (h >= 5 && h < 12) return "morning";
@@ -95,7 +85,6 @@ const sleepingBucketStyle = {
 
 // Icon shown next to each section name inside the customize-mode card.
 const SECTION_ICON: Record<TodaySectionId, ReactNode> = {
-  streak: <Flame size={18} className="text-orange-400" />,
   counters: <TrendingUp size={18} className="text-accent-2" />,
   "stalled-alert": <Bell size={18} className="text-amber-400" />,
   "today-focus": <Target size={18} className="text-accent" />,
@@ -112,7 +101,6 @@ const SECTION_ICON: Record<TodaySectionId, ReactNode> = {
 // in the customize-mode list so the user understands the hide toggle is
 // effectively a mobile-only setting today.
 const MOBILE_ONLY_SECTIONS: ReadonlySet<TodaySectionId> = new Set([
-  "streak",
   "counters",
 ]);
 
@@ -194,7 +182,6 @@ export function TodayView({
   const tStale = useTranslations("views.today.staleIdeas");
   const tTabs = useTranslations("tabs");
   const tGreeting = useTranslations("views.today.greeting");
-  const tStreak = useTranslations("views.today.streakCard");
   const tCounters = useTranslations("views.today.counters");
   const tFab = useTranslations("views.today.fab");
   const tCustom = useTranslations("views.today.customize");
@@ -311,12 +298,6 @@ export function TodayView({
     [projects]
   );
 
-  const streakCurrent = productivityStats.streak.current;
-  const streakBest = productivityStats.streak.best;
-  const streakGoal = streakNextGoal(streakCurrent);
-  const streakProgress =
-    streakGoal > 0 ? Math.min(1, streakCurrent / streakGoal) : 0;
-
   const counters: { id: string; label: string; value: number; tint: string }[] = [
     {
       id: "active",
@@ -360,37 +341,6 @@ export function TodayView({
   // A section without data simply has no entry — undefined means "skip render".
 
   const sectionNodes: Partial<Record<TodaySectionId, ReactNode>> = {};
-
-  if (hasData && (streakCurrent > 0 || streakBest > 0)) {
-    sectionNodes.streak = (
-      <div className="md:hidden bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <Flame size={18} className="text-orange-400" />
-          <span className="text-sm uppercase tracking-wider text-orange-700 dark:text-orange-300 font-medium">
-            {tStreak("title")}
-          </span>
-          <span className="ml-auto text-xl font-bold text-orange-700 dark:text-orange-200">
-            {tStreak("days", { count: streakCurrent })}
-          </span>
-        </div>
-        <div
-          className="h-2 rounded-full bg-orange-500/20 overflow-hidden"
-          aria-valuenow={streakCurrent}
-          aria-valuemax={streakGoal}
-          role="progressbar"
-        >
-          <div
-            className="h-full bg-orange-400 transition-[width] duration-300"
-            style={{ width: `${streakProgress * 100}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between mt-1.5 text-[11px] text-orange-700/80 dark:text-orange-300/80">
-          <span>{tStreak("nextMilestone", { days: streakGoal })}</span>
-          {streakBest > 0 && <span>{tStreak("best", { days: streakBest })}</span>}
-        </div>
-      </div>
-    );
-  }
 
   if (hasData) {
     sectionNodes.counters = (

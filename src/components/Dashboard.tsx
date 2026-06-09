@@ -218,8 +218,6 @@ export default function Dashboard() {
             activeCount={activeCount}
             launchedCount={launchedCount}
             stalledCount={stalledCount}
-            streakCurrent={productivityStats.streak.current}
-            streakBest={productivityStats.streak.best}
             activeThisWeek={productivityStats.activeThisWeek}
             hasData={hasData}
           />

@@ -1384,8 +1384,6 @@ export const ANALYTICS_QUERY = gql`
       rangeStart
       rangeEnd
       cadence {
-        currentStreak
-        longestStreak
         activeDaysInRange
         totalActivityEvents
       }

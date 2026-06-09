@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
@@ -7,6 +8,30 @@ import {
   fetchHelpResources,
 } from "@/lib/publicGraphql";
 import type { Locale } from "@/i18n/config";
+import MarketingNav from "@/components/landing/MarketingNav";
+import MarketingFooter from "@/components/landing/MarketingFooter";
+
+/** Marketing shell shared by every resources view (matches /blog). */
+function MarketingShell({ children }: { children: ReactNode }) {
+  return (
+    <div
+      data-surface="marketing"
+      className="min-h-screen bg-ls-navy text-ls-text-primary font-sans antialiased selection:bg-ls-ochre/30 selection:text-ls-text-primary"
+    >
+      <MarketingNav />
+      {children}
+      <MarketingFooter />
+    </div>
+  );
+}
+
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 
 /**
  * Shared implementation for the localized resources hub.
@@ -139,62 +164,80 @@ export async function ResourcesHub({ locale, basePath }: ResourceRouteConfig) {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-16">
-      <header className="mb-12">
-        <Link href="/" className="text-sm text-accent hover:underline">
-          {c.backHome}
-        </Link>
-        <h1 className="mt-4 text-4xl font-semibold text-text">{c.hubHeading}</h1>
-        <p className="mt-2 text-text-muted">{c.hubSubtitle}</p>
-      </header>
-
-      {categories.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface px-4 py-10 text-center text-text-muted">
-          {c.hubEmpty}
+    <MarketingShell>
+      <main className="relative pt-32 pb-24 sm:pt-40 sm:pb-32 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[520px] w-[900px] rounded-full bg-ls-ochre/10 blur-[140px]" />
+          <div className="absolute top-1/3 left-0 h-[360px] w-[520px] rounded-full bg-ls-vermillion/10 blur-[120px]" />
         </div>
-      )}
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        {categories.map((cat) => {
-          const items = (resourcesByCategory.get(cat.slug) ?? []).slice(0, 3);
-          return (
-            <section
-              key={cat.id}
-              className="rounded-lg border border-border bg-surface p-5"
+        <div className="mx-auto w-full max-w-6xl px-6 sm:px-8 lg:px-12">
+          <header className="mb-16 max-w-3xl">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
             >
-              <Link href={`${basePath}/${cat.slug}`} className="group block">
-                <h2 className="text-xl font-semibold text-text group-hover:text-accent">
-                  {cat.name}
-                </h2>
-                {cat.description && (
-                  <p className="mt-1 text-sm text-text-muted">
-                    {cat.description}
-                  </p>
-                )}
-              </Link>
-              <ul className="mt-4 space-y-2">
-                {items.map((r) => (
-                  <li key={r.id}>
-                    <Link
-                      href={`${basePath}/${cat.slug}/${r.slug}`}
-                      className="text-sm text-text hover:text-accent"
-                    >
-                      {r.title}
+              <span aria-hidden>←</span>
+              Continuity
+            </Link>
+            <h1 className="mt-6 font-display text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.95] tracking-tight font-light text-ls-text-primary">
+              {c.hubHeading}
+              <span className="text-ls-ochre">.</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-base sm:text-lg text-ls-text-secondary leading-relaxed">
+              {c.hubSubtitle}
+            </p>
+          </header>
+
+          {categories.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-20 text-center text-ls-text-secondary">
+              {c.hubEmpty}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              {categories.map((cat) => {
+                const items = (resourcesByCategory.get(cat.slug) ?? []).slice(0, 3);
+                return (
+                  <section
+                    key={cat.id}
+                    className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition-colors hover:border-ls-ochre/40"
+                  >
+                    <Link href={`${basePath}/${cat.slug}`} className="group block">
+                      <h2 className="font-display text-2xl font-light text-ls-text-primary transition-colors group-hover:text-ls-ochre">
+                        {cat.name}
+                      </h2>
+                      {cat.description && (
+                        <p className="mt-2 text-sm text-ls-text-secondary leading-relaxed">
+                          {cat.description}
+                        </p>
+                      )}
                     </Link>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={`${basePath}/${cat.slug}`}
-                className="mt-4 inline-block text-xs text-accent hover:underline"
-              >
-                {c.viewAll(cat.resourceCount)}
-              </Link>
-            </section>
-          );
-        })}
-      </div>
-    </main>
+                    <ul className="mt-5 space-y-2.5">
+                      {items.map((r) => (
+                        <li key={r.id}>
+                          <Link
+                            href={`${basePath}/${cat.slug}/${r.slug}`}
+                            className="text-sm text-ls-text-primary/90 transition-colors hover:text-ls-ochre"
+                          >
+                            {r.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={`${basePath}/${cat.slug}`}
+                      className="mt-6 inline-flex items-center gap-2 text-sm text-ls-ochre"
+                    >
+                      {c.viewAll(cat.resourceCount)}
+                    </Link>
+                  </section>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </main>
+    </MarketingShell>
   );
 }
 
@@ -213,39 +256,60 @@ export async function ResourcesCategory(
   const resources = result?.resources ?? [];
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link href={basePath} className="text-sm text-accent hover:underline">
-        {c.backToHub}
-      </Link>
-      <header className="mt-6 mb-10">
-        <h1 className="text-3xl font-semibold text-text">{cat.name}</h1>
-        {cat.description && (
-          <p className="mt-2 text-text-muted">{cat.description}</p>
-        )}
-      </header>
-
-      {resources.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface px-4 py-10 text-center text-text-muted">
-          {c.categoryEmpty}
+    <MarketingShell>
+      <main className="relative pt-32 pb-24 sm:pt-40 sm:pb-32 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[520px] w-[900px] rounded-full bg-ls-ochre/10 blur-[140px]" />
+          <div className="absolute top-1/3 left-0 h-[360px] w-[520px] rounded-full bg-ls-vermillion/10 blur-[120px]" />
         </div>
-      )}
 
-      <ul className="space-y-4">
-        {resources.map((r) => (
-          <li
-            key={r.id}
-            className="rounded-lg border border-border bg-surface p-4 hover:border-accent"
+        <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12">
+          <Link
+            href={basePath}
+            className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
           >
-            <Link href={`${basePath}/${cat.slug}/${r.slug}`} className="block">
-              <h2 className="text-lg font-semibold text-text">{r.title}</h2>
-              {r.excerpt && (
-                <p className="mt-1 text-sm text-text-muted">{r.excerpt}</p>
-              )}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+            <span aria-hidden>←</span>
+            {c.breadcrumbHub}
+          </Link>
+          <header className="mt-10 mb-12 max-w-3xl">
+            <h1 className="font-display text-[clamp(2.25rem,5.5vw,4.25rem)] leading-[1.05] tracking-tight font-light text-ls-text-primary">
+              {cat.name}
+            </h1>
+            {cat.description && (
+              <p className="mt-6 text-lg text-ls-text-secondary leading-relaxed">
+                {cat.description}
+              </p>
+            )}
+          </header>
+
+          {resources.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-20 text-center text-ls-text-secondary">
+              {c.categoryEmpty}
+            </div>
+          ) : (
+            <ul className="grid gap-6 sm:grid-cols-2">
+              {resources.map((r) => (
+                <li key={r.id}>
+                  <Link
+                    href={`${basePath}/${cat.slug}/${r.slug}`}
+                    className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-ls-ochre/40"
+                  >
+                    <h2 className="font-display text-xl font-light text-ls-text-primary transition-colors group-hover:text-ls-ochre">
+                      {r.title}
+                    </h2>
+                    {r.excerpt && (
+                      <p className="mt-3 text-sm text-ls-text-secondary leading-relaxed line-clamp-3">
+                        {r.excerpt}
+                      </p>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </main>
+    </MarketingShell>
   );
 }
 
@@ -270,70 +334,114 @@ export async function ResourceDetail(
     .slice(0, 5);
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-accent">
-        <Link href={basePath} className="hover:underline">
-          {c.breadcrumbHub}
-        </Link>
-        <span className="text-text-muted">›</span>
-        <Link
-          href={`${basePath}/${resource.categorySlug}`}
-          className="hover:underline"
-        >
-          {resource.categoryName}
-        </Link>
-      </div>
+    <MarketingShell>
+      <header className="relative pt-32 pb-10 sm:pt-40 sm:pb-12 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[520px] w-[900px] rounded-full bg-ls-ochre/10 blur-[140px]" />
+          <div className="absolute top-1/2 right-0 h-[360px] w-[480px] rounded-full bg-ls-vermillion/10 blur-[120px]" />
+        </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_220px]">
-        <article>
-          {resource.coverImageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={resource.coverImageUrl}
-              alt=""
-              className="mb-8 max-h-96 w-full rounded-lg object-cover"
-            />
-          )}
-          <header className="mb-8">
-            <h1 className="text-4xl font-semibold text-text">
-              {resource.title}
-            </h1>
+        <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12">
+          <Link
+            href={`${basePath}/${resource.categorySlug}`}
+            className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
+          >
+            <span aria-hidden>←</span>
+            {resource.categoryName}
+          </Link>
+
+          <div className="mt-12 flex items-center gap-3">
+            <span className="text-[10px] uppercase tracking-[0.22em] text-ls-ochre">
+              {c.breadcrumbHub}
+            </span>
             {resource.publishedAt && (
-              <time
-                className="mt-2 block text-sm text-text-muted"
-                dateTime={resource.publishedAt}
-              >
-                {c.updated}{" "}
-                {new Date(resource.publishedAt).toLocaleDateString(locale)}
-              </time>
+              <>
+                <span className="h-px w-6 bg-white/15" />
+                <time
+                  className="text-xs uppercase tracking-[0.18em] text-ls-text-secondary"
+                  dateTime={resource.publishedAt}
+                >
+                  {c.updated} {formatDate(resource.publishedAt, locale)}
+                </time>
+              </>
             )}
-          </header>
+          </div>
+
+          <h1 className="mt-5 font-display text-[clamp(2.25rem,5.5vw,4.25rem)] leading-[1.05] tracking-tight font-light text-ls-text-primary">
+            {resource.title}
+          </h1>
+
+          {resource.excerpt && (
+            <p className="mt-6 text-lg text-ls-text-secondary leading-relaxed">
+              {resource.excerpt}
+            </p>
+          )}
+        </div>
+      </header>
+
+      {resource.coverImageUrl && (
+        <div className="mx-auto w-full max-w-5xl px-6 sm:px-8 lg:px-12 mb-14">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={resource.coverImageUrl}
+            alt=""
+            className="w-full max-h-[520px] rounded-2xl object-cover"
+          />
+        </div>
+      )}
+
+      <article className="pb-24">
+        <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12">
           <div
-            className="prose dark:prose-invert max-w-none"
+            className="prose prose-invert prose-lg max-w-none
+              prose-headings:font-display prose-headings:font-light prose-headings:tracking-tight prose-headings:text-ls-text-primary
+              prose-h2:text-3xl sm:prose-h2:text-4xl prose-h2:mt-14 prose-h2:mb-5
+              prose-p:text-ls-text-primary/90 prose-p:leading-relaxed
+              prose-strong:text-ls-text-primary prose-strong:font-semibold
+              prose-em:text-ls-text-primary
+              prose-a:text-ls-ochre prose-a:no-underline hover:prose-a:underline
+              prose-hr:border-white/10 prose-hr:my-12
+              prose-blockquote:border-l-ls-ochre prose-blockquote:text-ls-text-secondary
+              prose-li:text-ls-text-primary/90
+              prose-code:text-ls-ochre prose-code:before:content-none prose-code:after:content-none
+              prose-img:rounded-2xl
+            "
             dangerouslySetInnerHTML={{ __html: resource.contentHtml }}
           />
-        </article>
 
-        {others.length > 0 && (
-          <aside className="rounded-lg border border-border bg-surface p-4 lg:sticky lg:top-6 lg:self-start">
-            <h2 className="text-xs uppercase tracking-wide text-text-muted">
-              {c.asideTitle}
-            </h2>
-            <ul className="mt-3 space-y-2">
-              {others.map((r) => (
-                <li key={r.id}>
-                  <Link
-                    href={`${basePath}/${r.categorySlug}/${r.slug}`}
-                    className="text-sm text-text hover:text-accent"
-                  >
-                    {r.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </aside>
-        )}
-      </div>
-    </main>
+          {others.length > 0 && (
+            <section className="mt-16 border-t border-white/10 pt-10">
+              <h2 className="text-xs uppercase tracking-[0.18em] text-ls-text-secondary">
+                {c.asideTitle}
+              </h2>
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                {others.map((r) => (
+                  <li key={r.id}>
+                    <Link
+                      href={`${basePath}/${r.categorySlug}/${r.slug}`}
+                      className="group block rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-ls-ochre/40"
+                    >
+                      <h3 className="font-display text-lg font-light text-ls-text-primary transition-colors group-hover:text-ls-ochre">
+                        {r.title}
+                      </h3>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <div className="mt-12 border-t border-white/10 pt-8">
+            <Link
+              href={basePath}
+              className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
+            >
+              <span aria-hidden>←</span>
+              {c.backToHub}
+            </Link>
+          </div>
+        </div>
+      </article>
+    </MarketingShell>
   );
 }
