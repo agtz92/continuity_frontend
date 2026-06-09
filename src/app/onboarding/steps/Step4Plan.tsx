@@ -28,7 +28,7 @@ export function Step4Plan({
   isBillingExempt,
   replay,
   onBack,
-  onFinish,
+  onContinue,
   busy,
 }: {
   name: string;
@@ -36,7 +36,12 @@ export function Step4Plan({
   isBillingExempt: boolean;
   replay: boolean;
   onBack: () => void;
-  onFinish: (opts?: { skipTour?: boolean; forceTour?: boolean }) => Promise<void> | void;
+  /**
+   * Advance to step 5 (Personalize Today). The plan step no longer finishes
+   * onboarding itself — completion happens on step 5 — except for the paid
+   * Stripe path below, which still completes + redirects out of the flow.
+   */
+  onContinue: () => void;
   busy: boolean;
 }) {
   const t = useTranslations("onboarding");
@@ -81,12 +86,12 @@ export function Step4Plan({
           )}
           <button
             type="button"
-            onClick={() => onFinish()}
+            onClick={onContinue}
             disabled={busy}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-bg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {busy && <Loader2 size={14} className="animate-spin" />}
-            {replay ? t("replay.finishButton") : t("step4Beta.primary")}
+            {t("continue")}
           </button>
         </div>
       </div>
@@ -124,24 +129,14 @@ export function Step4Plan({
           >
             {t("back")}
           </button>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => onFinish({ forceTour: true })}
-              disabled={busy}
-              className="text-sm text-text-muted hover:text-text disabled:opacity-50"
-            >
-              {t("replay.replayTourButton")}
-            </button>
-            <button
-              type="button"
-              onClick={() => onFinish({ skipTour: true })}
-              disabled={busy}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-bg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-            >
-              {t("replay.finishButton")}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={busy}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-bg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
+          >
+            {t("continue")}
+          </button>
         </div>
       </div>
     );
@@ -150,11 +145,12 @@ export function Step4Plan({
   // ── First-time branch: pick a plan (free preselected) ────────────────
   const handleContinue = async () => {
     if (selected === "free") {
-      await onFinish();
+      onContinue();
       return;
     }
     // Paid tier: mark onboarding done first so the Stripe return doesn't
-    // bounce the user back here, then redirect to Stripe Checkout.
+    // bounce the user back here, then redirect to Stripe Checkout. This path
+    // leaves the flow entirely, so it skips the step-5 customize intro.
     setCheckingOut(true);
     try {
       await completeOnboarding({ variables: { mode: "finished" } });
@@ -166,15 +162,15 @@ export function Step4Plan({
       if (url) {
         window.location.assign(url);
       } else {
-        // No URL returned — fall through to the dashboard so the user
-        // can retry from /settings/billing.
-        await onFinish({ skipTour: true });
+        // No URL returned — fall through to step 5 so the user can still
+        // finish onboarding and retry billing later from /settings/billing.
+        onContinue();
       }
     } catch {
       setCheckingOut(false);
-      // Billing config errors etc. — let the user keep going on Free so
-      // they're not stuck on the onboarding screen.
-      await onFinish();
+      // Billing config errors etc. — let the user keep going so they're not
+      // stuck on the onboarding screen.
+      onContinue();
     }
   };
 
@@ -258,7 +254,7 @@ export function Step4Plan({
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => onFinish()}
+            onClick={onContinue}
             disabled={total}
             className="text-sm text-text-muted hover:text-text disabled:opacity-50"
           >

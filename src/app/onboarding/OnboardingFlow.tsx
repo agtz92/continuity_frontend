@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
   COMPLETE_ONBOARDING,
+  MARK_TOUR,
   NOTIFICATION_SETTINGS_QUERY,
   ONBOARDING_STATE_QUERY,
   SET_ONBOARDING_STEP,
@@ -18,8 +19,9 @@ import { Step1Name } from "./steps/Step1Name";
 import { Step2Theme } from "./steps/Step2Theme";
 import { Step3Avatar } from "./steps/Step3Avatar";
 import { Step4Plan } from "./steps/Step4Plan";
+import { Step5Customize } from "./steps/Step5Customize";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 type OnboardingStateData = {
   onboardingState: {
@@ -61,6 +63,10 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
   });
   const [updateProfile] = useMutation(UPDATE_PROFILE, {
     refetchQueries: [{ query: ONBOARDING_STATE_QUERY }],
+  });
+  const [markTour] = useMutation(MARK_TOUR, {
+    refetchQueries: [{ query: ONBOARDING_STATE_QUERY }],
+    awaitRefetchQueries: true,
   });
   const [updateSettings] = useMutation(UPDATE_NOTIFICATION_SETTINGS, {
     update: (cache, { data }) => {
@@ -150,12 +156,28 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
   const handleFinish = async ({
     skipTour: shouldSkipTour,
     forceTour,
-  }: { skipTour?: boolean; forceTour?: boolean } = {}) => {
+    customize,
+  }: {
+    skipTour?: boolean;
+    forceTour?: boolean;
+    customize?: boolean;
+  } = {}) => {
     if (busy) return;
     setBusy(true);
     try {
       if (!replay) {
         await completeOnboarding({ variables: { mode: "finished" } });
+      }
+      // `customize` hands the user straight into the Today layout editor
+      // (step 5's primary action). Suppress the dashboard tour on first-time
+      // runs so the driver spotlight doesn't fight the edit UI for the screen;
+      // replay never alters tour state.
+      if (customize) {
+        if (!replay) {
+          await markTour({ variables: { seen: false } }).catch(() => undefined);
+        }
+        router.replace("/dashboard?customize=1");
+        return;
       }
       // Default: first-time fires the tour; replay doesn't. Explicit flags
       // override: `skipTour: true` suppresses it for first-time runs (e.g.
@@ -264,6 +286,14 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
             isBillingExempt={state.isBillingExempt}
             replay={replay}
             onBack={() => goToStep(3)}
+            onContinue={() => goToStep(5)}
+            busy={busy}
+          />
+        )}
+        {step === 5 && (
+          <Step5Customize
+            replay={replay}
+            onBack={() => goToStep(4)}
             onFinish={handleFinish}
             busy={busy}
           />

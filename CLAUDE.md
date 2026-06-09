@@ -1,5 +1,14 @@
 # Frontend — notas para agentes
 
+## Onboarding (5 pasos) + paso "Personalizar Today"
+
+El onboarding tiene 5 pasos: nombre · tema · avatar · plan · **personalizar
+Today**. El paso 4 ya **no** completa el flujo (su botón avanza al 5 vía
+`onContinue`); el paso 5 (`steps/Step5Customize.tsx`) sí completa y, en su CTA
+primario, navega a `/dashboard?customize=1`. `TodayView.tsx` lee ese param una
+vez y abre el editor de layout. Mantener en sync con el repo móvil. Detalle:
+`docs/onboarding-paso5-personalizar-today.md`.
+
 ## Paletas de colores
 
 Para editar las paletas (cambiar hex de una existente o agregar una nueva), consulta `../docs/paletas-de-colores.md`. Resumen: hay que sincronizar **dos archivos** — `src/app/globals.css` (colores reales) y `src/palette/config.ts` (`PALETTE_SWATCHES`, swatches del selector). Replica siempre el mismo cambio en el repo móvil (`continuity-mobile`).

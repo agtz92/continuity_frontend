@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useMemo, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Bell,
   CheckCircle2,
@@ -226,6 +227,21 @@ export function TodayView({
   const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
 
   const layout = useTodayLayout();
+
+  // Hand-off from onboarding step 5: `/dashboard?customize=1` opens the Today
+  // layout editor straight away, then strips the param so a refresh doesn't
+  // re-trigger it. Runs once.
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const customizeHandledRef = useRef(false);
+  useEffect(() => {
+    if (customizeHandledRef.current) return;
+    if (searchParams?.get("customize") === "1") {
+      customizeHandledRef.current = true;
+      layout.setEditMode(true);
+      router.replace("/dashboard");
+    }
+  }, [searchParams, router, layout]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
