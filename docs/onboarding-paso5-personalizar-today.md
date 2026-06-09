@@ -99,3 +99,23 @@ tarde puede **regresar la UI a un paso anterior** —a veces hasta el paso 1
 (default del modelo). El flujo móvil ya lo guardaba con `resolved.current`; la web
 no, y de ahí venía el glitch intermitente al avanzar (p. ej. al elegir avatar).
 
+### Refuerzo — el paso se persiste en `sessionStorage` (sobrevive remounts)
+
+La guarda de "una sola vez" arregla el caso first-time, pero en **replay** el
+glitch seguía: `goToStep` **no** persiste `current_step` en el server (replay no
+toca `OnboardingProgress`), así que si `OnboardingFlow` se **re-monta** por
+cualquier motivo (un `router.refresh()` perdido de un sync hook, un re-render del
+padre que tira el estado, etc.), `useState` vuelve a 1 y el resume **fuerza step
+1**. En first-time el remount se "auto-rescata" porque el resume reanuda desde el
+`current_step` del server (que sí avanzó); en replay no hay a dónde reanudar.
+
+Fix definitivo: el paso vive en `sessionStorage` (`continuity.onboarding.step`).
+`goToStep` lo escribe; el resume lo restaura **antes** de los defaults de replay /
+server; se limpia al salir (finish/skip/redirect de cuenta ya completada).
+Per-tab y efímero: una visita fresca empieza limpia, pero un remount **dentro de
+la sesión** restaura el paso en vez de tirar al usuario al paso 1.
+
+> Si el glitch persiste tras estos cambios, verifica que el frontend esté
+> **reconstruido/redeployado**: el síntoma es idéntico a correr un build previo a
+> la guarda de resume.
+

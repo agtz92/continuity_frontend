@@ -23,6 +23,34 @@ import { Step5Customize } from "./steps/Step5Customize";
 
 const TOTAL_STEPS = 5;
 
+// In-session step persistence. The current step is kept in sessionStorage so it
+// survives an in-session remount of this component (e.g. a stray router.refresh
+// from a sync hook, or any parent re-render that drops our state) WITHOUT
+// snapping the user back to step 1. This is what finally kills the "pick avatar
+// → bounced to step 1" glitch in replay mode: replay doesn't persist
+// `current_step` server-side, so on a remount the resume logic would otherwise
+// force step 1. sessionStorage (per-tab, cleared on tab close) is the right
+// scope: a fresh visit starts clean, an in-session remount restores the step.
+const STEP_STORAGE_KEY = "continuity.onboarding.step";
+
+function readStoredStep(): number | null {
+  if (typeof window === "undefined") return null;
+  const n = Number(window.sessionStorage.getItem(STEP_STORAGE_KEY));
+  return Number.isInteger(n) && n >= 1 && n <= TOTAL_STEPS ? n : null;
+}
+
+function writeStoredStep(step: number): void {
+  if (typeof window !== "undefined") {
+    window.sessionStorage.setItem(STEP_STORAGE_KEY, String(step));
+  }
+}
+
+function clearStoredStep(): void {
+  if (typeof window !== "undefined") {
+    window.sessionStorage.removeItem(STEP_STORAGE_KEY);
+  }
+}
+
 type OnboardingStateData = {
   onboardingState: {
     status: "pending" | "in_progress" | "completed" | "skipped";
@@ -100,31 +128,41 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
     });
   }, []);
 
-  // Resume from server's currentStep on first hydrate (unless replay).
+  // Resolve the starting step on first hydrate. Runs exactly once (guarded by
+  // resolvedRef). Two reasons it must not re-run on every `data` change: (1)
+  // every step mutation carries `refetchQueries: [ONBOARDING_STATE_QUERY]`, and
+  // those refetches race — re-applying the server's `current_step` here would
+  // snap the UI back over the user's optimistic step; (2) it would clobber an
+  // in-session restore. Mirrors the mobile flow's `resolved` ref.
   //
-  // This MUST run exactly once. Every step mutation (updateProfile,
-  // updateNotificationSettings, setStep) carries `refetchQueries:
-  // [ONBOARDING_STATE_QUERY]`, so without this guard the effect re-fires on
-  // each refetch and re-applies the server's `current_step` over the user's
-  // optimistic local step. Those refetches race (the data mutation doesn't
-  // advance `current_step`; setStep does), so a late/stale refetch could snap
-  // the UI back to an earlier step — sometimes all the way to step 1. Mirrors
-  // the mobile flow's `resolved` ref.
+  // Resolution order:
+  //   1. Already-done users (non-replay) bounce to the dashboard.
+  //   2. An in-session step (sessionStorage) wins — this survives remounts so
+  //      the user never gets thrown back to step 1 mid-flow.
+  //   3. Replay starts at step 1; first-time resumes from the server step.
   const resolvedRef = useRef(false);
   useEffect(() => {
     if (!data || resolvedRef.current) return;
     const s = data.onboardingState;
     resolvedRef.current = true;
-    if (replay) {
-      setStepLocal(1);
-      return;
-    }
-    if (s.status === "completed" || s.status === "skipped") {
+
+    if (!replay && (s.status === "completed" || s.status === "skipped")) {
       // Onboarding done. Bounce to dashboard (no tour — they finished or
       // skipped already and the tour state is what governs the dashboard
-      // tour, not this page).
+      // tour, not this page). Drop any stale in-session step first.
+      clearStoredStep();
       setRedirecting(true);
       router.replace("/dashboard");
+      return;
+    }
+
+    const stored = readStoredStep();
+    if (stored) {
+      setStepLocal(stored);
+      return;
+    }
+    if (replay) {
+      setStepLocal(1);
       return;
     }
     setStepLocal(Math.min(Math.max(s.currentStep, 1), TOTAL_STEPS));
@@ -149,6 +187,7 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
     if (busy || replay) return;
     setBusy(true);
     try {
+      clearStoredStep();
       await completeOnboarding({ variables: { mode: "skipped" } });
       router.replace("/dashboard");
     } finally {
@@ -159,6 +198,9 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
   const goToStep = async (next: number) => {
     if (next < 1 || next > TOTAL_STEPS) return;
     setStepLocal(next);
+    // Persist so an in-session remount restores this step instead of resetting
+    // to 1 (the core fix for the replay "bounce to step 1" glitch).
+    writeStoredStep(next);
     if (!replay) {
       await setStep({ variables: { step: next } });
     }
@@ -176,6 +218,9 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
     if (busy) return;
     setBusy(true);
     try {
+      // Leaving onboarding — drop the in-session step so a later visit starts
+      // clean (a fresh replay begins at step 1, not wherever we left off).
+      clearStoredStep();
       if (!replay) {
         await completeOnboarding({ variables: { mode: "finished" } });
       }
