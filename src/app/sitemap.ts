@@ -11,6 +11,12 @@ import { resolveSiteUrl } from "@/lib/siteUrl";
 
 export const revalidate = 3600;
 
+// Resources hub is split by locale: English lives at /resources, Spanish at
+// /recursos. Each row carries its own locale.
+function resourceBase(locale: string): string {
+  return locale === "es" ? "/recursos" : "/resources";
+}
+
 async function fetchAllBlogPosts(): Promise<PublicBlogPost[]> {
   const perPage = 100;
   const all: PublicBlogPost[] = [];
@@ -42,7 +48,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: `${base}/blog`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: `${base}/ayuda`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/resources`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/recursos`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/login`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/reset-password`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/welcome`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
@@ -71,7 +78,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const helpCategoryEntries: MetadataRoute.Sitemap = helpCategories.map(
     (category) => ({
-      url: `${base}/ayuda/${category.slug}`,
+      url: `${base}${resourceBase(category.locale)}/${category.slug}`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
@@ -80,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const helpResourceEntries: MetadataRoute.Sitemap = helpResources.map(
     (resource) => ({
-      url: `${base}/ayuda/${resource.categorySlug}/${resource.slug}`,
+      url: `${base}${resourceBase(resource.locale)}/${resource.categorySlug}/${resource.slug}`,
       lastModified: resource.publishedAt ? new Date(resource.publishedAt) : now,
       changeFrequency: "monthly",
       priority: 0.5,
