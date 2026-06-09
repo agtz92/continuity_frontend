@@ -144,7 +144,83 @@ export default function CategoriesPage() {
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {/* Tarjetas (móvil) */}
+      <div className="space-y-3 md:hidden">
+        {loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Cargando…
+          </div>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Aún no hay categorías.
+          </div>
+        )}
+        {rows.map((c) => (
+          <div
+            key={c.id}
+            className="rounded-lg border border-border bg-surface p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="truncate font-medium text-text">{c.name}</div>
+                <div className="mt-0.5 font-mono text-xs text-text-muted">
+                  {c.slug}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-start gap-3 text-sm">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditing({
+                      id: c.id,
+                      name: c.name,
+                      slug: c.slug,
+                      description: c.description,
+                      icon: c.icon,
+                      order: c.order,
+                      locale: c.locale,
+                    })
+                  }
+                  className="text-accent hover:underline"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (c.resourceCount > 0) {
+                      toast.error(
+                        "Mueve o elimina primero los recursos en esta categoría"
+                      );
+                      return;
+                    }
+                    if (!confirm(`¿Eliminar la categoría "${c.name}"?`)) return;
+                    deleteCat({ variables: { id: c.id } });
+                  }}
+                  className="text-red-400 hover:underline"
+                >
+                  Borrar
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
+              <span>
+                Orden: <span className="text-text">{c.order}</span>
+              </span>
+              <span>
+                Recursos: <span className="text-text">{c.resourceCount}</span>
+              </span>
+              <span>
+                Idioma: <span className="text-text">{c.locale}</span>
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla (escritorio) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>

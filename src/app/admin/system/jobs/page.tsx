@@ -92,11 +92,11 @@ export default function JobsPage() {
             Outbox de Telegram/WhatsApp. Reintentar repone el job en pending para el próximo cron.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex w-full flex-wrap gap-3 sm:w-auto">
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text"
+            className="w-full min-w-0 flex-1 rounded border border-border bg-bg px-3 py-1.5 text-sm text-text sm:w-auto sm:flex-none"
           >
             <option value="">Cualquier estado</option>
             <option value="pending">Pending</option>
@@ -107,7 +107,7 @@ export default function JobsPage() {
           <select
             value={channel}
             onChange={(e) => setChannel(e.target.value)}
-            className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text"
+            className="w-full min-w-0 flex-1 rounded border border-border bg-bg px-3 py-1.5 text-sm text-text sm:w-auto sm:flex-none"
           >
             <option value="">Todos los canales</option>
             <option value="telegram">Telegram</option>
@@ -116,7 +116,7 @@ export default function JobsPage() {
           <select
             value={kind}
             onChange={(e) => setKind(e.target.value)}
-            className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text"
+            className="w-full min-w-0 flex-1 rounded border border-border bg-bg px-3 py-1.5 text-sm text-text sm:w-auto sm:flex-none"
           >
             <option value="">Cualquier tipo</option>
             <option value="weekly_digest">Weekly digest</option>
@@ -128,14 +128,102 @@ export default function JobsPage() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="rounded border border-border bg-surface px-3 py-1.5 text-sm text-text hover:bg-bg"
+            className="w-full rounded border border-border bg-surface px-3 py-1.5 text-sm text-text hover:bg-bg sm:w-auto"
           >
             Refrescar
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {/* Tarjetas (móvil) */}
+      <div className="space-y-3 md:hidden">
+        {loading && jobs.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Cargando…
+          </div>
+        )}
+        {!loading && jobs.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            No hay jobs con esos filtros.
+          </div>
+        )}
+        {jobs.map((j) => {
+          const isOpen = expanded === j.id;
+          return (
+            <div
+              key={j.id}
+              className="rounded-lg border border-border bg-surface p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <span
+                    className={`inline-block rounded px-2 py-0.5 text-xs uppercase ${STATUS_COLOR[j.status] ?? "bg-bg text-text-muted"}`}
+                  >
+                    {j.status}
+                  </span>
+                  <div className="mt-1 text-text">{j.kind}</div>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1 text-sm">
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(isOpen ? null : j.id)}
+                    className="text-accent hover:underline"
+                  >
+                    {isOpen ? "Ocultar" : "Ver"}
+                  </button>
+                  {(j.status === "failed" || j.status === "skipped") && (
+                    <button
+                      type="button"
+                      disabled={retrying}
+                      onClick={() => retry({ variables: { id: j.id } })}
+                      className="text-accent hover:underline disabled:opacity-50"
+                    >
+                      Reintentar
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-2 text-xs text-text-muted">
+                Canal <span className="capitalize">{j.channel}</span> · Usuario{" "}
+                <span className="font-mono">{j.userId.slice(0, 8)}…</span> ·
+                Intentos {j.attempts}
+              </div>
+              <div className="text-xs text-text-muted">
+                Creado {formatDate(j.created)} · Enviado{" "}
+                {formatDate(j.sentAt)}
+              </div>
+
+              {isOpen && (
+                <div className="mt-3 border-t border-border pt-3 text-xs">
+                  <Detail label="dedupe_key" value={j.dedupeKey} mono />
+                  <Detail
+                    label="scheduled_for"
+                    value={formatDate(j.scheduledFor)}
+                  />
+                  <Detail
+                    label="external_message_id"
+                    value={j.externalMessageId || "—"}
+                    mono
+                  />
+                  {j.error && (
+                    <Detail label="error" value={j.error} tone="bad" />
+                  )}
+                  <div className="mt-3">
+                    <div className="text-text-muted">body</div>
+                    <pre className="mt-1 whitespace-pre-wrap rounded bg-bg p-3 text-xs text-text">
+                      {j.body}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tabla (escritorio) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>

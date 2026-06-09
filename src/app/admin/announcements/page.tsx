@@ -83,15 +83,15 @@ export default function AdminAnnouncementsPage() {
             Banners in-app mostrados en el dashboard del usuario.
           </p>
         </div>
-        <div className="flex items-end gap-3">
-          <div>
+        <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+          <div className="min-w-0 flex-1 sm:flex-none">
             <label className="block text-xs uppercase tracking-wide text-text-muted mb-1">
               Estado
             </label>
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent"
+              className="w-full rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent sm:w-auto"
             >
               <option value="">Todos</option>
               <option value="draft">Borradores</option>
@@ -114,7 +114,109 @@ export default function AdminAnnouncementsPage() {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {/* Tarjetas (móvil) */}
+      <div className="space-y-3 md:hidden">
+        {loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Cargando…
+          </div>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            No hay anuncios.
+          </div>
+        )}
+        {rows.map((a) => (
+          <div
+            key={a.id}
+            className="rounded-lg border border-border bg-surface p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="truncate font-medium text-text">{a.title}</div>
+                {a.body && (
+                  <div className="mt-0.5 truncate text-xs text-text-muted">
+                    {a.body}
+                  </div>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-2 text-sm">
+                <Link
+                  href={`/admin/announcements/${a.id}`}
+                  className="text-accent hover:underline"
+                >
+                  Editar
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!confirm(`Eliminar "${a.title}"?`)) return;
+                    deleteAnnouncement({ variables: { id: a.id } });
+                  }}
+                  className="text-red-500 hover:underline"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span
+                className={
+                  "rounded px-2 py-0.5 text-xs uppercase " +
+                  severityChip(a.severity)
+                }
+              >
+                {a.severity}
+              </span>
+              <span
+                className={
+                  "rounded px-2 py-0.5 text-xs uppercase " +
+                  statusChip(a.status)
+                }
+              >
+                {a.status}
+              </span>
+              {a.status !== "published" && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setStatus({
+                      variables: { id: a.id, status: "published" },
+                    })
+                  }
+                  className="text-xs text-text-muted hover:text-text"
+                >
+                  Publicar
+                </button>
+              )}
+              {a.status === "published" && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setStatus({
+                      variables: { id: a.id, status: "archived" },
+                    })
+                  }
+                  className="text-xs text-text-muted hover:text-text"
+                >
+                  Archivar
+                </button>
+              )}
+            </div>
+
+            <div className="mt-3 space-y-1 text-xs text-text-muted">
+              <div>Audiencia: {audienceLabel(a)}</div>
+              <div>
+                Activo {formatDate(a.startsAt)} → {formatDate(a.endsAt)}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla (escritorio) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>

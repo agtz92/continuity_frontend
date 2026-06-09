@@ -394,8 +394,14 @@ function Field({
 }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-text-muted">{label}</dt>
-      <dd className={mono ? "font-mono text-xs text-text" : "text-text"}>
+      <dt className="shrink-0 text-text-muted">{label}</dt>
+      <dd
+        className={
+          mono
+            ? "min-w-0 break-all text-right font-mono text-xs text-text"
+            : "min-w-0 text-right text-text"
+        }
+      >
         {value}
       </dd>
     </div>

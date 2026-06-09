@@ -143,16 +143,18 @@ export default function AdminPostsPage() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por título…"
-          className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent"
-        />
+        <div className="min-w-0 flex-1 sm:flex-none">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por título…"
+            className="w-full rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent sm:w-auto"
+          />
+        </div>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent"
+          className="w-full rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent sm:w-auto"
         >
           <option value="">Cualquier estado</option>
           <option value="draft">Borrador</option>
@@ -168,7 +170,65 @@ export default function AdminPostsPage() {
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {/* Tarjetas (móvil) */}
+      <div className="space-y-3 md:hidden">
+        {loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Cargando…
+          </div>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Sin entradas todavía.
+          </div>
+        )}
+        {rows.map((p) => (
+          <div
+            key={p.id}
+            className="rounded-lg border border-border bg-surface p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="truncate font-medium text-text">{p.title}</div>
+              </div>
+              <div className="flex shrink-0 items-center gap-3 text-sm">
+                <button
+                  type="button"
+                  onClick={() => handleDuplicate(p)}
+                  disabled={duplicatingId === p.id}
+                  className="text-text-muted hover:text-text disabled:opacity-50"
+                >
+                  {duplicatingId === p.id ? "Duplicando…" : "Duplicar"}
+                </button>
+                <Link
+                  href={`/admin/content/posts/${p.id}`}
+                  className="text-accent hover:underline"
+                >
+                  Editar
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-2 flex items-center gap-2">
+              <StatusBadge status={p.status} />
+              <span className="truncate font-mono text-xs text-text-muted">
+                {p.slug}
+              </span>
+            </div>
+
+            <div className="mt-2 text-xs text-text-muted">
+              Idioma {p.locale} · Publicado{" "}
+              {p.publishedAt
+                ? new Date(p.publishedAt).toLocaleDateString()
+                : "—"}{" "}
+              · Actualizado {new Date(p.updatedAt).toLocaleDateString()}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla (escritorio) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>

@@ -68,7 +68,63 @@ export default function AdminPagesPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {/* Tarjetas (móvil) */}
+      <div className="space-y-3 md:hidden">
+        {loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Cargando…
+          </div>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Sin páginas todavía.
+          </div>
+        )}
+        {rows.map((p) => (
+          <div
+            key={p.id}
+            className="rounded-lg border border-border bg-surface p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="truncate font-medium text-text">{p.title}</div>
+                <div className="mt-0.5 truncate font-mono text-xs text-text-muted">
+                  {p.path}
+                </div>
+              </div>
+              <Link
+                href={`/admin/content/pages/${p.id}`}
+                className="shrink-0 text-sm text-accent hover:underline"
+              >
+                Editar
+              </Link>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
+              <span>
+                Estado: <span className="text-text">{p.status}</span>
+              </span>
+              <span>
+                Nav:{" "}
+                <span className="text-text">
+                  {p.showInNav ? `sí (orden ${p.navOrder})` : "no"}
+                </span>
+              </span>
+              <span>
+                Publicado:{" "}
+                <span className="text-text">
+                  {p.publishedAt
+                    ? new Date(p.publishedAt).toLocaleDateString()
+                    : "—"}
+                </span>
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla (escritorio) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>

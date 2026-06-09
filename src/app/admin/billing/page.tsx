@@ -209,7 +209,8 @@ export default function BillingPage() {
                   Aún no hay suscriptores pagantes.
                 </div>
               ) : (
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-xs uppercase text-text-muted">
                       <th className="py-1">Plan</th>
@@ -247,7 +248,8 @@ export default function BillingPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                  </table>
+                </div>
               )}
             </div>
 
@@ -264,15 +266,15 @@ export default function BillingPage() {
                   {overview.upcomingChurn.map((c) => (
                     <li
                       key={c.userId}
-                      className="flex items-center justify-between gap-2 border-t border-border py-1.5 first:border-t-0 first:pt-0"
+                      className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 border-t border-border py-1.5 first:border-t-0 first:pt-0"
                     >
                       <Link
                         href={`/admin/users/${c.userId}`}
-                        className="truncate text-accent hover:underline"
+                        className="min-w-0 truncate text-accent hover:underline"
                       >
                         {c.email || c.userId}
                       </Link>
-                      <span className="shrink-0 text-xs text-text-muted">
+                      <span className="text-xs text-text-muted">
                         {c.plan} · {formatMoney(c.monthlyCents, currency)}/mes
                         · vence {formatDate(c.planRenewsAt)}
                       </span>
@@ -288,7 +290,7 @@ export default function BillingPage() {
       {/* Tabla de suscriptores */}
       <section className="rounded-lg border border-border bg-surface">
         <div className="flex flex-wrap items-end gap-3 border-b border-border p-4">
-          <div>
+          <div className="w-full sm:w-auto">
             <label className="block text-xs uppercase text-text-muted">
               Plan
             </label>
@@ -298,14 +300,14 @@ export default function BillingPage() {
                 setPlan(e.target.value);
                 setPage(1);
               }}
-              className="mt-1 rounded border border-border bg-bg px-2 py-1 text-sm text-text"
+              className="mt-1 w-full rounded border border-border bg-bg px-2 py-1 text-sm text-text sm:w-auto"
             >
               <option value="">Todos</option>
               <option value="pro">Pro</option>
               <option value="studio">Studio</option>
             </select>
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <label className="block text-xs uppercase text-text-muted">
               Periodo
             </label>
@@ -315,7 +317,7 @@ export default function BillingPage() {
                 setPeriod(e.target.value);
                 setPage(1);
               }}
-              className="mt-1 rounded border border-border bg-bg px-2 py-1 text-sm text-text"
+              className="mt-1 w-full rounded border border-border bg-bg px-2 py-1 text-sm text-text sm:w-auto"
             >
               <option value="">Todos</option>
               <option value="monthly">Mensual</option>
@@ -328,9 +330,9 @@ export default function BillingPage() {
               setEmailContains(emailDraft.trim());
               setPage(1);
             }}
-            className="flex items-end gap-2"
+            className="flex w-full flex-wrap items-end gap-2 sm:w-auto"
           >
-            <div>
+            <div className="min-w-0 flex-1 sm:flex-none">
               <label className="block text-xs uppercase text-text-muted">
                 Buscar por email
               </label>
@@ -339,7 +341,7 @@ export default function BillingPage() {
                 value={emailDraft}
                 onChange={(e) => setEmailDraft(e.target.value)}
                 placeholder="contiene…"
-                className="mt-1 rounded border border-border bg-bg px-2 py-1 text-sm text-text"
+                className="mt-1 w-full rounded border border-border bg-bg px-2 py-1 text-sm text-text sm:w-auto"
               />
             </div>
             <button
@@ -373,7 +375,77 @@ export default function BillingPage() {
 
         {subs && (
           <>
-            <div className="overflow-x-auto">
+            {/* Tarjetas (móvil) */}
+            <div className="space-y-3 p-4 md:hidden">
+              {subs.rows.length === 0 && (
+                <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+                  Sin resultados.
+                </div>
+              )}
+              {subs.rows.map((r) => {
+                const url = stripeCustomerUrl(r.stripeCustomerId, isTest);
+                return (
+                  <div
+                    key={r.userId}
+                    className="rounded-lg border border-border bg-surface p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <Link
+                        href={`/admin/users/${r.userId}`}
+                        className="min-w-0 truncate text-accent hover:underline"
+                      >
+                        {r.email || r.userId}
+                      </Link>
+                      {url ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="shrink-0 text-sm text-accent hover:underline"
+                        >
+                          Abrir →
+                        </a>
+                      ) : (
+                        <span className="shrink-0 text-sm text-text-muted">
+                          —
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {r.isBillingExempt && (
+                        <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-xs text-blue-400">
+                          Exento
+                        </span>
+                      )}
+                      {r.cancelAtPeriodEnd && (
+                        <span className="rounded bg-yellow-500/15 px-1.5 py-0.5 text-xs text-yellow-400">
+                          Cancela
+                        </span>
+                      )}
+                      {!r.isBillingExempt && !r.cancelAtPeriodEnd && (
+                        <span className="rounded bg-green-500/15 px-1.5 py-0.5 text-xs text-green-400">
+                          Activa
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-2 text-xs text-text-muted">
+                      <span className="capitalize">Plan {r.plan}</span> ·{" "}
+                      {r.period === "annual"
+                        ? "Anual"
+                        : r.period === "monthly"
+                          ? "Mensual"
+                          : "—"}{" "}
+                      · {formatMoney(r.monthlyCents, currency)}/mes · Renueva{" "}
+                      {formatDate(r.planRenewsAt)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs uppercase text-text-muted">

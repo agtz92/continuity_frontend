@@ -179,8 +179,8 @@ export default function AdminUsersPage() {
             página actual.
           </p>
         </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <div>
+        <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+          <div className="min-w-0 flex-1 sm:flex-none">
             <label className="block text-xs uppercase tracking-wide text-text-muted mb-1">
               Email contiene
             </label>
@@ -188,17 +188,17 @@ export default function AdminUsersPage() {
               value={emailContains}
               onChange={(e) => setEmailContains(e.target.value)}
               placeholder="ej. gmail.com"
-              className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent"
+              className="w-full rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent sm:w-auto"
             />
           </div>
-          <div>
+          <div className="min-w-0 flex-1 sm:flex-none">
             <label className="block text-xs uppercase tracking-wide text-text-muted mb-1">
               Plan
             </label>
             <select
               value={plan}
               onChange={(e) => setPlan(e.target.value)}
-              className="rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent"
+              className="w-full rounded border border-border bg-bg px-3 py-1.5 text-sm text-text outline-none focus:border-accent sm:w-auto"
             >
               <option value="">Todos</option>
               {PLAN_OPTIONS.map((opt) => (
@@ -233,7 +233,101 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {/* Tarjetas (móvil) */}
+      <div className="space-y-3 md:hidden">
+        {loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Cargando…
+          </div>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
+            Sin resultados en esta página.
+          </div>
+        )}
+        {rows.map((u) => {
+          const busy = pendingIds.has(u.userId);
+          return (
+            <div
+              key={u.userId}
+              className="rounded-lg border border-border bg-surface p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-text">
+                    {u.email || "—"}
+                  </div>
+                  <div className="mt-0.5 text-xs text-text-muted">
+                    Creado {formatDate(u.createdAt)} · Último ingreso{" "}
+                    {formatDate(u.lastSignInAt)}
+                  </div>
+                </div>
+                <Link
+                  href={`/admin/users/${u.userId}`}
+                  className="shrink-0 text-sm text-accent hover:underline"
+                >
+                  Ver
+                </Link>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <label className="flex items-center gap-2 text-xs text-text-muted">
+                  Plan
+                  <select
+                    value={u.plan}
+                    disabled={busy}
+                    onChange={(e) => handlePlanChange(u, e.target.value)}
+                    className="rounded border border-border bg-bg px-2 py-1 text-xs uppercase text-text outline-none focus:border-accent disabled:opacity-50"
+                  >
+                    {PLAN_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-sm text-text">
+                  <input
+                    type="checkbox"
+                    checked={u.isAdmin}
+                    disabled={busy}
+                    onChange={(e) => handleAdminToggle(u, e.target.checked)}
+                    className="h-4 w-4 accent-accent disabled:opacity-50"
+                  />
+                  Admin
+                </label>
+                <label className="flex items-center gap-2 text-sm text-text">
+                  <input
+                    type="checkbox"
+                    checked={u.isBillingExempt}
+                    disabled={busy}
+                    onChange={(e) => handleExemptToggle(u, e.target.checked)}
+                    className="h-4 w-4 accent-accent disabled:opacity-50"
+                  />
+                  Exento
+                </label>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
+                <span>
+                  Proyectos:{" "}
+                  <span className="text-text">{u.counts.projects}</span>
+                </span>
+                <span>
+                  Tareas:{" "}
+                  <span className="text-text">
+                    {u.counts.tasksOpen}/{u.counts.tasksDone}
+                  </span>{" "}
+                  (abiertas/hechas)
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tabla (escritorio) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>
