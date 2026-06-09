@@ -216,11 +216,11 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               onClick={handleNavigate}
             />
             <RowPending icon={LibraryBig} label={t("items.resources")} badge={t("items.comingSoon")} />
-            <RowExternal
-              href="mailto:support@continuu.it?subject=Bug%20report"
+            <RowLink
+              href="/report-bug"
               icon={Bug}
               label={t("items.reportBug")}
-              onAfterClick={onClose}
+              onClick={handleNavigate}
             />
             <RowExternal
               href="https://www.reddit.com/r/Continuuit/"

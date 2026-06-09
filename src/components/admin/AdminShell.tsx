@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { ME_QUERY } from "@/lib/graphql";
+import { ME_QUERY, ADMIN_BUG_REPORTS_UNREAD_COUNT } from "@/lib/graphql";
 import { AdminThemeToggle } from "./AdminThemeToggle";
 
 type MeData = {
@@ -28,6 +28,7 @@ const NAV_GROUPS: {
       { label: "Usuarios", href: "/admin/users" },
       { label: "Billing", href: "/admin/billing" },
       { label: "Anuncios", href: "/admin/announcements" },
+      { label: "Feedback", href: "/admin/feedback" },
     ],
   },
   {
@@ -90,6 +91,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     fetchPolicy: "cache-and-network",
   });
 
+  const { data: unreadData } = useQuery<{ adminBugReportsUnreadCount: number }>(
+    ADMIN_BUG_REPORTS_UNREAD_COUNT,
+    {
+      skip: !session || data?.me?.isAdmin !== true,
+      fetchPolicy: "cache-and-network",
+      pollInterval: 60000,
+    }
+  );
+  const unreadFeedback = unreadData?.adminBugReportsUnreadCount ?? 0;
+
   if (checkingSession || (!data && loading)) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center text-text-muted">
@@ -128,18 +139,27 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     </li>
                   );
                 }
+                const badge =
+                  item.href === "/admin/feedback" && unreadFeedback > 0
+                    ? unreadFeedback
+                    : null;
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
                       className={
-                        "block rounded px-2 py-1 text-sm transition-colors " +
+                        "flex items-center justify-between gap-2 rounded px-2 py-1 text-sm transition-colors " +
                         (active
                           ? "bg-accent/15 text-accent"
                           : "text-text hover:bg-bg")
                       }
                     >
-                      {item.label}
+                      <span>{item.label}</span>
+                      {badge !== null && (
+                        <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
+                          {badge > 99 ? "99+" : badge}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );

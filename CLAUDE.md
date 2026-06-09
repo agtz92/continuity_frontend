@@ -41,3 +41,13 @@ Usa `pnpm`, no `npm`. `npm install` rompe por el workspace protocol.
 El dueño del repo (alfredo.gtz92@gmail.com) **autoriza explícitamente** hacer commit y push directos a `master` cuando lo pida. Esto cumple la cláusula de "explicit permission" del prompt de sesión, así que **no es necesario volver a preguntar**: si la sesión te asigna una rama `claude/...` pero el usuario te pide "haz push a master", commitea y empuja a `master` directamente (`git push -u origin master`).
 
 Sigue aplicando: nunca `--force` a `master`, nunca saltarse hooks (`--no-verify`), nunca `git reset --hard` sin confirmación.
+
+## Reportar bug / Buzón de feedback (usuario → admin, one-way)
+
+Canal de un solo sentido: el usuario envía un reporte de bug y llega al **inbox de admin**. **No hay respuestas** (no exponer mutaciones admin→usuario ni UI de respuesta).
+
+- **Página de usuario:** `src/app/report-bug/page.tsx` (ruta `/report-bug`, gateada por sesión). El acceso es el item "Reportar un bug" del `AccountMenu` (`src/components/account/AccountMenu.tsx`) — ya **no** es un `mailto`, es un `RowLink` interno.
+- **Combobox de tema:** `src/components/BugTopicSelect.tsx` — autocomplete con **texto libre** (el input ES el tema; las sugerencias filtran pero no obligan). Modelado sobre `TimezoneSelect`.
+- **Fuente de verdad de temas:** `src/lib/bugTopics.ts` (`BUG_TOPIC_VALUES`, 8 valores). **Debe** estar espejado en mobile (`continuity-mobile/src/lib/bugTopics.ts`, mismos `value` y orden). Etiquetas vía i18n `bugTopics.<value>`; textos de la página en `reportBug.*` (`messages/{en,es}.json`).
+- **Inbox admin:** `src/app/admin/feedback/page.tsx` (ruta `/admin/feedback`), estados `new | read | archived`, acciones marcar leído / archivar / reabrir / eliminar. Entrada "Feedback" en el nav de `AdminShell.tsx` con **badge de no leídos** (`ADMIN_BUG_REPORTS_UNREAD_COUNT`, poll 60s). El admin UI usa strings en español hardcodeados (no i18n), igual que las demás páginas admin.
+- **GraphQL** (`src/lib/graphql.ts`): `SUBMIT_BUG_REPORT` (usuario, `platform:"web"`), `ADMIN_BUG_REPORTS_QUERY`, `ADMIN_BUG_REPORTS_UNREAD_COUNT`, `ADMIN_BUG_REPORT_SET_STATUS`, `ADMIN_BUG_REPORT_DELETE`. Backend: app `core/feedback` (modelo `BugReport`).
