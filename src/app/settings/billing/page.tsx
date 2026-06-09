@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { useLocale, useTranslations } from "next-intl";
@@ -48,10 +48,49 @@ export default function BillingSettingsPage() {
   const [showDowngrade, setShowDowngrade] = useState(false);
   const [showSwitchPeriod, setShowSwitchPeriod] = useState(false);
 
+  // Handle the return from Stripe Checkout. On success, the webhook that
+  // promotes the plan (`checkout.session.completed`) is asynchronous and races
+  // with this redirect, so the first `usage` read is almost always still
+  // "free". Poll briefly until the subscription shows up so the UI reflects the
+  // new plan without a manual reload. Guarded so it runs once per return.
+  const returnHandledRef = useRef(false);
   useEffect(() => {
     const status = params?.get("status");
-    if (status === "success") toast.success(t("checkoutSuccess"));
-    else if (status === "cancelled") toast.info(t("checkoutCancelled"));
+    if (!status || returnHandledRef.current) return;
+    returnHandledRef.current = true;
+
+    if (status === "cancelled") {
+      toast.info(t("checkoutCancelled"));
+      return;
+    }
+    if (status !== "success") return;
+
+    toast.success(t("checkoutSuccess"));
+
+    let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 6; // ~ up to 10s of webhook lag (immediate + 5×2s)
+    const poll = async () => {
+      if (cancelled) return;
+      attempts += 1;
+      try {
+        const snap = await getUsage();
+        if (cancelled) return;
+        setUsage(snap);
+        // Stop as soon as the subscription is reflected.
+        if (snap.has_subscription || snap.plan !== "free") return;
+      } catch {
+        /* assistant might be offline — keep retrying up to the cap */
+      }
+      if (!cancelled && attempts < MAX_ATTEMPTS) {
+        setTimeout(poll, 2000);
+      }
+    };
+    void poll();
+
+    return () => {
+      cancelled = true;
+    };
   }, [params, t]);
 
   const [createCheckout, { loading: checkingOut }] = useMutation(

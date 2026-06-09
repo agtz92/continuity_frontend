@@ -84,3 +84,18 @@ Reutiliza claves existentes: `onboarding.continue`, `onboarding.back`,
 `onboarding.replay.finishButton`, `onboarding.replay.replayTourButton`.
 
 > Recordatorio móvil: ICU de **llave simple** (`{name}`), nunca `{{name}}`.
+
+## Gotcha — el efecto de "resume" debe correr una sola vez
+
+`OnboardingFlow.tsx` (web) tiene un `useEffect` que reanuda el paso desde el
+`current_step` del server. **Debe** correr solo en el primer hydrate (guardado
+con `resolvedRef`). Cada mutación de paso (`updateProfile`,
+`updateNotificationSettings`, `setStep`) lleva
+`refetchQueries: [ONBOARDING_STATE_QUERY]`; sin la guarda, el efecto se re-dispara
+en cada refetch y re-aplica el `current_step` del server **encima** del paso
+local optimista. Esos refetches compiten (la mutación de datos no avanza
+`current_step`; solo `setStep` lo hace), así que un refetch viejo que aterriza
+tarde puede **regresar la UI a un paso anterior** —a veces hasta el paso 1
+(default del modelo). El flujo móvil ya lo guardaba con `resolved.current`; la web
+no, y de ahí venía el glitch intermitente al avanzar (p. ej. al elegir avatar).
+

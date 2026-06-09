@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
@@ -101,9 +101,20 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
   }, []);
 
   // Resume from server's currentStep on first hydrate (unless replay).
+  //
+  // This MUST run exactly once. Every step mutation (updateProfile,
+  // updateNotificationSettings, setStep) carries `refetchQueries:
+  // [ONBOARDING_STATE_QUERY]`, so without this guard the effect re-fires on
+  // each refetch and re-applies the server's `current_step` over the user's
+  // optimistic local step. Those refetches race (the data mutation doesn't
+  // advance `current_step`; setStep does), so a late/stale refetch could snap
+  // the UI back to an earlier step — sometimes all the way to step 1. Mirrors
+  // the mobile flow's `resolved` ref.
+  const resolvedRef = useRef(false);
   useEffect(() => {
-    if (!data) return;
+    if (!data || resolvedRef.current) return;
     const s = data.onboardingState;
+    resolvedRef.current = true;
     if (replay) {
       setStepLocal(1);
       return;
