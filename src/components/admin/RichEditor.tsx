@@ -1,6 +1,7 @@
 "use client";
 
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+import type { EditorView } from "@tiptap/pm/view";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -106,6 +107,41 @@ export function RichEditor({
   );
   const applyCmdRef = useRef<(cmd: SlashCommand) => void>(() => {});
 
+  // Keep the latest upload handler reachable from the editor's paste/drop
+  // hooks, which are bound once when the editor is created.
+  const onUploadImageRef = useRef(onUploadImage);
+  useEffect(() => {
+    onUploadImageRef.current = onUploadImage;
+  }, [onUploadImage]);
+
+  // Pasted/dropped image files must be uploaded to storage and inserted as
+  // their public URL. Without this, the browser inserts a `blob:` URL that
+  // dies with the session and gets stripped by the server-side renderer
+  // (it only allows http/https), so the image silently vanishes once saved.
+  const insertUploadedImages = useCallback(
+    (view: EditorView, files: FileList | File[], pos?: number): boolean => {
+      const images = Array.from(files).filter((f) =>
+        f.type.startsWith("image/")
+      );
+      if (images.length === 0) return false;
+      const upload = onUploadImageRef.current;
+      if (!upload) return false;
+      void (async () => {
+        for (const file of images) {
+          const url = await upload(file);
+          if (!url) continue;
+          const imageType = view.state.schema.nodes.image;
+          if (!imageType) continue;
+          const node = imageType.create({ src: url, alt: file.name });
+          const at = pos ?? view.state.selection.from;
+          view.dispatch(view.state.tr.insert(at, node));
+        }
+      })();
+      return true;
+    },
+    []
+  );
+
   const syncSlash = useCallback((ed: Editor) => {
     const { selection } = ed.state;
     const { $from, empty } = selection;
@@ -149,6 +185,30 @@ export function RichEditor({
       attributes: {
         class:
           "tiptap min-h-[24rem] focus:outline-none prose dark:prose-invert max-w-none text-text",
+      },
+      handlePaste: (view, event) => {
+        const files = event.clipboardData?.files;
+        if (files && files.length > 0) {
+          if (insertUploadedImages(view, files)) {
+            event.preventDefault();
+            return true;
+          }
+        }
+        return false;
+      },
+      handleDrop: (view, event) => {
+        const files = (event as DragEvent).dataTransfer?.files;
+        if (files && files.length > 0) {
+          const coords = view.posAtCoords({
+            left: (event as DragEvent).clientX,
+            top: (event as DragEvent).clientY,
+          });
+          if (insertUploadedImages(view, files, coords?.pos)) {
+            event.preventDefault();
+            return true;
+          }
+        }
+        return false;
       },
       handleKeyDown: (_view, event) => {
         const s = slashRef.current;
@@ -196,6 +256,9 @@ export function RichEditor({
   const insertImageUrl = useCallback(
     (url: string) => {
       if (!editor) return;
+      // Only persist real, fetchable URLs. `blob:`/`data:` sources are
+      // session-local previews that the server-side renderer strips.
+      if (/^(blob:|data:)/i.test(url.trim())) return;
       const alt = decodeURIComponent(url.split("/").pop() ?? "").split("?")[0];
       editor.chain().focus().setImage({ src: url, alt }).run();
     },
