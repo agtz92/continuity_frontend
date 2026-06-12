@@ -101,7 +101,7 @@ export function QuickNotesView({
 
       <div className={selected ? "grid md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] gap-4" : ""}>
         {/* ---------- List pane ---------- */}
-        <div className={`${selected ? "hidden md:block" : "block md:max-w-[75%]"}`}>
+        <div className={`${selected ? "hidden md:block" : "block"}`}>
           <div className="flex items-center gap-2 mb-3">
             <div className="relative flex-1">
               <Search
@@ -160,7 +160,7 @@ export function QuickNotesView({
               </button>
             </div>
           ) : (
-            <div className={`grid gap-2 ${selected ? "grid-cols-1" : "sm:grid-cols-2"}`}>
+            <div className={`grid gap-2 ${selected ? "grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
               {filtered.map((n) => (
                 <NoteCard
                   key={n.id}
