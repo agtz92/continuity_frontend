@@ -302,6 +302,28 @@ body {
   }
 }
 
+/* Marketing nav entrance — replaces framer-motion so framer stays out of the
+   marketing bundle. Resting state (no animation) is fully visible, so the nav
+   can never get stuck hidden. */
+@keyframes ls-nav-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.ls-nav-enter {
+  animation: ls-nav-enter 0.5s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls-nav-enter {
+    animation: none;
+  }
+}
+
 /* Suppress the browser's native pull-to-refresh / overscroll bounce so our
    custom PullToRefresh component owns the gesture. `contain` keeps inner
    scroll containers behaving normally — only the document edge is locked. */

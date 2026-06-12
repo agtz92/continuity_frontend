@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 /**
  * Client-side "signed-in → dashboard" redirect for the landing root (`/`).
@@ -16,9 +15,12 @@ import { supabase } from "@/lib/supabase";
 export default function RedirectIfAuthed({ to = "/dashboard" }: { to?: string }) {
   const router = useRouter();
   useEffect(() => {
+    // Lazy-load supabase so the landing keeps it out of its initial bundle.
     let active = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (active && data.session) router.replace(to);
+    void import("@/lib/supabase").then(({ supabase }) => {
+      supabase.auth.getSession().then(({ data }) => {
+        if (active && data.session) router.replace(to);
+      });
     });
     return () => {
       active = false;

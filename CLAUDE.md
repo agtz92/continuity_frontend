@@ -109,3 +109,19 @@ metadata de cada par en/es; el redirect "logueado → /dashboard" del home es cl
 **Cuerpos compartidos** (patrón `ResourcePages.tsx`): `src/components/marketing/{LandingPage,
 BlogIndex,BlogPost,LegalPage,CmsPage}.tsx` toman `locale` como prop; los archivos de ruta en/es
 son wrappers delgados que pasan el locale fijo.
+
+**Higiene del bundle de marketing (peso JS = lo que más pega en móvil/Safari iOS).** Las páginas
+de marketing deben mantener su First Load JS bajo (~130 kB). Reglas para no regresar:
+- **Apollo NO va en marketing.** `<Providers>` (ApolloProvider + Toaster) vive en
+  `(app)/layout.tsx`, no en el root layout. Marketing trae su contenido por `publicGraphql` (fetch
+  server-side), nunca por Apollo client.
+- **No importar `@/lib/supabase` estático en componentes always-on de marketing** (nav, footer,
+  shells). supabase-js pesa ~186 kB; cargarlo con `await import("@/lib/supabase")` dentro de un
+  `useEffect` (ver `MarketingNav`/`RedirectIfAuthed`). La nav renderiza anónima primero y se
+  actualiza al resolver la sesión.
+- **No usar framer-motion en componentes always-on de marketing.** `MarketingNav` anima con CSS
+  (`.ls-nav-enter` en globals.css) y `CTAButton` hace el scale hover/tap con
+  `motion-safe:hover:scale-[...]`. framer solo en secciones del landing (Hero/Pricing/etc.), que
+  no cargan en blog/resources/legal.
+- **Imágenes: siempre `next/image`** para covers (no `<img>` crudo) y `lazyLoadContentImages`
+  (`src/lib/contentHtml.ts`) para el HTML del cuerpo. Evita servir originales multi-MB.

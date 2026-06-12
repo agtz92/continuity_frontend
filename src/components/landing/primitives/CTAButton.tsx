@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -18,8 +17,11 @@ type Props = {
   disabled?: boolean;
 };
 
+// CSS-only hover/tap scale (was framer-motion) so CTAButton — rendered by the
+// marketing nav on every page — doesn't drag framer into the marketing bundle.
+// `motion-safe:` honors prefers-reduced-motion.
 const base =
-  "relative inline-flex items-center justify-center font-medium tracking-tight transition-colors will-change-transform rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-ls-navy focus-visible:ring-ls-ochre disabled:opacity-50 disabled:cursor-not-allowed";
+  "relative inline-flex items-center justify-center font-medium tracking-tight rounded-full transition-[transform,color,background-color,border-color,box-shadow] duration-200 will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-ls-navy focus-visible:ring-ls-ochre disabled:opacity-50 disabled:cursor-not-allowed";
 
 const variants: Record<Variant, string> = {
   primary:
@@ -45,32 +47,22 @@ export default function CTAButton({
   type = "button",
   disabled = false,
 }: Props) {
-  const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
-  const motionProps = {
-    whileHover: disabled ? undefined : { scale: 1.02 },
-    whileTap: disabled ? undefined : { scale: 0.98 },
-    transition: { type: "spring" as const, stiffness: 400, damping: 28 },
-  };
+  const interaction = disabled
+    ? ""
+    : "motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]";
+  const classes = `${base} ${variants[variant]} ${sizes[size]} ${interaction} ${className}`;
 
   if (href) {
     return (
-      <motion.span {...motionProps} className="inline-block">
-        <Link href={href} className={classes}>
-          {children}
-        </Link>
-      </motion.span>
+      <Link href={href} className={classes}>
+        {children}
+      </Link>
     );
   }
 
   return (
-    <motion.button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={classes}
-      {...motionProps}
-    >
+    <button type={type} onClick={onClick} disabled={disabled} className={classes}>
       {children}
-    </motion.button>
+    </button>
   );
 }

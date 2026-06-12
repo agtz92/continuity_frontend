@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { supabase } from "@/lib/supabase";
 import { marketingHref, switchLocalePath } from "@/i18n/marketingHref";
 import { SUPPORTED_LOCALES, type Locale } from "@/i18n/config";
 import CTAButton from "./primitives/CTAButton";
@@ -16,7 +14,6 @@ export default function MarketingNav() {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
-  const reduce = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   // null = unknown (still checking), false = anon, true = signed in.
   // We render anonymous-state UI by default so SSR markup matches the most
@@ -32,13 +29,25 @@ export default function MarketingNav() {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setAuthed(!!data.session);
+    // Lazy-load supabase-js (~186 KB) so it stays out of the marketing pages'
+    // initial bundle — the nav renders anonymous-first and upgrades once the
+    // session resolves, so deferring the SDK doesn't change the UX.
+    let active = true;
+    let unsubscribe: (() => void) | undefined;
+    void import("@/lib/supabase").then(({ supabase }) => {
+      if (!active) return;
+      supabase.auth.getSession().then(({ data }) => {
+        if (active) setAuthed(!!data.session);
+      });
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+        setAuthed(!!s);
+      });
+      unsubscribe = () => sub.subscription.unsubscribe();
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
-      setAuthed(!!s);
-    });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe?.();
+    };
   }, []);
 
   // Locale is now encoded in the URL (en at bare paths, es under /es), so
@@ -56,11 +65,10 @@ export default function MarketingNav() {
   const homeHref = marketingHref(locale, "/");
 
   return (
-    <motion.header
-      initial={reduce ? false : { y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    // CSS entrance animation (`ls-nav-enter` in globals.css) instead of
+    // framer-motion — keeps framer out of the marketing pages' bundle.
+    <header
+      className={`ls-nav-enter fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-ls-navy/80 backdrop-blur-md border-b border-white/5"
           : "bg-transparent"
@@ -128,6 +136,6 @@ export default function MarketingNav() {
           )}
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "./analytics";
-import { Providers } from "./providers";
 import { NO_FLASH_SCRIPT } from "@/theme/no-flash";
 import { resolveSiteUrl } from "@/lib/siteUrl";
 
@@ -75,6 +74,10 @@ export const viewport: Viewport = {
  *
  * `lang="en"` is the static default; the `/es` marketing subtree corrects it
  * client-side via `SetHtmlLang`.
+ *
+ * NOTE: the Apollo/Toaster `<Providers>` live in the `(app)` layout, NOT here —
+ * marketing pages don't use Apollo, and shipping it to every static page added
+ * ~117 KB of JS that hurt mobile (especially Safari iOS).
  */
 export default function RootLayout({
   children,
@@ -92,7 +95,7 @@ export default function RootLayout({
       </head>
       <body>
         <Analytics />
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );
