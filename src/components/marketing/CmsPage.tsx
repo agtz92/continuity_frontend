@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { fetchPage } from "@/lib/publicGraphql";
+import { lazyLoadContentImages } from "@/lib/contentHtml";
 import { marketingHref } from "@/i18n/marketingHref";
 import type { Locale } from "@/i18n/config";
 
@@ -69,16 +71,19 @@ export default async function CmsPage({
           {page.excerpt && <p className="mt-2 text-text-muted">{page.excerpt}</p>}
         </header>
         {page.coverImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={page.coverImageUrl}
-            alt=""
-            className="mb-8 max-h-96 w-full rounded-lg object-cover"
-          />
+          <div className="relative mb-8 aspect-[16/9] max-h-96 w-full overflow-hidden rounded-lg">
+            <Image
+              src={page.coverImageUrl}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="object-cover"
+            />
+          </div>
         )}
         <div
           className="prose dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: page.contentHtml }}
+          dangerouslySetInnerHTML={{ __html: lazyLoadContentImages(page.contentHtml) }}
         />
       </article>
     </main>

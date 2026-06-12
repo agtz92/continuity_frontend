@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -7,6 +8,7 @@ import {
   fetchHelpResource,
   fetchHelpResources,
 } from "@/lib/publicGraphql";
+import { lazyLoadContentImages } from "@/lib/contentHtml";
 import type { Locale } from "@/i18n/config";
 import MarketingNav from "@/components/landing/MarketingNav";
 import MarketingFooter from "@/components/landing/MarketingFooter";
@@ -381,12 +383,15 @@ export async function ResourceDetail(
 
       {resource.coverImageUrl && (
         <div className="mx-auto w-full max-w-5xl px-6 sm:px-8 lg:px-12 mb-14">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={resource.coverImageUrl}
-            alt=""
-            className="w-full max-h-[520px] rounded-2xl object-cover"
-          />
+          <div className="relative aspect-[16/9] max-h-[520px] w-full overflow-hidden rounded-2xl">
+            <Image
+              src={resource.coverImageUrl}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="object-cover"
+            />
+          </div>
         </div>
       )}
 
@@ -406,7 +411,7 @@ export async function ResourceDetail(
               prose-code:text-ls-ochre prose-code:before:content-none prose-code:after:content-none
               prose-img:rounded-2xl
             "
-            dangerouslySetInnerHTML={{ __html: resource.contentHtml }}
+            dangerouslySetInnerHTML={{ __html: lazyLoadContentImages(resource.contentHtml) }}
           />
 
           {others.length > 0 && (

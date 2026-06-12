@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { fetchBlogPost } from "@/lib/publicGraphql";
+import { lazyLoadContentImages } from "@/lib/contentHtml";
 import { getStaticTranslator } from "@/i18n/static";
 import { marketingHref } from "@/i18n/marketingHref";
 import type { Locale } from "@/i18n/config";
@@ -125,12 +127,15 @@ export default async function BlogPost({
 
       {post.coverImageUrl && (
         <div className="mx-auto w-full max-w-5xl px-6 sm:px-8 lg:px-12 mb-14">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={post.coverImageUrl}
-            alt=""
-            className="w-full max-h-[520px] rounded-2xl object-cover"
-          />
+          <div className="relative aspect-[16/9] max-h-[520px] w-full overflow-hidden rounded-2xl">
+            <Image
+              src={post.coverImageUrl}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="object-cover"
+            />
+          </div>
         </div>
       )}
 
@@ -150,7 +155,7 @@ export default async function BlogPost({
               prose-code:text-ls-ochre prose-code:before:content-none prose-code:after:content-none
               prose-img:rounded-2xl
             "
-            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+            dangerouslySetInnerHTML={{ __html: lazyLoadContentImages(post.contentHtml) }}
           />
 
           <div className="mt-16 border-t border-white/10 pt-8">

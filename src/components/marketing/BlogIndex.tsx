@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { fetchBlogPosts } from "@/lib/publicGraphql";
 import { getStaticTranslator } from "@/i18n/static";
@@ -88,11 +89,12 @@ export default async function BlogIndex({ locale }: { locale: Locale }) {
                   <div className="grid lg:grid-cols-5 gap-0">
                     <div className="lg:col-span-2 relative h-64 lg:h-auto lg:min-h-[440px] overflow-hidden">
                       {featured.coverImageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={featured.coverImageUrl}
                           alt=""
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 40vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                         />
                       ) : (
                         <>
@@ -155,11 +157,12 @@ export default async function BlogIndex({ locale }: { locale: Locale }) {
                       >
                         <div className="relative h-44 overflow-hidden">
                           {post.coverImageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={post.coverImageUrl}
                               alt=""
-                              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                             />
                           ) : (
                             <>
