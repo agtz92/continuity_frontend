@@ -1,19 +1,32 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
 import { fetchBlogPosts } from "@/lib/publicGraphql";
+import { getStaticTranslator } from "@/i18n/static";
+import { marketingHref } from "@/i18n/marketingHref";
+import type { Locale } from "@/i18n/config";
 import MarketingNav from "@/components/landing/MarketingNav";
 import MarketingFooter from "@/components/landing/MarketingFooter";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("landing.blog");
+/**
+ * Shared blog index, rendered statically per locale.
+ *   - English: /blog        (locale "en")
+ *   - Spanish: /es/blog     (locale "es")
+ * Mirrors the resources hub pattern (ResourcePages.tsx): one implementation,
+ * thin per-locale route files pass a fixed `locale`.
+ */
+
+export function blogIndexMetadata(locale: Locale): Metadata {
+  const t = getStaticTranslator(locale, "landing.blog");
+  const canonical = marketingHref(locale, "/blog");
   return {
     title: `${t("title")} — continuu.it`,
     description: t("subtitle"),
+    alternates: {
+      canonical,
+      languages: { en: "/blog", es: "/es/blog", "x-default": "/blog" },
+    },
   };
 }
-
-export const revalidate = 600;
 
 function formatDate(iso: string, locale: string) {
   return new Date(iso).toLocaleDateString(locale, {
@@ -23,12 +36,12 @@ function formatDate(iso: string, locale: string) {
   });
 }
 
-export default async function BlogIndexPage() {
-  const locale = await getLocale();
-  const t = await getTranslations("landing.blog");
+export default async function BlogIndex({ locale }: { locale: Locale }) {
+  const t = getStaticTranslator(locale, "landing.blog");
   const result = await fetchBlogPosts({ locale, perPage: 20 });
   const posts = result?.posts ?? [];
   const [featured, ...rest] = posts;
+  const postHref = (slug: string) => marketingHref(locale, `/blog/${slug}`);
 
   return (
     <div
@@ -69,7 +82,7 @@ export default async function BlogIndexPage() {
             <>
               {featured && (
                 <Link
-                  href={`/blog/${featured.slug}`}
+                  href={postHref(featured.slug)}
                   className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] transition-colors hover:border-ls-ochre/40"
                 >
                   <div className="grid lg:grid-cols-5 gap-0">
@@ -137,7 +150,7 @@ export default async function BlogIndexPage() {
                   {rest.map((post) => (
                     <li key={post.id}>
                       <Link
-                        href={`/blog/${post.slug}`}
+                        href={postHref(post.slug)}
                         className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:border-ls-ochre/40"
                       >
                         <div className="relative h-44 overflow-hidden">

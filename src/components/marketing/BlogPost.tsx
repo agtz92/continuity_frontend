@@ -1,22 +1,32 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
 import { fetchBlogPost } from "@/lib/publicGraphql";
+import { getStaticTranslator } from "@/i18n/static";
+import { marketingHref } from "@/i18n/marketingHref";
+import type { Locale } from "@/i18n/config";
 import MarketingNav from "@/components/landing/MarketingNav";
 import MarketingFooter from "@/components/landing/MarketingFooter";
 
-export const revalidate = 600;
+/** Shared blog post detail, static per locale (/blog/[slug] and /es/blog/[slug]). */
 
-type Props = { params: Promise<{ slug: string }> };
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await fetchBlogPost(slug);
+export async function blogPostMetadata(
+  locale: Locale,
+  slug: string
+): Promise<Metadata> {
+  const post = await fetchBlogPost(slug, locale);
   if (!post) return { title: "Not found" };
   return {
     title: post.seoTitle || `${post.title} — continuu.it`,
     description: post.seoDescription || post.excerpt || undefined,
+    alternates: {
+      canonical: marketingHref(locale, `/blog/${slug}`),
+      languages: {
+        en: `/blog/${slug}`,
+        es: `/es/blog/${slug}`,
+        "x-default": `/blog/${slug}`,
+      },
+    },
     openGraph: {
       title: post.seoTitle || post.title,
       description: post.seoDescription || post.excerpt || undefined,
@@ -35,14 +45,19 @@ function formatDate(iso: string, locale: string) {
   });
 }
 
-export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
-  const locale = await getLocale();
-  const t = await getTranslations("landing.blog");
-  const post = await fetchBlogPost(slug);
+export default async function BlogPost({
+  locale,
+  slug,
+}: {
+  locale: Locale;
+  slug: string;
+}) {
+  const t = getStaticTranslator(locale, "landing.blog");
+  const post = await fetchBlogPost(slug, locale);
   if (!post) {
     notFound();
   }
+  const blogHref = marketingHref(locale, "/blog");
 
   return (
     <div
@@ -59,7 +74,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12">
           <Link
-            href="/blog"
+            href={blogHref}
             className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
           >
             <span aria-hidden>←</span>
@@ -140,7 +155,7 @@ export default async function BlogPostPage({ params }: Props) {
 
           <div className="mt-16 border-t border-white/10 pt-8">
             <Link
-              href="/blog"
+              href={blogHref}
               className="inline-flex items-center gap-2 text-sm text-ls-text-secondary transition-colors hover:text-ls-ochre"
             >
               <span aria-hidden>←</span>

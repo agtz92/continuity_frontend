@@ -1,13 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "./analytics";
 import { Providers } from "./providers";
-import { resolveTheme } from "@/theme/resolve";
 import { NO_FLASH_SCRIPT } from "@/theme/no-flash";
-import { resolvePalette } from "@/palette/resolve";
 import { resolveSiteUrl } from "@/lib/siteUrl";
 
 const fontDisplay = Fraunces({
@@ -69,20 +65,25 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default async function RootLayout({
+/**
+ * Root layout — intentionally COOKIE-FREE so it never forces dynamic
+ * rendering. Locale/theme/palette are resolved closer to where they're needed:
+ *   - Marketing pages: fixed locale from the URL (see `(marketing-en)`/`es`
+ *     layouts + `@/i18n/static`). Static.
+ *   - The tool: the `(app)` layout reads the cookie locale, and the inline
+ *     no-flash script applies theme + palette from cookies before paint.
+ *
+ * `lang="en"` is the static default; the `/es` marketing subtree corrects it
+ * client-side via `SetHtmlLang`.
+ */
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-  const theme = await resolveTheme();
-  const palette = await resolvePalette();
   return (
     <html
-      lang={locale}
-      data-theme={theme}
-      data-palette={palette}
+      lang="en"
       className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable}`}
       suppressHydrationWarning
     >
@@ -91,9 +92,7 @@ export default async function RootLayout({
       </head>
       <body>
         <Analytics />
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

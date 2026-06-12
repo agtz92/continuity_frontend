@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
-import { setLocale } from "@/i18n/actions";
+import { marketingHref, switchLocalePath } from "@/i18n/marketingHref";
 import { SUPPORTED_LOCALES, type Locale } from "@/i18n/config";
 import CTAButton from "./primitives/CTAButton";
 
@@ -13,6 +14,8 @@ export default function MarketingNav() {
   const t = useTranslations("landing.nav");
   const tLang = useTranslations("landing.langSwitcher");
   const locale = useLocale() as Locale;
+  const router = useRouter();
+  const pathname = usePathname();
   const reduce = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   // null = unknown (still checking), false = anon, true = signed in.
@@ -38,15 +41,19 @@ export default function MarketingNav() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Locale is now encoded in the URL (en at bare paths, es under /es), so
+  // switching language navigates to the counterpart URL instead of setting a
+  // cookie — this keeps the marketing pages statically cacheable.
   const handleLocaleChange = (next: Locale) => {
     if (next === locale) return;
-    void setLocale(next);
+    router.push(switchLocalePath(pathname, next));
   };
 
   // The resources hub is split into two monolingual route trees keyed by the
   // URL (see ResourcePages.tsx): Spanish lives at /recursos, every other
   // locale at /resources.
   const resourcesHref = locale === "es" ? "/recursos" : "/resources";
+  const homeHref = marketingHref(locale, "/");
 
   return (
     <motion.header
@@ -61,20 +68,20 @@ export default function MarketingNav() {
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 sm:px-8 lg:px-12">
         <Link
-          href="/"
+          href={homeHref}
           className="font-display text-lg font-medium tracking-tight text-ls-text-primary"
         >
           continuu<span className="text-ls-ochre">.</span>it
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-ls-text-secondary">
-          <Link href="/#features" className="hover:text-ls-text-primary transition-colors">
+          <Link href={marketingHref(locale, "/#features")} className="hover:text-ls-text-primary transition-colors">
             {t("features")}
           </Link>
-          <Link href="/#pricing" className="hover:text-ls-text-primary transition-colors">
+          <Link href={marketingHref(locale, "/#pricing")} className="hover:text-ls-text-primary transition-colors">
             {t("pricing")}
           </Link>
-          <Link href="/blog" className="hover:text-ls-text-primary transition-colors">
+          <Link href={marketingHref(locale, "/blog")} className="hover:text-ls-text-primary transition-colors">
             {t("blog")}
           </Link>
           <Link href={resourcesHref} className="hover:text-ls-text-primary transition-colors">
@@ -113,7 +120,7 @@ export default function MarketingNav() {
                 {t("signIn")}
               </CTAButton>
               <span className="hidden sm:inline-block">
-                <CTAButton href="/#beta" variant="primary" size="md">
+                <CTAButton href={marketingHref(locale, "/#beta")} variant="primary" size="md">
                   {t("ctaShort")}
                 </CTAButton>
               </span>

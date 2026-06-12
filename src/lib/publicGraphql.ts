@@ -44,12 +44,21 @@ async function publicFetch<T>(
   revalidate: number = 600
 ): Promise<T | null> {
   const url = resolvePublicGraphqlUrl();
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ query, variables }),
-    next: { tags, revalidate },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ query, variables }),
+      next: { tags, revalidate },
+    });
+  } catch (e) {
+    // Network error (backend unreachable). Marketing pages are statically
+    // prerendered, so a build-time outage must degrade to an empty state
+    // rather than fail the whole build — the page revalidates later.
+    console.error("[publicGraphql] fetch failed", e);
+    return null;
+  }
   if (!res.ok) {
     console.error("[publicGraphql] HTTP", res.status, await res.text());
     return null;

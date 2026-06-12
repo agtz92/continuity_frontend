@@ -1,15 +1,22 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
-import { getServerSession } from "@/lib/supabase-server";
-import { resolveSiteUrl } from "@/lib/siteUrl";
 import Landing from "@/components/landing/Landing";
+import RedirectIfAuthed from "@/components/landing/RedirectIfAuthed";
+import { getStaticTranslator } from "@/i18n/static";
+import { marketingHref } from "@/i18n/marketingHref";
+import { resolveSiteUrl } from "@/lib/siteUrl";
+import type { Locale } from "@/i18n/config";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const [t, locale] = await Promise.all([
-    getTranslations("landing.meta"),
-    getLocale(),
-  ]);
+/**
+ * Shared landing surface, static per locale.
+ *   en: /  and /welcome    ·    es: /es  and /es/welcome
+ *
+ * `redirectIfAuthed` reproduces the old server `/` behavior (signed-in users go
+ * to /dashboard) on the client, so the page stays static. `/welcome` passes
+ * false — it's intentionally a public landing even for signed-in users.
+ */
+
+export function landingMetadata(locale: Locale): Metadata {
+  const t = getStaticTranslator(locale, "landing.meta");
   const site = resolveSiteUrl();
   const title = t("title");
   const description = t("description");
@@ -17,12 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: "/",
-      languages: {
-        en: "/",
-        es: "/",
-        "x-default": "/",
-      },
+      canonical: marketingHref(locale, "/"),
+      languages: { en: "/", es: "/es", "x-default": "/" },
     },
     openGraph: {
       type: "website",
@@ -42,11 +45,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Home() {
-  const session = await getServerSession();
-  if (session) redirect("/dashboard");
+export default function LandingPage({
+  locale,
+  redirectIfAuthed = false,
+}: {
+  locale: Locale;
+  redirectIfAuthed?: boolean;
+}) {
+  const t = getStaticTranslator(locale, "landing.meta");
   const site = resolveSiteUrl();
-  const t = await getTranslations("landing.meta");
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -79,6 +86,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {redirectIfAuthed && <RedirectIfAuthed />}
       <Landing />
     </>
   );

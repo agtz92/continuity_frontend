@@ -19,8 +19,12 @@ import {
  * after auth (see hooks/useLocaleSync), so we don't need to call the GraphQL
  * API from the server here.
  */
-export default getRequestConfig(async () => {
-  const locale = await resolveLocale();
+export default getRequestConfig(async ({ locale: requested }) => {
+  // Honor an explicitly-requested locale (e.g. a static page calling
+  // `getTranslations({ locale })`) WITHOUT reading cookies — reading cookies
+  // here would taint the caller into dynamic rendering. Only fall back to the
+  // cookie/header sniff when no explicit locale was passed (the dynamic tool).
+  const locale = isLocale(requested) ? requested : await resolveLocale();
   const messages = (await import(`../../messages/${locale}.json`)).default;
   return { locale, messages };
 });

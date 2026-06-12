@@ -1,24 +1,41 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getStaticTranslator } from "@/i18n/static";
+import { marketingHref } from "@/i18n/marketingHref";
+import type { Locale } from "@/i18n/config";
 import MarketingNav from "@/components/landing/MarketingNav";
 import MarketingFooter from "@/components/landing/MarketingFooter";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("landing.terms");
+/**
+ * Shared legal page (privacy + terms), static per locale.
+ *   en: /privacy, /terms   ·   es: /es/privacy, /es/terms
+ */
+
+export type LegalKind = "privacy" | "terms";
+
+type LegalSection = { heading: string; body: string[] };
+
+export function legalMetadata(locale: Locale, kind: LegalKind): Metadata {
+  const t = getStaticTranslator(locale, `landing.${kind}`);
+  const path = `/${kind}`;
   return {
     title: t("title"),
     description: t("intro"),
+    alternates: {
+      canonical: marketingHref(locale, path),
+      languages: { en: path, es: `/es${path}`, "x-default": path },
+    },
   };
 }
 
-type TermsSection = {
-  heading: string;
-  body: string[];
-};
-
-export default async function TermsPage() {
-  const t = await getTranslations("landing.terms");
-  const sections = t.raw("sections") as TermsSection[];
+export default function LegalPage({
+  locale,
+  kind,
+}: {
+  locale: Locale;
+  kind: LegalKind;
+}) {
+  const t = getStaticTranslator(locale, `landing.${kind}`);
+  const sections = t.raw("sections") as LegalSection[];
 
   return (
     <div
@@ -54,10 +71,7 @@ export default async function TermsPage() {
                 </h2>
                 <div className="mt-4 space-y-4">
                   {section.body.map((paragraph, j) => (
-                    <p
-                      key={j}
-                      className="text-ls-text-secondary leading-relaxed"
-                    >
+                    <p key={j} className="text-ls-text-secondary leading-relaxed">
                       {paragraph}
                     </p>
                   ))}

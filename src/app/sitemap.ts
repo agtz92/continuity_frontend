@@ -46,13 +46,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticEntries: MetadataRoute.Sitemap = [
+    // English (canonical) marketing
     { url: `${base}/`, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: `${base}/blog`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/resources`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/welcome`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    // Spanish marketing (/es prefix; resources keep /recursos)
+    { url: `${base}/es`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/es/blog`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: `${base}/recursos`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/es/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/es/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/es/welcome`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    // Auth (shared, English-only)
     { url: `${base}/login`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/reset-password`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
-    { url: `${base}/welcome`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const [navPages, blogPosts, helpCategories, helpResources] = await Promise.all([
@@ -69,8 +79,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // A post lives in exactly one locale (slugs are globally unique); Spanish
+  // posts are served under /es/blog, English at /blog.
   const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-    url: `${base}/blog/${post.slug}`,
+    url: `${base}${post.locale === "es" ? "/es/blog" : "/blog"}/${post.slug}`,
     lastModified: post.publishedAt ? new Date(post.publishedAt) : now,
     changeFrequency: "monthly",
     priority: 0.6,

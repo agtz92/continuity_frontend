@@ -72,3 +72,40 @@ Notas con **secciones plegables** (toggles), **categorizables** y ligables a un 
 - **Datos:** hooks `src/hooks/useQuickNotes.ts` (query lazy, `cache-and-network`) y `useQuickNoteMutations.ts` (refetch `QUICK_NOTES_QUERY`). Tipos `QuickNote`/`NoteSection` en `src/lib/types.ts`. GraphQL en `src/lib/graphql.ts`.
 - **i18n:** `views.quickNotes.*` (en/es). El acento usa el `accent` del tema (no púrpura hardcodeado como Ideas) para respetar la palette.
 - **Onboarding:** el **tour** tiene un paso de Notes (`onboarding.tour.stepNotes`) en `DashboardTour.tsx`, **condicional** a que el tab sea visible (`findVisible("notes")`): aparece en desktop y se omite en mobile-web (ahí Notes vive en el `MoreSheet`). Requiere `data-tour="notes"` en `TabBar.tsx`. La nota de ejemplo para usuarios nuevos la siembra el backend (seed). Espejo en el repo móvil.
+
+## Render: marketing ESTÁTICO vs herramienta DINÁMICA
+
+El sitio de marketing (`/`, `/blog`, `/[slug]` CMS, `/privacy`, `/terms`, `/welcome`,
+`/resources` + `/recursos`) se sirve **estático (ISR)**; la herramienta (`/dashboard`,
+`/admin/*`, `/settings/*`, `/onboarding`, `/login`, `/reset-password`, `/report-bug`)
+es **dinámica**. Verifica con `next build`: marketing debe salir `○`/`●`, la herramienta `ƒ`.
+
+**Regla de oro: el root layout (`src/app/layout.tsx`) NO debe leer cookies.** Leer cookies
+ahí (lo hacía antes con `getLocale`/`getMessages`/`resolveTheme`/`resolvePalette`) contamina
+TODA la app a dinámico y mata el prerender/ISR. Hoy el root es síncrono, `lang="en"` fijo, y
+el **no-flash script** (`src/theme/no-flash.ts`) aplica `data-theme` **y `data-palette`** en
+cliente desde cookies antes del paint (por eso el tool no necesita que el server lea cookies).
+
+**Estructura de route groups** (los `(...)` no cambian la URL):
+- `src/app/(marketing-en)/` — provider i18n con locale fijo `en` (mensajes vía `@/i18n/static`).
+  Contiene `/`, blog, privacy, terms, welcome, `[slug]`, `resources/`.
+- `src/app/(marketing-es)/` — provider `es` + `SetHtmlLang`. Contiene `es/*` (prefijo `/es`) y `recursos/`.
+- `src/app/(app)/` — provider con locale de **cookie** (`getLocale`/`getMessages`) → dinámico.
+  Contiene dashboard, settings, onboarding, admin, report-bug, login, reset-password.
+- **Cada layout de marketing exporta `export const dynamic = "force-static"`** (cascada a sus
+  páginas). next-intl opta las rutas a dinámico por defecto al usar su provider; esto las fuerza
+  estáticas y, de paso, hace fallar el build si alguien mete una API dinámica (cookies/headers).
+
+**i18n estático:** `src/i18n/static.ts` (`getMessagesFor`, `getStaticTranslator` vía
+`createTranslator`) — request-independiente; NO uses `getTranslations`/`getLocale` (cookies) en
+páginas de marketing. `src/i18n/request.ts` está endurecido: respeta un `locale` explícito y solo
+lee cookies como fallback (para el tool). **URL = fuente de verdad del idioma** en marketing:
+inglés en paths base, español bajo `/es` (resources mantiene `/resources` ↔ `/recursos`). El
+switcher (`MarketingNav`) y los links internos navegan vía `src/i18n/marketingHref.ts`
+(`marketingHref`/`switchLocalePath`), **ya no** vía cookie `setLocale`. hreflang/canonical en la
+metadata de cada par en/es; el redirect "logueado → /dashboard" del home es client-side
+(`RedirectIfAuthed`) para no leer sesión en server.
+
+**Cuerpos compartidos** (patrón `ResourcePages.tsx`): `src/components/marketing/{LandingPage,
+BlogIndex,BlogPost,LegalPage,CmsPage}.tsx` toman `locale` como prop; los archivos de ruta en/es
+son wrappers delgados que pasan el locale fijo.

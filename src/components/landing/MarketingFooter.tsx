@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { marketingHref } from "@/i18n/marketingHref";
+import type { Locale } from "@/i18n/config";
 
 export default function MarketingFooter() {
   const t = useTranslations("landing.footer");
+  const locale = useLocale() as Locale;
   const year = new Date().getFullYear();
 
   return (
@@ -95,7 +98,7 @@ export default function MarketingFooter() {
               </li>
               <li>
                 <Link
-                  href="/privacy"
+                  href={marketingHref(locale, "/privacy")}
                   className="text-ls-text-primary hover:text-ls-ochre transition-colors"
                 >
                   {t("companyLinks.privacy")}
@@ -103,7 +106,7 @@ export default function MarketingFooter() {
               </li>
               <li>
                 <Link
-                  href="/terms"
+                  href={marketingHref(locale, "/terms")}
                   className="text-ls-text-primary hover:text-ls-ochre transition-colors"
                 >
                   {t("companyLinks.terms")}
