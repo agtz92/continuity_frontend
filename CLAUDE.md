@@ -75,6 +75,9 @@ Notas con **secciones plegables** (toggles), **categorizables** y ligables a un 
 
 ## Render: marketing ESTÁTICO vs herramienta DINÁMICA
 
+> Resumen cross-repo del trabajo de performance (problema, cambios, resultados, pendientes):
+> `../docs/marketing-performance.md`.
+
 El sitio de marketing (`/`, `/blog`, `/[slug]` CMS, `/privacy`, `/terms`, `/welcome`,
 `/resources` + `/recursos`) se sirve **estático (ISR)**; la herramienta (`/dashboard`,
 `/admin/*`, `/settings/*`, `/onboarding`, `/login`, `/reset-password`, `/report-bug`)
