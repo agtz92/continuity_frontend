@@ -99,23 +99,56 @@ tarde puede **regresar la UI a un paso anterior** —a veces hasta el paso 1
 (default del modelo). El flujo móvil ya lo guardaba con `resolved.current`; la web
 no, y de ahí venía el glitch intermitente al avanzar (p. ej. al elegir avatar).
 
-### Refuerzo — el paso se persiste en `sessionStorage` (sobrevive remounts)
+### Repro exacto: "avatar distinto reinicia, mismo avatar avanza"
 
-La guarda de "una sola vez" arregla el caso first-time, pero en **replay** el
-glitch seguía: `goToStep` **no** persiste `current_step` en el server (replay no
-toca `OnboardingProgress`), así que si `OnboardingFlow` se **re-monta** por
-cualquier motivo (un `router.refresh()` perdido de un sync hook, un re-render del
-padre que tira el estado, etc.), `useState` vuelve a 1 y el resume **fuerza step
-1**. En first-time el remount se "auto-rescata" porque el resume reanuda desde el
-`current_step` del server (que sí avanzó); en replay no hay a dónde reanudar.
+El detonante NO es un remount. Es el efecto sin guarda re-ejecutándose cuando
+cambia `data`, y `data` **solo cambia cuando el valor del avatar cambia de verdad**:
 
-Fix definitivo: el paso vive en `sessionStorage` (`continuity.onboarding.step`).
-`goToStep` lo escribe; el resume lo restaura **antes** de los defaults de replay /
-server; se limpia al salir (finish/skip/redirect de cuenta ya completada).
-Per-tab y efímero: una visita fresca empieza limpia, pero un remount **dentro de
-la sesión** restaura el paso en vez de tirar al usuario al paso 1.
+- `updateProfile({avatar})` lleva `refetchQueries: [ONBOARDING_STATE_QUERY]`.
+- **Avatar distinto** → el refetch trae datos distintos → Apollo emite un nuevo
+  `data` → el efecto (sin guarda) se re-dispara → en replay hace `setStepLocal(1)`
+  → **reinicia**.
+- **Mismo avatar** → el refetch trae datos idénticos → la `InMemoryCache`
+  **deduplica** (misma referencia) → `data` no cambia → el efecto **no** corre →
+  **avanza**.
+
+La guarda `resolvedRef` (correr el resume una sola vez) **mata esto**: aunque
+`data` cambie al elegir otro avatar, el efecto entra y sale de inmediato sin tocar
+el step. Es el mismo bug del efecto sin guarda; el avatar solo era *qué* refetch
+producía el cambio de `data` en replay.
+
+### Segunda capa — `sessionStorage`
+
+Como defensa en profundidad (y para reanudar tras un reload), el paso también vive
+en `sessionStorage` (`continuity.onboarding.step`): `goToStep` lo escribe, el
+resume lo restaura **antes** de los defaults de replay/server, y se limpia al salir
+(finish/skip/redirect de cuenta ya completada). Per-tab y efímero. Si en el futuro
+algo sí llegara a re-montar `OnboardingFlow`, esta capa evita el reinicio.
 
 > Si el glitch persiste tras estos cambios, verifica que el frontend esté
 > **reconstruido/redeployado**: el síntoma es idéntico a correr un build previo a
 > la guarda de resume.
+
+## Gotcha — el tema/paleta del onboarding debe escribir las cookies (web)
+
+En web, la **fuente de verdad del SSR** para tema/paleta son las cookies
+`NEXT_THEME` / `NEXT_PALETTE` (`theme/resolve.ts`, `palette/resolve.ts`; default
+`continuuit` / `default`). El backend (`NotificationSettings.theme/palette`) es la
+fuente cross-device que los sync hooks (`useThemeSync`/`usePaletteSync`)
+reconcilian a la cookie **una vez por sesión**.
+
+El onboarding (paso 2) guardaba el tema **solo en el backend** (vía
+`updateNotificationSettings`), pero no seteaba las cookies. Resultado: al terminar
+y caer al dashboard, el SSR leía la cookie ausente → default `continuuit` → el
+tema elegido **se revertía** visiblemente.
+
+Fix: el `onNext` del paso 2 en `OnboardingFlow.tsx` ahora escribe
+`NEXT_THEME`/`NEXT_PALETTE` (cookie cliente, síncrono) y dispara los server
+actions `setTheme`/`setPalette` (revalidan el layout) — exactamente como
+`ThemeSelector`/`PaletteSelector`. Así el SSR del dashboard ya pinta el tema
+correcto y persiste en reloads.
+
+> **Mobile no aplica:** su `Step2Theme` usa `setTheme`/`setPalette` del
+> `ThemeProvider`, que persisten en `AsyncStorage` (la fuente de verdad en mobile).
+> No hay cookies ni SSR, así que ya persistía bien.
 

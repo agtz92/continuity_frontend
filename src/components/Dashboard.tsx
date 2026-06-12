@@ -38,6 +38,7 @@ import { MoreSheet } from "./dashboard/MoreSheet";
 import { AnalyticsView } from "./dashboard/AnalyticsView";
 import { LogView } from "./views/LogView";
 import { IdeasView } from "./views/IdeasView";
+import { QuickNotesView } from "./views/QuickNotesView";
 import { TasksView } from "./views/TasksView";
 import { ProjectsView } from "./views/ProjectsView";
 import { RoutinesView } from "./views/RoutinesView";
@@ -381,6 +382,11 @@ export default function Dashboard() {
             onPromote={promoteIdea}
             onDelete={deleteIdea}
           />
+        )}
+
+        {/* QUICK NOTES */}
+        {view === "notes" && (
+          <QuickNotesView categories={categories} projects={projects} />
         )}
 
         {/* LOG */}

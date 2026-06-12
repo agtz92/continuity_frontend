@@ -15,6 +15,10 @@ import {
   UPDATE_NOTIFICATION_SETTINGS,
   UPDATE_PROFILE,
 } from "@/lib/graphql";
+import { THEME_COOKIE } from "@/theme/config";
+import { PALETTE_COOKIE } from "@/palette/config";
+import { setTheme as setThemeAction } from "@/theme/actions";
+import { setPalette as setPaletteAction } from "@/palette/actions";
 import { Step1Name } from "./steps/Step1Name";
 import { Step2Theme } from "./steps/Step2Theme";
 import { Step3Avatar } from "./steps/Step3Avatar";
@@ -317,6 +321,21 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
               await updateSettings({
                 variables: { data: { theme, palette } },
               });
+              // Persist the choice to the SSR cookies (NEXT_THEME / NEXT_PALETTE)
+              // — the same cookies ThemeSelector/PaletteSelector write. The DB
+              // row alone isn't enough: `resolveTheme`/`resolvePalette` read the
+              // cookie, so without this the dashboard SSR falls back to the
+              // default ("continuuit") and the user's pick visibly reverts after
+              // onboarding. Cookie is set synchronously (what SSR needs on the
+              // next navigation); the server actions revalidate in the
+              // background.
+              const maxAge = 60 * 60 * 24 * 365;
+              document.cookie = `${THEME_COOKIE}=${theme}; path=/; max-age=${maxAge}; samesite=lax`;
+              document.cookie = `${PALETTE_COOKIE}=${palette}; path=/; max-age=${maxAge}; samesite=lax`;
+              void Promise.all([
+                setThemeAction(theme),
+                setPaletteAction(palette),
+              ]).catch(() => undefined);
               await goToStep(3);
             }}
             busy={busy}

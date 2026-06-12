@@ -5,6 +5,7 @@ import {
   BarChart3,
   CheckCircle2,
   Lightbulb,
+  NotebookPen,
   Repeat,
   Target,
   TrendingUp,
@@ -17,6 +18,7 @@ export type DashboardView =
   | "tasks"
   | "routines"
   | "ideas"
+  | "notes"
   | "log"
   | "analytics";
 
@@ -26,6 +28,7 @@ const TABS = [
   { id: "tasks", icon: CheckCircle2 },
   { id: "routines", icon: Repeat },
   { id: "ideas", icon: Lightbulb },
+  { id: "notes", icon: NotebookPen },
   { id: "log", icon: TrendingUp },
   { id: "analytics", icon: BarChart3 },
 ] as const;

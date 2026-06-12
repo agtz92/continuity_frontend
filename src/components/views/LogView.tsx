@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Edit2,
   FileText,
+  NotebookPen,
   RefreshCw,
   Rocket,
   Search,
@@ -37,6 +38,7 @@ const DELETED_KINDS: ActivityKind[] = [
   "task_deleted",
   "idea_deleted",
   "routine_deleted",
+  "quick_note_deleted",
 ];
 
 function matchesFilter(kind: ActivityKind, f: Filter): boolean {
@@ -60,6 +62,8 @@ function iconFor(kind: ActivityKind) {
     case "task_created":
     case "routine_created":
       return <Sparkles size={14} className="text-amber-400" />;
+    case "quick_note_created":
+      return <NotebookPen size={14} className="text-accent" />;
     case "idea_promoted":
       return <Rocket size={14} className="text-purple-400" />;
     case "project_status_changed":
@@ -71,6 +75,7 @@ function iconFor(kind: ActivityKind) {
     case "task_deleted":
     case "idea_deleted":
     case "routine_deleted":
+    case "quick_note_deleted":
       return <Trash2 size={14} className="text-red-400/70" />;
     default:
       return <FileText size={14} className="text-text-muted" />;
@@ -141,6 +146,10 @@ function describe({ activity: a, locale, tEntry, tStatus }: DescribeArgs): strin
       return tEntry("routineCompleted", { title });
     case "routine_deleted":
       return tEntry("routineDeleted", { title });
+    case "quick_note_created":
+      return tEntry("quickNoteCreated", { title });
+    case "quick_note_deleted":
+      return tEntry("quickNoteDeleted", { title });
     default:
       return a.entityTitle;
   }

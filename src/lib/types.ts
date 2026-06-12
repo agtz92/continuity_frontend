@@ -66,6 +66,28 @@ export interface Idea {
   created: string;
 }
 
+export interface NoteSection {
+  id: string;
+  noteId: string;
+  heading: string;
+  body: string;
+  position: number;
+  collapsed: boolean;
+  created: string;
+  updatedAt: string;
+}
+
+export interface QuickNote {
+  id: string;
+  title: string;
+  categoryId: string | null;
+  projectId: string | null;
+  pinned: boolean;
+  sections: NoteSection[];
+  created: string;
+  updatedAt: string;
+}
+
 export type ActivityKind =
   | "note"
   | "project_created"
@@ -81,7 +103,9 @@ export type ActivityKind =
   | "idea_promoted"
   | "routine_created"
   | "routine_completed"
-  | "routine_deleted";
+  | "routine_deleted"
+  | "quick_note_created"
+  | "quick_note_deleted";
 
 export type RecurrenceType = "once" | "weekly_days" | "every_n" | "monthly_day";
 
