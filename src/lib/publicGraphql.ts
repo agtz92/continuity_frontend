@@ -67,6 +67,13 @@ const POST_FIELDS = `
   seoTitle seoDescription locale
 `;
 
+// List views (index/related) render only the card metadata — never the body.
+// Omitting contentHtml here lets the backend defer that column and keeps the
+// payload small; the detail fetchers still request POST_FIELDS in full.
+const POST_LIST_FIELDS = `
+  id slug title excerpt coverImageUrl publishedAt tags locale
+`;
+
 const PAGE_FIELDS = `
   id path title excerpt contentHtml coverImageUrl publishedAt
   seoTitle seoDescription locale showInNav navOrder
@@ -118,7 +125,7 @@ export async function fetchBlogPosts(
   const query = `
     query($locale: String, $tag: String, $page: Int, $perPage: Int) {
       publicBlogPosts(locale: $locale, tag: $tag, page: $page, perPage: $perPage) {
-        posts { ${POST_FIELDS} }
+        posts { ${POST_LIST_FIELDS} }
         page perPage hasNext
       }
     }
@@ -230,6 +237,12 @@ const HELP_RESOURCE_FIELDS = `
   seoTitle seoDescription locale categorySlug categoryName
 `;
 
+// Hub/category/related lists never render the body — see POST_LIST_FIELDS.
+const HELP_RESOURCE_LIST_FIELDS = `
+  id slug title excerpt coverImageUrl publishedAt tags locale
+  categorySlug categoryName
+`;
+
 export async function fetchHelpCategories(
   locale?: string
 ): Promise<PublicHelpCategory[]> {
@@ -267,7 +280,7 @@ export async function fetchHelpResources(
         page: $page
         perPage: $perPage
       ) {
-        resources { ${HELP_RESOURCE_FIELDS} }
+        resources { ${HELP_RESOURCE_LIST_FIELDS} }
         page perPage hasNext
       }
     }

@@ -76,6 +76,7 @@ export function DashboardTour({ onFinalCta }: Props) {
       const projects = findVisible("projects");
       const tasks = findVisible("tasks");
       const routines = findVisible("routines");
+      const notes = findVisible("notes");
       const assistant = findVisible("assistant");
 
       // The first three anchors are required. If any are missing (e.g.
@@ -137,6 +138,20 @@ export function DashboardTour({ onFinalCta }: Props) {
               description: t("step3.body"),
             },
           },
+          // Notes only anchors on surfaces where its tab is visible (desktop
+          // TabBar). On mobile it lives inside the More sheet, so `notes` is
+          // null there and the step is skipped — same pattern as assistant.
+          ...(notes
+            ? [
+                {
+                  element: notes,
+                  popover: {
+                    title: t("stepNotes.title"),
+                    description: t("stepNotes.body"),
+                  },
+                },
+              ]
+            : []),
           ...(assistantPresent && assistant
             ? [
                 {

@@ -49,7 +49,14 @@ export function TabBar({
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            data-tour={tab.id === "projects" || tab.id === "tasks" || tab.id === "routines" ? tab.id : undefined}
+            data-tour={
+              tab.id === "projects" ||
+              tab.id === "tasks" ||
+              tab.id === "routines" ||
+              tab.id === "notes"
+                ? tab.id
+                : undefined
+            }
             className={`px-2.5 sm:px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-1 sm:flex-none whitespace-nowrap ${
               view === tab.id ? "bg-border text-text" : "text-text-muted hover:text-text"
             }`}
