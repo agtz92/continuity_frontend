@@ -1,5 +1,14 @@
 # Frontend — notas para agentes
 
+## Asistente "Loop"
+
+El asistente IA se llama **Loop** (mascota de marca; mismo nombre en el repo móvil).
+El rename vive en `messages/{es,en}.json` → `assistant.title:"Loop"`,
+`assistant.buttonLabel:"Abrir Loop"/"Open Loop"`, `assistant.openTooltip`,
+`assistant.message.working`. Se mantiene "Claude" en `assistant.subtitle` como
+crédito del modelo. Las menciones **genéricas** de "asistente de IA" (pricing, legal,
+tour) se dejan tal cual: describen la categoría de feature, no la persona.
+
 ## Onboarding (5 pasos) + paso "Personalizar Today"
 
 El onboarding tiene 5 pasos: nombre · tema · avatar · plan · **personalizar
