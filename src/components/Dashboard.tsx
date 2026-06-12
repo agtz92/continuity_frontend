@@ -30,6 +30,8 @@ import { DashboardTour } from "./dashboard/DashboardTour";
 import { NotificationStack } from "./notifications/NotificationStack";
 import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
+import { AssistantFab } from "./assistant/AssistantFab";
+import { AssistantLauncherProvider } from "./assistant/useAssistantLauncher";
 import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
@@ -193,6 +195,7 @@ export default function Dashboard() {
   }
 
   return (
+    <AssistantLauncherProvider open={() => setAssistantOpen(true)}>
     <div className="min-h-screen bg-bg text-text">
       <TopNav
         workspace={{
@@ -569,6 +572,9 @@ export default function Dashboard() {
         onSelect={setView}
         onClose={() => setMoreSheetOpen(false)}
       />
+
+      <AssistantFab />
     </div>
+    </AssistantLauncherProvider>
   );
 }

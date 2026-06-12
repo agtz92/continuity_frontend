@@ -9,6 +9,17 @@ El rename vive en `messages/{es,en}.json` → `assistant.title:"Loop"`,
 crédito del modelo. Las menciones **genéricas** de "asistente de IA" (pricing, legal,
 tour) se dejan tal cual: describen la categoría de feature, no la persona.
 
+**Acceso rápido a Loop (FAB):** `Dashboard.tsx` provee `AssistantLauncherProvider`
+(`src/components/assistant/useAssistantLauncher.tsx`) con un `openAssistant()` único, para
+no prop-drillear el estado del panel por las vistas. Dos puntos de entrada:
+- **Mobile-web:** el FAB compartido (`src/components/ui/FAB.tsx`, `md:hidden`) es un
+  **speed-dial** — al tocar `+` despliega la acción primaria de la vista + **"Abrir Loop"**
+  (espejo del nativo). Los 6 call sites (`*View.tsx`) no cambian; el `+` lee `openAssistant`
+  del context. El `className` (p.ej. el púrpura de Ideas) se aplica al botón principal.
+- **Desktop:** `src/components/assistant/AssistantFab.tsx` (`hidden md:flex`, píldora
+  flotante abajo-derecha) abre Loop. El header conserva además el `AssistantTrigger`
+  (con `data-tour="assistant"`).
+
 ## Onboarding (5 pasos) + paso "Personalizar Today"
 
 El onboarding tiene 5 pasos: nombre · tema · avatar · plan · **personalizar
