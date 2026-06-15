@@ -525,6 +525,7 @@
         "shortDescription": "Usa Continuity desde Claude (claude.ai, Desktop y Code).",
         "statusComingSoon": "Próximamente",
         "statusConnected": "Conectado",
+        "statusNotConnected": "No conectado",
         "title": "Conectar con Claude",
         "description": "Conecta tu cuenta de Continuity a Claude para consultar y gestionar tus proyectos, tareas e ideas desde una conversación.",
         "comingSoonBanner": "Esta integración está en preparación. Cuando se active, podrás conectarla desde Claude usando la URL de abajo.",

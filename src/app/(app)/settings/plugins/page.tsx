@@ -37,7 +37,7 @@ export default function PluginsSettingsPage() {
           icon={<Sparkles size={22} className="text-accent" />}
           name={t("claude.name")}
           description={t("claude.shortDescription")}
-          statusLabel={t("claude.statusComingSoon")}
+          statusLabel={t("claude.statusNotConnected")}
           connected={false}
         />
       </section>

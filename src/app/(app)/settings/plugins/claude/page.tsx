@@ -90,15 +90,9 @@ export default function ClaudePluginPage() {
                 : "border-border text-text-muted"
             }`}
           >
-            {connected ? t("statusConnected") : t("statusComingSoon")}
+            {connected ? t("statusConnected") : t("statusNotConnected")}
           </span>
         </div>
-
-        {!connected && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-xs text-text-muted">
-            {t("comingSoonBanner")}
-          </div>
-        )}
       </section>
 
       {connected && (
