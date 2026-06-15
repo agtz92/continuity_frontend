@@ -20,6 +20,7 @@ type AdminUserRow = {
   createdAt: string | null;
   lastSignInAt: string | null;
   lastActivity: string | null;
+  interactions30d: number;
   counts: {
     projects: number;
     tasksOpen: number;
@@ -320,6 +321,10 @@ export default function AdminUsersPage() {
                   </span>{" "}
                   (abiertas/hechas)
                 </span>
+                <span>
+                  Interacciones (30d):{" "}
+                  <span className="text-text">{u.interactions30d}</span>
+                </span>
               </div>
             </div>
           );
@@ -339,20 +344,21 @@ export default function AdminUsersPage() {
               <th className="px-4 py-2.5 font-semibold">Último ingreso</th>
               <th className="px-4 py-2.5 font-semibold">Proyectos</th>
               <th className="px-4 py-2.5 font-semibold">Tareas (abiertas/hechas)</th>
+              <th className="px-4 py-2.5 font-semibold">Interacciones (30d)</th>
               <th className="px-4 py-2.5 font-semibold"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading && rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-6 text-center text-text-muted">
+                <td colSpan={10} className="px-4 py-6 text-center text-text-muted">
                   Cargando…
                 </td>
               </tr>
             )}
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-6 text-center text-text-muted">
+                <td colSpan={10} className="px-4 py-6 text-center text-text-muted">
                   Sin resultados en esta página.
                 </td>
               </tr>
@@ -410,6 +416,7 @@ export default function AdminUsersPage() {
                   <td className="px-4 py-2.5 text-text">
                     {u.counts.tasksOpen}/{u.counts.tasksDone}
                   </td>
+                  <td className="px-4 py-2.5 text-text">{u.interactions30d}</td>
                   <td className="px-4 py-2.5 text-right">
                     <Link
                       href={`/admin/users/${u.userId}`}

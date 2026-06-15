@@ -9,6 +9,54 @@ export const ME_QUERY = gql`
   }
 `;
 
+export const MCP_CONNECTIONS_QUERY = gql`
+  query McpConnections {
+    mcpConnections {
+      clientId
+      clientName
+      connectedAt
+    }
+  }
+`;
+
+export const REVOKE_MCP_CONNECTION = gql`
+  mutation RevokeMcpConnection($clientId: ID!) {
+    revokeMcpConnection(clientId: $clientId)
+  }
+`;
+
+export const ADMIN_MCP_OVERVIEW_QUERY = gql`
+  query AdminMcpOverview {
+    adminMcpStats {
+      activeConnections
+      distinctUsers
+      byClient {
+        label
+        count
+      }
+    }
+    adminMcpConnections(limit: 50) {
+      userId
+      clientId
+      clientName
+      connectedAt
+    }
+    adminMcpConnectionEvents(limit: 50) {
+      userId
+      clientId
+      clientName
+      event
+      created
+    }
+  }
+`;
+
+export const ADMIN_REVOKE_MCP_CONNECTION = gql`
+  mutation AdminRevokeMcpConnection($userId: ID!, $clientId: String!) {
+    adminRevokeMcpConnection(userId: $userId, clientId: $clientId)
+  }
+`;
+
 export const NOTIFICATIONS_QUERY = gql`
   query InAppNotifications {
     notifications {
@@ -180,6 +228,7 @@ export const ADMIN_USERS_QUERY = gql`
         createdAt
         lastSignInAt
         lastActivity
+        interactions30d
         counts {
           projects
           tasksOpen
@@ -211,6 +260,11 @@ export const ADMIN_USER_QUERY = gql`
       emailConfirmedAt
       bannedUntil
       lastActivity
+      interactions30dTotal
+      interactionsBySource {
+        label
+        count
+      }
       counts {
         projects
         tasksOpen

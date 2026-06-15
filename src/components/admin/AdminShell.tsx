@@ -44,6 +44,7 @@ const NAV_GROUPS: {
   {
     title: "Sistema",
     items: [
+      { label: "Base de datos", href: "/admin/database" },
       { label: "Jobs", href: "/admin/system/jobs" },
       { label: "Audit log", href: "/admin/system/audit" },
       { label: "Stats", href: "/admin/system/stats" },

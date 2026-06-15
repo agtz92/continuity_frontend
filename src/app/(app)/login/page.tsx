@@ -44,6 +44,12 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode = parseMode(searchParams.get("mode"));
+  // Optional post-login destination (e.g. the OAuth consent page). Only
+  // relative paths are honored — never an absolute URL (open-redirect guard).
+  const nextParam = (() => {
+    const n = searchParams.get("next");
+    return n && n.startsWith("/") && !n.startsWith("//") ? n : null;
+  })();
   const reduce = useReducedMotion();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -125,7 +131,7 @@ export default function LoginPage() {
       // On the admon.* subdomain, the middleware rewrites `/` to
       // `/admin` internally — send the user there instead of /dashboard
       // (which is the in-app surface only meaningful on the main host).
-      router.replace(isAdmonHost ? "/" : "/dashboard");
+      router.replace(nextParam || (isAdmonHost ? "/" : "/dashboard"));
     } finally {
       setLoading(false);
     }

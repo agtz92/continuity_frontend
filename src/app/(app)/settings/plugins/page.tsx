@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
-import { ListTodo, ChevronRight } from "lucide-react";
+import { ListTodo, ChevronRight, Sparkles } from "lucide-react";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { GOOGLE_TASKS_CONNECTION_QUERY } from "@/lib/graphql";
 
@@ -31,6 +31,14 @@ export default function PluginsSettingsPage() {
           description={t("googleTasks.shortDescription")}
           statusLabel={connected ? t("statusConnected") : t("statusNotConnected")}
           connected={connected}
+        />
+        <PluginCard
+          href="/settings/plugins/claude"
+          icon={<Sparkles size={22} className="text-accent" />}
+          name={t("claude.name")}
+          description={t("claude.shortDescription")}
+          statusLabel={t("claude.statusComingSoon")}
+          connected={false}
         />
       </section>
     </SettingsShell>

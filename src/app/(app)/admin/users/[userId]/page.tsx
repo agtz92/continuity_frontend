@@ -20,6 +20,11 @@ type Counts = {
   notes: number;
 };
 
+type LabeledCount = {
+  label: string;
+  count: number;
+};
+
 type UsagePoint = {
   date: string;
   messagesSent: number;
@@ -57,9 +62,18 @@ type AdminUserDetail = {
   emailConfirmedAt: string | null;
   bannedUntil: string | null;
   lastActivity: string | null;
+  interactions30dTotal: number;
+  interactionsBySource: LabeledCount[];
   counts: Counts;
   usageLast30d: UsagePoint[];
   notifications: NotificationPrefs | null;
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  web: "Web",
+  mobile: "Móvil",
+  connector: "Conector Claude",
+  unknown: "Desconocido",
 };
 
 function formatDate(value: string | null): string {
@@ -314,6 +328,28 @@ export default function AdminUserDetailPage() {
               value={String(user.usageLast30d.length)}
             />
           </dl>
+        </DataCard>
+
+        <DataCard label="Interacciones por canal (30d)">
+          <div className="mb-2 text-2xl font-semibold text-text">
+            {user.interactions30dTotal}
+            <span className="ml-1.5 text-xs font-normal text-text-muted">
+              en total
+            </span>
+          </div>
+          <dl className="space-y-1 text-sm">
+            {user.interactionsBySource.map((s) => (
+              <Field
+                key={s.label}
+                label={SOURCE_LABELS[s.label] ?? s.label}
+                value={String(s.count)}
+              />
+            ))}
+          </dl>
+          <p className="mt-2 text-xs text-text-muted">
+            Acciones con efecto (mutaciones, mensajes al asistente, tool calls
+            del conector). Solo conteos — sin contenido.
+          </p>
         </DataCard>
       </section>
 

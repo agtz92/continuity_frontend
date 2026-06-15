@@ -23,7 +23,12 @@ const graphqlUrl =
     ? "http://localhost:8000/graphql/"
     : "https://continuity-backend.onrender.com/graphql/");
 
-const httpLink = new HttpLink({ uri: graphqlUrl });
+// `X-Continuity-Client` lets the backend attribute interactions to a channel
+// (web vs mobile) for admin metrics. Bucketing only — never used for authz.
+const httpLink = new HttpLink({
+  uri: graphqlUrl,
+  headers: { "X-Continuity-Client": "web" },
+});
 
 const authLink = setContext(async (_, { headers }) => {
   const {
