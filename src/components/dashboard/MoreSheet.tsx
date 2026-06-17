@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Lightbulb,
   NotebookPen,
+  Skull,
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
@@ -13,7 +14,10 @@ import { BottomSheet } from "@/components/ui/BottomSheet";
 import type { DashboardView } from "./TabBar";
 
 type MoreItem = {
-  id: Extract<DashboardView, "ideas" | "notes" | "log" | "analytics">;
+  id: Extract<
+    DashboardView,
+    "ideas" | "notes" | "log" | "analytics" | "graveyard"
+  >;
   icon: LucideIcon;
 };
 
@@ -22,6 +26,7 @@ const ITEMS: MoreItem[] = [
   { id: "notes", icon: NotebookPen },
   { id: "log", icon: TrendingUp },
   { id: "analytics", icon: BarChart3 },
+  { id: "graveyard", icon: Skull },
 ];
 
 /**

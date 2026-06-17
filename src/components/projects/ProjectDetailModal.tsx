@@ -23,6 +23,7 @@ import { PRIORITIES, categoryColorClass } from "@/lib/types";
 import { priorityStripeClass } from "@/lib/priority";
 import { statusConfig } from "@/lib/status";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
+import { ProjectClosureNotes } from "@/components/projects/ProjectClosureNotes";
 import { ProjectSection } from "@/components/projects/ProjectSection";
 import { ShowMoreList } from "@/components/ui/ShowMoreList";
 import {
@@ -36,6 +37,7 @@ const STATUS_OPTIONS: ProjectStatus[] = [
   "stalled",
   "paused",
   "launched",
+  "killed",
   "archived",
 ];
 
@@ -194,6 +196,18 @@ export function ProjectDetailModal({
               inputClassName="text-sm text-text w-full px-1.5 py-1"
             />
           </div>
+
+          {(p.status === "paused" || p.status === "killed") && (
+            <div
+              className={`rounded-lg border px-3 py-3 ${
+                p.status === "killed"
+                  ? "border-red-500/30 bg-red-500/10"
+                  : "border-slate-500/30 bg-slate-500/10"
+              }`}
+            >
+              <ProjectClosureNotes project={p} />
+            </div>
+          )}
 
           <ProjectSection title={tCard("whyMatters")}>
             <InlineTextarea

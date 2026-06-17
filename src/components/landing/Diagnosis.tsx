@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 
@@ -20,37 +19,19 @@ export default function Diagnosis() {
         />
 
         <div className="mt-12 space-y-5 text-lg text-ls-text-secondary leading-relaxed max-w-2xl mx-auto">
-          {(["p1", "p2", "p3"] as const).map((key, i) => (
-            <motion.p
-              key={key}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
-            >
+          {(["p1", "p2", "p3"] as const).map((key) => (
+            <p key={key} className="ls-reveal">
               {t(key)}
-            </motion.p>
+            </p>
           ))}
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="font-display text-2xl sm:text-3xl text-ls-text-primary pt-4"
-          >
+          <p className="ls-reveal font-display text-2xl sm:text-3xl text-ls-text-primary pt-4">
             {t("p4")}
-          </motion.p>
+          </p>
         </div>
       </div>
 
       {/* Comparison table */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.7, delay: 0.3 }}
-        className="mt-20 grid sm:grid-cols-2 gap-px bg-white/10 border border-white/10 rounded-2xl overflow-hidden max-w-3xl mx-auto"
-      >
+      <div className="ls-reveal mt-20 grid sm:grid-cols-2 gap-px bg-white/10 border border-white/10 rounded-2xl overflow-hidden max-w-3xl mx-auto">
         <div className="bg-ls-navy">
           <div className="px-6 py-4 border-b border-white/10 text-xs uppercase tracking-wider text-ls-text-secondary">
             {t("compare.othersTitle")}
@@ -82,7 +63,7 @@ export default function Diagnosis() {
             ))}
           </ul>
         </div>
-      </motion.div>
+      </div>
     </SectionContainer>
   );
 }

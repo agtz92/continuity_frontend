@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
@@ -22,49 +21,27 @@ export default function BetaProgram({ userCount }: Props) {
   return (
     <SectionContainer id="beta" surface="indigo">
       <div className="max-w-3xl mx-auto text-center">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5 }}
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-ls-ochre/40 bg-ls-ochre/10 px-4 py-1.5 text-xs font-medium tracking-wide text-ls-ochre uppercase"
-        >
+        <p className="ls-reveal mb-5 inline-flex items-center gap-2 rounded-full border border-ls-ochre/40 bg-ls-ochre/10 px-4 py-1.5 text-xs font-medium tracking-wide text-ls-ochre uppercase">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ls-ochre opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ls-ochre" />
           </span>
           {t("eyebrow")}
-        </motion.p>
+        </p>
 
         <AnimatedHeadline
           text={t("headline")}
           className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight font-light text-ls-text-primary"
         />
 
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-8 text-lg text-ls-text-secondary leading-relaxed"
-        >
+        <p className="ls-reveal mt-8 text-lg text-ls-text-secondary leading-relaxed">
           {t("body")}
-        </motion.p>
+        </p>
 
-        <motion.ul
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, delay: 0.3, staggerChildren: 0.06 }}
-          className="mt-8 grid sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left"
-        >
+        <ul className="ls-reveal mt-8 grid sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left">
           {perks.map((p, i) => (
-            <motion.li
+            <li
               key={i}
-              initial={{ opacity: 0, x: -8 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.4, delay: 0.3 + i * 0.06 }}
               className="flex items-start gap-3 text-sm text-ls-text-primary"
             >
               <svg
@@ -78,21 +55,15 @@ export default function BetaProgram({ userCount }: Props) {
                 <path d="M20 6 9 17l-5-5" />
               </svg>
               <span>{p}</span>
-            </motion.li>
+            </li>
           ))}
-        </motion.ul>
+        </ul>
 
         <p className="mt-8 text-sm text-ls-text-secondary max-w-2xl mx-auto leading-relaxed">
           {t("footer")}
         </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-12 max-w-md mx-auto"
-        >
+        <div className="ls-reveal mt-12 max-w-md mx-auto">
           <div className="flex items-center justify-between text-xs text-ls-text-secondary mb-2">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-ls-ochre animate-pulse" />
@@ -106,15 +77,12 @@ export default function BetaProgram({ userCount }: Props) {
             </span>
           </div>
           <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: `${percent}%` }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-              className="h-full bg-gradient-to-r from-ls-ochre to-ls-vermillion"
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-ls-ochre to-ls-vermillion transition-[width] duration-1000 ease-out"
+              style={{ width: `${percent}%` }}
             />
           </div>
-        </motion.div>
+        </div>
 
         <div className="mt-10 max-w-md mx-auto">
           <CTAButton href="/login?mode=signup" variant="primary" size="lg">

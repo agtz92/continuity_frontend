@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
@@ -13,12 +12,10 @@ type Period = "monthly" | "annual";
 function PricingCard({
   tierKey,
   popular,
-  index,
   period,
 }: {
   tierKey: TierKey;
   popular?: boolean;
-  index: number;
   period: Period;
 }) {
   const t = useTranslations(`landing.pricing.tiers.${tierKey}`);
@@ -40,17 +37,8 @@ function PricingCard({
         )}`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      whileHover={{ y: -6 }}
-      className={`relative rounded-3xl border p-8 flex flex-col ${
+    <div
+      className={`ls-reveal relative rounded-3xl border p-8 flex flex-col transition-transform duration-200 motion-safe:hover:-translate-y-1.5 ${
         popular
           ? "border-ls-ochre/50 bg-gradient-to-b from-ls-ochre/10 to-transparent shadow-[0_30px_80px_-30px_rgba(212,168,71,0.4)]"
           : "border-white/10 bg-white/[0.03]"
@@ -107,7 +95,7 @@ function PricingCard({
           {t("cta")}
         </CTAButton>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -165,15 +153,9 @@ export default function Pricing() {
           text={t("headline")}
           className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight font-light text-ls-text-primary"
         />
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-5 text-lg text-ls-ochre"
-        >
+        <p className="ls-reveal mt-5 text-lg text-ls-ochre">
           {t("subheadline")}
-        </motion.p>
+        </p>
       </div>
 
       <div className="flex justify-center mb-10">
@@ -181,18 +163,12 @@ export default function Pricing() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-        <PricingCard tierKey="free" index={0} period={period} />
-        <PricingCard tierKey="pro" popular index={1} period={period} />
-        <PricingCard tierKey="studio" index={2} period={period} />
+        <PricingCard tierKey="free" period={period} />
+        <PricingCard tierKey="pro" popular period={period} />
+        <PricingCard tierKey="studio" period={period} />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="mt-16 mx-auto max-w-2xl rounded-2xl border border-ls-ochre/30 bg-gradient-to-r from-ls-ochre/10 via-ls-vermillion/10 to-ls-ochre/10 p-6 text-center"
-      >
+      <div className="ls-reveal mt-16 mx-auto max-w-2xl rounded-2xl border border-ls-ochre/30 bg-gradient-to-r from-ls-ochre/10 via-ls-vermillion/10 to-ls-ochre/10 p-6 text-center">
         <p className="text-base text-ls-text-primary leading-relaxed">
           {t("betaBanner")}
         </p>
@@ -201,7 +177,7 @@ export default function Pricing() {
             {t("betaCta")}
           </CTAButton>
         </div>
-      </motion.div>
+      </div>
     </SectionContainer>
   );
 }

@@ -27,6 +27,13 @@ export function useProjectMutations() {
     priority: Priority;
     categoryId: string | null;
     dueDate: string | null;
+    // Closure notes — sent only when a transition needs them (pause/kill).
+    pausedContext?: string;
+    pausedNextAction?: string;
+    pausedBlocker?: string;
+    killedReason?: string;
+    killedLearnings?: string;
+    killedWouldRestart?: string;
   }): Promise<boolean> => {
     const data = {
       name: p.name,
@@ -37,6 +44,12 @@ export function useProjectMutations() {
       priority: p.priority,
       categoryId: p.categoryId,
       dueDate: p.dueDate,
+      pausedContext: p.pausedContext,
+      pausedNextAction: p.pausedNextAction,
+      pausedBlocker: p.pausedBlocker,
+      killedReason: p.killedReason,
+      killedLearnings: p.killedLearnings,
+      killedWouldRestart: p.killedWouldRestart,
     };
     try {
       if (p.id) {

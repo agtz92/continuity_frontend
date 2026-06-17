@@ -25,7 +25,13 @@ const PRIMARY_TABS: PrimaryTab[] = [
 ];
 
 /** Views that live inside the "Más" sheet. When one is active, the More tab lights up. */
-const SECONDARY_VIEWS: ReadonlyArray<DashboardView> = ["ideas", "log", "analytics"];
+const SECONDARY_VIEWS: ReadonlyArray<DashboardView> = [
+  "ideas",
+  "notes",
+  "log",
+  "analytics",
+  "graveyard",
+];
 
 const DOUBLE_TAP_MS = 300;
 
