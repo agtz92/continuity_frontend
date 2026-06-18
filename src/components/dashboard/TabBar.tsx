@@ -7,11 +7,11 @@ import {
   Lightbulb,
   NotebookPen,
   Repeat,
-  Skull,
   Target,
   TrendingUp,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Tombstone } from "@/components/icons/Tombstone";
 
 export type DashboardView =
   | "today"
@@ -33,7 +33,7 @@ const TABS = [
   { id: "notes", icon: NotebookPen },
   { id: "log", icon: TrendingUp },
   { id: "analytics", icon: BarChart3 },
-  { id: "graveyard", icon: Skull },
+  { id: "graveyard", icon: Tombstone },
 ] as const;
 
 export function TabBar({
