@@ -938,6 +938,16 @@ export const DASHBOARD_QUERY = gql`
         lastActivity
         created
         dueDate
+        pausedContext
+        pausedNextAction
+        pausedBlocker
+        pausedAt
+        killedReason
+        killedLearnings
+        killedWouldRestart
+        killedAt
+        killedAiReflection
+        stalledAt
       }
       tasks {
         id
@@ -1150,6 +1160,16 @@ export const CREATE_PROJECT = gql`
       lastActivity
       created
       dueDate
+      pausedContext
+      pausedNextAction
+      pausedBlocker
+      pausedAt
+      killedReason
+      killedLearnings
+      killedWouldRestart
+      killedAt
+      killedAiReflection
+      stalledAt
     }
   }
 `;
@@ -1168,6 +1188,27 @@ export const UPDATE_PROJECT = gql`
       lastActivity
       created
       dueDate
+      pausedContext
+      pausedNextAction
+      pausedBlocker
+      pausedAt
+      killedReason
+      killedLearnings
+      killedWouldRestart
+      killedAt
+      killedAiReflection
+      stalledAt
+    }
+  }
+`;
+
+export const GRAVEYARD_INSIGHT_QUERY = gql`
+  query GraveyardInsight {
+    graveyardInsight {
+      body
+      deathsCount
+      computedAt
+      isStale
     }
   }
 `;

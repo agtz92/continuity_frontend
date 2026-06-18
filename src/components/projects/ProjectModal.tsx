@@ -19,6 +19,7 @@ const STATUS_OPTIONS: ProjectStatus[] = [
   "active",
   "paused",
   "launched",
+  "killed",
   "archived",
 ];
 

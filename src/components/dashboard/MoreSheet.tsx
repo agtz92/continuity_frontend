@@ -10,10 +10,14 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { BottomSheet } from "@/components/ui/BottomSheet";
+import { Tombstone } from "@/components/icons/Tombstone";
 import type { DashboardView } from "./TabBar";
 
 type MoreItem = {
-  id: Extract<DashboardView, "ideas" | "notes" | "log" | "analytics">;
+  id: Extract<
+    DashboardView,
+    "ideas" | "notes" | "log" | "analytics" | "graveyard"
+  >;
   icon: LucideIcon;
 };
 
@@ -22,6 +26,7 @@ const ITEMS: MoreItem[] = [
   { id: "notes", icon: NotebookPen },
   { id: "log", icon: TrendingUp },
   { id: "analytics", icon: BarChart3 },
+  { id: "graveyard", icon: Tombstone },
 ];
 
 /**

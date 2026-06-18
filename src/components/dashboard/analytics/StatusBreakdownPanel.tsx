@@ -12,6 +12,7 @@ const STATUS_ORDER: ProjectStatus[] = [
   "stalled",
   "paused",
   "launched",
+  "killed",
   "archived",
 ];
 
@@ -21,6 +22,7 @@ const STATUS_COLOR: Record<ProjectStatus, string> = {
   stalled: "bg-rose-400",
   paused: "bg-text-muted",
   launched: "bg-accent-2",
+  killed: "bg-red-500",
   archived: "bg-text-muted",
 };
 

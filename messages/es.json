@@ -173,6 +173,7 @@
     "notes": "Notas",
     "log": "Bitácora",
     "analytics": "Analíticas",
+    "graveyard": "Cementerio",
     "more": "Más"
   },
   "status": {
@@ -181,6 +182,7 @@
     "stalled": "Estancado",
     "paused": "Pausado",
     "launched": "Lanzado",
+    "killed": "Cancelado",
     "archived": "Archivado",
     "all": "Todos",
     "allStatuses": "Todos los estados"

@@ -131,11 +131,6 @@ export function ProjectsView({
 
   const matchesStatusWith = (p: Project, status: "all" | ProjectStatus) => {
     if (status === "all") return true;
-    if (status === "stalled") {
-      if (p.status === "stalled") return true;
-      const idle = daysSince(p.lastActivity) ?? 0;
-      return ["active", "idea"].includes(p.status) && idle >= 7;
-    }
     return p.status === status;
   };
 
@@ -194,14 +189,11 @@ export function ProjectsView({
       stalled: 0,
       paused: 0,
       launched: 0,
+      killed: 0,
       archived: 0,
     };
     for (const p of projects) {
       counts[p.status] = (counts[p.status] ?? 0) + 1;
-      const idle = daysSince(p.lastActivity) ?? 0;
-      if (["active", "idea"].includes(p.status) && idle >= 7) {
-        counts.stalled = (counts.stalled ?? 0) + 1;
-      }
     }
     return counts;
   }, [projects]);
@@ -446,11 +438,6 @@ export function ProjectsView({
 
         const matchesStatus = (p: Project) => {
           if (projectStatusFilter === "all") return true;
-          if (projectStatusFilter === "stalled") {
-            if (p.status === "stalled") return true;
-            const idle = daysSince(p.lastActivity) ?? 0;
-            return ["active", "idea"].includes(p.status) && idle >= 7;
-          }
           return p.status === projectStatusFilter;
         };
 
@@ -572,7 +559,9 @@ export function ProjectsView({
                 const pendingEffort = Math.round(pendingEffortRaw * 10) / 10;
                 const StatusIcon = statusConfig[p.status]?.icon ?? Activity;
                 const days = daysSince(p.lastActivity) ?? 0;
-                const isStalled =
+                // Soft visual hint only (D9). Not a status — the persisted
+                // `stalled` status has its own badge via statusConfig.
+                const isIdle =
                   ["active", "idea"].includes(p.status) && days >= 7;
                 const isExpanded = selectedProject?.id === p.id;
                 const percent = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -628,7 +617,7 @@ export function ProjectsView({
                             <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 shrink-0">
                               {tCard("todayBadge", { count: todayCount })}
                             </span>
-                          ) : isStalled ? (
+                          ) : isIdle ? (
                             <span className="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
                               {tCard("idleBadge", { count: days })}
                             </span>

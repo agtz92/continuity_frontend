@@ -4,6 +4,7 @@ export type ProjectStatus =
   | "stalled"
   | "paused"
   | "launched"
+  | "killed"
   | "archived";
 
 export type Priority = "critical" | "high" | "medium" | "low";
@@ -27,6 +28,26 @@ export interface Project {
   lastActivity: string;
   created: string;
   dueDate: string | null;
+  // Closure notes (state-closure system). Optional so older cached/imported
+  // shapes stay valid; text fields default to "" from the backend.
+  pausedContext?: string;
+  pausedNextAction?: string;
+  pausedBlocker?: string;
+  pausedAt?: string | null;
+  killedReason?: string;
+  killedLearnings?: string;
+  killedWouldRestart?: string;
+  killedAt?: string | null;
+  killedAiReflection?: string;
+  stalledAt?: string | null;
+}
+
+export interface GraveyardInsight {
+  /** AI-written pattern across the user's killed projects (empty until >=3 deaths). */
+  body: string;
+  deathsCount: number;
+  computedAt: string | null;
+  isStale: boolean;
 }
 
 export interface ProjectNote {

@@ -173,6 +173,7 @@
     "notes": "Notes",
     "log": "Log",
     "analytics": "Analytics",
+    "graveyard": "Graveyard",
     "more": "More"
   },
   "status": {
@@ -181,6 +182,7 @@
     "stalled": "Stalled",
     "paused": "Paused",
     "launched": "Launched",
+    "killed": "Killed",
     "archived": "Archived",
     "all": "All",
     "allStatuses": "All statuses"
