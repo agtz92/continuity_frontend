@@ -14,9 +14,18 @@ const MAX_INPUT_CHARS = 4000;
 type Props = {
   open: boolean;
   onClose: () => void;
+  /** When the panel opens, pre-fill the chat input with this text. */
+  initialPrompt?: string | null;
+  /** Called once the initial prompt has been consumed (so it doesn't refill). */
+  onConsumePrompt?: () => void;
 };
 
-export function AssistantPanel({ open, onClose }: Props) {
+export function AssistantPanel({
+  open,
+  onClose,
+  initialPrompt,
+  onConsumePrompt,
+}: Props) {
   const t = useTranslations("assistant");
   const {
     messages,
@@ -42,6 +51,15 @@ export function AssistantPanel({ open, onClose }: Props) {
     height: number;
     offsetTop: number;
   } | null>(null);
+
+  // Pre-fill the input when the panel opens with a launcher prompt (e.g. the
+  // Graveyard "Ask Loop to go deeper" button). We do not auto-send; the user
+  // reviews and presses enter. Consume it so reopening doesn't refill.
+  useEffect(() => {
+    if (!open || !initialPrompt) return;
+    setInput(initialPrompt.slice(0, MAX_INPUT_CHARS));
+    onConsumePrompt?.();
+  }, [open, initialPrompt, onConsumePrompt]);
 
   useEffect(() => {
     if (!open) return;

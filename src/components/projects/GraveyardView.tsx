@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { HeartPulse, Skull, Sparkles } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { GRAVEYARD_INSIGHT_QUERY } from "@/lib/graphql";
 import type { GraveyardInsight, Project } from "@/lib/types";
 import { ProjectClosureNotes } from "./ProjectClosureNotes";
@@ -29,9 +29,10 @@ export function GraveyardView({
   activeCap?: number;
   /** Saves status. Resolves true on success. */
   onRevive: (project: Project, target: "active" | "idea") => Promise<boolean>;
-  onOpenAssistant: () => void;
+  onOpenAssistant: (initialPrompt?: string) => void;
 }) {
   const locale = useLocale();
+  const t = useTranslations("views.graveyard");
   const { data } = useQuery<{ graveyardInsight: GraveyardInsight | null }>(
     GRAVEYARD_INSIGHT_QUERY,
     { fetchPolicy: "cache-and-network" }
@@ -58,14 +59,17 @@ export function GraveyardView({
     <div>
       <div className="flex items-center gap-2 mb-2">
         <Skull size={20} className="text-red-500" />
-        <h2 className="text-lg font-semibold">Project Graveyard</h2>
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
       </div>
       <p className="text-sm text-text-muted mb-4">
-        A library of what didn&apos;t work so you don&apos;t repeat it.
+        {t("subtitle")}
         {killed.length > 0 ? (
           <>
             {" "}
-            Would restart {wouldRestartCount} of {killed.length}.
+            {t("wouldRestart", {
+              count: wouldRestartCount,
+              total: killed.length,
+            })}
           </>
         ) : null}
       </p>
@@ -75,10 +79,7 @@ export function GraveyardView({
       {killed.length === 0 ? (
         <div className="bg-surface border border-border rounded-xl p-12 text-center mt-4">
           <Skull size={28} className="text-text-muted mx-auto mb-3" />
-          <p className="text-text-muted">
-            Nothing buried here yet. Projects you kill with intention land in the
-            graveyard, notes and all.
-          </p>
+          <p className="text-text-muted">{t("empty")}</p>
         </div>
       ) : (
         <div className="space-y-3 mt-4">
@@ -93,14 +94,19 @@ export function GraveyardView({
                   <div className="min-w-0">
                     <h3 className="font-semibold text-text truncate">{p.name}</h3>
                     <div className="text-xs text-text-muted mt-0.5">
-                      Lived {lifespan} days
+                      {t("lived", { days: lifespan })}
                       {p.killedAt ? (
                         <>
-                          {" · killed "}
-                          {new Date(p.killedAt).toLocaleDateString(locale, {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
+                          {" · "}
+                          {t("killedOn", {
+                            date: new Date(p.killedAt).toLocaleDateString(
+                              locale,
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            ),
                           })}
                         </>
                       ) : null}
@@ -110,7 +116,7 @@ export function GraveyardView({
                     onClick={() => setReviving(p)}
                     className="shrink-0 px-3 py-1.5 text-xs bg-accent hover:opacity-90 text-bg rounded-md font-medium flex items-center gap-1.5"
                   >
-                    <HeartPulse size={12} /> Revive
+                    <HeartPulse size={12} /> {t("revive")}
                   </button>
                 </div>
                 <ProjectClosureNotes project={p} />
@@ -142,14 +148,15 @@ function GraveyardAutopsy({
   onOpenAssistant,
 }: {
   insight: GraveyardInsight | null;
-  onOpenAssistant: () => void;
+  onOpenAssistant: (initialPrompt?: string) => void;
 }) {
+  const t = useTranslations("views.graveyard");
   const hasBody = !!insight && insight.body.trim().length > 0;
 
   return (
     <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
       <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-2">
-        <Sparkles size={12} /> Autopsy
+        <Sparkles size={12} /> {t("autopsyLabel")}
       </div>
       {hasBody ? (
         <>
@@ -157,23 +164,17 @@ function GraveyardAutopsy({
             {insight!.body}
           </div>
           {insight!.isStale ? (
-            <p className="text-xs text-text-muted mt-2">
-              This pattern is out of date. It will refresh next time a project is
-              killed.
-            </p>
+            <p className="text-xs text-text-muted mt-2">{t("autopsyStale")}</p>
           ) : null}
         </>
       ) : (
-        <p className="text-sm text-text-muted">
-          Kill 3 projects with intention and Loop will look for the pattern
-          across them. So far there isn&apos;t enough to go on.
-        </p>
+        <p className="text-sm text-text-muted">{t("autopsyEmpty")}</p>
       )}
       <button
-        onClick={onOpenAssistant}
+        onClick={() => onOpenAssistant(t("askLoopPrompt"))}
         className="mt-3 text-sm text-accent hover:opacity-80 flex items-center gap-1.5"
       >
-        <Sparkles size={14} /> Ask Loop to go deeper
+        <Sparkles size={14} /> {t("askLoop")}
       </button>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Undo2, Zap } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { ProjectClosureNotes } from "./ProjectClosureNotes";
@@ -24,6 +25,7 @@ export function WelcomeBackCard({
   /** Keep paused: close, read-only. */
   onClose: () => void;
 }) {
+  const t = useTranslations("views.closure.welcomeBack");
   const [saving, setSaving] = useState(false);
   const days = daysSince(project.pausedAt ?? project.lastActivity) ?? 0;
 
@@ -37,26 +39,24 @@ export function WelcomeBackCard({
 
   return (
     <Modal
-      title={`Welcome back to "${project.name}"`}
+      title={t("title", { name: project.name })}
       onClose={onClose}
       footer={
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-text-muted text-center">
-            Ready to pick this back up?
-          </p>
+          <p className="text-sm text-text-muted text-center">{t("ready")}</p>
           <div className="flex gap-2">
             <button
               onClick={handleReactivate}
               disabled={saving}
               className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm flex items-center justify-center gap-1.5"
             >
-              <Zap size={14} /> Reactivate project
+              <Zap size={14} /> {t("reactivate")}
             </button>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
             >
-              Keep paused
+              {t("keepPaused")}
             </button>
           </div>
         </div>
@@ -64,7 +64,7 @@ export function WelcomeBackCard({
     >
       <div className="flex flex-col gap-4 flex-1 min-h-0">
         <p className="text-sm text-text-muted flex items-center gap-1.5">
-          <Undo2 size={14} /> You paused this {days} days ago.
+          <Undo2 size={14} /> {t("pausedAgo", { days })}
         </p>
         <ProjectClosureNotes project={project} />
       </div>

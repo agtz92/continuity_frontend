@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { daysSince } from "@/lib/date";
 import type { Project } from "@/lib/types";
@@ -29,6 +30,7 @@ export function StalledProjectModal({
   /** Closes the queue item without acting (e.g. user dismissed everything). */
   onClose: () => void;
 }) {
+  const t = useTranslations("views.closure.stalled");
   const [choice, setChoice] = useState<StalledChoice | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const days = daysSince(project.stalledAt ?? project.lastActivity) ?? 0;
@@ -47,14 +49,14 @@ export function StalledProjectModal({
   };
 
   const options: { value: StalledChoice; label: string }[] = [
-    { value: "active", label: "I'm still working on it (keep Active)" },
-    { value: "pause", label: "I need to pause it" },
-    { value: "kill", label: "It's dead. Kill it." },
+    { value: "active", label: t("keepActive") },
+    { value: "pause", label: t("pause") },
+    { value: "kill", label: t("kill") },
   ];
 
   return (
     <Modal
-      title={`You haven't touched "${project.name}" in ${days} days.`}
+      title={t("title", { name: project.name, days })}
       onClose={onClose}
       footer={
         <button
@@ -62,12 +64,12 @@ export function StalledProjectModal({
           disabled={!choice || submitting}
           className="w-full px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
         >
-          Make the call
+          {t("submit")}
         </button>
       }
     >
       <div className="flex flex-col gap-4 flex-1 min-h-0">
-        <p className="text-sm text-text-muted">What do you want to do with it?</p>
+        <p className="text-sm text-text-muted">{t("question")}</p>
 
         <div role="radiogroup" className="flex flex-col gap-2">
           {options.map((opt) => {
@@ -101,7 +103,7 @@ export function StalledProjectModal({
         </div>
 
         <p className="text-xs text-text-muted border-t border-border pt-3">
-          No drifting. Make the call.
+          {t("footer")}
         </p>
       </div>
     </Modal>

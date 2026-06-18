@@ -1013,6 +1013,85 @@
         "quickNoteCreated": "Created note {title}",
         "quickNoteDeleted": "Deleted note {title}"
       }
+    },
+    "graveyard": {
+      "title": "Project Graveyard",
+      "subtitle": "A library of what didn't work so you don't repeat it.",
+      "wouldRestart": "Would restart {count} of {total}.",
+      "empty": "Nothing buried here yet. Projects you kill with intention land in the graveyard, notes and all.",
+      "lived": "Lived {days} days",
+      "killedOn": "killed {date}",
+      "revive": "Revive",
+      "autopsyLabel": "Autopsy",
+      "autopsyStale": "This pattern is out of date. It will refresh next time a project is killed.",
+      "autopsyEmpty": "Kill 3 projects with intention and Loop will look for the pattern across them. So far there isn't enough to go on.",
+      "askLoop": "Ask Loop to go deeper",
+      "askLoopPrompt": "Analyze my graveyard: what pattern is there in why I kill my projects?"
+    },
+    "closure": {
+      "pause": {
+        "title": "Pausing \"{name}\"",
+        "intro": "Before you pause this, write something for the version of you who will come back to it. Three quick prompts. Two minutes total.",
+        "contextLabel": "Where exactly are you stopping?",
+        "contextPlaceholder": "e.g., \"Finished hero section. Stuck on pricing logic.\"",
+        "nextActionLabel": "What's the very next action when you return?",
+        "nextActionPlaceholder": "e.g., \"Write the pricing comparison table copy.\"",
+        "blockerLabel": "What's blocking you right now? (optional)",
+        "blockerPlaceholder": "e.g., \"Need to talk to 2 users before deciding on pricing strategy.\"",
+        "footer": "Why we ask: Future you will not remember this. Past you owes future you a note.",
+        "submit": "Pause project",
+        "cancel": "Cancel",
+        "toast": "Paused. Future you will thank you."
+      },
+      "kill": {
+        "title": "Killing \"{name}\"",
+        "intro": "Killing is a form of finishing. It deserves a closing ritual.",
+        "reasonLabel": "Why are you killing this?",
+        "reasonPlaceholder": "e.g., \"The scope kept growing and I never validated the core assumption.\"",
+        "learningsLabel": "What did you learn from it?",
+        "learningsPlaceholder": "e.g., \"I should have shipped a 1-week MVP before building 5 months of infrastructure.\"",
+        "wouldRestartLabel": "Would you start it again with what you know now? (optional)",
+        "wouldRestartPlaceholder": "e.g., \"Yes, but with a much smaller scope and 2 user interviews first.\"",
+        "footer": "We save this in your Project Graveyard. Not a tombstone, a library of what didn't work so you don't repeat it.",
+        "submit": "Kill with intention",
+        "cancel": "Cancel",
+        "toast": "Killed with intention. Lesson saved."
+      },
+      "stalled": {
+        "title": "You haven't touched \"{name}\" in {days} days.",
+        "question": "What do you want to do with it?",
+        "keepActive": "I'm still working on it (keep Active)",
+        "pause": "I need to pause it",
+        "kill": "It's dead. Kill it.",
+        "footer": "No drifting. Make the call.",
+        "submit": "Make the call"
+      },
+      "welcomeBack": {
+        "title": "Welcome back to \"{name}\"",
+        "pausedAgo": "You paused this {days} days ago.",
+        "ready": "Ready to pick this back up?",
+        "reactivate": "Reactivate project",
+        "keepPaused": "Keep paused"
+      },
+      "revive": {
+        "title": "Revive \"{name}\"?",
+        "intro": "You killed this once, on purpose. Bringing it back is fine. Just go in with what you learned.",
+        "wouldRestartLabel": "You said you'd restart it like this",
+        "capLine": "Counts against your plan again — {used} / {cap} active",
+        "bringBackAs": "Bring it back as:",
+        "active": "Active",
+        "idea": "Idea (re-validate)",
+        "leaveDead": "Leave it dead"
+      },
+      "notes": {
+        "pausedWhereStopped": "Where you stopped",
+        "pausedNextAction": "Your next action was",
+        "pausedBlocker": "What was blocking you",
+        "killedReason": "Why it was killed",
+        "killedLearnings": "What it taught",
+        "killedWouldRestart": "Would restart",
+        "aiLabel": "AI"
+      }
     }
   },
   "taskRow": {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
@@ -28,6 +29,7 @@ export function PauseProjectModal({
   }) => Promise<boolean>;
   onClose: () => void;
 }) {
+  const t = useTranslations("views.closure.pause");
   const autoFocus = useAutoFocus();
   const [context, setContext] = useState("");
   const [nextAction, setNextAction] = useState("");
@@ -46,12 +48,12 @@ export function PauseProjectModal({
       pausedBlocker: blocker.trim(),
     });
     setSaving(false);
-    if (ok) toast.success("Paused. Future you will thank you.");
+    if (ok) toast.success(t("toast"));
   };
 
   return (
     <Modal
-      title={`Pausing "${projectName}"`}
+      title={t("title", { name: projectName })}
       onClose={onClose}
       footer={
         <div className="flex gap-2">
@@ -60,59 +62,53 @@ export function PauseProjectModal({
             disabled={!canSubmit}
             className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
           >
-            Pause project
+            {t("submit")}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm"
           >
-            Cancel
+            {t("cancel")}
           </button>
         </div>
       }
     >
       <div className="flex flex-col gap-4 flex-1 min-h-0">
-        <p className="text-sm text-text-muted">
-          Before you pause this, write something for the version of you who will
-          come back to it. Three quick prompts. Two minutes total.
-        </p>
+        <p className="text-sm text-text-muted">{t("intro")}</p>
 
-        <Field label="Where exactly are you stopping?">
+        <Field label={t("contextLabel")}>
           <textarea
             value={context}
             onChange={(e) => setContext(e.target.value)}
             rows={2}
-            placeholder={'e.g., "Finished hero section. Stuck on pricing logic."'}
+            placeholder={t("contextPlaceholder")}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y"
             autoFocus={autoFocus}
           />
         </Field>
 
-        <Field label="What's the very next action when you return?">
+        <Field label={t("nextActionLabel")}>
           <textarea
             value={nextAction}
             onChange={(e) => setNextAction(e.target.value)}
             rows={2}
-            placeholder={'e.g., "Write the pricing comparison table copy."'}
+            placeholder={t("nextActionPlaceholder")}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
 
-        <Field label="What's blocking you right now? (optional)">
+        <Field label={t("blockerLabel")}>
           <textarea
             value={blocker}
             onChange={(e) => setBlocker(e.target.value)}
             rows={2}
-            placeholder={
-              'e.g., "Need to talk to 2 users before deciding on pricing strategy."'
-            }
+            placeholder={t("blockerPlaceholder")}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm resize-y"
           />
         </Field>
 
         <p className="text-xs text-text-muted border-t border-border pt-3">
-          Why we ask: Future you will not remember this. Past you owes future you
-          a note.
+          {t("footer")}
         </p>
       </div>
     </Modal>

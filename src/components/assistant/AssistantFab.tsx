@@ -17,7 +17,7 @@ export function AssistantFab() {
   return (
     <button
       type="button"
-      onClick={openAssistant}
+      onClick={() => openAssistant()}
       aria-label={t("buttonLabel")}
       title={t("openTooltip")}
       className="hidden md:flex fixed bottom-6 right-6 z-30 items-center gap-2 rounded-full bg-accent text-bg pl-4 pr-5 h-12 shadow-lg hover:opacity-90 active:scale-95 transition-transform"

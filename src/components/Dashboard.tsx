@@ -36,6 +36,8 @@ import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
 import { AssistantFab } from "./assistant/AssistantFab";
 import { AssistantLauncherProvider } from "./assistant/useAssistantLauncher";
+import { useAssistant } from "@/hooks/useAssistant";
+import { projectCapForPlan, countsTowardCap } from "@/lib/planQuotas";
 import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { TabBar, type DashboardView } from "./dashboard/TabBar";
@@ -95,6 +97,12 @@ export default function Dashboard() {
   const [view, setView] = useState<DashboardView>("today");
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  // When set, the assistant panel pre-fills this prompt into its input on open.
+  const [assistantPrompt, setAssistantPrompt] = useState<string | null>(null);
+  const openAssistant = (initialPrompt?: string) => {
+    if (initialPrompt) setAssistantPrompt(initialPrompt);
+    setAssistantOpen(true);
+  };
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showIdeaModal, setShowIdeaModal] = useState(false);
@@ -182,6 +190,15 @@ export default function Dashboard() {
   const activeCount = projects.filter((p) => p.status === "active").length;
   const launchedCount = projects.filter((p) => p.status === "launched").length;
   const stalledCount = projects.filter((p) => p.status === "stalled").length;
+
+  // Plan cap line for the Revive modal. `useAssistant().plan` is the client-side
+  // source of truth; the cap mirrors the backend ENTITY_QUOTAS["projects"].
+  const { plan } = useAssistant();
+  const activeCap = projectCapForPlan(plan);
+  const capUsed = useMemo(
+    () => projects.filter((p) => countsTowardCap(p.status)).length,
+    [projects]
+  );
   const hasData = projects.length > 0 || tasks.length > 0 || ideas.length > 0;
 
   const productivityStats = useProductivityStats({
@@ -284,7 +301,7 @@ export default function Dashboard() {
   }
 
   return (
-    <AssistantLauncherProvider open={() => setAssistantOpen(true)}>
+    <AssistantLauncherProvider open={openAssistant}>
     <div className="min-h-screen bg-bg text-text">
       <TopNav
         workspace={{
@@ -296,6 +313,8 @@ export default function Dashboard() {
       <AssistantPanel
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
+        initialPrompt={assistantPrompt}
+        onConsumePrompt={() => setAssistantPrompt(null)}
       />
       <DashboardTour
         onFinalCta={() => {
@@ -504,11 +523,12 @@ export default function Dashboard() {
         {view === "graveyard" && (
           <GraveyardView
             projects={projects}
-            activeUsed={activeCount}
+            activeUsed={capUsed}
+            activeCap={activeCap ?? undefined}
             onRevive={async (project, target) =>
               saveProject(projectToSaveArgs(project, target))
             }
-            onOpenAssistant={() => setAssistantOpen(true)}
+            onOpenAssistant={openAssistant}
           />
         )}
       </div>

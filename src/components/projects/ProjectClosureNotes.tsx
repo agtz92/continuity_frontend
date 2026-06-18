@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, RefreshCw, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Project } from "@/lib/types";
 
 /**
@@ -9,14 +10,16 @@ import type { Project } from "@/lib/types";
  * (killed notes + AI reflection). Brand voice: plain, no em-dashes.
  */
 export function ProjectClosureNotes({ project: p }: { project: Project }) {
+  const t = useTranslations("views.closure.notes");
+
   if (p.status === "paused") {
     return (
       <div className="space-y-3 text-sm">
-        <NoteRow label="Where you stopped" value={p.pausedContext} />
+        <NoteRow label={t("pausedWhereStopped")} value={p.pausedContext} />
         {p.pausedNextAction ? (
           <div>
             <div className="text-xs uppercase tracking-wider text-text-muted mb-1">
-              Your next action was
+              {t("pausedNextAction")}
             </div>
             <div className="flex items-start gap-1.5 text-text">
               <ArrowRight size={14} className="mt-0.5 shrink-0 text-accent" />
@@ -25,7 +28,7 @@ export function ProjectClosureNotes({ project: p }: { project: Project }) {
           </div>
         ) : null}
         {p.pausedBlocker ? (
-          <NoteRow label="What was blocking you" value={p.pausedBlocker} />
+          <NoteRow label={t("pausedBlocker")} value={p.pausedBlocker} />
         ) : null}
       </div>
     );
@@ -34,12 +37,12 @@ export function ProjectClosureNotes({ project: p }: { project: Project }) {
   if (p.status === "killed") {
     return (
       <div className="space-y-3 text-sm">
-        <NoteRow label="Why it was killed" value={p.killedReason} />
-        <NoteRow label="What it taught" value={p.killedLearnings} />
+        <NoteRow label={t("killedReason")} value={p.killedReason} />
+        <NoteRow label={t("killedLearnings")} value={p.killedLearnings} />
         {p.killedWouldRestart ? (
           <div>
             <div className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
-              <RefreshCw size={11} /> Would restart
+              <RefreshCw size={11} /> {t("killedWouldRestart")}
             </div>
             <div className="text-text">{p.killedWouldRestart}</div>
           </div>
@@ -47,7 +50,7 @@ export function ProjectClosureNotes({ project: p }: { project: Project }) {
         {p.killedAiReflection ? (
           <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3">
             <div className="text-xs uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-1 flex items-center gap-1">
-              <Sparkles size={11} /> AI
+              <Sparkles size={11} /> {t("aiLabel")}
             </div>
             <div className="text-text-muted whitespace-pre-wrap">
               {p.killedAiReflection}

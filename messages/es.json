@@ -1013,6 +1013,85 @@
         "quickNoteCreated": "Creaste la nota {title}",
         "quickNoteDeleted": "Eliminaste la nota {title}"
       }
+    },
+    "graveyard": {
+      "title": "Cementerio de proyectos",
+      "subtitle": "Una biblioteca de lo que no funcionó para que no lo repitas.",
+      "wouldRestart": "Reiniciarías {count} de {total}.",
+      "empty": "Aquí no hay nada enterrado todavía. Los proyectos que matas con intención llegan al cementerio, con notas y todo.",
+      "lived": "Vivió {days} días",
+      "killedOn": "matado el {date}",
+      "revive": "Revivir",
+      "autopsyLabel": "Autopsia",
+      "autopsyStale": "Este patrón está desactualizado. Se actualizará la próxima vez que mates un proyecto.",
+      "autopsyEmpty": "Mata 3 proyectos con intención y Loop buscará el patrón entre ellos. Por ahora no hay suficiente para analizar.",
+      "askLoop": "Pídele a Loop que profundice",
+      "askLoopPrompt": "Analiza mi cementerio: ¿qué patrón hay en por qué mato mis proyectos?"
+    },
+    "closure": {
+      "pause": {
+        "title": "Pausando \"{name}\"",
+        "intro": "Antes de pausarlo, escríbele algo a la versión de ti que volverá a esto. Tres preguntas rápidas. Dos minutos en total.",
+        "contextLabel": "¿Dónde exactamente lo estás dejando?",
+        "contextPlaceholder": "ej. \"Terminé la sección hero. Atascado en la lógica de precios.\"",
+        "nextActionLabel": "¿Cuál es la siguiente acción cuando regreses?",
+        "nextActionPlaceholder": "ej. \"Escribir el texto de la tabla comparativa de precios.\"",
+        "blockerLabel": "¿Qué te está bloqueando ahora? (opcional)",
+        "blockerPlaceholder": "ej. \"Necesito hablar con 2 usuarios antes de decidir la estrategia de precios.\"",
+        "footer": "Por qué lo pedimos: el tú del futuro no recordará esto. El tú del pasado le debe una nota al tú del futuro.",
+        "submit": "Pausar proyecto",
+        "cancel": "Cancelar",
+        "toast": "Pausado. El tú del futuro te lo agradecerá."
+      },
+      "kill": {
+        "title": "Matando \"{name}\"",
+        "intro": "Matar es una forma de terminar. Merece un ritual de cierre.",
+        "reasonLabel": "¿Por qué lo estás matando?",
+        "reasonPlaceholder": "ej. \"El alcance no paraba de crecer y nunca validé la suposición central.\"",
+        "learningsLabel": "¿Qué aprendiste de él?",
+        "learningsPlaceholder": "ej. \"Debí lanzar un MVP de 1 semana antes de construir 5 meses de infraestructura.\"",
+        "wouldRestartLabel": "¿Lo empezarías de nuevo con lo que sabes ahora? (opcional)",
+        "wouldRestartPlaceholder": "ej. \"Sí, pero con un alcance mucho menor y 2 entrevistas con usuarios primero.\"",
+        "footer": "Guardamos esto en tu Cementerio de proyectos. No es una lápida, es una biblioteca de lo que no funcionó para que no lo repitas.",
+        "submit": "Matar con intención",
+        "cancel": "Cancelar",
+        "toast": "Matado con intención. Lección guardada."
+      },
+      "stalled": {
+        "title": "No has tocado \"{name}\" en {days} días.",
+        "question": "¿Qué quieres hacer con él?",
+        "keepActive": "Sigo trabajando en él (mantener Activo)",
+        "pause": "Necesito pausarlo",
+        "kill": "Está muerto. Mátalo.",
+        "footer": "Sin dejarlo a la deriva. Toma la decisión.",
+        "submit": "Toma la decisión"
+      },
+      "welcomeBack": {
+        "title": "Bienvenido de vuelta a \"{name}\"",
+        "pausedAgo": "Pausaste esto hace {days} días.",
+        "ready": "¿Listo para retomarlo?",
+        "reactivate": "Reactivar proyecto",
+        "keepPaused": "Mantener pausado"
+      },
+      "revive": {
+        "title": "¿Revivir \"{name}\"?",
+        "intro": "Lo mataste una vez, a propósito. Traerlo de vuelta está bien. Solo entra con lo que aprendiste.",
+        "wouldRestartLabel": "Dijiste que lo reiniciarías así",
+        "capLine": "Vuelve a contar para tu plan — {used} / {cap} activos",
+        "bringBackAs": "Tráelo de vuelta como:",
+        "active": "Activo",
+        "idea": "Idea (revalidar)",
+        "leaveDead": "Déjalo muerto"
+      },
+      "notes": {
+        "pausedWhereStopped": "Dónde lo dejaste",
+        "pausedNextAction": "Tu siguiente acción era",
+        "pausedBlocker": "Qué te estaba bloqueando",
+        "killedReason": "Por qué se mató",
+        "killedLearnings": "Qué enseñó",
+        "killedWouldRestart": "Reiniciarías",
+        "aiLabel": "IA"
+      }
     }
   },
   "taskRow": {
