@@ -1,6 +1,3 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import { createElement } from "react";
 import type { ElementType } from "react";
 
@@ -8,66 +5,26 @@ type Props = {
   text: string;
   as?: ElementType;
   className?: string;
-  delay?: number;
+  /**
+   * `scroll` (default) reveals on scroll-into-view; `load` runs the entrance
+   * once on first paint — use it for above-the-fold headlines that must show
+   * immediately. Both are pure CSS (see `.ls-reveal` / `.ls-fade-up` in
+   * globals.css) so no framer-motion is pulled into the marketing bundle.
+   */
+  reveal?: "scroll" | "load";
 };
 
 /**
- * Word-by-word reveal headline. Splits on whitespace, animates each word with
- * a small stagger. Respects `prefers-reduced-motion` — we just fade the whole
- * line instead of moving anything.
+ * Headline that fades + lifts into view. Was a word-by-word framer-motion
+ * reveal; now a single CSS entrance — cheaper to paint on mobile Safari and it
+ * keeps the text in the static HTML (no hydration gate, no blur animation).
  */
 export default function AnimatedHeadline({
   text,
   as = "h2",
   className = "",
-  delay = 0,
+  reveal = "scroll",
 }: Props) {
-  const reduce = useReducedMotion();
-
-  if (reduce) {
-    return createElement(
-      as,
-      { className },
-      <motion.span
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.4, delay }}
-      >
-        {text}
-      </motion.span>,
-    );
-  }
-
-  const words = text.split(/\s+/);
-
-  return createElement(
-    as,
-    { className },
-    <>
-      <span className="sr-only">{text}</span>
-      <motion.span
-        aria-hidden="true"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ staggerChildren: 0.06, delayChildren: delay }}
-        className="inline"
-      >
-        {words.map((word, i) => (
-          <motion.span
-            key={`${word}-${i}`}
-            variants={{
-              hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
-              visible: { opacity: 1, y: 0, filter: "blur(0px)" },
-            }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-block mr-[0.25em] last:mr-0"
-          >
-            {word}
-          </motion.span>
-        ))}
-      </motion.span>
-    </>,
-  );
+  const revealClass = reveal === "load" ? "ls-fade-up" : "ls-reveal";
+  return createElement(as, { className: `${revealClass} ${className}` }, text);
 }

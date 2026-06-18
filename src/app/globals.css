@@ -324,6 +324,49 @@ body {
   }
 }
 
+/* Marketing reveals — pure CSS, no framer-motion, no JS.
+   `.ls-reveal` fades + lifts an element as it scrolls into view via a view()
+   timeline; `.ls-fade-up` runs the same entrance once on load, for
+   above-the-fold content that must paint immediately (not wait for hydration).
+   The resting state is fully visible, so on browsers without scroll-driven
+   animations — or with reduced-motion — content simply shows with no animation
+   and can never get stuck hidden. Replaces the per-section framer-motion
+   reveals so framer drops out of the landing's critical bundle. */
+@keyframes ls-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ls-fade-up {
+    animation: ls-reveal-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .ls-fade-up-1 {
+    animation-delay: 0.08s;
+  }
+  .ls-fade-up-2 {
+    animation-delay: 0.16s;
+  }
+  .ls-fade-up-3 {
+    animation-delay: 0.24s;
+  }
+
+  @supports (animation-timeline: view()) {
+    .ls-reveal {
+      opacity: 0;
+      animation: ls-reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 20%;
+    }
+  }
+}
+
 /* Suppress the browser's native pull-to-refresh / overscroll bounce so our
    custom PullToRefresh component owns the gesture. `contain` keeps inner
    scroll containers behaving normally — only the document edge is locked. */

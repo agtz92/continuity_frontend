@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
 
 /**
  * Mounts Lenis once at the marketing root for smooth scrolling. Lenis runs on
@@ -9,6 +8,10 @@ import Lenis from "lenis";
  * `prefers-reduced-motion` and a `(hover: hover)` check — touch devices keep
  * native momentum (which is already excellent) and motion-sensitive users get
  * the browser's default linear scroll.
+ *
+ * `lenis` is imported dynamically *after* those gates so the ~bundle never ships
+ * to phones/tablets (which skip it) — it only downloads on pointer devices that
+ * will actually use smooth scroll.
  */
 export default function LenisProvider() {
   useEffect(() => {
@@ -20,22 +23,34 @@ export default function LenisProvider() {
     const isTouch = !window.matchMedia("(hover: hover)").matches;
     if (prefersReducedMotion || isTouch) return;
 
-    const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
+    let frame = 0;
+    let destroy: (() => void) | undefined;
+    let cancelled = false;
+
+    import("lenis").then(({ default: Lenis }) => {
+      if (cancelled) return;
+
+      const lenis = new Lenis({
+        duration: 1.1,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+
+      function raf(time: number) {
+        lenis.raf(time);
+        frame = requestAnimationFrame(raf);
+      }
+      frame = requestAnimationFrame(raf);
+
+      destroy = () => {
+        cancelAnimationFrame(frame);
+        lenis.destroy();
+      };
     });
 
-    let frame = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      frame = requestAnimationFrame(raf);
-    }
-    frame = requestAnimationFrame(raf);
-
     return () => {
-      cancelAnimationFrame(frame);
-      lenis.destroy();
+      cancelled = true;
+      destroy?.();
     };
   }, []);
 

@@ -1,16 +1,48 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import SectionContainer from "../primitives/SectionContainer";
 import AnimatedHeadline from "../primitives/AnimatedHeadline";
 import FeatureRow from "./FeatureRow";
-import ForcedClosureDemo from "./ForcedClosureDemo";
-import AIChatDemo from "./AIChatDemo";
-import ResumeContextDemo from "./ResumeContextDemo";
-import NotificationsDemo from "./NotificationsDemo";
-import FrictionDemo from "./FrictionDemo";
-import SundayReviewDemo from "./SundayReviewDemo";
+
+// The demos are the only framer-motion users left on the landing page. Loading
+// them with next/dynamic (ssr:false) code-splits framer + each demo into their
+// own client chunks, so framer never lands in the page's critical bundle — it's
+// fetched lazily as the user scrolls down to Features. The skeleton reserves
+// height to avoid layout shift while the chunk loads.
+function DemoSkeleton() {
+  return (
+    <div className="min-h-[360px] rounded-2xl border border-white/10 bg-white/[0.02]" />
+  );
+}
+
+// next/dynamic requires the options to be an inline object literal (the SWC
+// transform reads them statically), so we can't share a `demoOpts` constant.
+const ForcedClosureDemo = dynamic(() => import("./ForcedClosureDemo"), {
+  ssr: false,
+  loading: () => <DemoSkeleton />,
+});
+const AIChatDemo = dynamic(() => import("./AIChatDemo"), {
+  ssr: false,
+  loading: () => <DemoSkeleton />,
+});
+const ResumeContextDemo = dynamic(() => import("./ResumeContextDemo"), {
+  ssr: false,
+  loading: () => <DemoSkeleton />,
+});
+const NotificationsDemo = dynamic(() => import("./NotificationsDemo"), {
+  ssr: false,
+  loading: () => <DemoSkeleton />,
+});
+const FrictionDemo = dynamic(() => import("./FrictionDemo"), {
+  ssr: false,
+  loading: () => <DemoSkeleton />,
+});
+const SundayReviewDemo = dynamic(() => import("./SundayReviewDemo"), {
+  ssr: false,
+  loading: () => <DemoSkeleton />,
+});
 
 export default function FeaturesSection() {
   const t = useTranslations("landing.features");
@@ -18,15 +50,9 @@ export default function FeaturesSection() {
   return (
     <SectionContainer id="features" surface="navy">
       <div className="max-w-3xl mx-auto text-center mb-24">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5 }}
-          className="mb-5 inline-block text-xs font-medium uppercase tracking-[0.2em] text-ls-ochre"
-        >
+        <p className="ls-reveal mb-5 inline-block text-xs font-medium uppercase tracking-[0.2em] text-ls-ochre">
           {t("intro.eyebrow")}
-        </motion.p>
+        </p>
         <AnimatedHeadline
           text={t("intro.headline")}
           className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight font-light text-ls-text-primary"
