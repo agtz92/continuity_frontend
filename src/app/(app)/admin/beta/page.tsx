@@ -197,6 +197,7 @@ export default function AdminBetaPage() {
           <label className="flex items-center gap-2 text-sm text-text">
             Cupo (spot cap)
             <input
+              key={`cap-${spotCap}`}
               type="number"
               defaultValue={spotCap}
               className="w-20 rounded border border-border bg-bg px-2 py-1"
@@ -209,6 +210,7 @@ export default function AdminBetaPage() {
           <label className="flex items-center gap-2 text-sm text-text">
             Inicio de secuencia
             <input
+              key={`start-${String(config["lifecycle_start_at"] ?? "")}`}
               type="date"
               defaultValue={String(config["lifecycle_start_at"] ?? "")}
               className="rounded border border-border bg-bg px-2 py-1"
