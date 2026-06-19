@@ -207,6 +207,18 @@ export default function AdminBetaPage() {
             />
           </label>
           <label className="flex items-center gap-2 text-sm text-text">
+            Inicio de secuencia
+            <input
+              type="date"
+              defaultValue={String(config["lifecycle_start_at"] ?? "")}
+              className="rounded border border-border bg-bg px-2 py-1"
+              onBlur={(e) => {
+                if (e.target.value !== String(config["lifecycle_start_at"] ?? ""))
+                  saveConfig("lifecycle_start_at", e.target.value);
+              }}
+            />
+          </label>
+          <label className="flex items-center gap-2 text-sm text-text">
             <input
               type="checkbox"
               checked={dryRun}
@@ -215,6 +227,10 @@ export default function AdminBetaPage() {
             dry_run
           </label>
         </div>
+        <p className="mt-2 text-xs text-text-muted">
+          "Inicio de secuencia": nadie cuenta como inactivo desde antes de esa fecha
+          (arranque gradual). Vacío = desde sus fechas reales.
+        </p>
       </section>
 
       {/* Test email */}
