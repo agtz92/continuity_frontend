@@ -6,6 +6,7 @@ import {
   ADMIN_APP_CONFIG_QUERY,
   ADMIN_BETA_PIPELINE_QUERY,
   ADMIN_BETA_USERS_QUERY,
+  ADMIN_SEND_TEST_EMAIL,
   ADMIN_SET_APP_CONFIG,
   ADMIN_SET_BETA,
   ADMIN_SET_BILLING_EXEMPT,
@@ -32,6 +33,18 @@ type AppConfigRow = { key: string; valueJson: string };
 
 const BETA_STATUSES = ["active", "reclaimed", "manually_paused", "manually_killed"];
 const EXEMPT_REASONS = ["beta", "friend", "investor", "partner", "manual"];
+const EMAIL_IDS = [
+  "welcome_beta",
+  "welcome_regular",
+  "inactivity_1",
+  "inactivity_2",
+  "inactivity_3",
+  "inactivity_4",
+  "reengage_1",
+  "reengage_2",
+  "reclaim_warn",
+  "reclaim_final",
+];
 
 function fmtDate(v: string | null): string {
   if (!v) return "—";
@@ -42,6 +55,8 @@ export default function AdminBetaPage() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [exemptFilter, setExemptFilter] = useState<string>("");
   const [daysMin, setDaysMin] = useState<string>("");
+  const [testTemplate, setTestTemplate] = useState<string>("welcome_beta");
+  const [testLocale, setTestLocale] = useState<string>("es");
 
   const usersVars = useMemo(
     () => ({
@@ -77,6 +92,18 @@ export default function AdminBetaPage() {
   const [setConfig] = useMutation(ADMIN_SET_APP_CONFIG, {
     onCompleted: () => configQ.refetch(),
   });
+  const [sendTest, { loading: sendingTest }] = useMutation(ADMIN_SEND_TEST_EMAIL);
+
+  const onSendTest = async () => {
+    try {
+      const res = await sendTest({
+        variables: { emailId: testTemplate, locale: testLocale },
+      });
+      toast.success(res.data?.adminSendTestEmail ?? "Enviado");
+    } catch (e) {
+      toast.error(`Error: ${(e as Error).message}`);
+    }
+  };
 
   const config = useMemo(() => {
     const map: Record<string, unknown> = {};
@@ -187,6 +214,42 @@ export default function AdminBetaPage() {
             />
             dry_run
           </label>
+        </div>
+      </section>
+
+      {/* Test email */}
+      <section className="rounded-lg border border-border bg-surface p-4">
+        <h2 className="mb-3 text-sm font-medium text-text-muted">
+          Probar entrega (se envía a tu correo, ignora dry_run)
+        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={testTemplate}
+            onChange={(e) => setTestTemplate(e.target.value)}
+            className="rounded border border-border bg-bg px-2 py-1 text-sm"
+          >
+            {EMAIL_IDS.map((id) => (
+              <option key={id} value={id}>
+                {id}
+              </option>
+            ))}
+          </select>
+          <select
+            value={testLocale}
+            onChange={(e) => setTestLocale(e.target.value)}
+            className="rounded border border-border bg-bg px-2 py-1 text-sm"
+          >
+            <option value="es">es</option>
+            <option value="en">en</option>
+          </select>
+          <button
+            type="button"
+            onClick={onSendTest}
+            disabled={sendingTest}
+            className="rounded bg-accent px-3 py-1 text-sm text-white disabled:opacity-50"
+          >
+            {sendingTest ? "Enviando…" : "Enviar a mi correo"}
+          </button>
         </div>
       </section>
 

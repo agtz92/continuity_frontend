@@ -1917,3 +1917,9 @@ export const ADMIN_SET_APP_CONFIG = gql`
     }
   }
 `;
+
+export const ADMIN_SEND_TEST_EMAIL = gql`
+  mutation AdminSendTestEmail($emailId: String!, $locale: String) {
+    adminSendTestEmail(emailId: $emailId, locale: $locale)
+  }
+`;
