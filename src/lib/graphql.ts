@@ -1812,3 +1812,108 @@ export const DISCONNECT_GOOGLE_TASKS = gql`
     disconnectGoogleTasks
   }
 `;
+
+// ---------- Beta lifecycle admin ----------
+
+const BETA_USER_FIELDS = `
+  userId
+  email
+  createdAt
+  betaCohort
+  betaStatus
+  isBillingExempt
+  billingExemptReason
+  billingExemptUntil
+  betaEnrolledAt
+  daysSinceLastSignificantEvent
+  lastEmailId
+  lastEmailAt
+`;
+
+export const ADMIN_BETA_USERS_QUERY = gql`
+  query AdminBetaUsers(
+    $betaStatus: String
+    $billingExempt: Boolean
+    $daysInactiveMin: Int
+  ) {
+    adminBetaUsers(
+      betaStatus: $betaStatus
+      billingExempt: $billingExempt
+      daysInactiveMin: $daysInactiveMin
+    ) {
+      ${BETA_USER_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_BETA_PIPELINE_QUERY = gql`
+  query AdminBetaPipeline {
+    adminBetaPipeline {
+      statusCounts {
+        label
+        count
+      }
+      thresholdCounts {
+        label
+        count
+      }
+      recentReclaims {
+        userId
+        email
+        betaStatus
+      }
+    }
+  }
+`;
+
+export const ADMIN_APP_CONFIG_QUERY = gql`
+  query AdminAppConfig {
+    adminAppConfig {
+      key
+      valueJson
+    }
+  }
+`;
+
+export const ADMIN_SET_BETA = gql`
+  mutation AdminSetBeta(
+    $userId: ID!
+    $betaCohort: Boolean
+    $betaStatus: String
+  ) {
+    adminSetBeta(
+      userId: $userId
+      betaCohort: $betaCohort
+      betaStatus: $betaStatus
+    ) {
+      ${BETA_USER_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_SET_BILLING_EXEMPT = gql`
+  mutation AdminSetBillingExempt(
+    $userId: ID!
+    $isBillingExempt: Boolean!
+    $reason: String
+    $until: DateTime
+  ) {
+    adminSetBillingExempt(
+      userId: $userId
+      isBillingExempt: $isBillingExempt
+      reason: $reason
+      until: $until
+    ) {
+      ${BETA_USER_FIELDS}
+    }
+  }
+`;
+
+export const ADMIN_SET_APP_CONFIG = gql`
+  mutation AdminSetAppConfig($key: String!, $valueJson: String!) {
+    adminSetAppConfig(key: $key, valueJson: $valueJson) {
+      key
+      valueJson
+    }
+  }
+`;
