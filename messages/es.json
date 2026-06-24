@@ -500,6 +500,7 @@
         "howIos": "Ajustes → Calendario → Cuentas → Añadir cuenta → Otra → Añadir calendario suscrito, y pega la URL.",
         "howGoogleTitle": "En Google Calendar",
         "howGoogle": "Otros calendarios → Desde URL → pega la URL.",
+        "latencyNote": "Ten en cuenta: los cambios no son instantáneos. Apps como Google Calendar y el iPhone actualizan los calendarios suscritos según su propio horario (a menudo unas horas), así que mover o completar una tarea puede tardar en verse.",
         "syncTitle": "Qué incluir",
         "syncTasks": "Incluir tareas (con fecha de vencimiento)",
         "syncRoutines": "Incluir rutinas",

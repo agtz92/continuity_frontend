@@ -500,6 +500,7 @@
         "howIos": "Settings → Calendar → Accounts → Add Account → Other → Add Subscribed Calendar, then paste the URL.",
         "howGoogleTitle": "In Google Calendar",
         "howGoogle": "Other calendars → From URL → paste the URL.",
+        "latencyNote": "Heads up: changes aren't instant. Apps like Google Calendar and iPhone refresh subscribed calendars on their own schedule (often a few hours), so moving or completing a task can take a while to show up.",
         "syncTitle": "What to include",
         "syncTasks": "Include tasks (with a due date)",
         "syncRoutines": "Include routines",

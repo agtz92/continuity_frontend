@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Calendar, Copy, RefreshCw } from "lucide-react";
+import { ArrowLeft, Calendar, Copy, Info, RefreshCw } from "lucide-react";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { toast } from "@/lib/toast";
 import {
@@ -152,6 +152,10 @@ function FeedSection({
           <span className="text-text font-medium">{t("howGoogleTitle")}: </span>
           {t("howGoogle")}
         </div>
+      </div>
+      <div className="mt-3 flex gap-2 text-xs text-text-muted bg-border/40 border border-border rounded-lg px-3 py-2">
+        <Info size={14} className="shrink-0 mt-0.5" />
+        <span>{t("latencyNote")}</span>
       </div>
     </Section>
   );
