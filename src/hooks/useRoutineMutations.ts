@@ -27,6 +27,8 @@ export interface RoutineFormInput {
   monthlyDay: number | null;
   effortHours: number | null;
   projectId: string | null;
+  timeOfDay?: string | null;
+  durationMinutes?: number | null;
 }
 
 export function useRoutineMutations() {
@@ -56,6 +58,8 @@ export function useRoutineMutations() {
       monthlyDay: r.monthlyDay,
       effortHours: r.effortHours,
       projectId: r.projectId || null,
+      timeOfDay: r.timeOfDay ?? null,
+      durationMinutes: r.durationMinutes ?? null,
     };
     try {
       if (r.id) {

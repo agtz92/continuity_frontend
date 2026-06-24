@@ -25,6 +25,8 @@ export function useTaskMutations() {
     dueDate: string | null;
     done: boolean;
     effortHours: number | null;
+    dueTime?: string | null;
+    durationMinutes?: number | null;
   }): Promise<boolean> => {
     const data = {
       title: t.title,
@@ -32,6 +34,8 @@ export function useTaskMutations() {
       dueDate: t.dueDate,
       done: t.done,
       effortHours: t.effortHours,
+      dueTime: t.dueTime ?? null,
+      durationMinutes: t.durationMinutes ?? null,
     };
     try {
       if (t.id) {

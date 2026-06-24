@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { TimeOfDayField } from "../ui/TimeOfDayField";
 import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
 import { weekdayShortLabels } from "@/lib/recurrence";
@@ -42,6 +43,8 @@ export function RoutineModal({
     monthlyDay: number | null;
     effortHours: number | null;
     projectId: string | null;
+    timeOfDay: string | null;
+    durationMinutes: number | null;
   }) => void | Promise<void>;
   onClose: () => void;
 }) {
@@ -49,6 +52,7 @@ export function RoutineModal({
   const tCommon = useTranslations("common");
   const tWeekday = useTranslations("recurrence.weekday.short");
   const tTask = useTranslations("modals.task");
+  const tTime = useTranslations("modals.timeOfDay");
   const autoFocus = useAutoFocus();
 
   const [title, setTitle] = useState(routine?.title ?? "");
@@ -71,6 +75,10 @@ export function RoutineModal({
     routine?.effortHours != null ? String(routine.effortHours) : ""
   );
   const [projectId, setProjectId] = useState(routine?.projectId ?? "");
+  const [timeOfDay, setTimeOfDay] = useState((routine?.timeOfDay ?? "").slice(0, 5));
+  const [durationMinutes, setDurationMinutes] = useState(
+    routine?.durationMinutes ?? 30
+  );
   const [error, setError] = useState<string | null>(null);
 
   const toggleWeekday = (d: number) => {
@@ -134,6 +142,8 @@ export function RoutineModal({
       monthlyDay: recurrenceType === "monthly_day" ? mDay : null,
       effortHours: Number.isFinite(parsedEffort) ? parsedEffort : null,
       projectId: projectId || null,
+      timeOfDay: timeOfDay || null,
+      durationMinutes: timeOfDay ? durationMinutes : null,
     });
   };
 
@@ -234,6 +244,15 @@ export function RoutineModal({
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="w-full bg-border border border-border rounded-lg px-3 py-2 text-sm"
+          />
+        </Field>
+
+        <Field label={tTime("label")}>
+          <TimeOfDayField
+            time={timeOfDay}
+            minutes={durationMinutes}
+            onChangeTime={setTimeOfDay}
+            onChangeMinutes={setDurationMinutes}
           />
         </Field>
 

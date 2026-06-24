@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
-import { ListTodo, ChevronRight, Sparkles } from "lucide-react";
+import { ListTodo, ChevronRight, Sparkles, Calendar } from "lucide-react";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { GOOGLE_TASKS_CONNECTION_QUERY } from "@/lib/graphql";
 
@@ -24,6 +24,14 @@ export default function PluginsSettingsPage() {
   return (
     <SettingsShell title={t("title")} description={t("description")}>
       <section className="space-y-3">
+        <PluginCard
+          href="/settings/plugins/calendar"
+          icon={<Calendar size={22} className="text-accent" />}
+          name={t("calendar.name")}
+          description={t("calendar.shortDescription")}
+          statusLabel={t("calendar.statusAvailable")}
+          connected={false}
+        />
         <PluginCard
           href="/settings/plugins/google-tasks"
           icon={<ListTodo size={22} className="text-accent" />}

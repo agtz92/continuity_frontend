@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ChevronDown, Lock, Search, X as XIcon } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Field } from "../ui/Field";
+import { TimeOfDayField } from "../ui/TimeOfDayField";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
 import { todayLocalISODate, toLocalISO } from "@/lib/date";
 import { ADD_TASK_BLOCKER, DASHBOARD_QUERY, REMOVE_TASK_BLOCKER } from "@/lib/graphql";
@@ -46,11 +47,14 @@ export function TaskModal({
     dueDate: string | null;
     done: boolean;
     effortHours: number | null;
+    dueTime: string | null;
+    durationMinutes: number | null;
   }) => void | Promise<void>;
   onClose: () => void;
 }) {
   const t = useTranslations("modals.task");
   const tCommon = useTranslations("common");
+  const tTime = useTranslations("modals.timeOfDay");
   const autoFocus = useAutoFocus();
   const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
   const [addBlockerMutation] = useMutation(ADD_TASK_BLOCKER, refetchAfter);
@@ -75,6 +79,11 @@ export function TaskModal({
   const [effortHours, setEffortHours] = useState(
     task?.effortHours != null ? String(task.effortHours) : ""
   );
+  // Time-of-day is optional: "" = all-day. Stored time comes back as "HH:MM:SS".
+  const [dueTime, setDueTime] = useState((task?.dueTime ?? "").slice(0, 5));
+  const [durationMinutes, setDurationMinutes] = useState(
+    task?.durationMinutes ?? 30
+  );
 
   const datePresets = useMemo(() => {
     const today = todayLocalISODate();
@@ -88,6 +97,7 @@ export function TaskModal({
   const handleSubmit = () => {
     if (!title.trim()) return;
     const parsedEffort = effortHours.trim() ? parseFloat(effortHours) : NaN;
+    const timed = dueDate !== "" && dueTime !== "";
     onSave({
       id: task?.id,
       title: title.trim(),
@@ -95,6 +105,8 @@ export function TaskModal({
       dueDate: dueDate ? inputDateToIso(dueDate) : null,
       done: task?.done || false,
       effortHours: Number.isFinite(parsedEffort) ? parsedEffort : null,
+      dueTime: timed ? dueTime : null,
+      durationMinutes: timed ? durationMinutes : null,
     });
   };
 
@@ -234,6 +246,16 @@ export function TaskModal({
             />
           </div>
         </Field>
+        {dueDate && (
+          <Field label={tTime("label")}>
+            <TimeOfDayField
+              time={dueTime}
+              minutes={durationMinutes}
+              onChangeTime={setDueTime}
+              onChangeMinutes={setDurationMinutes}
+            />
+          </Field>
+        )}
         <Field label={t("effort")}>
           <div className="space-y-2">
             <div className="flex flex-wrap gap-1.5">

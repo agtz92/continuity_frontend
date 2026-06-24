@@ -958,6 +958,8 @@ export const DASHBOARD_QUERY = gql`
         completedAt
         created
         effortHours
+        dueTime
+        durationMinutes
         blockers {
           id
           blockedTaskId
@@ -1014,6 +1016,8 @@ export const DASHBOARD_QUERY = gql`
         archived
         created
         projectId
+        timeOfDay
+        durationMinutes
       }
       routineOccurrences {
         id
@@ -1043,6 +1047,8 @@ const ROUTINE_FIELDS = `
   archived
   created
   projectId
+  timeOfDay
+  durationMinutes
 `;
 
 const TASK_BLOCKER_FIELDS = `
@@ -1258,6 +1264,8 @@ export const CREATE_TASK = gql`
       completedAt
       created
       effortHours
+      dueTime
+      durationMinutes
       blockers {
         ${TASK_BLOCKER_FIELDS}
       }
@@ -1276,6 +1284,8 @@ export const UPDATE_TASK = gql`
       completedAt
       created
       effortHours
+      dueTime
+      durationMinutes
       blockers {
         ${TASK_BLOCKER_FIELDS}
       }
@@ -1294,6 +1304,8 @@ export const TOGGLE_TASK = gql`
       completedAt
       created
       effortHours
+      dueTime
+      durationMinutes
       blockers {
         ${TASK_BLOCKER_FIELDS}
       }
@@ -1810,6 +1822,80 @@ export const IMPORT_GOOGLE_TASKS = gql`
 export const DISCONNECT_GOOGLE_TASKS = gql`
   mutation DisconnectGoogleTasks {
     disconnectGoogleTasks
+  }
+`;
+
+// ---------- Calendar integration plugin ----------
+
+export const CALENDAR_INTEGRATION_QUERY = gql`
+  query CalendarIntegration {
+    calendarIntegration {
+      feedUrl
+      syncEnabled
+      syncTasks
+      syncRoutines
+      googleConnected
+      googleEmail
+      googleCalendarId
+      icloudConnected
+      icloudAppleId
+    }
+  }
+`;
+
+export const GOOGLE_CALENDARS_QUERY = gql`
+  query GoogleCalendars {
+    googleCalendars {
+      id
+      title
+      primary
+    }
+  }
+`;
+
+export const REGENERATE_CALENDAR_FEED_TOKEN = gql`
+  mutation RegenerateCalendarFeedToken {
+    regenerateCalendarFeedToken
+  }
+`;
+
+export const GOOGLE_CALENDAR_AUTH_URL = gql`
+  mutation GoogleCalendarAuthUrl($returnTo: String!) {
+    googleCalendarAuthUrl(returnTo: $returnTo)
+  }
+`;
+
+export const DISCONNECT_GOOGLE_CALENDAR = gql`
+  mutation DisconnectGoogleCalendar {
+    disconnectGoogleCalendar
+  }
+`;
+
+export const SYNC_GOOGLE_CALENDAR_NOW = gql`
+  mutation SyncGoogleCalendarNow {
+    syncGoogleCalendarNow {
+      created
+      updated
+      deleted
+    }
+  }
+`;
+
+export const CONNECT_ICLOUD_CALENDAR = gql`
+  mutation ConnectICloudCalendar($appleId: String!, $appPassword: String!) {
+    connectIcloudCalendar(appleId: $appleId, appPassword: $appPassword)
+  }
+`;
+
+export const DISCONNECT_ICLOUD_CALENDAR = gql`
+  mutation DisconnectICloudCalendar {
+    disconnectIcloudCalendar
+  }
+`;
+
+export const SYNC_ICLOUD_CALENDAR_NOW = gql`
+  mutation SyncICloudCalendarNow {
+    syncIcloudCalendarNow
   }
 `;
 
