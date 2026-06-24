@@ -896,7 +896,10 @@
       "openFullView": "Abrir proyecto",
       "detail": {
         "title": "Detalle del proyecto",
-        "closeTooltip": "Cerrar (Esc)"
+        "closeTooltip": "Cerrar (Esc)",
+        "dueDate": "Fecha límite",
+        "noDueDate": "Sin fecha",
+        "clearDueDate": "Quitar fecha"
       },
       "card": {
         "overdueBadge": "{count} vencidas",

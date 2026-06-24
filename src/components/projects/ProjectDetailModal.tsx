@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import {
+  Calendar,
   CheckCircle2,
   Clock,
   Edit2,
@@ -150,6 +151,14 @@ export function ProjectDetailModal({
                 onChange={(categoryId) => onSaveProject({ categoryId })}
                 categoryById={categoryById}
                 tProjectModal={tProjectModal}
+              />
+              <DueDateSelect
+                value={p.dueDate}
+                onChange={(dueDate) => onSaveProject({ dueDate })}
+                locale={locale}
+                label={tDetail("dueDate")}
+                emptyLabel={tDetail("noDueDate")}
+                clearLabel={tDetail("clearDueDate")}
               />
             </div>
             <div className="text-xs text-text-muted">
@@ -453,6 +462,85 @@ function PrioritySelect({
           </option>
         ))}
       </select>
+    </label>
+  );
+}
+
+function DueDateSelect({
+  value,
+  onChange,
+  locale,
+  label,
+  emptyLabel,
+  clearLabel,
+}: {
+  value: string | null;
+  onChange: (next: string | null) => void;
+  locale: string;
+  label: string;
+  emptyLabel: string;
+  clearLabel: string;
+}) {
+  const isoToInputDate = (iso?: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const inputDateToIso = (s: string) => {
+    if (!s) return null;
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0).toISOString();
+  };
+  const display = value
+    ? new Date(value).toLocaleDateString(locale, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : emptyLabel;
+
+  return (
+    <label
+      className={`relative text-xs px-2 py-0.5 rounded border flex items-center gap-1 cursor-pointer hover:opacity-80 ${
+        value
+          ? "bg-surface border-border text-text"
+          : "bg-surface border-border text-text-muted border-dashed"
+      }`}
+      title={label}
+    >
+      <Calendar size={10} />
+      <span>{display}</span>
+      {value && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onChange(null);
+          }}
+          className="relative z-10 ml-0.5 text-text-muted hover:text-red-400"
+          aria-label={clearLabel}
+        >
+          <X size={10} />
+        </button>
+      )}
+      <input
+        type="date"
+        value={isoToInputDate(value)}
+        onChange={(e) => onChange(inputDateToIso(e.target.value))}
+        onClick={(e) => {
+          const el = e.currentTarget as HTMLInputElement & {
+            showPicker?: () => void;
+          };
+          try {
+            el.showPicker?.();
+          } catch {
+            /* showPicker unsupported / not allowed — fall back to native focus */
+          }
+        }}
+        className="absolute inset-0 opacity-0 cursor-pointer"
+        aria-label={label}
+      />
     </label>
   );
 }

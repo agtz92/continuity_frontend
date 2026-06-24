@@ -896,7 +896,10 @@
       "openFullView": "Open project",
       "detail": {
         "title": "Project detail",
-        "closeTooltip": "Close (Esc)"
+        "closeTooltip": "Close (Esc)",
+        "dueDate": "Due date",
+        "noDueDate": "No due date",
+        "clearDueDate": "Clear due date"
       },
       "card": {
         "overdueBadge": "{count} overdue",
