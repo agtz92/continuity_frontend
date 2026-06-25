@@ -146,6 +146,56 @@ export function RoutineChip({
   );
 }
 
+/**
+ * Compact iOS-style event block for the Month grid: a colored bar with the
+ * title (and optional time on a second line). No inline controls — tapping
+ * drills into the Day view, which keeps narrow month cells legible.
+ */
+export function EventBlock({
+  label,
+  time,
+  colorClass,
+  count,
+  strike,
+  onClick,
+}: {
+  label: string;
+  time?: string | null;
+  colorClass: string;
+  count?: number;
+  strike?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      className={`w-full text-left rounded-sm border px-1 py-0.5 overflow-hidden hover:opacity-80 ${colorClass}`}
+    >
+      <span className="flex items-center gap-1">
+        <span
+          className={`text-[10px] leading-tight truncate flex-1 ${
+            strike ? "line-through opacity-60" : ""
+          }`}
+        >
+          {label}
+        </span>
+        {count != null && (
+          <span className="shrink-0 text-[9px] tabular-nums opacity-75">
+            {count}
+          </span>
+        )}
+      </span>
+      {time && (
+        <span className="block text-[9px] leading-tight opacity-70 truncate">
+          {time}
+        </span>
+      )}
+    </button>
+  );
+}
+
 /** Thin per-day load bar; width and color scale with estimated hours. */
 export function LoadBar({ load }: { load: DayLoad }) {
   const color =
