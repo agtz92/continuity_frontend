@@ -3,6 +3,7 @@
 import {
   Activity,
   BarChart3,
+  Calendar,
   CheckCircle2,
   Lightbulb,
   NotebookPen,
@@ -18,6 +19,7 @@ export type DashboardView =
   | "projects"
   | "tasks"
   | "routines"
+  | "calendar"
   | "ideas"
   | "notes"
   | "log"
@@ -29,6 +31,7 @@ const TABS = [
   { id: "projects", icon: Activity },
   { id: "tasks", icon: CheckCircle2 },
   { id: "routines", icon: Repeat },
+  { id: "calendar", icon: Calendar },
   { id: "ideas", icon: Lightbulb },
   { id: "notes", icon: NotebookPen },
   { id: "log", icon: TrendingUp },

@@ -50,6 +50,7 @@ import { QuickNotesView } from "./views/QuickNotesView";
 import { TasksView } from "./views/TasksView";
 import { ProjectsView } from "./views/ProjectsView";
 import { RoutinesView } from "./views/RoutinesView";
+import { CalendarView } from "./views/CalendarView";
 import { TodayView } from "./views/TodayView";
 
 export default function Dashboard() {
@@ -473,6 +474,25 @@ export default function Dashboard() {
             }}
             onArchiveRoutine={(r) => archiveRoutine(r.id, !r.archived)}
             onDeleteRoutine={deleteRoutine}
+            onCompleteOccurrence={completeOccurrence}
+            onUncompleteOccurrence={uncompleteOccurrence}
+          />
+        )}
+
+        {/* CALENDAR */}
+        {view === "calendar" && (
+          <CalendarView
+            projects={projects}
+            tasks={tasks}
+            routines={routines}
+            occurrences={routineOccurrences}
+            categories={categories}
+            onOpenProject={openProject}
+            onEditTask={(task) => {
+              setEditingTask(task);
+              setShowTaskModal(true);
+            }}
+            onToggleTask={toggleTask}
             onCompleteOccurrence={completeOccurrence}
             onUncompleteOccurrence={uncompleteOccurrence}
           />

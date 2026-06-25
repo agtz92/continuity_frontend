@@ -169,6 +169,7 @@
     "projects": "Proyectos",
     "tasks": "Tareas",
     "routines": "Rutinas",
+    "calendar": "Calendario",
     "ideas": "Ideas",
     "notes": "Notas",
     "log": "Bitácora",
@@ -718,6 +719,20 @@
     }
   },
   "views": {
+    "calendar": {
+      "viewDay": "Día",
+      "viewWeek": "Semana",
+      "viewMonth": "Mes",
+      "today": "Hoy",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "showTasks": "Ver tareas",
+      "load": "Carga",
+      "allDay": "Todo el día",
+      "now": "ahora",
+      "more": "+{count} más",
+      "empty": "Nada agendado aquí"
+    },
     "today": {
       "greeting": {
         "morning": "Buenos días",

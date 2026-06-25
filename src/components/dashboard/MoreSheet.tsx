@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Calendar,
   ChevronRight,
   Lightbulb,
   NotebookPen,
@@ -16,12 +17,13 @@ import type { DashboardView } from "./TabBar";
 type MoreItem = {
   id: Extract<
     DashboardView,
-    "ideas" | "notes" | "log" | "analytics" | "graveyard"
+    "calendar" | "ideas" | "notes" | "log" | "analytics" | "graveyard"
   >;
   icon: LucideIcon;
 };
 
 const ITEMS: MoreItem[] = [
+  { id: "calendar", icon: Calendar },
   { id: "ideas", icon: Lightbulb },
   { id: "notes", icon: NotebookPen },
   { id: "log", icon: TrendingUp },
