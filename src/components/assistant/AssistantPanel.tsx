@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Send, Square, Sparkles, X, Plus, AlertCircle, Brain } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { MessageList } from "./MessageList";
 import { PlanBadge } from "./PlanBadge";
 import { UsageMeter } from "./UsageMeter";
@@ -39,6 +40,10 @@ export function AssistantPanel({
   } = useAssistant();
   const [input, setInput] = useState("");
   const [deepMode, setDeepMode] = useState(false);
+  // On mobile the on-screen keyboard's Enter must insert a newline (there's no
+  // Shift), so we only send via the button. On desktop, Enter sends and
+  // Shift+Enter inserts a newline.
+  const isMobile = useIsMobile();
 
   // Free is read-only; pro/studio/admin can create and edit (write tools
   // require plan_required="pro"). Keep this in sync with the backend gating.
@@ -215,6 +220,10 @@ export function AssistantPanel({
             value={input}
             onChange={(e) => setInput(e.target.value.slice(0, MAX_INPUT_CHARS))}
             onKeyDown={(e) => {
+              // Never send mid-IME-composition (accents, CJK, autocomplete).
+              if (e.nativeEvent.isComposing) return;
+              // Mobile: let Enter insert a newline; sending is button-only.
+              if (isMobile) return;
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSubmit(e as unknown as FormEvent);
