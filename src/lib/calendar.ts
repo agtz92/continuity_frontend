@@ -223,6 +223,24 @@ export const timeToMinutes = (hms: string | null): number | null => {
   return h * 60 + (m || 0);
 };
 
+/**
+ * Short, locale-aware clock label for a "HH:MM[:SS]" string (e.g. "9 AM",
+ * "10:45 a. m."). Returns null for all-day (no time). Minutes are omitted on
+ * the hour to stay compact in narrow calendar cells.
+ */
+export const formatTime = (
+  hms: string | null,
+  locale: string
+): string | null => {
+  const mins = timeToMinutes(hms);
+  if (mins == null) return null;
+  const d = new Date(2000, 0, 1, Math.floor(mins / 60), mins % 60);
+  return d.toLocaleTimeString(locale, {
+    hour: "numeric",
+    ...(mins % 60 ? { minute: "2-digit" } : {}),
+  });
+};
+
 /** Block length in minutes: explicit duration → effort → 60min default. */
 export const blockMinutes = (
   durationMinutes: number | null,

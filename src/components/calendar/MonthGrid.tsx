@@ -4,15 +4,16 @@ import type { ReactNode } from "react";
 import type { Category, Project, Task } from "@/lib/types";
 import {
   dayLoad,
+  formatTime,
   isSameMonth,
   rollupByProject,
   type RoutineItem,
 } from "@/lib/calendar";
 import {
+  EventBlock,
   LoadBar,
-  ProjectChip,
-  RoutineChip,
-  TaskChip,
+  ROUTINE_CHIP,
+  projectChipClass,
   type CalendarHandlers,
 } from "./parts";
 
@@ -30,7 +31,6 @@ export function MonthGrid({
   categoryById,
   showTasks,
   showLoad,
-  handlers,
   onPickDay,
   moreLabel,
 }: {
@@ -77,33 +77,40 @@ export function MonthGrid({
               const r = rollups[i];
               if (showTasks || !r.project) {
                 for (const t of r.tasks) {
+                  const project = t.projectId
+                    ? projectsById.get(t.projectId) ?? null
+                    : null;
                   chips.push(
-                    <TaskChip
+                    <EventBlock
                       key={t.id}
-                      task={t}
-                      onEditTask={handlers.onEditTask}
-                      onToggleTask={handlers.onToggleTask}
+                      label={t.title}
+                      time={formatTime(t.dueTime, locale)}
+                      colorClass={projectChipClass(project, categoryById)}
+                      onClick={() => onPickDay(iso)}
                     />
                   );
                 }
               } else {
                 chips.push(
-                  <ProjectChip
+                  <EventBlock
                     key={r.project.id}
-                    rollup={r}
-                    categoryById={categoryById}
-                    onOpenProject={handlers.onOpenProject}
+                    label={r.project.name}
+                    count={r.tasks.length}
+                    colorClass={projectChipClass(r.project, categoryById)}
+                    onClick={() => onPickDay(iso)}
                   />
                 );
               }
             }
             for (const item of dayRoutines) {
               chips.push(
-                <RoutineChip
+                <EventBlock
                   key={`${item.routine.id}-${item.scheduledDate}`}
-                  item={item}
-                  onCompleteOccurrence={handlers.onCompleteOccurrence}
-                  onUncompleteOccurrence={handlers.onUncompleteOccurrence}
+                  label={item.routine.title}
+                  time={formatTime(item.routine.timeOfDay, locale)}
+                  colorClass={ROUTINE_CHIP}
+                  strike={item.completed}
+                  onClick={() => onPickDay(iso)}
                 />
               );
             }
@@ -113,7 +120,7 @@ export function MonthGrid({
             return (
               <div
                 key={iso}
-                className={`min-h-[96px] rounded-lg border p-1 flex flex-col gap-1 bg-surface ${
+                className={`min-h-[104px] md:min-h-[112px] rounded-lg border p-1 flex flex-col gap-0.5 bg-surface ${
                   isToday ? "border-accent" : "border-border"
                 } ${inMonth ? "" : "opacity-45"}`}
               >
