@@ -3,13 +3,11 @@
 import { useEffect } from "react";
 import {
   Calendar,
-  CheckCircle2,
-  Clock,
-  Edit2,
   Plus,
   Trash2,
   X,
 } from "lucide-react";
+import { ProjectTaskRow } from "./ProjectTaskRow";
 import { useLocale, useTranslations } from "next-intl";
 import type {
   Category,
@@ -269,64 +267,29 @@ export function ProjectDetailModal({
                 .sort((a, b) =>
                   (b.completedAt ?? "").localeCompare(a.completedAt ?? "")
                 );
-              const renderTaskRow = (task: Task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-2 group py-1"
-                >
-                  <button
-                    onClick={() => onToggleTask(task)}
-                    className={`shrink-0 ${
-                      task.done
-                        ? "text-accent"
-                        : "text-text-muted hover:text-text-muted"
-                    }`}
-                  >
-                    <CheckCircle2 size={16} />
-                  </button>
-                  <span
-                    className={`text-sm flex-1 ${
-                      task.done
-                        ? "line-through text-text-muted"
-                        : "text-text"
-                    }`}
-                  >
-                    {task.title}
-                  </span>
-                  {task.dueDate && (
-                    <span className="text-xs text-text-muted">
-                      {new Date(task.dueDate).toLocaleDateString(locale)}
-                    </span>
-                  )}
-                  {task.effortHours != null && (
-                    <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                      <Clock size={10} />
-                      {task.effortHours}h
-                    </span>
-                  )}
-                  <button
-                    onClick={() => onEditTask(task)}
-                    className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                    aria-label={tCard("editTaskAria")}
-                  >
-                    <Edit2 size={14} />
-                  </button>
-                  <button
-                    onClick={() => onDeleteTask(task.id)}
-                    className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                    aria-label={tCard("deleteTaskAria")}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              );
               return (
                 <div className="space-y-1">
-                  {pendingTasks.map(renderTaskRow)}
+                  {pendingTasks.map((task) => (
+                    <ProjectTaskRow
+                      key={task.id}
+                      task={task}
+                      onToggleTask={onToggleTask}
+                      onEditTask={onEditTask}
+                      onDeleteTask={onDeleteTask}
+                    />
+                  ))}
                   <ShowMoreList
                     items={doneTasks}
                     initialCount={5}
-                    renderItem={renderTaskRow}
+                    renderItem={(task) => (
+                      <ProjectTaskRow
+                        key={task.id}
+                        task={task}
+                        onToggleTask={onToggleTask}
+                        onEditTask={onEditTask}
+                        onDeleteTask={onDeleteTask}
+                      />
+                    )}
                     itemKey={(task) => task.id}
                   />
                 </div>
