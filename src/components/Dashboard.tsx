@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * Orquestador principal de la app: enruta entre las vistas del tablero, posee
+ * el estado de TODOS los modales y maneja la máquina de estados del ciclo de
+ * vida de un proyecto (pausar/matar vía rituales de cierre, welcome-back al
+ * reactivar, y la cola de proyectos "stalled" que el backend marca al cargar).
+ * Concentra estado y prop-drilling a propósito por ahora (ver TODO al final).
+ */
+
 import { useMemo, useState } from "react";
 import { AlertCircle } from "lucide-react";
 
@@ -53,6 +61,14 @@ import { RoutinesView } from "./views/RoutinesView";
 import { CalendarView } from "./views/CalendarView";
 import { TodayView } from "./views/TodayView";
 
+/**
+ * Componente raíz del tablero. Coordina la carga de datos (useDashboardData),
+ * las mutaciones por entidad (proyectos/tareas/ideas/notas/categorías/rutinas),
+ * el estado de modales y vistas, y los rituales de ciclo de vida de proyecto.
+ * TODO: refactor — extraer useDashboardModals / useProjectLifecycle / useStalledQueue
+ * y DashboardViewRouter/DashboardModals; god-object de estado + prop-drilling
+ * (ver AUDITORIA_CODIGO.md).
+ */
 export default function Dashboard() {
   useLocaleSync();
   useThemeSync();
@@ -100,6 +116,9 @@ export default function Dashboard() {
     refetch,
   });
 
+  // --- Estado de vista y modales ---
+  // Dashboard es el dueño único del estado de los modales: las vistas hijas solo
+  // reciben handlers para abrirlos/poblarlos, y aquí se cierran al confirmar.
   const [view, setView] = useState<DashboardView>("today");
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -125,7 +144,10 @@ export default function Dashboard() {
   const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
   const viewingProject = projects.find((p) => p.id === viewingProjectId) ?? null;
 
-  // --- State Closure: pause/kill rituals, welcome-back, stalled queue ---
+  // --- Lógica de ciclo de vida (State Closure): rituales pause/kill, welcome-back, cola stalled ---
+  // Estas transiciones no son guardados simples: pausar/matar exigen notas de
+  // cierre, reactivar abre un welcome-back, y los proyectos stalled se procesan
+  // de a uno. La máquina vive aquí porque cruza varias vistas y modales.
   type SaveArgs = Parameters<typeof saveProject>[0];
   // A closure transition that needs notes before it can be saved. `base` holds
   // the full save payload (with status already set to paused/killed); the modal
@@ -146,6 +168,7 @@ export default function Dashboard() {
       ),
     [projects, stalledHandled]
   );
+  // Solo se muestra la cabeza de la cola; al descartarla el siguiente sube.
   const currentStalled = stalledQueue[0] ?? null;
   const dismissStalled = (id: string) =>
     setStalledHandled((prev) => new Set(prev).add(id));
@@ -214,6 +237,7 @@ export default function Dashboard() {
     activities,
   });
 
+  // --- Handlers de guardado: cierran su modal solo si la mutación tuvo éxito ---
   // Thin wrappers that close modals on success — Dashboard owns modal state.
   const handleSaveProject = async (p: Parameters<typeof saveProject>[0]) => {
     // Editing an existing project to paused/killed → route through the closure
@@ -342,6 +366,8 @@ export default function Dashboard() {
         </div>
 
         <TabBar view={view} onChange={setView} />
+
+        {/* --- Ruteo de vista: una sola pestaña activa según `view` --- */}
 
         {/* TODAY */}
         {view === "today" && (
@@ -567,6 +593,8 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* --- Capa de modales: montados a nivel raíz, gateados por su flag de estado --- */}
+
       {showProjectModal && (
         <ProjectModal
           project={editingProject}
@@ -771,6 +799,8 @@ export default function Dashboard() {
       })()}
 
       {/* Stalled queue — one project at a time on load. */}
+      {/* Se suprime si hay un cierre o welcome-back abiertos: esos modales nacen
+          DESDE el stalled (pausar/matar) y no deben quedar tapados por él. */}
       {currentStalled && !closure && !welcomeBack && (
         <StalledProjectModal
           project={currentStalled}

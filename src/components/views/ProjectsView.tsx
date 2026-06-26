@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * ProjectsView — lista principal de proyectos con búsqueda, filtros (estado,
+ * categoría, prioridad, vencimiento) y varios modos de orden, incluido "Mi orden"
+ * (manual) con drag & drop persistido en `Project.position`.
+ * Cada fila es expandible in situ y muestra el detalle del proyecto: tareas
+ * (pendientes/hechas), log de updates y notas, sin abrir el modal completo.
+ */
+
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import {
@@ -79,6 +87,13 @@ import { useStableLayout, type LayoutEntry } from "@/lib/useStableLayout";
 type SmartSection = "attention" | "risk" | "rest";
 const SMART_SECTION_ORDER: SmartSection[] = ["attention", "risk", "rest"];
 
+/**
+ * Vista de lista de proyectos. Mantiene en estado local el término de búsqueda,
+ * los cuatro filtros y el modo de orden; el detalle expandido se controla desde
+ * fuera vía `selectedProject`/`onSelectProject` para que sea compartible con otras
+ * vistas (deep links, saltos desde TodayView). Las mutaciones (crear/editar/borrar
+ * proyecto y tarea, log de update, reordenar) se delegan por callbacks.
+ */
 export function ProjectsView({
   projects,
   tasks,
@@ -146,6 +161,13 @@ export function ProjectsView({
     return toLocalISO(d);
   }, []);
 
+  // Predicados de filtro reutilizables: la misma lógica alimenta el listado real
+  // (`filtered`), la previsualización de conteo del sheet (`previewCount`) y el
+  // efecto que revela un proyecto seleccionado oculto. Reciben el valor del filtro
+  // por parámetro (sufijo `With`) para poder evaluar drafts sin tocar el estado.
+
+  /** Vencimiento: "all" pasa todo; "none" solo sin fecha; "overdue" antes de hoy;
+   *  el resto es la ventana [hoy, hoy+7] definida por `horizonISO`. */
   const matchesDueWith = (p: Project, due: DueFilter) => {
     if (due === "all") return true;
     if (due === "none") return !p.dueDate;
@@ -167,6 +189,8 @@ export function ProjectsView({
   const matchesCategoryWith = (p: Project, categoryId: string | null) =>
     categoryId === null || p.categoryId === categoryId;
 
+  /** Conteo en vivo que muestra el sheet de filtros mientras el usuario edita un
+   *  draft, sin aplicarlo todavía (la búsqueda no entra: el sheet no la edita). */
   const previewCount = (draft: ProjectFilterDraft) =>
     projects.filter(
       (p) =>
@@ -248,6 +272,8 @@ export function ProjectsView({
   );
 
   const q = projectSearch.trim().toLowerCase();
+  /** Búsqueda de texto libre sobre los campos visibles del proyecto y el nombre
+   *  de su categoría; sin término (`q` vacío) no filtra nada. */
   const matchesSearch = (p: Project) => {
     if (!q) return true;
     const cat = p.categoryId ? categoryById[p.categoryId]?.name ?? "" : "";
@@ -269,6 +295,9 @@ export function ProjectsView({
       matchesDueWith(p, projectDueFilter)
   );
 
+  /** Bucket de urgencia para los modos "smart" y la sección Smart: 0 vencidas,
+   *  1 vence hoy, 2 inactivo >=7 días (active/idea), 3 resto. Cuanto menor, más
+   *  arriba aparece. */
   const urgencyBucket = (p: Project) => {
     const projectTasks = tasks.filter((tk) => tk.projectId === p.id);
     const hasOverdue = projectTasks.some((tk) => !tk.done && isOverdue(tk.dueDate));
@@ -283,6 +312,11 @@ export function ProjectsView({
   const recentTs = (p: Project) => new Date(p.lastActivity).getTime();
   const byName = (a: Project, b: Project) => a.name.localeCompare(b.name, locale);
 
+  /**
+   * Comparador único parametrizado por `projectSortMode`. Cada modo aporta su
+   * clave primaria (position / prioridad / reciente / nombre / estado / urgencia)
+   * y todos caen al desempate alfabético para que el orden sea determinista.
+   */
   // (B) Alphabetical is the STABLE final tiebreaker everywhere. `lastActivity`
   // is only a sort key in "recent" — it no longer sneaks in as a secondary key
   // (that's what used to fling an edited project to the top of its band).
@@ -608,6 +642,15 @@ export function ProjectsView({
           );
         }
 
+        // TODO: refactor — extraer renderRow (368 líneas, 8 niveles) a ProjectRow/ProjectRowExpanded + TaskRow compartido con ProjectDetailModal (ver AUDITORIA_CODIGO.md)
+        /**
+         * Construye una fila de proyecto: la cabecera siempre visible (estado,
+         * nombre, badges derivados, progreso) y, si está seleccionada, el bloque
+         * de detalle expandido (next step, why, descripción, tareas, updates,
+         * notas y acciones). Recibe `dragHandle` opcional que el modo manual
+         * inyecta para arrastrar. Los contadores y badges se derivan aquí por fila
+         * a partir de `tasks`/`activities`, no se memoizan (lista corta esperada).
+         */
         const renderRow = (p: Project, dragHandle?: ReactNode) => {
                 const projectTasks = tasks.filter((t) => t.projectId === p.id);
                 const done = projectTasks.filter((t) => t.done).length;
@@ -632,6 +675,7 @@ export function ProjectsView({
                 const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
                 return (
+                  // ===== Fila base (siempre visible) =====
                   <div
                     key={p.id}
                     className={`relative transition-colors ${
@@ -675,6 +719,9 @@ export function ProjectsView({
                               {categoryById[p.categoryId].name}
                             </span>
                           )}
+                          {/* Un solo badge por prioridad: vencidas > hoy > inactivo
+                              > horas pendientes. Es excluyente (cadena de ternarios),
+                              no se apilan. */}
                           {overdueCount > 0 ? (
                             <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40 shrink-0">
                               {tCard("overdueBadge", { count: overdueCount })}
@@ -723,6 +770,10 @@ export function ProjectsView({
                       )}
                     </div>
 
+                    {/* ===== Detalle expandido (solo la fila seleccionada) =====
+                        Los updates ("recent activity") salen de `activities` con
+                        kind="note"; las notas largas vienen aparte en
+                        `notesByProject`. */}
                     {isExpanded && (() => {
                       const projectNotes = activities.filter(
                         (a) => a.kind === "note" && a.projectId === p.id
@@ -780,6 +831,7 @@ export function ProjectsView({
                           )}
                         </ProjectSection>
 
+                        {/* --- Tareas: pendientes arriba, hechas colapsadas --- */}
                         <ProjectSection
                           title={tCard("tasks")}
                           rightSlot={
@@ -804,12 +856,17 @@ export function ProjectsView({
                               {tCard("noTasks")}
                             </div>
                           ) : (() => {
+                            // Pendientes en su orden natural; hechas al final,
+                            // más recientes primero (por completedAt) y plegadas
+                            // tras las primeras 5 vía ShowMoreList.
                             const pendingTasks = projectTasks.filter((tk) => !tk.done);
                             const doneTasks = projectTasks
                               .filter((tk) => tk.done)
                               .sort((a, b) =>
                                 (b.completedAt ?? "").localeCompare(a.completedAt ?? "")
                               );
+                            /** Fila de tarea compartida por pendientes y hechas:
+                             *  toggle, título, fecha/esfuerzo y acciones editar/borrar. */
                             const renderTaskRow = (task: Task) => (
                               <div
                                 key={task.id}
@@ -884,6 +941,7 @@ export function ProjectsView({
                           })()}
                         </ProjectSection>
 
+                        {/* --- Log de updates (actividad reciente) --- */}
                         <ProjectSection
                           title={tCard("recentActivity")}
                           rightSlot={
@@ -934,6 +992,7 @@ export function ProjectsView({
                           </div>
                         </ProjectSection>
 
+                        {/* --- Notas largas del proyecto (NotesSection) --- */}
                         <ProjectSection
                           title={tCard("notes")}
                           rightSlot={
@@ -992,6 +1051,9 @@ export function ProjectsView({
         }
 
         // (A/C) Frozen layout, grouped into sections for Smart.
+        // Recorre el orden congelado (`entries`, de useStableLayout) en vez de
+        // `sorted` para no reordenar mientras el usuario edita; en Smart inserta
+        // un SectionHeader cada vez que cambia la sección de urgencia.
         const rows: ReactNode[] = [];
         let currentSection: string | null = null;
         for (const entry of entries) {

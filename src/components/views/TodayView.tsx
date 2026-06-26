@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * Vista "Hoy" del dashboard: orquesta todas las secciones del día (foco del día,
+ * rutinas, completadas hoy, proyectos cerrables, dormidos, ideas viejas, activos y
+ * lanzados con tareas) y un modo "personalizar" para reordenar/ocultar secciones.
+ * El orden y la visibilidad viven en useTodayLayout; cada sección se prerenderiza
+ * en `sectionNodes` y solo se pinta si tiene datos.
+ *
+ * TODO: refactor — dividir en components/today/<Seccion>.tsx + hook useTodayViewLogic;
+ * ~25 estados y render de ~700 líneas (ver AUDITORIA_CODIGO.md)
+ */
+
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -70,6 +81,10 @@ function greetingKey(): "morning" | "afternoon" | "evening" {
   return "evening";
 }
 
+// Estilos hardcodeados por "bucket" de antigüedad (días inactivos): el color
+// escala de ámbar → naranja → rojo para comunicar urgencia visual. Se usan clases
+// fijas de la paleta Tailwind (no del tema) a propósito, porque la semántica de
+// "más viejo = más alarmante" debe ser constante independiente de la palette del usuario.
 const sleepingBucketStyle = {
   "7-14": {
     chip: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
@@ -106,6 +121,19 @@ const MOBILE_ONLY_SECTIONS: ReadonlySet<TodaySectionId> = new Set([
   "counters",
 ]);
 
+/**
+ * Componente principal de la vista "Hoy". Recibe ya calculados los datos crudos del
+ * dashboard (proyectos, tareas, rutinas, actividades, notas, stats de productividad) y
+ * los handlers de navegación/mutación; aquí solo deriva los agregados del día y arma el
+ * render de cada sección.
+ *
+ * Efectos secundarios: lee el query param `?customize=1` para abrir el editor de layout
+ * una sola vez (y lo limpia con router.replace); llama a `onRefresh` al salir del modo
+ * personalizar; delega mutaciones (toggle de tareas, completar ocurrencias, etc.) a los
+ * handlers recibidos por props.
+ *
+ * @returns El árbol de la vista "Hoy" (saludo, secciones visibles u editor de layout, FAB).
+ */
 export function TodayView({
   projects,
   tasks,
@@ -249,6 +277,12 @@ export function TodayView({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  /**
+   * Persiste el reorden de secciones tras un drag en el editor de layout: traduce los
+   * ids arrastrados (active/over) a índices dentro de `layout.order` y delega en
+   * `layout.reorder`. No hace nada si se suelta fuera o sobre la misma sección.
+   * Efecto secundario: muta el orden guardado en useTodayLayout.
+   */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -258,6 +292,11 @@ export function TodayView({
     layout.reorder(fromIdx, toIdx);
   };
 
+  /**
+   * Resuelve el proyecto y color de categoría de una rutina para pintarlos en su fila.
+   * Devuelve undefined si la rutina es standalone (sin proyecto) o si el proyecto/
+   * categoría ya no existen; el color cae a "emerald" cuando no hay categoría.
+   */
   const resolveRoutineProject = (r: Routine) => {
     if (!r.projectId) return undefined;
     const proj = projects.find((p) => p.id === r.projectId);
@@ -271,6 +310,14 @@ export function TodayView({
     [projects]
   );
 
+  /**
+   * Ocurrencias de rutina pendientes que deben mostrarse hoy: combina las fechas debidas
+   * (computeDueDates) en una ventana de 14 días hacia atrás con las ya completadas
+   * (completedDatesFor) y deja solo las no hechas. La ventana de 14 días arrastra rutinas
+   * vencidas recientes sin acumular un backlog infinito. Las rutinas archivadas o de un
+   * proyecto en estado no-diario (pausado/stalled/killed/archivado) se excluyen, igual que
+   * las tareas; las standalone siempre se incluyen. Orden ascendente por fecha.
+   */
   const todayRoutineItems = useMemo(() => {
     const today = todayLocalISODate();
     const lookback = new Date();
@@ -295,6 +342,8 @@ export function TodayView({
     return items;
   }, [routines, routineOccurrences, projectById]);
 
+  // Desglosa las ocurrencias pendientes en vencidas (antes de hoy) vs. de hoy, para
+  // mostrar conteos diferenciados en el chip de la cabecera de la sección de rutinas.
   const todayRoutineCounts = useMemo(() => {
     const today = todayLocalISODate();
     const overdue = todayRoutineItems.filter(
@@ -306,6 +355,8 @@ export function TodayView({
     return { overdue, dueToday, total: overdue + dueToday };
   }, [todayRoutineItems]);
 
+  // Suma de horas de esfuerzo estimado de las rutinas pendientes hoy; se redondea a 1
+  // decimal para el chip de "horas totales".
   const todayRoutineEffortHours = useMemo(() => {
     const sum = todayRoutineItems.reduce(
       (acc, it) => acc + (it.routine.effortHours ?? 0),
@@ -326,6 +377,8 @@ export function TodayView({
     [projects]
   );
 
+  // Tarjetas de conteo (solo mobile) con el resumen numérico del día. El orden define el
+  // orden visual del carrusel horizontal; los tints son clases sólidas del tema.
   const counters: { id: string; label: string; value: number; tint: string }[] = [
     {
       id: "active",
@@ -367,9 +420,12 @@ export function TodayView({
 
   // ---------- Section nodes (preserved JSX, one entry per section id) ---------- //
   // A section without data simply has no entry — undefined means "skip render".
+  // Cada `if` decide si la sección tiene datos suficientes para pintarse; el orden de
+  // estos bloques NO determina el orden visual (eso lo decide `layout.order` en el render).
 
   const sectionNodes: Partial<Record<TodaySectionId, ReactNode>> = {};
 
+  // --- Sección: counters (resumen numérico, solo mobile) ---
   if (hasData) {
     sectionNodes.counters = (
       <div
@@ -391,6 +447,7 @@ export function TodayView({
     );
   }
 
+  // --- Sección: stalled-alert (proyectos estancados que piden atención) ---
   if (stalled.length > 0) {
     sectionNodes["stalled-alert"] = (
       <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
@@ -420,6 +477,8 @@ export function TodayView({
     );
   }
 
+  // --- Sección: today-focus (foco del día: tareas vencidas/de hoy + próximos pasos) ---
+  // Siempre se registra (sin guard de datos): aun vacía muestra un estado vacío con hint.
   sectionNodes["today-focus"] = (
     <CollapsibleSection
       open={showTodayFocus}
@@ -521,6 +580,8 @@ export function TodayView({
                       </span>
                       {item.type === "overdue" &&
                         item.task?.dueDate &&
+                        // IIFE para calcular los días de atraso una sola vez y omitir el
+                        // badge si daysOverdue devuelve null (fecha no parseable / no vencida).
                         (() => {
                           const n = daysOverdue(item.task.dueDate);
                           return n !== null ? (
@@ -583,6 +644,7 @@ export function TodayView({
     </CollapsibleSection>
   );
 
+  // --- Sección: routines-today (rutinas pendientes hoy y vencidas) ---
   if (todayRoutineItems.length > 0) {
     sectionNodes["routines-today"] = (
       <CollapsibleSection
@@ -645,6 +707,9 @@ export function TodayView({
     );
   }
 
+  // --- Sección: done-today (lo completado hoy: tareas, rutinas y logs/notas de avance) ---
+  // doneTodayItems mezcla varios `kind`; `doneTodayFilter` permite ver solo tareas o solo
+  // logs, y el filtro actúa como toggle (volver a tocar el chip activo regresa a "all").
   if (doneTodayItems.length > 0) {
     const taskCount = doneTodayItems.filter((i) => i.kind === "task").length;
     const logCount = doneTodayItems.filter((i) => i.kind === "log").length;
@@ -870,6 +935,7 @@ export function TodayView({
     );
   }
 
+  // --- Sección: closeable (proyectos cerca de cerrarse: "casi listos" + "quick wins") ---
   if (closableTotal > 0) {
     sectionNodes.closeable = (
       <CollapsibleSection
@@ -933,6 +999,7 @@ export function TodayView({
     );
   }
 
+  // --- Sección: sleeping (proyectos dormidos por inactividad, agrupados por bucket) ---
   if (sleepingProjects.length > 0) {
     sectionNodes.sleeping = (
       <CollapsibleSection
@@ -989,6 +1056,7 @@ export function TodayView({
     );
   }
 
+  // --- Sección: stale-ideas (ideas viejas sin tocar; banner que lleva a la pestaña Ideas) ---
   if (staleIdeas.length > 0) {
     sectionNodes["stale-ideas"] = (
       <button
@@ -1017,6 +1085,7 @@ export function TodayView({
     );
   }
 
+  // --- Sección: active-projects (proyectos en estado "active" como tarjetas compactas) ---
   if (activeProjectsCount > 0) {
     sectionNodes["active-projects"] = (
       <CollapsibleSection
@@ -1058,6 +1127,7 @@ export function TodayView({
     );
   }
 
+  // --- Sección: launched-with-tasks (proyectos ya lanzados que aún tienen tareas abiertas) ---
   if (launchedWithOpenTasks.length > 0) {
     sectionNodes["launched-with-tasks"] = (
       <CollapsibleSection
@@ -1099,6 +1169,7 @@ export function TodayView({
 
   // ---------- Render ---------- //
 
+  // Entrar/salir del modo "personalizar" (editor de orden y visibilidad de secciones).
   const enterEdit = () => layout.setEditMode(true);
   const exitEdit = () => {
     layout.setEditMode(false);
@@ -1144,6 +1215,13 @@ export function TodayView({
         {!layout.editMode && customizeButton}
       </div>
 
+      {/*
+        Dos modos de render:
+        - editMode: lista arrastrable de TODAS las secciones (incl. ocultas y sin datos)
+          para reordenar/ocultar; los children van vacíos, solo importa el chrome.
+        - normal: recorre layout.order saltando las ocultas y las sin nodo (sin datos),
+          y pinta el footer con el conteo de secciones ocultas.
+      */}
       {layout.editMode ? (
         <>
           <TodayCustomizeBar

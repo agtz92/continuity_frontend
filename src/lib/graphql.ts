@@ -1,5 +1,15 @@
+/**
+ * Catálogo central de queries y mutations GraphQL de Apollo, escritas a mano con `gql`.
+ * NO es código generado por codegen: cada documento (y cada selección de campos) se
+ * mantiene manualmente, por lo que las field-lists deben quedar en sync con el schema
+ * del backend (Strawberry) a mano.
+ *
+ * TODO: refactor — partir este archivo por dominio en
+ * lib/graphql/{queries,mutations}/<dominio>.ts + fragments.ts (ver AUDITORIA_CODIGO.md)
+ */
 import { gql } from "@apollo/client";
 
+// ===== Core / sesión =====
 export const ME_QUERY = gql`
   query Me {
     me {
@@ -9,6 +19,7 @@ export const ME_QUERY = gql`
   }
 `;
 
+// ===== MCP: conexiones del usuario =====
 export const MCP_CONNECTIONS_QUERY = gql`
   query McpConnections {
     mcpConnections {
@@ -25,6 +36,7 @@ export const REVOKE_MCP_CONNECTION = gql`
   }
 `;
 
+// ===== Admin: MCP =====
 export const ADMIN_MCP_OVERVIEW_QUERY = gql`
   query AdminMcpOverview {
     adminMcpStats {
@@ -57,6 +69,7 @@ export const ADMIN_REVOKE_MCP_CONNECTION = gql`
   }
 `;
 
+// ===== Notificaciones in-app (usuario) =====
 export const NOTIFICATIONS_QUERY = gql`
   query InAppNotifications {
     notifications {
@@ -74,6 +87,7 @@ export const NOTIFICATIONS_QUERY = gql`
   }
 `;
 
+// ===== Admin: anuncios (announcements) =====
 export const ADMIN_ANNOUNCEMENTS_QUERY = gql`
   query AdminAnnouncements($status: String) {
     adminAnnouncements(status: $status) {
@@ -155,7 +169,8 @@ export const ADMIN_ANNOUNCEMENT_DELETE = gql`
   }
 `;
 
-// ---------- Bug reports / feedback (user → admin, one-way) ----------
+// ===== Bug reports / feedback (usuario → admin, one-way) =====
+// Canal de un solo sentido: el usuario envía, llega al inbox de admin; no hay respuesta admin→usuario.
 
 export const SUBMIT_BUG_REPORT = gql`
   mutation SubmitBugReport($data: BugReportInput!) {
@@ -204,6 +219,7 @@ export const ADMIN_BUG_REPORT_DELETE = gql`
   }
 `;
 
+// ===== Admin: usuarios =====
 export const ADMIN_USERS_QUERY = gql`
   query AdminUsers(
     $page: Int
@@ -329,6 +345,7 @@ export const ADMIN_SET_USER_IS_BILLING_EXEMPT = gql`
   }
 `;
 
+// ===== Billing (Stripe: checkout, portal, cancelación, downgrade) =====
 export const CREATE_CHECKOUT_SESSION = gql`
   mutation CreateCheckoutSession(
     $plan: PurchasablePlan!
@@ -395,6 +412,10 @@ export const DOWNGRADE_TO_PLAN = gql`
   }
 `;
 
+// ===== CMS / Blog / Pages =====
+
+// Selección completa de un post de blog en el admin; reutilizado por todas las
+// queries/mutations de ADMIN_BLOG_POST_* para devolver la fila editable entera.
 const BLOG_POST_FRAGMENT = gql`
   fragment AdminBlogPostFields on AdminBlogPost {
     id
@@ -415,6 +436,8 @@ const BLOG_POST_FRAGMENT = gql`
   }
 `;
 
+// Selección completa de una página estática del CMS en el admin; reutilizado por
+// todas las queries/mutations de ADMIN_PAGE_*.
 const PAGE_FRAGMENT = gql`
   fragment AdminPageFields on AdminPage {
     id
@@ -553,6 +576,7 @@ export const ADMIN_PAGE_DELETE = gql`
   }
 `;
 
+// ===== Admin: media / assets =====
 export const ADMIN_MEDIA_ASSETS_QUERY = gql`
   query AdminMediaAssets($page: Int, $perPage: Int) {
     adminMediaAssets(page: $page, perPage: $perPage) {
@@ -596,6 +620,10 @@ export const ADMIN_MEDIA_DELETE = gql`
   }
 `;
 
+// ===== Admin: Help / centro de ayuda (categorías + recursos) =====
+
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de una categoría de ayuda; interpolado en todas las ADMIN_HELP_CATEGORY_*.
 const ADMIN_HELP_CATEGORY_FIELDS = `
   id
   slug
@@ -609,6 +637,8 @@ const ADMIN_HELP_CATEGORY_FIELDS = `
   resourceCount
 `;
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de un recurso de ayuda; interpolado en todas las ADMIN_HELP_RESOURCE_*.
 const ADMIN_HELP_RESOURCE_FIELDS = `
   id
   slug
@@ -726,6 +756,7 @@ export const ADMIN_HELP_RESOURCE_DELETE = gql`
   }
 `;
 
+// ===== Admin: jobs de notificaciones (cola de envío) =====
 export const ADMIN_NOTIFICATION_JOBS_QUERY = gql`
   query AdminNotificationJobs(
     $page: Int
@@ -775,6 +806,7 @@ export const ADMIN_NOTIFICATION_JOB_RETRY = gql`
   }
 `;
 
+// ===== Admin: métricas y estadísticas del sistema =====
 export const ADMIN_SYSTEM_STATS_QUERY = gql`
   query AdminSystemStats {
     adminSystemStats {
@@ -826,6 +858,7 @@ export const ADMIN_SYSTEM_STATS_QUERY = gql`
   }
 `;
 
+// ===== Admin: billing (MRR/ARR, suscriptores, churn) =====
 export const ADMIN_BILLING_OVERVIEW_QUERY = gql`
   query AdminBillingOverview {
     adminBillingOverview {
@@ -892,6 +925,7 @@ export const ADMIN_SUBSCRIBERS_QUERY = gql`
   }
 `;
 
+// ===== Admin: audit log =====
 export const ADMIN_AUDIT_LOG_QUERY = gql`
   query AdminAuditLog(
     $page: Int
@@ -923,6 +957,12 @@ export const ADMIN_AUDIT_LOG_QUERY = gql`
   }
 `;
 
+// ===== Dashboard / core =====
+
+// Carga inicial del dashboard: trae en un solo round-trip todo el estado del usuario
+// (proyectos, tareas, ideas, actividad, categorías, notas de proyecto, rutinas y sus
+// ocurrencias). Las field-lists se repiten inline aquí en vez de reutilizar los
+// fragments/strings de abajo — punto a unificar en el refactor.
 export const DASHBOARD_QUERY = gql`
   query Dashboard {
     dashboard {
@@ -1035,6 +1075,10 @@ export const DASHBOARD_QUERY = gql`
   }
 `;
 
+// ===== Rutinas =====
+
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de una rutina; reutilizado en CREATE/UPDATE/ARCHIVE_ROUTINE.
 const ROUTINE_FIELDS = `
   id
   title
@@ -1054,6 +1098,8 @@ const ROUTINE_FIELDS = `
   durationMinutes
 `;
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de un bloqueador de tarea; reutilizado en las mutations de tareas y de blockers.
 const TASK_BLOCKER_FIELDS = `
   id
   blockedTaskId
@@ -1062,6 +1108,8 @@ const TASK_BLOCKER_FIELDS = `
   created
 `;
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de una ocurrencia de rutina (instancia de un día); reutilizado al completar ocurrencias.
 const ROUTINE_OCCURRENCE_FIELDS = `
   id
   routineId
@@ -1123,6 +1171,7 @@ export const UNCOMPLETE_ROUTINE_OCCURRENCE = gql`
   }
 `;
 
+// ===== Notas de proyecto =====
 export const CREATE_PROJECT_NOTE = gql`
   mutation CreateProjectNote($data: ProjectNoteInput!) {
     createProjectNote(data: $data) {
@@ -1155,6 +1204,9 @@ export const DELETE_PROJECT_NOTE = gql`
   }
 `;
 
+// ===== Proyectos =====
+// La selección de campos del proyecto (incl. snapshots de paused*/killed* y `position`
+// para el orden manual "Mi orden") se repite inline en CREATE/UPDATE_PROJECT.
 export const CREATE_PROJECT = gql`
   mutation CreateProject($data: ProjectInput!) {
     createProject(data: $data) {
@@ -1222,6 +1274,8 @@ export const REORDER_PROJECTS = gql`
   }
 `;
 
+// Insight del "cementerio" de proyectos muertos (feature de cierre de estado): texto
+// generado por IA, cacheado en backend con marca de obsolescencia (isStale).
 export const GRAVEYARD_INSIGHT_QUERY = gql`
   query GraveyardInsight {
     graveyardInsight {
@@ -1233,6 +1287,7 @@ export const GRAVEYARD_INSIGHT_QUERY = gql`
   }
 `;
 
+// ===== Categorías =====
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($data: CategoryInput!) {
     createCategory(data: $data) {
@@ -1267,6 +1322,9 @@ export const DELETE_PROJECT = gql`
   }
 `;
 
+// ===== Tareas =====
+// La selección de la tarea (incl. parkedDue* y blockers vía TASK_BLOCKER_FIELDS) se
+// repite inline en CREATE/UPDATE/TOGGLE_TASK.
 export const CREATE_TASK = gql`
   mutation CreateTask($data: TaskInput!) {
     createTask(data: $data) {
@@ -1367,6 +1425,7 @@ export const DELETE_TASK = gql`
   }
 `;
 
+// ===== Ideas =====
 export const CREATE_IDEA = gql`
   mutation CreateIdea($data: IdeaInput!) {
     createIdea(data: $data) {
@@ -1409,8 +1468,11 @@ export const PROMOTE_IDEA = gql`
   }
 `;
 
-// ---------- Quick Notes ----------
+// ===== Quick Notes (cuaderno tipo Notion) =====
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de una nota con sus secciones plegables anidadas; reutilizado en la query
+// y en las mutations que devuelven la nota completa (create/update/reorder).
 const QUICK_NOTE_FIELDS = `
   id
   title
@@ -1515,6 +1577,11 @@ export const REORDER_NOTE_SECTIONS = gql`
   }
 `;
 
+// ===== Actividad / notas de bitácora =====
+
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de un evento de actividad/bitácora; reutilizado en ADD/UPDATE_NOTE (las
+// notas de bitácora son entradas del feed de actividad).
 const ACTIVITY_FIELDS = `
   id
   kind
@@ -1550,12 +1617,14 @@ export const DELETE_NOTE = gql`
   }
 `;
 
+// ===== Backup =====
 export const MARK_BACKUP = gql`
   mutation MarkBackup {
     markBackup
   }
 `;
 
+// ===== Ajustes de notificaciones + canales (usuario) =====
 export const NOTIFICATION_SETTINGS_QUERY = gql`
   query NotificationSettings {
     notificationSettings {
@@ -1624,6 +1693,7 @@ export const DISCONNECT_CHANNEL = gql`
   }
 `;
 
+// ===== Analytics (usuario) =====
 export const ANALYTICS_QUERY = gql`
   query Analytics($range: AnalyticsRange!) {
     analytics(range: $range) {
@@ -1698,6 +1768,7 @@ export const ANALYTICS_QUERY = gql`
   }
 `;
 
+// ===== Perfil / onboarding / layout de Today =====
 export const PROFILE_QUERY = gql`
   query Profile {
     profile {
@@ -1707,6 +1778,9 @@ export const PROFILE_QUERY = gql`
   }
 `;
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Estado del flujo de onboarding (paso actual, tour, plan); reutilizado por la query y
+// todas las mutations que avanzan/cierran el onboarding.
 const ONBOARDING_STATE_FIELDS = `
   status
   currentStep
@@ -1751,6 +1825,9 @@ export const MARK_TOUR = gql`
   }
 `;
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Layout personalizable de la vista Today (orden y módulos ocultos); reutilizado por la
+// query y las mutations de update/reset.
 const TODAY_LAYOUT_FIELDS = `
   order
   hidden
@@ -1780,6 +1857,7 @@ export const RESET_TODAY_LAYOUT = gql`
   }
 `;
 
+// ===== Feed de actividad (paginado/filtrable) =====
 export const ACTIVITY_QUERY = gql`
   query ActivityFeed(
     $limit: Int
@@ -1818,6 +1896,7 @@ export const UPDATE_PROFILE = gql`
   }
 `;
 
+// ===== Integración: Google Tasks (importación) =====
 export const GOOGLE_TASKS_CONNECTION_QUERY = gql`
   query GoogleTasksConnection {
     googleTasksConnection {
@@ -1859,7 +1938,7 @@ export const DISCONNECT_GOOGLE_TASKS = gql`
   }
 `;
 
-// ---------- Calendar integration plugin ----------
+// ===== Integración: Calendario (feed iCal + Google + iCloud) =====
 
 export const CALENDAR_INTEGRATION_QUERY = gql`
   query CalendarIntegration {
@@ -1933,8 +2012,11 @@ export const SYNC_ICLOUD_CALENDAR_NOW = gql`
   }
 `;
 
-// ---------- Beta lifecycle admin ----------
+// ===== Admin: beta lifecycle + app config =====
 
+// NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
+// Selección de un usuario beta (cohorte, estado, exención de billing, inactividad);
+// reutilizado en la lista y en las mutations adminSetBeta/adminSetBillingExempt.
 const BETA_USER_FIELDS = `
   userId
   email
