@@ -15,9 +15,11 @@ import { BacklogPanel } from "./analytics/BacklogPanel";
 import { SleepingStalePanel } from "./analytics/SleepingStalePanel";
 import { IdeaFunnelPanel } from "./analytics/IdeaFunnelPanel";
 import { EffortPanel } from "./analytics/EffortPanel";
+import { LoopPanel } from "./analytics/LoopPanel";
 
 type ChipId =
   | "activity"
+  | "loop"
   | "cadence"
   | "status"
   | "backlog"
@@ -29,6 +31,7 @@ type ChipId =
 
 const CHIPS: ChipId[] = [
   "activity",
+  "loop",
   "cadence",
   "status",
   "backlog",
@@ -53,6 +56,8 @@ export function AnalyticsView() {
     switch (id) {
       case "activity":
         return <ActivityChart series={analytics.activitySeries} />;
+      case "loop":
+        return <LoopPanel loop={analytics.loop} />;
       case "cadence":
         return <CadencePanel cadence={analytics.cadence} />;
       case "status":
@@ -155,6 +160,7 @@ export function AnalyticsView() {
           <div className="hidden md:block space-y-4">
             <CadencePanel cadence={analytics.cadence} />
             <ActivityChart series={analytics.activitySeries} />
+            <LoopPanel loop={analytics.loop} />
             <div className="grid lg:grid-cols-2 gap-4">
               <TopProjectsPanel rows={analytics.topProjects} />
               <WeekdayHeatmap heatmap={analytics.weekdayHeatmap} />

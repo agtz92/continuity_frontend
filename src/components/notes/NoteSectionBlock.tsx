@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import {
+  Check,
   ChevronDown,
   ChevronRight,
-  ChevronUp,
+  Copy,
   Eye,
   GripVertical,
   Pencil,
@@ -21,31 +22,34 @@ import { MarkdownText } from "./MarkdownText";
  *
  * Holds its own draft for heading/body and persists on blur — the parent only
  * sees committed values. Mounted with `key={section.id}` by the editor so a
- * different section never reuses this component's local draft. Sortable via the
- * grip handle (the ▲▼ buttons are a keyboard/fallback path for the same order).
+ * different section never reuses this component's local draft. Reordered by
+ * dragging the grip handle; a copy button puts the section text on the clipboard.
  */
 export function NoteSectionBlock({
   section,
   onSave,
   onDelete,
-  onMoveUp,
-  onMoveDown,
-  canMoveUp,
-  canMoveDown,
 }: {
   section: NoteSection;
   onSave: (data: { heading: string; body: string; collapsed: boolean }) => void;
   onDelete: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
 }) {
   const t = useTranslations("views.quickNotes");
   const [open, setOpen] = useState(!section.collapsed);
   const [editing, setEditing] = useState(!section.body.trim());
   const [heading, setHeading] = useState(section.heading);
   const [body, setBody] = useState(section.body);
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(body);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: section.id });
@@ -98,20 +102,11 @@ export function NoteSectionBlock({
             </button>
           )}
           <button
-            onClick={onMoveUp}
-            disabled={!canMoveUp}
-            aria-label={t("moveUp")}
-            className="p-1 hover:text-text disabled:opacity-30 disabled:hover:text-text-muted"
+            onClick={copy}
+            aria-label={copied ? t("copied") : t("copy")}
+            className="p-1 hover:text-accent"
           >
-            <ChevronUp size={14} />
-          </button>
-          <button
-            onClick={onMoveDown}
-            disabled={!canMoveDown}
-            aria-label={t("moveDown")}
-            className="p-1 hover:text-text disabled:opacity-30 disabled:hover:text-text-muted"
-          >
-            <ChevronDown size={14} />
+            {copied ? <Check size={14} /> : <Copy size={14} />}
           </button>
           <button
             {...attributes}

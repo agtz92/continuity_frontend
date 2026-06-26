@@ -327,14 +327,6 @@ function NoteEditor({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const move = (index: number, dir: -1 | 1) => {
-    const target = index + dir;
-    if (target < 0 || target >= sections.length) return;
-    const ids = sections.map((s) => s.id);
-    [ids[index], ids[target]] = [ids[target], ids[index]];
-    m.reorderSections(note.id, ids);
-  };
-
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -433,16 +425,12 @@ function NoteEditor({
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-2">
-            {sections.map((s, i) => (
+            {sections.map((s) => (
               <NoteSectionBlock
                 key={s.id}
                 section={s}
                 onSave={(data) => m.updateSection(s.id, data)}
                 onDelete={() => m.deleteSection(s.id)}
-                onMoveUp={() => move(i, -1)}
-                onMoveDown={() => move(i, 1)}
-                canMoveUp={i > 0}
-                canMoveDown={i < sections.length - 1}
               />
             ))}
           </div>
