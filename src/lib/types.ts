@@ -78,6 +78,11 @@ export interface Task {
   effortHours: number | null;
   dueTime: string | null; // "HH:MM:SS" or null = all-day
   durationMinutes: number | null;
+  // State-closure parking: the due-date snapshot kept while the parent project
+  // is closed. Non-null means "this task had a due date" → the revive UI offers
+  // to restore it. null on live tasks.
+  parkedDueDate: string | null;
+  parkedDueTime: string | null;
   blockers: TaskBlocker[];
 }
 

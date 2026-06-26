@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
+import { isDailyViewStatus } from "@/lib/projectStatus";
 import {
   dueDateOnly,
   isDueToday,
@@ -31,7 +32,7 @@ import {
 type TaskRange = "today" | "week" | "all";
 
 export function TasksView({
-  tasks,
+  tasks: allTasks,
   projects,
   onNewTask,
   onEditTask,
@@ -46,6 +47,23 @@ export function TasksView({
   onDeleteTask: (id: string) => void | Promise<void>;
 }) {
   const t = useTranslations("views.tasks");
+  // The global Tasks list mirrors Today: tasks of a closed project
+  // (paused/stalled/killed/archived) are withdrawn here; standalone tasks and
+  // tasks of a live project stay. Manage closed-project tasks from the project
+  // detail / graveyard instead.
+  const projectStatusById = useMemo(
+    () => new Map(projects.map((p) => [p.id, p.status])),
+    [projects]
+  );
+  const tasks = useMemo(
+    () =>
+      allTasks.filter((task) => {
+        if (!task.projectId) return true;
+        const status = projectStatusById.get(task.projectId);
+        return status ? isDailyViewStatus(status) : true;
+      }),
+    [allTasks, projectStatusById]
+  );
   const tCommon = useTranslations("common");
   const [taskSearch, setTaskSearch] = useState("");
   const [showOverdueTasks, setShowOverdueTasks] = useState(true);

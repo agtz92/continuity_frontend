@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { HeartPulse, Lightbulb, RefreshCw, Zap } from "lucide-react";
+import { CalendarClock, HeartPulse, Lightbulb, RefreshCw, Zap } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import type { Project } from "@/lib/types";
 
@@ -11,12 +11,18 @@ import type { Project } from "@/lib/types";
  * backend re-checks the plan cap (killed projects don't count) and may throw
  * QUOTA_EXCEEDED, which errorLink already toasts.
  *
+ * Killing parked the project's task due dates (state-closure). Like the paused
+ * WelcomeBackCard, reviving offers to restore the original dates or leave them
+ * unscheduled (default: unscheduled — suggest, not auto).
+ *
  * Copy is verbatim from the State Closure spec — do not paraphrase.
  */
 export function ReviveProjectModal({
   project,
   activeUsed,
   activeCap,
+  parkedTaskCount = 0,
+  nextParkedDate = null,
   onRevive,
   onClose,
 }: {
@@ -25,17 +31,31 @@ export function ReviveProjectModal({
   activeUsed?: number;
   /** Plan cap for counting projects. Optional. */
   activeCap?: number;
+  /** How many of the project's tasks have a parked due-date snapshot. */
+  parkedTaskCount?: number;
+  /** Soonest parked due date (ISO), for the hint line. */
+  nextParkedDate?: string | null;
   /** Resolves true on success; parent closes. */
-  onRevive: (target: "active" | "idea") => Promise<boolean>;
+  onRevive: (
+    target: "active" | "idea",
+    restoreDates: boolean
+  ) => Promise<boolean>;
   onClose: () => void;
 }) {
   const t = useTranslations("views.closure.revive");
+  const tw = useTranslations("views.closure.welcomeBack");
   const [saving, setSaving] = useState<"active" | "idea" | null>(null);
+  // Suggest, not auto: default to leaving tasks unscheduled.
+  const [restoreDates, setRestoreDates] = useState(false);
+  const hasParked = parkedTaskCount > 0;
+  const nextDateLabel = nextParkedDate
+    ? new Date(nextParkedDate).toLocaleDateString()
+    : null;
 
   const handle = async (target: "active" | "idea") => {
     if (saving) return;
     setSaving(target);
-    const ok = await onRevive(target);
+    const ok = await onRevive(target, hasParked && restoreDates);
     setSaving(null);
     if (!ok) return; // errorLink already toasted (e.g. QUOTA_EXCEEDED)
   };
@@ -94,6 +114,44 @@ export function ReviveProjectModal({
             {t("capLine", { used: activeUsed!, cap: activeCap! })}
           </p>
         ) : null}
+
+        {hasParked && (
+          <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+            <p className="text-sm flex items-center gap-1.5">
+              <CalendarClock size={14} className="text-accent-2" />
+              <span>
+                {tw("parkedTasks", { count: parkedTaskCount })}
+                {nextDateLabel
+                  ? ` ${tw("parkedNext", { date: nextDateLabel })}`
+                  : ""}
+              </span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRestoreDates(false)}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm border ${
+                  restoreDates
+                    ? "border-border text-text-muted"
+                    : "border-accent text-text bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
+                }`}
+              >
+                {tw("keepUnscheduledOption")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setRestoreDates(true)}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm border ${
+                  restoreDates
+                    ? "border-accent text-text bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
+                    : "border-border text-text-muted"
+                }`}
+              >
+                {tw("restoreOption")}
+              </button>
+            </div>
+          </div>
+        )}
 
         <p className="text-sm text-text-muted">{t("bringBackAs")}</p>
       </div>

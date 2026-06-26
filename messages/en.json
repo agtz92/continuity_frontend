@@ -1132,7 +1132,11 @@
         "pausedAgo": "You paused this {days} days ago.",
         "ready": "Ready to pick this back up?",
         "reactivate": "Reactivate project",
-        "keepPaused": "Keep paused"
+        "keepPaused": "Keep paused",
+        "parkedTasks": "{count, plural, one {# task had a due date} other {# tasks had due dates}}.",
+        "parkedNext": "The next one was {date}.",
+        "restoreOption": "Restore original dates",
+        "keepUnscheduledOption": "Leave them unscheduled"
       },
       "revive": {
         "title": "Revive \"{name}\"?",

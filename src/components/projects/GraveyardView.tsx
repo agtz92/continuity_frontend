@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { HeartPulse, Skull, Sparkles } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { GRAVEYARD_INSIGHT_QUERY } from "@/lib/graphql";
-import type { GraveyardInsight, Project } from "@/lib/types";
+import type { GraveyardInsight, Project, Task } from "@/lib/types";
 import { ProjectClosureNotes } from "./ProjectClosureNotes";
 import { ReviveProjectModal } from "./ReviveProjectModal";
 import { daysSince } from "@/lib/date";
@@ -18,6 +18,7 @@ import { daysSince } from "@/lib/date";
  */
 export function GraveyardView({
   projects,
+  tasks,
   activeUsed,
   activeCap,
   onRevive,
@@ -25,10 +26,16 @@ export function GraveyardView({
 }: {
   /** All projects from the dashboard; killed ones are filtered here. */
   projects: Project[];
+  /** All tasks from the dashboard; used to surface parked due dates on revive. */
+  tasks: Task[];
   activeUsed?: number;
   activeCap?: number;
-  /** Saves status. Resolves true on success. */
-  onRevive: (project: Project, target: "active" | "idea") => Promise<boolean>;
+  /** Saves status + applies the reschedule choice. Resolves true on success. */
+  onRevive: (
+    project: Project,
+    target: "active" | "idea",
+    restoreDates: boolean
+  ) => Promise<boolean>;
   onOpenAssistant: (initialPrompt?: string) => void;
 }) {
   const locale = useLocale();
@@ -126,19 +133,33 @@ export function GraveyardView({
         </div>
       )}
 
-      {reviving && (
+      {reviving && (() => {
+        const parked = tasks.filter(
+          (tk) => tk.projectId === reviving.id && tk.parkedDueDate
+        );
+        const nextParked = parked.reduce<string | null>(
+          (soonest, tk) =>
+            !soonest || (tk.parkedDueDate as string) < soonest
+              ? (tk.parkedDueDate as string)
+              : soonest,
+          null
+        );
+        return (
         <ReviveProjectModal
           project={reviving}
           activeUsed={activeUsed}
           activeCap={activeCap}
-          onRevive={async (target) => {
-            const ok = await onRevive(reviving, target);
+          parkedTaskCount={parked.length}
+          nextParkedDate={nextParked}
+          onRevive={async (target, restoreDates) => {
+            const ok = await onRevive(reviving, target, restoreDates);
             if (ok) setReviving(null);
             return ok;
           }}
           onClose={() => setReviving(null)}
         />
-      )}
+        );
+      })()}
     </div>
   );
 }

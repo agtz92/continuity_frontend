@@ -52,6 +52,7 @@ import { FAB } from "../ui/FAB";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
 import { RoutineRow } from "../routines/RoutineRow";
 import { useTodayFocus } from "@/hooks/useTodayFocus";
+import { isDailyViewStatus } from "@/lib/projectStatus";
 import type { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useTodayLayout } from "@/hooks/useTodayLayout";
 import { TODAY_SECTIONS, type TodaySectionId } from "@/lib/todaySections";
@@ -265,6 +266,11 @@ export function TodayView({
     return { name: proj.name, color: cat?.color ?? "emerald" };
   };
 
+  const projectById = useMemo(
+    () => new Map(projects.map((p) => [p.id, p])),
+    [projects]
+  );
+
   const todayRoutineItems = useMemo(() => {
     const today = todayLocalISODate();
     const lookback = new Date();
@@ -273,6 +279,12 @@ export function TodayView({
     const items: { routine: Routine; scheduledDate: string }[] = [];
     for (const r of routines) {
       if (r.archived) continue;
+      // Routines of a closed project (paused/stalled/killed/archived) leave the
+      // daily view, mirroring tasks. Standalone routines always stay.
+      if (r.projectId) {
+        const parent = projectById.get(r.projectId);
+        if (parent && !isDailyViewStatus(parent.status)) continue;
+      }
       const done = completedDatesFor(routineOccurrences, r.id);
       const dates = computeDueDates(r, backStart, today);
       for (const d of dates) {
@@ -281,7 +293,7 @@ export function TodayView({
     }
     items.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
     return items;
-  }, [routines, routineOccurrences]);
+  }, [routines, routineOccurrences, projectById]);
 
   const todayRoutineCounts = useMemo(() => {
     const today = todayLocalISODate();

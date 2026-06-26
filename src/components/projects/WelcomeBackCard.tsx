@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Undo2, Zap } from "lucide-react";
+import { CalendarClock, Undo2, Zap } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { ProjectClosureNotes } from "./ProjectClosureNotes";
 import { daysSince } from "@/lib/date";
@@ -12,27 +12,48 @@ import type { Project } from "@/lib/types";
  * Shown when the user opens a paused project. Surfaces the closure notes they
  * wrote (context / next action / blocker) and offers Reactivate vs Keep paused.
  *
+ * When the project was paused its open tasks had their due dates parked
+ * (state-closure). On reactivation we don't auto-restore them (suggest, not
+ * auto): if any tasks were parked, the card lets the user choose to restore the
+ * original dates or leave them unscheduled, defaulting to unscheduled.
+ *
  * Copy is verbatim from the State Closure spec — do not paraphrase.
  */
 export function WelcomeBackCard({
   project,
+  parkedTaskCount = 0,
+  nextParkedDate = null,
   onReactivate,
   onClose,
 }: {
   project: Project;
-  /** Saves status=active. Resolves true on success; parent closes. */
-  onReactivate: () => Promise<boolean>;
+  /** How many of the project's tasks have a parked due-date snapshot. */
+  parkedTaskCount?: number;
+  /** Soonest parked due date (ISO), for the hint line. */
+  nextParkedDate?: string | null;
+  /**
+   * Saves status=active and applies the reschedule choice (restoreDates=true →
+   * re-apply original dates; false → leave unscheduled). Resolves true on
+   * success; parent closes.
+   */
+  onReactivate: (restoreDates: boolean) => Promise<boolean>;
   /** Keep paused: close, read-only. */
   onClose: () => void;
 }) {
   const t = useTranslations("views.closure.welcomeBack");
   const [saving, setSaving] = useState(false);
+  // Suggest, not auto: default to leaving tasks unscheduled.
+  const [restoreDates, setRestoreDates] = useState(false);
   const days = daysSince(project.pausedAt ?? project.lastActivity) ?? 0;
+  const hasParked = parkedTaskCount > 0;
+  const nextDateLabel = nextParkedDate
+    ? new Date(nextParkedDate).toLocaleDateString()
+    : null;
 
   const handleReactivate = async () => {
     if (saving) return;
     setSaving(true);
-    const ok = await onReactivate();
+    const ok = await onReactivate(hasParked && restoreDates);
     setSaving(false);
     if (!ok) return; // errorLink already toasted
   };
@@ -67,6 +88,44 @@ export function WelcomeBackCard({
           <Undo2 size={14} /> {t("pausedAgo", { days })}
         </p>
         <ProjectClosureNotes project={project} />
+
+        {hasParked && (
+          <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+            <p className="text-sm flex items-center gap-1.5">
+              <CalendarClock size={14} className="text-accent-2" />
+              <span>
+                {t("parkedTasks", { count: parkedTaskCount })}
+                {nextDateLabel
+                  ? ` ${t("parkedNext", { date: nextDateLabel })}`
+                  : ""}
+              </span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRestoreDates(false)}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm border ${
+                  restoreDates
+                    ? "border-border text-text-muted"
+                    : "border-accent text-text bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
+                }`}
+              >
+                {t("keepUnscheduledOption")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setRestoreDates(true)}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm border ${
+                  restoreDates
+                    ? "border-accent text-text bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
+                    : "border-border text-text-muted"
+                }`}
+              >
+                {t("restoreOption")}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );

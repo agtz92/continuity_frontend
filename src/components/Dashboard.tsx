@@ -73,7 +73,11 @@ export default function Dashboard() {
     refetch,
   } = useDashboardData();
 
-  const { saveProject, deleteProject: deleteProjectAction } = useProjectMutations();
+  const {
+    saveProject,
+    deleteProject: deleteProjectAction,
+    applyParkedDueDates,
+  } = useProjectMutations();
   const { saveTask, toggleTask, deleteTask } = useTaskMutations();
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
   const { addNote, editNote, deleteNote } = useNoteMutations();
@@ -543,11 +547,19 @@ export default function Dashboard() {
         {view === "graveyard" && (
           <GraveyardView
             projects={projects}
+            tasks={tasks}
             activeUsed={capUsed}
             activeCap={activeCap ?? undefined}
-            onRevive={async (project, target) =>
-              saveProject(projectToSaveArgs(project, target))
-            }
+            onRevive={async (project, target, restoreDates) => {
+              const ok = await saveProject(projectToSaveArgs(project, target));
+              if (
+                ok &&
+                tasks.some((tk) => tk.projectId === project.id && tk.parkedDueDate)
+              ) {
+                await applyParkedDueDates(project.id, restoreDates);
+              }
+              return ok;
+            }}
             onOpenAssistant={openAssistant}
           />
         )}
@@ -721,15 +733,31 @@ export default function Dashboard() {
       )}
 
       {/* Welcome back — opening a paused project surfaces its notes. */}
-      {welcomeBack && (
+      {welcomeBack && (() => {
+        const parked = tasks.filter(
+          (tk) => tk.projectId === welcomeBack.id && tk.parkedDueDate
+        );
+        const nextParked = parked.reduce<string | null>(
+          (soonest, tk) =>
+            !soonest || (tk.parkedDueDate as string) < soonest
+              ? (tk.parkedDueDate as string)
+              : soonest,
+          null
+        );
+        return (
         <WelcomeBackCard
           project={welcomeBack}
-          onReactivate={async () => {
+          parkedTaskCount={parked.length}
+          nextParkedDate={nextParked}
+          onReactivate={async (restoreDates) => {
             const ok = await saveProject(
               projectToSaveArgs(welcomeBack, "active")
             );
             if (ok) {
               const id = welcomeBack.id;
+              if (parked.length > 0) {
+                await applyParkedDueDates(id, restoreDates);
+              }
               setWelcomeBack(null);
               setViewingProjectId(id);
             }
@@ -737,7 +765,8 @@ export default function Dashboard() {
           }}
           onClose={() => setWelcomeBack(null)}
         />
-      )}
+        );
+      })()}
 
       {/* Stalled queue — one project at a time on load. */}
       {currentStalled && !closure && !welcomeBack && (
