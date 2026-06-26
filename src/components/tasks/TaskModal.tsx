@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { ChevronDown, Lock, Search, X as XIcon } from "lucide-react";
@@ -316,10 +317,12 @@ export function TaskModal({
                                 {proj.name}
                               </span>
                             )}
-                            <span className="truncate">{found?.title ?? t("unknownTask")}</span>
+                            <span className="truncate min-w-0">
+                              {found?.title ?? t("unknownTask")}
+                            </span>
                           </>
                         ) : (
-                          <span className="truncate">{b.externalDescription}</span>
+                          <span className="truncate min-w-0">{b.externalDescription}</span>
                         )}
                       </span>
                       <button
@@ -424,15 +427,56 @@ function BlockerTaskCombobox({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Posición fija calculada del botón. El menú se portaliza a <body> para no
+  // quedar recortado por el `overflow-y-auto` del Modal (ver Modal.tsx).
+  const [pos, setPos] = useState<{
+    left: number;
+    top: number;
+    width: number;
+    maxHeight: number;
+    placement: "down" | "up";
+  } | null>(null);
+
+  const updatePosition = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const margin = 8;
+    const spaceBelow = window.innerHeight - r.bottom - margin;
+    const spaceAbove = r.top - margin;
+    const openUp = spaceBelow < 220 && spaceAbove > spaceBelow;
+    const maxHeight = Math.min(320, Math.max(160, openUp ? spaceAbove : spaceBelow));
+    setPos({
+      left: r.left,
+      top: openUp ? r.top - margin : r.bottom + 4,
+      width: r.width,
+      maxHeight,
+      placement: openUp ? "up" : "down",
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    // capture=true para reaccionar al scroll de cualquier ancestro (el modal).
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open, updatePosition]);
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setQuery("");
-      }
+      const target = e.target as Node;
+      if (containerRef.current?.contains(target)) return;
+      if (dropdownRef.current?.contains(target)) return;
+      setOpen(false);
+      setQuery("");
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -480,65 +524,78 @@ function BlockerTaskCombobox({
                 {selectedProject.name}
               </span>
             )}
-            <span className="flex-1 truncate text-text">{selectedTask.title}</span>
+            <span className="flex-1 min-w-0 truncate text-text">{selectedTask.title}</span>
           </>
         ) : (
-          <span className="flex-1 text-text-muted">{placeholder}</span>
+          <span className="flex-1 min-w-0 truncate text-text-muted">{placeholder}</span>
         )}
         <ChevronDown size={14} className="text-text-muted shrink-0" />
       </button>
 
-      {open && (
-        <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-surface border border-border rounded-lg shadow-lg overflow-hidden">
-          <div className="p-2 border-b border-border">
-            <div className="flex items-center gap-2 bg-border rounded-lg px-2 py-1.5">
-              <Search size={13} className="text-text-muted shrink-0" />
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar..."
-                className="flex-1 bg-transparent text-sm outline-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    setOpen(false);
-                    setQuery("");
-                  }
-                }}
-              />
+      {open &&
+        pos &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            className="fixed z-[60] bg-surface border border-border rounded-lg shadow-lg overflow-hidden flex flex-col"
+            style={{
+              left: pos.left,
+              top: pos.top,
+              width: pos.width,
+              maxHeight: pos.maxHeight,
+              transform: pos.placement === "up" ? "translateY(-100%)" : undefined,
+            }}
+          >
+            <div className="p-2 border-b border-border shrink-0">
+              <div className="flex items-center gap-2 bg-border rounded-lg px-2 py-1.5">
+                <Search size={13} className="text-text-muted shrink-0" />
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar..."
+                  className="flex-1 min-w-0 bg-transparent text-sm outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setOpen(false);
+                      setQuery("");
+                    }
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          <div className="max-h-56 overflow-y-auto">
-            {groups.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-text-muted text-center">Sin resultados</div>
-            ) : (
-              groups.map((g) => (
-                <div key={g.id ?? "__none__"}>
-                  <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-wider text-text-muted sticky top-0 bg-surface">
-                    {g.name ?? "Sin proyecto"}
+            <div className="overflow-y-auto">
+              {groups.length === 0 ? (
+                <div className="px-3 py-4 text-sm text-text-muted text-center">Sin resultados</div>
+              ) : (
+                groups.map((g) => (
+                  <div key={g.id ?? "__none__"}>
+                    <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-wider text-text-muted sticky top-0 bg-surface">
+                      {g.name ?? "Sin proyecto"}
+                    </div>
+                    {g.tasks.map((task) => (
+                      <button
+                        key={task.id}
+                        type="button"
+                        onClick={() => {
+                          onChange(task.id);
+                          setOpen(false);
+                          setQuery("");
+                        }}
+                        className={`block w-full text-left px-4 py-2 text-sm truncate ${
+                          task.id === value ? "bg-accent text-bg" : "text-text hover:bg-border"
+                        }`}
+                      >
+                        {task.title}
+                      </button>
+                    ))}
                   </div>
-                  {g.tasks.map((task) => (
-                    <button
-                      key={task.id}
-                      type="button"
-                      onClick={() => {
-                        onChange(task.id);
-                        setOpen(false);
-                        setQuery("");
-                      }}
-                      className={`w-full text-left px-4 py-2 text-sm truncate ${
-                        task.id === value ? "bg-accent text-bg" : "text-text hover:bg-border"
-                      }`}
-                    >
-                      {task.title}
-                    </button>
-                  ))}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+                ))
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
