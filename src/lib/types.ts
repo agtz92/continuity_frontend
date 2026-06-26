@@ -40,6 +40,8 @@ export interface Project {
   killedAt?: string | null;
   killedAiReflection?: string;
   stalledAt?: string | null;
+  /** Manual order ("Mi orden" sort). Dense 0..N once reordered; 0 by default. */
+  position?: number;
 }
 
 export interface GraveyardInsight {

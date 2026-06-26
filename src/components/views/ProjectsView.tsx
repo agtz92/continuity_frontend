@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import {
   Activity,
+  ArrowDownUp,
   CheckCircle2,
   ChevronRight,
   Clock,
   Edit2,
+  GripVertical,
   ListFilter,
   Maximize2,
   Plus,
@@ -15,6 +18,23 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useLocale, useTranslations } from "next-intl";
 import type {
   Activity as ActivityEntry,
@@ -53,6 +73,11 @@ import {
   type ProjectFilterDraft,
 } from "./ProjectsFilterSheet";
 import { ProjectsSortSheet } from "./ProjectsSortSheet";
+import { useStableLayout, type LayoutEntry } from "@/lib/useStableLayout";
+
+/** Smart layout sections (C): urgent first, at-risk next, everything else. */
+type SmartSection = "attention" | "risk" | "rest";
+const SMART_SECTION_ORDER: SmartSection[] = ["attention", "risk", "rest"];
 
 export function ProjectsView({
   projects,
@@ -66,6 +91,7 @@ export function ProjectsView({
   onNewProject,
   onEditProject,
   onDeleteProject,
+  onReorderProjects,
   onOpenProject,
   onAddTaskToProject,
   onLogUpdate,
@@ -84,6 +110,7 @@ export function ProjectsView({
   onNewProject: () => void;
   onEditProject: (p: Project) => void;
   onDeleteProject: (id: string) => void | Promise<void>;
+  onReorderProjects: (orderedIds: string[]) => void | Promise<unknown>;
   onOpenProject: (p: Project) => void;
   onAddTaskToProject: (projectId: string) => void;
   onLogUpdate: (p: Project) => void;
@@ -211,6 +238,139 @@ export function ProjectsView({
     }
     return counts;
   }, [projects]);
+
+  // ----- Sorting + stable layout (A/B/C/D) -----
+  // Hooks must run unconditionally, so all the sort/layout math lives here at
+  // the top level (not inside the render IIFE below).
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const q = projectSearch.trim().toLowerCase();
+  const matchesSearch = (p: Project) => {
+    if (!q) return true;
+    const cat = p.categoryId ? categoryById[p.categoryId]?.name ?? "" : "";
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.description.toLowerCase().includes(q) ||
+      p.nextStep.toLowerCase().includes(q) ||
+      p.why.toLowerCase().includes(q) ||
+      cat.toLowerCase().includes(q)
+    );
+  };
+
+  const filtered = projects.filter(
+    (p) =>
+      matchesSearch(p) &&
+      matchesStatusWith(p, projectStatusFilter) &&
+      matchesCategoryWith(p, projectCategoryFilter) &&
+      matchesPriorityWith(p, projectPriorityFilter) &&
+      matchesDueWith(p, projectDueFilter)
+  );
+
+  const urgencyBucket = (p: Project) => {
+    const projectTasks = tasks.filter((tk) => tk.projectId === p.id);
+    const hasOverdue = projectTasks.some((tk) => !tk.done && isOverdue(tk.dueDate));
+    if (hasOverdue) return 0;
+    const hasToday = projectTasks.some((tk) => !tk.done && isDueToday(tk.dueDate));
+    if (hasToday) return 1;
+    const idle = daysSince(p.lastActivity) ?? 0;
+    if (["active", "idea"].includes(p.status) && idle >= 7) return 2;
+    return 3;
+  };
+
+  const recentTs = (p: Project) => new Date(p.lastActivity).getTime();
+  const byName = (a: Project, b: Project) => a.name.localeCompare(b.name, locale);
+
+  // (B) Alphabetical is the STABLE final tiebreaker everywhere. `lastActivity`
+  // is only a sort key in "recent" — it no longer sneaks in as a secondary key
+  // (that's what used to fling an edited project to the top of its band).
+  const compare = (a: Project, b: Project) => {
+    switch (projectSortMode) {
+      case "manual":
+        return (a.position ?? 0) - (b.position ?? 0) || byName(a, b);
+      case "priority": {
+        const d = priorityRank(a.priority) - priorityRank(b.priority);
+        return d !== 0 ? d : byName(a, b);
+      }
+      case "recent": {
+        const r = recentTs(b) - recentTs(a);
+        return r !== 0 ? r : byName(a, b);
+      }
+      case "name":
+        return byName(a, b);
+      case "status": {
+        const sa = STATUS_FILTER_ORDER.indexOf(a.status);
+        const sb = STATUS_FILTER_ORDER.indexOf(b.status);
+        if (sa !== sb) return sa - sb;
+        const pd = priorityRank(a.priority) - priorityRank(b.priority);
+        return pd !== 0 ? pd : byName(a, b);
+      }
+      case "smart":
+      default: {
+        const ba = urgencyBucket(a);
+        const bb = urgencyBucket(b);
+        if (ba !== bb) return ba - bb;
+        const pd = priorityRank(a.priority) - priorityRank(b.priority);
+        return pd !== 0 ? pd : byName(a, b);
+      }
+    }
+  };
+
+  // (C) Smart splits into sections; other modes are a single flat list.
+  const smartSectionOf = (p: Project): SmartSection => {
+    const b = urgencyBucket(p);
+    if (b <= 1) return "attention";
+    if (b === 2) return "risk";
+    return "rest";
+  };
+
+  const sorted = [...filtered].sort(compare);
+  const ideal: LayoutEntry[] = sorted.map((p) => ({
+    id: p.id,
+    section: projectSortMode === "smart" ? smartSectionOf(p) : null,
+  }));
+  const liveIds = new Set(filtered.map((p) => p.id));
+  const layoutSignature = [
+    projectSortMode,
+    projectStatusFilter,
+    projectPriorityFilter,
+    projectCategoryFilter,
+    projectDueFilter,
+    q,
+  ].join("|");
+  const { entries, isStale, resync } = useStableLayout(
+    ideal,
+    liveIds,
+    layoutSignature
+  );
+
+  const projectById = useMemo(() => {
+    const m = new Map<string, Project>();
+    for (const p of projects) m.set(p.id, p);
+    return m;
+  }, [projects]);
+
+  // (D) Manual drag is only enabled with no narrowing filters/search active —
+  // reordering a partial list has no unambiguous global meaning.
+  const manualDragEnabled =
+    projectSortMode === "manual" &&
+    !q &&
+    projectStatusFilter === "all" &&
+    projectPriorityFilter === "all" &&
+    projectCategoryFilter === null &&
+    projectDueFilter === "all";
+
+  const onManualDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const ids = sorted.map((p) => p.id);
+    const oldIndex = ids.indexOf(String(active.id));
+    const newIndex = ids.indexOf(String(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+    void onReorderProjects(arrayMove(ids, oldIndex, newIndex));
+  };
 
   return (
     <div>
@@ -423,40 +583,6 @@ export function ProjectsView({
           </button>
         </div>
       ) : (() => {
-        const q = projectSearch.trim().toLowerCase();
-        const matchesSearch = (p: Project) => {
-          if (!q) return true;
-          const cat = p.categoryId ? categoryById[p.categoryId]?.name ?? "" : "";
-          return (
-            p.name.toLowerCase().includes(q) ||
-            p.description.toLowerCase().includes(q) ||
-            p.nextStep.toLowerCase().includes(q) ||
-            p.why.toLowerCase().includes(q) ||
-            cat.toLowerCase().includes(q)
-          );
-        };
-
-        const matchesStatus = (p: Project) => {
-          if (projectStatusFilter === "all") return true;
-          return p.status === projectStatusFilter;
-        };
-
-        const matchesCategory = (p: Project) =>
-          projectCategoryFilter === null || p.categoryId === projectCategoryFilter;
-
-        const matchesPriority = (p: Project) =>
-          projectPriorityFilter === "all" ||
-          p.priority === projectPriorityFilter;
-
-        const filtered = projects.filter(
-          (p) =>
-            matchesSearch(p) &&
-            matchesStatus(p) &&
-            matchesCategory(p) &&
-            matchesPriority(p) &&
-            matchesDueWith(p, projectDueFilter)
-        );
-
         if (filtered.length === 0) {
           const reason = q
             ? t("noMatchSearch", { query: projectSearch })
@@ -482,68 +608,7 @@ export function ProjectsView({
           );
         }
 
-        const urgencyBucket = (p: Project) => {
-          const projectTasks = tasks.filter((t) => t.projectId === p.id);
-          const hasOverdue = projectTasks.some(
-            (t) => !t.done && isOverdue(t.dueDate)
-          );
-          if (hasOverdue) return 0;
-          const hasToday = projectTasks.some(
-            (t) => !t.done && isDueToday(t.dueDate)
-          );
-          if (hasToday) return 1;
-          const idle = daysSince(p.lastActivity) ?? 0;
-          if (["active", "idea"].includes(p.status) && idle >= 7) return 2;
-          return 3;
-        };
-
-        const recentTs = (p: Project) =>
-          new Date(p.lastActivity).getTime();
-
-        const byName = (a: Project, b: Project) =>
-          a.name.localeCompare(b.name, locale);
-
-        const compare = (a: Project, b: Project) => {
-          switch (projectSortMode) {
-            case "priority": {
-              const d = priorityRank(a.priority) - priorityRank(b.priority);
-              if (d !== 0) return d;
-              const r = recentTs(b) - recentTs(a);
-              return r !== 0 ? r : byName(a, b);
-            }
-            case "recent": {
-              const r = recentTs(b) - recentTs(a);
-              return r !== 0 ? r : byName(a, b);
-            }
-            case "name":
-              return byName(a, b);
-            case "status": {
-              const sa = STATUS_FILTER_ORDER.indexOf(a.status);
-              const sb = STATUS_FILTER_ORDER.indexOf(b.status);
-              if (sa !== sb) return sa - sb;
-              const pd = priorityRank(a.priority) - priorityRank(b.priority);
-              if (pd !== 0) return pd;
-              const r = recentTs(b) - recentTs(a);
-              return r !== 0 ? r : byName(a, b);
-            }
-            case "smart":
-            default: {
-              const ba = urgencyBucket(a);
-              const bb = urgencyBucket(b);
-              if (ba !== bb) return ba - bb;
-              const pd = priorityRank(a.priority) - priorityRank(b.priority);
-              if (pd !== 0) return pd;
-              const r = recentTs(b) - recentTs(a);
-              return r !== 0 ? r : byName(a, b);
-            }
-          }
-        };
-
-        return (
-          <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden bg-surface">
-            {[...filtered]
-              .sort(compare)
-              .map((p) => {
+        const renderRow = (p: Project, dragHandle?: ReactNode) => {
                 const projectTasks = tasks.filter((t) => t.projectId === p.id);
                 const done = projectTasks.filter((t) => t.done).length;
                 const total = projectTasks.length;
@@ -582,6 +647,7 @@ export function ProjectsView({
                       className="flex items-center gap-3 pl-5 pr-4 py-2.5 cursor-pointer hover:bg-surface/40"
                       onClick={() => onSelectProject(isExpanded ? null : p)}
                     >
+                      {dragHandle}
                       <ChevronRight
                         size={16}
                         className={`shrink-0 text-text-muted transition-transform ${
@@ -909,7 +975,52 @@ export function ProjectsView({
                     })()}
                   </div>
                 );
-              })}
+        };
+
+        // (D) Manual order: drag to reorder (only when no filters narrow it).
+        if (projectSortMode === "manual") {
+          return (
+            <ManualProjectList
+              order={sorted}
+              dragEnabled={manualDragEnabled}
+              sensors={sensors}
+              onDragEnd={onManualDragEnd}
+              renderRow={renderRow}
+              hint={manualDragEnabled ? t("manualHint") : t("manualFilteredHint")}
+            />
+          );
+        }
+
+        // (A/C) Frozen layout, grouped into sections for Smart.
+        const rows: ReactNode[] = [];
+        let currentSection: string | null = null;
+        for (const entry of entries) {
+          const p = projectById.get(entry.id);
+          if (!p) continue;
+          if (projectSortMode === "smart" && entry.section !== currentSection) {
+            currentSection = entry.section;
+            rows.push(
+              <SectionHeader
+                key={`sec-${entry.section}`}
+                label={t(`sections.${entry.section}`)}
+              />
+            );
+          }
+          rows.push(renderRow(p));
+        }
+
+        return (
+          <div className="space-y-2">
+            {isStale && (
+              <ReorderPill
+                label={t("orderChanged")}
+                cta={t("reorder")}
+                onClick={resync}
+              />
+            )}
+            <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden bg-surface">
+              {rows}
+            </div>
           </div>
         );
       })()}
@@ -940,6 +1051,129 @@ export function ProjectsView({
         onChange={setProjectSortMode}
         onClose={() => setShowSortSheet(false)}
       />
+    </div>
+  );
+}
+
+/** Section divider for Smart mode ("Necesitan atención" / "En riesgo" / "Resto"). */
+function SectionHeader({ label }: { label: string }) {
+  return (
+    <div className="bg-surface/60 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+      {label}
+    </div>
+  );
+}
+
+/** Opt-in re-sort banner (A): shown when an edit made the live order diverge
+ *  from the frozen one, so the user reorders on demand instead of mid-edit. */
+function ReorderPill({
+  label,
+  cta,
+  onClick,
+}: {
+  label: string;
+  cta: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-sm">
+      <span className="text-text-muted">{label}</span>
+      <button
+        onClick={onClick}
+        className="shrink-0 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30"
+      >
+        <ArrowDownUp size={12} /> {cta}
+      </button>
+    </div>
+  );
+}
+
+/** One draggable row in manual mode (D). Wraps the shared row renderer and
+ *  injects a grip handle wired to dnd-kit's sortable listeners. */
+function SortableProjectRow({
+  project,
+  renderRow,
+  disabled,
+  reorderLabel,
+}: {
+  project: Project;
+  renderRow: (p: Project, dragHandle?: ReactNode) => ReactNode;
+  disabled: boolean;
+  reorderLabel: string;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: project.id, disabled });
+  const style: CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : undefined,
+    zIndex: isDragging ? 20 : undefined,
+    position: "relative",
+  };
+  const handle = disabled ? null : (
+    <button
+      type="button"
+      aria-label={reorderLabel}
+      onClick={(e) => e.stopPropagation()}
+      className="shrink-0 -ml-1 text-text-muted hover:text-text cursor-grab active:cursor-grabbing touch-none"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical size={16} />
+    </button>
+  );
+  return (
+    <div ref={setNodeRef} style={style}>
+      {renderRow(project, handle)}
+    </div>
+  );
+}
+
+/** Manual-order list (D): drag-to-reorder when no filters narrow the set,
+ *  otherwise a read-only hint explaining why dragging is off. */
+function ManualProjectList({
+  order,
+  dragEnabled,
+  sensors,
+  onDragEnd,
+  renderRow,
+  hint,
+}: {
+  order: Project[];
+  dragEnabled: boolean;
+  sensors: ReturnType<typeof useSensors>;
+  onDragEnd: (event: DragEndEvent) => void;
+  renderRow: (p: Project, dragHandle?: ReactNode) => ReactNode;
+  hint: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5 text-xs text-text-muted px-1">
+        <ArrowDownUp size={12} />
+        <span>{hint}</span>
+      </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+      >
+        <SortableContext
+          items={order.map((p) => p.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden bg-surface">
+            {order.map((p) => (
+              <SortableProjectRow
+                key={p.id}
+                project={p}
+                renderRow={renderRow}
+                disabled={!dragEnabled}
+                reorderLabel={hint}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }

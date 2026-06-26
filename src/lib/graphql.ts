@@ -948,6 +948,7 @@ export const DASHBOARD_QUERY = gql`
         killedAt
         killedAiReflection
         stalledAt
+        position
       }
       tasks {
         id
@@ -1178,6 +1179,7 @@ export const CREATE_PROJECT = gql`
       killedAt
       killedAiReflection
       stalledAt
+      position
     }
   }
 `;
@@ -1206,6 +1208,16 @@ export const UPDATE_PROJECT = gql`
       killedAt
       killedAiReflection
       stalledAt
+      position
+    }
+  }
+`;
+
+export const REORDER_PROJECTS = gql`
+  mutation ReorderProjects($orderedIds: [ID!]!) {
+    reorderProjects(orderedIds: $orderedIds) {
+      id
+      position
     }
   }
 `;

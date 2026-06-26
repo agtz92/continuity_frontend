@@ -77,6 +77,7 @@ export default function Dashboard() {
     saveProject,
     deleteProject: deleteProjectAction,
     applyParkedDueDates,
+    reorderProjects,
   } = useProjectMutations();
   const { saveTask, toggleTask, deleteTask } = useTaskMutations();
   const { saveIdea, deleteIdea, promoteIdea } = useIdeaMutations();
@@ -424,6 +425,7 @@ export default function Dashboard() {
             onDeleteProject={async (id) => {
               await deleteProjectAction(id);
             }}
+            onReorderProjects={reorderProjects}
             onOpenProject={openProject}
             onAddTaskToProject={(projectId) => {
               setEditingTask({ projectId });

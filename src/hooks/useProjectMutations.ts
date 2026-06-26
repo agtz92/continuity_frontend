@@ -6,6 +6,7 @@ import {
   DASHBOARD_QUERY,
   DELETE_PROJECT,
   DISMISS_PARKED_DUE_DATES,
+  REORDER_PROJECTS,
   RESTORE_PARKED_DUE_DATES,
   UPDATE_PROJECT,
 } from "@/lib/graphql";
@@ -19,6 +20,10 @@ export function useProjectMutations() {
   const [deleteProject] = useMutation(DELETE_PROJECT, refetchAfter);
   const [restoreParked] = useMutation(RESTORE_PARKED_DUE_DATES, refetchAfter);
   const [dismissParked] = useMutation(DISMISS_PARKED_DUE_DATES, refetchAfter);
+  // No refetch: the mutation returns {id, position} per project, which Apollo
+  // merges straight into the normalized cache (Project:<id>), so the dashboard
+  // list re-renders with the new order without a round-trip.
+  const [reorderProjectsMut] = useMutation(REORDER_PROJECTS);
 
   /** Save (create or update). Returns true on success, false on failure (errorLink already toasted). */
   const saveProject = async (p: {
@@ -97,10 +102,32 @@ export function useProjectMutations() {
     }
   };
 
+  /** Persist the manual order ("Mi orden"). `orderedIds` is the full list of
+   * project ids in their new order. Optimistically updates each project's
+   * `position` so the drag sticks instantly. Returns true on success. */
+  const reorderProjects = async (orderedIds: string[]): Promise<boolean> => {
+    try {
+      await reorderProjectsMut({
+        variables: { orderedIds },
+        optimisticResponse: {
+          reorderProjects: orderedIds.map((id, idx) => ({
+            __typename: "Project",
+            id,
+            position: idx,
+          })),
+        },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return {
     saveProject,
     deleteProject: deleteProjectWithConfirm,
     applyParkedDueDates,
+    reorderProjects,
     /** Raw mutations for cases like backup import that need direct access. */
     raw: { createProject, deleteProject },
   };
