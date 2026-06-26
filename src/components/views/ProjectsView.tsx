@@ -135,7 +135,7 @@ export function ProjectsView({
     "all" | Priority
   >("all");
   const [projectSortMode, setProjectSortMode] =
-    useState<ProjectSortMode>("smart");
+    useState<ProjectSortMode>("manual");
   const [projectDueFilter, setProjectDueFilter] = useState<DueFilter>("all");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showSortSheet, setShowSortSheet] = useState(false);
