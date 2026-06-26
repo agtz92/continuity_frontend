@@ -24,6 +24,8 @@ import { useNoteMutations } from "@/hooks/useNoteMutations";
 import { useCategoryMutations } from "@/hooks/useCategoryMutations";
 import { useRoutineMutations } from "@/hooks/useRoutineMutations";
 import { useBackup } from "@/hooks/useBackup";
+import { useStalledQueue } from "@/hooks/useStalledQueue";
+import { useProjectLifecycle } from "@/hooks/useProjectLifecycle";
 import { ProjectDetailModal } from "./projects/ProjectDetailModal";
 import { ProjectModal } from "./projects/ProjectModal";
 import { PauseProjectModal } from "./projects/PauseProjectModal";
@@ -144,34 +146,23 @@ export default function Dashboard() {
   const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
   const viewingProject = projects.find((p) => p.id === viewingProjectId) ?? null;
 
-  // --- Lógica de ciclo de vida (State Closure): rituales pause/kill, welcome-back, cola stalled ---
-  // Estas transiciones no son guardados simples: pausar/matar exigen notas de
-  // cierre, reactivar abre un welcome-back, y los proyectos stalled se procesan
-  // de a uno. La máquina vive aquí porque cruza varias vistas y modales.
+  // --- Ciclo de vida (State Closure) + cola de stalled, en hooks dedicados ---
+  // Pausar/matar exigen notas de cierre, reactivar abre un welcome-back, y los
+  // stalled se procesan de a uno. La máquina vive en useProjectLifecycle; la cola
+  // en useStalledQueue (ver AUDITORIA_CODIGO.md).
   type SaveArgs = Parameters<typeof saveProject>[0];
-  // A closure transition that needs notes before it can be saved. `base` holds
-  // the full save payload (with status already set to paused/killed); the modal
-  // fills in the notes and we then call saveProject once.
-  const [closure, setClosure] = useState<{
-    mode: "pause" | "kill";
-    projectName: string;
-    base: SaveArgs;
-  } | null>(null);
-  const [welcomeBack, setWelcomeBack] = useState<Project | null>(null);
-  // Projects the backend flagged stalled, shown one at a time on load. Dismissed
-  // ids are remembered for the session so the queue doesn't re-open.
-  const [stalledHandled, setStalledHandled] = useState<Set<string>>(new Set());
-  const stalledQueue = useMemo(
-    () =>
-      projects.filter(
-        (p) => p.status === "stalled" && !stalledHandled.has(p.id)
-      ),
-    [projects, stalledHandled]
-  );
-  // Solo se muestra la cabeza de la cola; al descartarla el siguiente sube.
-  const currentStalled = stalledQueue[0] ?? null;
-  const dismissStalled = (id: string) =>
-    setStalledHandled((prev) => new Set(prev).add(id));
+  const {
+    closure,
+    setClosure,
+    welcomeBack,
+    setWelcomeBack,
+    requestSaveProject,
+    handleClosureConfirm,
+  } = useProjectLifecycle<SaveArgs>(saveProject, () => {
+    setShowProjectModal(false);
+    setEditingProject(null);
+  });
+  const { currentStalled, dismissStalled } = useStalledQueue(projects);
 
   /** Open a project: paused → WelcomeBackCard (notes + reactivate); else detail. */
   const openProject = (p: Project) => {
@@ -194,27 +185,6 @@ export default function Dashboard() {
     categoryId: p.categoryId,
     dueDate: p.dueDate,
   });
-
-  /**
-   * Central save that intercepts pause/kill transitions and routes them to the
-   * closure ritual (notes are required). Everything else (including
-   * resume/revive to active/idea) saves directly. Returns true on success.
-   */
-  const requestSaveProject = async (
-    args: SaveArgs,
-    prevStatus?: string
-  ): Promise<boolean> => {
-    const isTransition = args.id && prevStatus && args.status !== prevStatus;
-    if (isTransition && args.status === "paused") {
-      setClosure({ mode: "pause", projectName: args.name, base: args });
-      return false;
-    }
-    if (isTransition && args.status === "killed") {
-      setClosure({ mode: "kill", projectName: args.name, base: args });
-      return false;
-    }
-    return saveProject(args);
-  };
 
   const activeCount = projects.filter((p) => p.status === "active").length;
   const launchedCount = projects.filter((p) => p.status === "launched").length;
@@ -253,18 +223,6 @@ export default function Dashboard() {
       setShowProjectModal(false);
       setEditingProject(null);
     }
-  };
-
-  // Closure modal submit: merge the notes into the pending payload and save.
-  const handleClosureConfirm = async (notes: Partial<SaveArgs>): Promise<boolean> => {
-    if (!closure) return false;
-    const ok = await saveProject({ ...closure.base, ...notes });
-    if (ok) {
-      setClosure(null);
-      setShowProjectModal(false);
-      setEditingProject(null);
-    }
-    return ok;
   };
 
   const handleSaveTask = async (t: Parameters<typeof saveTask>[0]) => {
