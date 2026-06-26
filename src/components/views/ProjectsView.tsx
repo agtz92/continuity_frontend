@@ -11,20 +11,12 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import {
-  Activity,
   ArrowDownUp,
-  CheckCircle2,
-  ChevronRight,
-  Clock,
-  Edit2,
   GripVertical,
   ListFilter,
-  Maximize2,
   Plus,
   Search,
   SlidersHorizontal,
-  Trash2,
-  X,
 } from "lucide-react";
 import {
   DndContext,
@@ -53,27 +45,16 @@ import type {
   ProjectStatus,
   Task,
 } from "@/lib/types";
-import { NotesSection } from "@/components/projects/notes/NotesSection";
-import { ProjectSection } from "@/components/projects/ProjectSection";
-import { categoryColorClass, priorityRank } from "@/lib/types";
-import {
-  daysSince,
-  dueDateOnly,
-  isDueToday,
-  isOverdue,
-  toLocalISO,
-  todayLocalISODate,
-} from "@/lib/date";
+import { categoryColorClass } from "@/lib/types";
+import { toLocalISO } from "@/lib/date";
 import { STATUS_FILTER_ORDER, statusConfig } from "@/lib/status";
 import {
   PRIORITY_FILTER_ORDER,
   PROJECT_SORT_MODES,
   priorityChipClass,
-  priorityStripeClass,
   type ProjectSortMode,
 } from "@/lib/priority";
 import { FAB } from "@/components/ui/FAB";
-import { ShowMoreList } from "@/components/ui/ShowMoreList";
 import {
   EMPTY_FILTER,
   ProjectsFilterSheet,
@@ -82,10 +63,16 @@ import {
 } from "./ProjectsFilterSheet";
 import { ProjectsSortSheet } from "./ProjectsSortSheet";
 import { useStableLayout, type LayoutEntry } from "@/lib/useStableLayout";
-
-/** Smart layout sections (C): urgent first, at-risk next, everything else. */
-type SmartSection = "attention" | "risk" | "rest";
-const SMART_SECTION_ORDER: SmartSection[] = ["attention", "risk", "rest"];
+import {
+  compareProjects,
+  matchesCategory,
+  matchesDue,
+  matchesPriority,
+  matchesSearch as matchesSearchProject,
+  matchesStatus,
+  smartSectionOf as smartSectionOfProject,
+} from "./projectSort";
+import { ProjectRow } from "./ProjectRow";
 
 /**
  * Vista de lista de proyectos. Mantiene en estado local el término de búsqueda,
@@ -166,28 +153,13 @@ export function ProjectsView({
   // efecto que revela un proyecto seleccionado oculto. Reciben el valor del filtro
   // por parámetro (sufijo `With`) para poder evaluar drafts sin tocar el estado.
 
-  /** Vencimiento: "all" pasa todo; "none" solo sin fecha; "overdue" antes de hoy;
-   *  el resto es la ventana [hoy, hoy+7] definida por `horizonISO`. */
-  const matchesDueWith = (p: Project, due: DueFilter) => {
-    if (due === "all") return true;
-    if (due === "none") return !p.dueDate;
-    if (!p.dueDate) return false;
-    const dueIso = dueDateOnly(p.dueDate);
-    const today = todayLocalISODate();
-    if (due === "overdue") return dueIso < today;
-    return dueIso >= today && dueIso <= horizonISO;
-  };
-
-  const matchesStatusWith = (p: Project, status: "all" | ProjectStatus) => {
-    if (status === "all") return true;
-    return p.status === status;
-  };
-
-  const matchesPriorityWith = (p: Project, priority: "all" | Priority) =>
-    priority === "all" || p.priority === priority;
-
-  const matchesCategoryWith = (p: Project, categoryId: string | null) =>
-    categoryId === null || p.categoryId === categoryId;
+  // Wrappers finos que enlazan la lógica pura (./projectSort) con el closure del
+  // componente (horizonISO). Las firmas coinciden, así que los call sites no cambian.
+  const matchesDueWith = (p: Project, due: DueFilter) =>
+    matchesDue(p, due, horizonISO);
+  const matchesStatusWith = matchesStatus;
+  const matchesPriorityWith = matchesPriority;
+  const matchesCategoryWith = matchesCategory;
 
   /** Conteo en vivo que muestra el sheet de filtros mientras el usuario edita un
    *  draft, sin aplicarlo todavía (la búsqueda no entra: el sheet no la edita). */
@@ -272,19 +244,7 @@ export function ProjectsView({
   );
 
   const q = projectSearch.trim().toLowerCase();
-  /** Búsqueda de texto libre sobre los campos visibles del proyecto y el nombre
-   *  de su categoría; sin término (`q` vacío) no filtra nada. */
-  const matchesSearch = (p: Project) => {
-    if (!q) return true;
-    const cat = p.categoryId ? categoryById[p.categoryId]?.name ?? "" : "";
-    return (
-      p.name.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      p.nextStep.toLowerCase().includes(q) ||
-      p.why.toLowerCase().includes(q) ||
-      cat.toLowerCase().includes(q)
-    );
-  };
+  const matchesSearch = (p: Project) => matchesSearchProject(p, q, categoryById);
 
   const filtered = projects.filter(
     (p) =>
@@ -295,70 +255,11 @@ export function ProjectsView({
       matchesDueWith(p, projectDueFilter)
   );
 
-  /** Bucket de urgencia para los modos "smart" y la sección Smart: 0 vencidas,
-   *  1 vence hoy, 2 inactivo >=7 días (active/idea), 3 resto. Cuanto menor, más
-   *  arriba aparece. */
-  const urgencyBucket = (p: Project) => {
-    const projectTasks = tasks.filter((tk) => tk.projectId === p.id);
-    const hasOverdue = projectTasks.some((tk) => !tk.done && isOverdue(tk.dueDate));
-    if (hasOverdue) return 0;
-    const hasToday = projectTasks.some((tk) => !tk.done && isDueToday(tk.dueDate));
-    if (hasToday) return 1;
-    const idle = daysSince(p.lastActivity) ?? 0;
-    if (["active", "idea"].includes(p.status) && idle >= 7) return 2;
-    return 3;
-  };
-
-  const recentTs = (p: Project) => new Date(p.lastActivity).getTime();
-  const byName = (a: Project, b: Project) => a.name.localeCompare(b.name, locale);
-
-  /**
-   * Comparador único parametrizado por `projectSortMode`. Cada modo aporta su
-   * clave primaria (position / prioridad / reciente / nombre / estado / urgencia)
-   * y todos caen al desempate alfabético para que el orden sea determinista.
-   */
-  // (B) Alphabetical is the STABLE final tiebreaker everywhere. `lastActivity`
-  // is only a sort key in "recent" — it no longer sneaks in as a secondary key
-  // (that's what used to fling an edited project to the top of its band).
-  const compare = (a: Project, b: Project) => {
-    switch (projectSortMode) {
-      case "manual":
-        return (a.position ?? 0) - (b.position ?? 0) || byName(a, b);
-      case "priority": {
-        const d = priorityRank(a.priority) - priorityRank(b.priority);
-        return d !== 0 ? d : byName(a, b);
-      }
-      case "recent": {
-        const r = recentTs(b) - recentTs(a);
-        return r !== 0 ? r : byName(a, b);
-      }
-      case "name":
-        return byName(a, b);
-      case "status": {
-        const sa = STATUS_FILTER_ORDER.indexOf(a.status);
-        const sb = STATUS_FILTER_ORDER.indexOf(b.status);
-        if (sa !== sb) return sa - sb;
-        const pd = priorityRank(a.priority) - priorityRank(b.priority);
-        return pd !== 0 ? pd : byName(a, b);
-      }
-      case "smart":
-      default: {
-        const ba = urgencyBucket(a);
-        const bb = urgencyBucket(b);
-        if (ba !== bb) return ba - bb;
-        const pd = priorityRank(a.priority) - priorityRank(b.priority);
-        return pd !== 0 ? pd : byName(a, b);
-      }
-    }
-  };
+  const compare = (a: Project, b: Project) =>
+    compareProjects(a, b, { sortMode: projectSortMode, locale, tasks });
 
   // (C) Smart splits into sections; other modes are a single flat list.
-  const smartSectionOf = (p: Project): SmartSection => {
-    const b = urgencyBucket(p);
-    if (b <= 1) return "attention";
-    if (b === 2) return "risk";
-    return "rest";
-  };
+  const smartSectionOf = (p: Project) => smartSectionOfProject(p, tasks);
 
   const sorted = [...filtered].sort(compare);
   const ideal: LayoutEntry[] = sorted.map((p) => ({
@@ -651,390 +552,27 @@ export function ProjectsView({
          * inyecta para arrastrar. Los contadores y badges se derivan aquí por fila
          * a partir de `tasks`/`activities`, no se memoizan (lista corta esperada).
          */
-        const renderRow = (p: Project, dragHandle?: ReactNode) => {
-                const projectTasks = tasks.filter((t) => t.projectId === p.id);
-                const done = projectTasks.filter((t) => t.done).length;
-                const total = projectTasks.length;
-                const todayCount = projectTasks.filter(
-                  (t) => !t.done && isDueToday(t.dueDate)
-                ).length;
-                const overdueCount = projectTasks.filter(
-                  (t) => !t.done && isOverdue(t.dueDate)
-                ).length;
-                const pendingEffortRaw = projectTasks
-                  .filter((t) => !t.done && t.effortHours != null)
-                  .reduce((sum, t) => sum + (t.effortHours as number), 0);
-                const pendingEffort = Math.round(pendingEffortRaw * 10) / 10;
-                const StatusIcon = statusConfig[p.status]?.icon ?? Activity;
-                const days = daysSince(p.lastActivity) ?? 0;
-                // Soft visual hint only (D9). Not a status — the persisted
-                // `stalled` status has its own badge via statusConfig.
-                const isIdle =
-                  ["active", "idea"].includes(p.status) && days >= 7;
-                const isExpanded = selectedProject?.id === p.id;
-                const percent = total > 0 ? Math.round((done / total) * 100) : 0;
-
-                return (
-                  // ===== Fila base (siempre visible) =====
-                  <div
-                    key={p.id}
-                    className={`relative transition-colors ${
-                      isExpanded ? "bg-surface/60 ring-1 ring-inset ring-accent/30" : ""
-                    }`}
-                  >
-                    <div
-                      aria-hidden
-                      className={`absolute left-0 top-0 bottom-0 w-1 ${priorityStripeClass[p.priority]}`}
-                      title={tPriority(p.priority)}
-                    />
-                    <div
-                      className="flex items-center gap-3 pl-5 pr-4 py-2.5 cursor-pointer hover:bg-surface/40"
-                      onClick={() => onSelectProject(isExpanded ? null : p)}
-                    >
-                      {dragHandle}
-                      <ChevronRight
-                        size={16}
-                        className={`shrink-0 text-text-muted transition-transform ${
-                          isExpanded ? "rotate-90" : ""
-                        }`}
-                      />
-                      <span
-                        className={`inline-flex items-center justify-center w-6 h-6 rounded border shrink-0 ${statusConfig[p.status]?.color}`}
-                        title={tStatus(p.status)}
-                        aria-label={tStatus(p.status)}
-                      >
-                        <StatusIcon size={12} />
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="font-semibold truncate">{p.name}</span>
-                          {p.categoryId && categoryById[p.categoryId] && (
-                            <span
-                              className={`hidden md:inline-block text-xs px-2 py-0.5 rounded border shrink-0 ${
-                                categoryColorClass(
-                                  categoryById[p.categoryId].color
-                                ).chip
-                              }`}
-                            >
-                              {categoryById[p.categoryId].name}
-                            </span>
-                          )}
-                          {/* Un solo badge por prioridad: vencidas > hoy > inactivo
-                              > horas pendientes. Es excluyente (cadena de ternarios),
-                              no se apilan. */}
-                          {overdueCount > 0 ? (
-                            <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40 shrink-0">
-                              {tCard("overdueBadge", { count: overdueCount })}
-                            </span>
-                          ) : todayCount > 0 ? (
-                            <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 shrink-0">
-                              {tCard("todayBadge", { count: todayCount })}
-                            </span>
-                          ) : isIdle ? (
-                            <span className="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
-                              {tCard("idleBadge", { count: days })}
-                            </span>
-                          ) : pendingEffort > 0 ? (
-                            <span
-                              className="hidden md:inline-flex text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 items-center gap-1 shrink-0"
-                              title={tCard("pendingHoursTooltip")}
-                            >
-                              <Clock size={10} />
-                              {tCard("pendingHoursBadge", { hours: pendingEffort })}
-                            </span>
-                          ) : null}
-                        </div>
-                        {p.nextStep && (
-                          <div className="text-xs text-text-muted truncate mt-0.5">
-                            → {p.nextStep}
-                          </div>
-                        )}
-                      </div>
-                      {total > 0 && (
-                        <>
-                          <div className="hidden sm:flex items-center gap-2 shrink-0 w-32">
-                            <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-accent transition-all"
-                                style={{ width: `${percent}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-text-muted tabular-nums w-10 text-right">
-                              {done}/{total}
-                            </span>
-                          </div>
-                          <span className="sm:hidden text-xs text-text-muted tabular-nums shrink-0">
-                            {done}/{total}
-                          </span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* ===== Detalle expandido (solo la fila seleccionada) =====
-                        Los updates ("recent activity") salen de `activities` con
-                        kind="note"; las notas largas vienen aparte en
-                        `notesByProject`. */}
-                    {isExpanded && (() => {
-                      const projectNotes = activities.filter(
-                        (a) => a.kind === "note" && a.projectId === p.id
-                      );
-                      return (
-                      <div className="border-t border-border p-4 space-y-3">
-                        <div className="flex justify-end -mt-1 -mr-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onOpenProject(p);
-                            }}
-                            className="text-xs px-3 py-1.5 rounded-md bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent inline-flex items-center gap-1.5 transition-colors"
-                          >
-                            <Maximize2 size={12} />
-                            {t("openFullView")}
-                          </button>
-                        </div>
-
-                        {/* Next step — always shown, never collapsible */}
-                        <div className="bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
-                          <div className="text-xs uppercase tracking-wider text-accent mb-1">
-                            {tCard("nextStep")}
-                          </div>
-                          {p.nextStep ? (
-                            <div className="text-sm text-text">→ {p.nextStep}</div>
-                          ) : (
-                            <div className="text-sm text-text-muted italic">
-                              {tCard("nextStepEmpty")}
-                            </div>
-                          )}
-                        </div>
-
-                        <ProjectSection title={tCard("whyMatters")}>
-                          {p.why ? (
-                            <div className="text-sm text-text-muted whitespace-pre-wrap">
-                              {p.why}
-                            </div>
-                          ) : (
-                            <div className="text-sm text-text-muted italic">
-                              {tCard("whyEmpty")}
-                            </div>
-                          )}
-                        </ProjectSection>
-
-                        <ProjectSection title={tCard("description")}>
-                          {p.description ? (
-                            <div className="text-sm text-text-muted whitespace-pre-wrap">
-                              {p.description}
-                            </div>
-                          ) : (
-                            <div className="text-sm text-text-muted italic">
-                              {tCard("descriptionEmpty")}
-                            </div>
-                          )}
-                        </ProjectSection>
-
-                        {/* --- Tareas: pendientes arriba, hechas colapsadas --- */}
-                        <ProjectSection
-                          title={tCard("tasks")}
-                          rightSlot={
-                            total > 0 ? (
-                              <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
-                                {done}/{total}
-                              </span>
-                            ) : null
-                          }
-                        >
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onAddTaskToProject(p.id);
-                            }}
-                            className="text-xs text-accent hover:text-accent flex items-center gap-1 mb-2"
-                          >
-                            <Plus size={12} /> {tCard("addTask")}
-                          </button>
-                          {projectTasks.length === 0 ? (
-                            <div className="text-sm text-text-muted italic">
-                              {tCard("noTasks")}
-                            </div>
-                          ) : (() => {
-                            // Pendientes en su orden natural; hechas al final,
-                            // más recientes primero (por completedAt) y plegadas
-                            // tras las primeras 5 vía ShowMoreList.
-                            const pendingTasks = projectTasks.filter((tk) => !tk.done);
-                            const doneTasks = projectTasks
-                              .filter((tk) => tk.done)
-                              .sort((a, b) =>
-                                (b.completedAt ?? "").localeCompare(a.completedAt ?? "")
-                              );
-                            /** Fila de tarea compartida por pendientes y hechas:
-                             *  toggle, título, fecha/esfuerzo y acciones editar/borrar. */
-                            const renderTaskRow = (task: Task) => (
-                              <div
-                                key={task.id}
-                                className="flex items-center gap-2 group py-1 px-2 rounded-md hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors"
-                              >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onToggleTask(task);
-                                  }}
-                                  className={`shrink-0 ${
-                                    task.done
-                                      ? "text-accent"
-                                      : "text-text-muted hover:text-text-muted"
-                                  }`}
-                                >
-                                  <CheckCircle2 size={16} />
-                                </button>
-                                <span
-                                  className={`text-sm flex-1 ${
-                                    task.done
-                                      ? "line-through text-text-muted"
-                                      : "text-text"
-                                  }`}
-                                >
-                                  {task.title}
-                                </span>
-                                {task.dueDate && (
-                                  <span className="text-xs text-text-muted">
-                                    {new Date(task.dueDate).toLocaleDateString(locale)}
-                                  </span>
-                                )}
-                                {task.effortHours != null && (
-                                  <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                                    <Clock size={10} />
-                                    {task.effortHours}h
-                                  </span>
-                                )}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEditTask(task);
-                                  }}
-                                  className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                                  aria-label={tCard("editTaskAria")}
-                                >
-                                  <Edit2 size={14} />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDeleteTask(task.id);
-                                  }}
-                                  className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                                  aria-label={tCard("deleteTaskAria")}
-                                >
-                                  <X size={14} />
-                                </button>
-                              </div>
-                            );
-                            return (
-                              <div className="space-y-1">
-                                {pendingTasks.map(renderTaskRow)}
-                                <ShowMoreList
-                                  items={doneTasks}
-                                  initialCount={5}
-                                  renderItem={renderTaskRow}
-                                  itemKey={(task) => task.id}
-                                />
-                              </div>
-                            );
-                          })()}
-                        </ProjectSection>
-
-                        {/* --- Log de updates (actividad reciente) --- */}
-                        <ProjectSection
-                          title={tCard("recentActivity")}
-                          rightSlot={
-                            projectNotes.length > 0 ? (
-                              <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
-                                {projectNotes.length}
-                              </span>
-                            ) : null
-                          }
-                        >
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onLogUpdate(p);
-                            }}
-                            className="text-xs text-accent hover:text-accent flex items-center gap-1 mb-2"
-                          >
-                            <Plus size={12} /> {tCard("logUpdate")}
-                          </button>
-                          <div className="space-y-1">
-                            {projectNotes.length === 0 ? (
-                              <div className="text-sm text-text-muted italic">
-                                {tCard("noUpdates")}
-                              </div>
-                            ) : (
-                              <ShowMoreList
-                                items={[...projectNotes].sort((a, b) =>
-                                  (b.created ?? "").localeCompare(a.created ?? "")
-                                )}
-                                initialCount={5}
-                                renderItem={(a) => (
-                                  <div
-                                    key={a.id}
-                                    className="text-sm text-text-muted flex flex-col sm:flex-row gap-0.5 sm:gap-2"
-                                  >
-                                    <span className="text-text-muted text-xs shrink-0 sm:w-20">
-                                      {new Date(a.created).toLocaleDateString(locale, {
-                                        month: "short",
-                                        day: "numeric",
-                                      })}
-                                    </span>
-                                    <span className="break-words min-w-0">{a.note}</span>
-                                  </div>
-                                )}
-                                itemKey={(a) => a.id}
-                              />
-                            )}
-                          </div>
-                        </ProjectSection>
-
-                        {/* --- Notas largas del proyecto (NotesSection) --- */}
-                        <ProjectSection
-                          title={tCard("notes")}
-                          rightSlot={
-                            (notesByProject[p.id]?.length ?? 0) > 0 ? (
-                              <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
-                                {notesByProject[p.id]!.length}
-                              </span>
-                            ) : null
-                          }
-                        >
-                          <NotesSection
-                            projectId={p.id}
-                            notes={notesByProject[p.id] ?? []}
-                          />
-                        </ProjectSection>
-
-                        <div className="flex gap-2 pt-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEditProject(p);
-                            }}
-                            className="px-3 py-1.5 text-xs bg-border hover:opacity-80 rounded-md flex items-center gap-1"
-                          >
-                            <Edit2 size={12} /> {tCommon("edit")}
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteProject(p.id);
-                            }}
-                            className="px-3 py-1.5 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-md flex items-center gap-1"
-                          >
-                            <Trash2 size={12} /> {tCommon("delete")}
-                          </button>
-                        </div>
-                      </div>
-                      );
-                    })()}
-                  </div>
-                );
-        };
+        const renderRow = (p: Project, dragHandle?: ReactNode) => (
+          <ProjectRow
+            key={p.id}
+            project={p}
+            dragHandle={dragHandle}
+            tasks={tasks}
+            activities={activities}
+            notesByProject={notesByProject}
+            selectedProject={selectedProject}
+            categoryById={categoryById}
+            onSelectProject={onSelectProject}
+            onOpenProject={onOpenProject}
+            onAddTaskToProject={onAddTaskToProject}
+            onLogUpdate={onLogUpdate}
+            onToggleTask={onToggleTask}
+            onEditTask={onEditTask}
+            onDeleteTask={onDeleteTask}
+            onEditProject={onEditProject}
+            onDeleteProject={onDeleteProject}
+          />
+        );
 
         // (D) Manual order: drag to reorder (only when no filters narrow it).
         if (projectSortMode === "manual") {

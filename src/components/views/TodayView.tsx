@@ -15,10 +15,8 @@ import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Bell,
-  CheckCircle2,
   ChevronRight,
   Clock,
-  Edit2,
   Flag,
   Lightbulb,
   Moon,
@@ -29,7 +27,6 @@ import {
   Sparkles,
   Target,
   TrendingUp,
-  Undo2,
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -56,20 +53,25 @@ import type {
   RoutineOccurrence,
   Task,
 } from "@/lib/types";
-import { daysOverdue, daysSince, todayLocalISODate, toLocalISO } from "@/lib/date";
-import { completedDatesFor, computeDueDates } from "@/lib/recurrence";
+import { daysSince } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { FAB } from "../ui/FAB";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
 import { RoutineRow } from "../routines/RoutineRow";
 import { useTodayFocus } from "@/hooks/useTodayFocus";
-import { isDailyViewStatus } from "@/lib/projectStatus";
 import type { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useTodayLayout } from "@/hooks/useTodayLayout";
 import { TODAY_SECTIONS, type TodaySectionId } from "@/lib/todaySections";
 import { TodaySection } from "../today/TodaySection";
 import { TodayCustomizeBar } from "../today/TodayCustomizeBar";
 import { HiddenSectionsFooter } from "../today/HiddenSectionsFooter";
+import {
+  computeTodayRoutineItems,
+  routineCounts,
+  routineEffortHours,
+} from "../today/todayRoutines";
+import { TodayFocusSection } from "../today/TodayFocusSection";
+import { DoneTodaySection } from "../today/DoneTodaySection";
 import { TodayActionSheet } from "./TodayActionSheet";
 
 type ProductivityStats = ReturnType<typeof useProductivityStats>;
@@ -246,14 +248,11 @@ export function TodayView({
   } = productivityStats;
 
   const [showFabSheet, setShowFabSheet] = useState(false);
-  const [showTodayFocus, setShowTodayFocus] = useState(true);
-  const [showDoneToday, setShowDoneToday] = useState(false);
   const [showActiveProjects, setShowActiveProjects] = useState(false);
   const [showLaunchedWithTasks, setShowLaunchedWithTasks] = useState(false);
   const [showSleepingProjects, setShowSleepingProjects] = useState(false);
   const [showCloseable, setShowCloseable] = useState(false);
   const [showRoutinesToday, setShowRoutinesToday] = useState(true);
-  const [doneTodayFilter, setDoneTodayFilter] = useState<"all" | "task" | "log">("all");
 
   const layout = useTodayLayout();
 
@@ -310,60 +309,19 @@ export function TodayView({
     [projects]
   );
 
-  /**
-   * Ocurrencias de rutina pendientes que deben mostrarse hoy: combina las fechas debidas
-   * (computeDueDates) en una ventana de 14 días hacia atrás con las ya completadas
-   * (completedDatesFor) y deja solo las no hechas. La ventana de 14 días arrastra rutinas
-   * vencidas recientes sin acumular un backlog infinito. Las rutinas archivadas o de un
-   * proyecto en estado no-diario (pausado/stalled/killed/archivado) se excluyen, igual que
-   * las tareas; las standalone siempre se incluyen. Orden ascendente por fecha.
-   */
-  const todayRoutineItems = useMemo(() => {
-    const today = todayLocalISODate();
-    const lookback = new Date();
-    lookback.setDate(lookback.getDate() - 14);
-    const backStart = toLocalISO(lookback);
-    const items: { routine: Routine; scheduledDate: string }[] = [];
-    for (const r of routines) {
-      if (r.archived) continue;
-      // Routines of a closed project (paused/stalled/killed/archived) leave the
-      // daily view, mirroring tasks. Standalone routines always stay.
-      if (r.projectId) {
-        const parent = projectById.get(r.projectId);
-        if (parent && !isDailyViewStatus(parent.status)) continue;
-      }
-      const done = completedDatesFor(routineOccurrences, r.id);
-      const dates = computeDueDates(r, backStart, today);
-      for (const d of dates) {
-        if (!done.has(d)) items.push({ routine: r, scheduledDate: d });
-      }
-    }
-    items.sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate));
-    return items;
-  }, [routines, routineOccurrences, projectById]);
-
-  // Desglosa las ocurrencias pendientes en vencidas (antes de hoy) vs. de hoy, para
-  // mostrar conteos diferenciados en el chip de la cabecera de la sección de rutinas.
-  const todayRoutineCounts = useMemo(() => {
-    const today = todayLocalISODate();
-    const overdue = todayRoutineItems.filter(
-      (it) => it.scheduledDate < today
-    ).length;
-    const dueToday = todayRoutineItems.filter(
-      (it) => it.scheduledDate === today
-    ).length;
-    return { overdue, dueToday, total: overdue + dueToday };
-  }, [todayRoutineItems]);
-
-  // Suma de horas de esfuerzo estimado de las rutinas pendientes hoy; se redondea a 1
-  // decimal para el chip de "horas totales".
-  const todayRoutineEffortHours = useMemo(() => {
-    const sum = todayRoutineItems.reduce(
-      (acc, it) => acc + (it.routine.effortHours ?? 0),
-      0
-    );
-    return Math.round(sum * 10) / 10;
-  }, [todayRoutineItems]);
+  // Rutinas pendientes hoy + agregados; la lógica vive en ../today/todayRoutines.
+  const todayRoutineItems = useMemo(
+    () => computeTodayRoutineItems(routines, routineOccurrences, projectById),
+    [routines, routineOccurrences, projectById]
+  );
+  const todayRoutineCounts = useMemo(
+    () => routineCounts(todayRoutineItems),
+    [todayRoutineItems]
+  );
+  const todayRoutineEffortHours = useMemo(
+    () => routineEffortHours(todayRoutineItems),
+    [todayRoutineItems]
+  );
 
   const closableTotal =
     closableProjects.quickWins.length + closableProjects.almostThere.length;
@@ -480,168 +438,16 @@ export function TodayView({
   // --- Sección: today-focus (foco del día: tareas vencidas/de hoy + próximos pasos) ---
   // Siempre se registra (sin guard de datos): aun vacía muestra un estado vacío con hint.
   sectionNodes["today-focus"] = (
-    <CollapsibleSection
-      open={showTodayFocus}
-      onToggle={() => setShowTodayFocus((s) => !s)}
-      icon={<Target size={18} className="text-accent" />}
-      title={tFocus("title")}
-      rightSlot={
-        todayTaskCounts.total > 0 ? (
-          <span className="inline-flex items-center gap-2 flex-wrap">
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-700 dark:text-orange-200 shadow-sm shadow-orange-500/10"
-              title={tFocus("tasksTooltip", {
-                dueToday: todayTaskCounts.dueToday,
-                overdue: todayTaskCounts.overdue,
-              })}
-            >
-              <Target size={11} className="text-orange-700 dark:text-orange-300" />
-              <span>{tFocus("tasksLabel", { count: todayTaskCounts.total })}</span>
-              {todayTaskCounts.overdue > 0 && (
-                <span className="text-red-700 dark:text-red-300 font-semibold">
-                  {tFocus("overdueExtra", { count: todayTaskCounts.overdue })}
-                </span>
-              )}
-            </span>
-            {todayEffortHours > 0 && (
-              <span
-                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-accent-2/15 text-accent-2 border-accent-2/40"
-                title={tFocus("totalHoursTooltip")}
-              >
-                <Clock size={11} className="text-accent-2" />
-                {tFocus("totalHoursLabel", { hours: todayEffortHours })}
-              </span>
-            )}
-          </span>
-        ) : null
-      }
-    >
-      <>
-        {todayFocus.items.length === 0 ? (
-          <div className="bg-surface border border-border rounded-xl p-8 text-center">
-            <p className="text-text-muted mb-3">{tFocus("emptyTitle")}</p>
-            <p className="text-sm text-text-muted">
-              {projects.length === 0
-                ? tFocus("emptyHintFirst")
-                : tFocus("emptyHintNext")}
-            </p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-3">
-            {todayFocus.items.map((item, idx) => (
-              <div
-                key={idx}
-                className={`bg-surface p-4 rounded-xl border transition-all hover:border-border ${
-                  item.type === "overdue"
-                    ? "border-red-500/30"
-                    : item.type === "today"
-                    ? "border-orange-500/30"
-                    : item.type === "stalled"
-                    ? "border-amber-500/30"
-                    : "border-border"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {item.task && (
-                    <button
-                      onClick={() => onToggleTask(item.task!)}
-                      className="shrink-0 text-text-muted hover:text-accent transition-colors"
-                      title={tFocus("markDone")}
-                      aria-label={tFocus("markDone")}
-                    >
-                      <CheckCircle2 size={20} />
-                    </button>
-                  )}
-                  <div
-                    className={`flex-1 min-w-0 ${item.task ? "cursor-pointer" : ""}`}
-                    onClick={item.task ? () => onEditTask(item.task!) : undefined}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`text-xs uppercase tracking-wider font-medium ${
-                          item.type === "overdue"
-                            ? "text-red-400"
-                            : item.type === "today"
-                            ? "text-orange-400"
-                            : item.type === "stalled"
-                            ? "text-amber-400"
-                            : "text-accent"
-                        }`}
-                      >
-                        {tFocus(
-                          item.type === "today"
-                            ? "labels.dueToday"
-                            : item.type === "overdue"
-                            ? "labels.overdue"
-                            : item.type === "stalled"
-                            ? "labels.stalled"
-                            : "labels.nextStep"
-                        )}
-                      </span>
-                      {item.type === "overdue" &&
-                        item.task?.dueDate &&
-                        // IIFE para calcular los días de atraso una sola vez y omitir el
-                        // badge si daysOverdue devuelve null (fecha no parseable / no vencida).
-                        (() => {
-                          const n = daysOverdue(item.task.dueDate);
-                          return n !== null ? (
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/25 text-red-700 dark:text-red-200 border border-red-500/50">
-                              {tFocus("daysLate", { count: n })}
-                            </span>
-                          ) : null;
-                        })()}
-                      {item.project && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onJumpToProject(item.project!);
-                          }}
-                          className="text-xs text-text-muted hover:text-accent hover:underline"
-                        >
-                          · {item.project.name}
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-text">
-                        {item.task
-                          ? item.task.title
-                          : item.type === "stalled" && item.project
-                          ? tFocus("daysIdleLine", {
-                              name: item.project.name,
-                              count: daysSince(item.project.lastActivity) ?? 0,
-                            })
-                          : item.project?.nextStep}
-                      </span>
-                      {item.task?.effortHours != null && (
-                        <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                          <Clock size={10} />
-                          {item.task.effortHours}h
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {todayFocus.total > todayFocus.items.length && (
-          <button
-            onClick={onJumpToTasks}
-            className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-700 dark:text-orange-200 text-sm font-medium transition-colors"
-          >
-            {tFocus("viewAll")}
-            <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/30 text-orange-800 dark:text-orange-100">
-              {tFocus("moreCount", {
-                count: todayFocus.total - todayFocus.items.length,
-              })}
-            </span>
-            <ChevronRight size={14} />
-          </button>
-        )}
-      </>
-    </CollapsibleSection>
+    <TodayFocusSection
+      todayFocus={todayFocus}
+      todayTaskCounts={todayTaskCounts}
+      todayEffortHours={todayEffortHours}
+      projects={projects}
+      onToggleTask={onToggleTask}
+      onEditTask={onEditTask}
+      onJumpToProject={onJumpToProject}
+      onJumpToTasks={onJumpToTasks}
+    />
   );
 
   // --- Sección: routines-today (rutinas pendientes hoy y vencidas) ---
@@ -711,227 +517,17 @@ export function TodayView({
   // doneTodayItems mezcla varios `kind`; `doneTodayFilter` permite ver solo tareas o solo
   // logs, y el filtro actúa como toggle (volver a tocar el chip activo regresa a "all").
   if (doneTodayItems.length > 0) {
-    const taskCount = doneTodayItems.filter((i) => i.kind === "task").length;
-    const logCount = doneTodayItems.filter((i) => i.kind === "log").length;
-    const visibleItems =
-      doneTodayFilter === "all"
-        ? doneTodayItems
-        : doneTodayItems.filter((i) => i.kind === doneTodayFilter);
-    const toggleFilter = (kind: "task" | "log") =>
-      setDoneTodayFilter((cur) => (cur === kind ? "all" : kind));
     sectionNodes["done-today"] = (
-      <CollapsibleSection
-        open={showDoneToday}
-        onToggle={() => setShowDoneToday((s) => !s)}
-        icon={<Sparkles size={18} className="text-accent" />}
-        title={tDone("title")}
-        rightSlot={
-          <>
-            {taskCount > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFilter("task");
-                }}
-                aria-pressed={doneTodayFilter === "task"}
-                title={
-                  doneTodayFilter === "task"
-                    ? tDone("showAll")
-                    : tDone("showOnlyTasks")
-                }
-                className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
-                  doneTodayFilter === "task"
-                    ? "bg-accent/25 border border-accent/60 text-accent"
-                    : doneTodayFilter === "log"
-                    ? "bg-accent/5 border border-accent/15 text-accent/50 hover:text-accent"
-                    : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20"
-                }`}
-              >
-                <CheckCircle2 size={11} />
-                {tDone("tasksLabel", { count: taskCount })}
-              </button>
-            )}
-            {logCount > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFilter("log");
-                }}
-                aria-pressed={doneTodayFilter === "log"}
-                title={
-                  doneTodayFilter === "log"
-                    ? tDone("showAll")
-                    : tDone("showOnlyLogs")
-                }
-                className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
-                  doneTodayFilter === "log"
-                    ? "bg-accent-2/25 border border-accent-2/60 text-accent-2"
-                    : doneTodayFilter === "task"
-                    ? "bg-accent-2/5 border border-accent-2/15 text-accent-2/50 hover:text-accent-2"
-                    : "bg-accent-2/10 border border-accent-2/30 text-accent-2 hover:bg-accent-2/20"
-                }`}
-              >
-                <TrendingUp size={11} />
-                {tDone("logsLabel", { count: logCount })}
-              </button>
-            )}
-            {doneTodayEffortHours > 0 && (
-              <span
-                className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-accent-2/15 text-accent-2 border border-accent-2/40"
-                title={tDone("hoursWorkedTooltip")}
-              >
-                <Clock size={11} />
-                {tDone("hoursWorkedLabel", { hours: doneTodayEffortHours })}
-              </span>
-            )}
-          </>
-        }
-      >
-        <div className="bg-surface/40 border border-border rounded-xl p-3 sm:p-4 space-y-3">
-          {todayHoursByProject.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-border/80">
-              <span className="text-[10px] uppercase tracking-wider text-text-muted self-center mr-1">
-                {tDone("hoursByProject")}
-              </span>
-              {todayHoursByProject.map(({ project, hours }) => (
-                <button
-                  key={project.id}
-                  onClick={() => onJumpToProject(project)}
-                  className="text-xs px-2 py-0.5 rounded border bg-accent/10 text-accent border-accent/30 hover:bg-accent/20 inline-flex items-center gap-1"
-                >
-                  <Clock size={10} />
-                  {project.name} · {hours}h
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="space-y-2">
-            {visibleItems.map((item) => {
-              if (item.kind === "task") {
-                const taskItem = item.task;
-                const proj = projects.find((p) => p.id === taskItem.projectId);
-                return (
-                  <div
-                    key={`task-${taskItem.id}`}
-                    className="flex items-start gap-2 group border-l-2 border-accent/40 pl-2.5"
-                  >
-                    <CheckCircle2 size={16} className="text-accent shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                        <span className="text-[10px] uppercase tracking-wider font-medium text-accent">
-                          {tDone("task")}
-                        </span>
-                        {proj && (
-                          <button
-                            onClick={() => onJumpToProject(proj)}
-                            className="text-xs text-text-muted hover:text-accent hover:underline"
-                          >
-                            · {proj.name}
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm text-text-muted line-through decoration-emerald-500/40 break-words">
-                          {taskItem.title}
-                        </span>
-                        {taskItem.effortHours != null && (
-                          <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                            <Clock size={10} />
-                            {taskItem.effortHours}h
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => onEditTask(taskItem)}
-                      className="text-text-muted hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                      title={tDone("edit")}
-                      aria-label={tDone("editTaskAria")}
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => onToggleTask(taskItem)}
-                      className="text-text-muted hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                      title={tDone("undo")}
-                      aria-label={tDone("undoAria")}
-                    >
-                      <Undo2 size={14} />
-                    </button>
-                  </div>
-                );
-              }
-              if (item.kind === "routine") {
-                return (
-                  <div
-                    key={`routine-${item.occurrenceId}`}
-                    className="flex items-start gap-2 group border-l-2 border-accent/40 pl-2.5"
-                  >
-                    <CheckCircle2 size={16} className="text-accent shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                        <span className="text-[10px] uppercase tracking-wider font-medium text-accent">
-                          {tDone("routine")}
-                        </span>
-                        <span className="text-xs text-text-muted">
-                          · {tTabs("routines")}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm text-text-muted break-words">
-                          {item.title}
-                        </span>
-                        {item.effortHours != null && (
-                          <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
-                            <Clock size={10} />
-                            {item.effortHours}h
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => onUncompleteOccurrence(item.occurrenceId)}
-                      className="text-text-muted hover:text-amber-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-                      title={tDone("undo")}
-                      aria-label={tDone("undoAria")}
-                    >
-                      <Undo2 size={14} />
-                    </button>
-                  </div>
-                );
-              }
-              const proj = projects.find((p) => p.id === item.projectId);
-              const badgeKey = item.source === "projectNote" ? "note" : "log";
-              return (
-                <div
-                  key={`log-${item.source}-${item.id}`}
-                  className="flex items-start gap-2 border-l-2 border-accent-2/40 pl-2.5"
-                >
-                  <TrendingUp size={16} className="text-accent-2 shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                      <span className="text-[10px] uppercase tracking-wider font-medium text-accent-2">
-                        {tDone(badgeKey)}
-                      </span>
-                      {proj && (
-                        <button
-                          onClick={() => onJumpToProject(proj)}
-                          className="text-xs text-text-muted hover:text-accent hover:underline"
-                        >
-                          · {proj.name}
-                        </button>
-                      )}
-                    </div>
-                    <div className="text-sm text-text-muted break-words">
-                      {item.text}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </CollapsibleSection>
+      <DoneTodaySection
+        doneTodayItems={doneTodayItems}
+        doneTodayEffortHours={doneTodayEffortHours}
+        todayHoursByProject={todayHoursByProject}
+        projects={projects}
+        onJumpToProject={onJumpToProject}
+        onEditTask={onEditTask}
+        onToggleTask={onToggleTask}
+        onUncompleteOccurrence={onUncompleteOccurrence}
+      />
     );
   }
 
