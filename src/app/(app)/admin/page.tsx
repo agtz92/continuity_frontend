@@ -6,22 +6,17 @@ import { useQuery } from "@apollo/client";
 import {
   Bar,
   BarChart,
-  Cell,
-  Legend,
+  CartesianGrid,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
 } from "recharts";
 import {
   Activity,
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   ListTodo,
   Sparkles,
@@ -29,6 +24,17 @@ import {
   Users,
 } from "lucide-react";
 import { ADMIN_SYSTEM_STATS_QUERY } from "@/lib/graphql";
+import { ChartCard, DonutChart, Kpi, PlanPill, Shortcut } from "./AdminHomeCards";
+import {
+  KIND_LABELS,
+  PLAN_COLORS,
+  PLAN_LABELS,
+  STATE_COLORS,
+  STATE_LABELS,
+  fmtAgo,
+  fmtShortDate,
+  tooltipStyle,
+} from "./adminHomeData";
 
 type SeriesPoint = { date: string; value: number };
 type LabeledCount = { label: string; count: number };
@@ -63,74 +69,6 @@ type Stats = {
   activityByKind: LabeledCount[];
   projectStateCounts: LabeledCount[];
   recentSignups: RecentSignup[];
-};
-
-const PLAN_LABELS: Record<string, string> = {
-  free: "Free",
-  pro: "Pro",
-  studio: "Studio",
-  admin: "Admin",
-};
-
-const PLAN_COLORS: Record<string, string> = {
-  free: "#94a3b8",
-  pro: "#34d399",
-  studio: "#a78bfa",
-  admin: "#f59e0b",
-};
-
-const STATE_LABELS: Record<string, string> = {
-  idea: "Idea",
-  active: "Activo",
-  stalled: "Estancado",
-  paused: "Pausado",
-  launched: "Lanzado",
-  archived: "Archivado",
-};
-
-const STATE_COLORS: Record<string, string> = {
-  idea: "#64748b",
-  active: "#34d399",
-  stalled: "#f59e0b",
-  paused: "#60a5fa",
-  launched: "#a78bfa",
-  archived: "#475569",
-};
-
-const KIND_LABELS: Record<string, string> = {
-  note: "Notas",
-  project_created: "Proyectos creados",
-  project_deleted: "Proyectos borrados",
-  project_status_changed: "Cambios de estado",
-  project_due_date_changed: "Fechas movidas",
-  task_created: "Tareas creadas",
-  task_completed: "Tareas cerradas",
-  task_deleted: "Tareas borradas",
-  task_due_date_changed: "Tareas reagendadas",
-  idea_created: "Ideas",
-  idea_deleted: "Ideas borradas",
-  idea_promoted: "Ideas promovidas",
-  routine_created: "Rutinas creadas",
-  routine_completed: "Rutinas cumplidas",
-  routine_deleted: "Rutinas borradas",
-};
-
-const fmtShortDate = (iso: string) => {
-  const d = new Date(iso);
-  return `${d.getDate()}/${d.getMonth() + 1}`;
-};
-
-const fmtAgo = (iso: string | null): string => {
-  if (!iso) return "—";
-  const t = new Date(iso).getTime();
-  const diff = Date.now() - t;
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 60) return `hace ${mins} min`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `hace ${hrs} h`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return `hace ${days} d`;
-  return new Date(iso).toLocaleDateString();
 };
 
 export default function AdminHomePage() {
@@ -490,194 +428,5 @@ export default function AdminHomePage() {
         </div>
       </div>
     </div>
-  );
-}
-
-const tooltipStyle = {
-  background: "var(--surface)",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  fontSize: 12,
-  color: "var(--text)",
-} as const;
-
-type KpiTone = "brand" | "neutral" | "warn" | "bad" | "good";
-
-function Kpi({
-  icon,
-  label,
-  value,
-  hint,
-  href,
-  loading,
-  tone = "neutral",
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  hint?: string;
-  href?: string;
-  loading?: boolean;
-  tone?: KpiTone;
-}) {
-  const valueClass =
-    tone === "bad"
-      ? "text-red-400"
-      : tone === "warn"
-        ? "text-yellow-400"
-        : tone === "good"
-          ? "text-emerald-400"
-          : tone === "brand"
-            ? "text-accent"
-            : "text-text";
-  const inner = (
-    <div className="rounded-xl border border-border bg-surface p-5 transition-colors hover:bg-[color-mix(in_srgb,var(--text)_4%,var(--surface))]">
-      <div className="flex items-center justify-between text-xs uppercase tracking-wide text-text-muted">
-        <span>{label}</span>
-        <span className="text-text-muted">{icon}</span>
-      </div>
-      <div className={`mt-3 text-3xl font-semibold tabular-nums ${valueClass}`}>
-        {loading ? "…" : value.toLocaleString()}
-      </div>
-      {hint && (
-        <div className="mt-1.5 text-xs text-text-muted line-clamp-1">
-          {hint}
-        </div>
-      )}
-    </div>
-  );
-  return href ? (
-    <Link href={href} className="block">
-      {inner}
-    </Link>
-  ) : (
-    inner
-  );
-}
-
-function ChartCard({
-  title,
-  subtitle,
-  icon,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-surface p-5">
-      <div className="mb-4 flex items-start justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold text-text flex items-center gap-2">
-            {icon ? <span className="text-accent">{icon}</span> : null}
-            {title}
-          </h3>
-          {subtitle && (
-            <p className="mt-0.5 text-xs text-text-muted">{subtitle}</p>
-          )}
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function DonutChart({
-  data,
-  emptyLabel,
-}: {
-  data: { name: string; value: number; color: string }[];
-  emptyLabel: string;
-}) {
-  const total = data.reduce((acc, d) => acc + d.value, 0);
-  if (total === 0) {
-    return (
-      <div className="py-10 text-center text-sm text-text-muted">
-        {emptyLabel}
-      </div>
-    );
-  }
-  return (
-    <div className="h-56">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            innerRadius={50}
-            outerRadius={80}
-            paddingAngle={2}
-            dataKey="value"
-            stroke="var(--surface)"
-            strokeWidth={2}
-          >
-            {data.map((entry) => (
-              <Cell key={entry.name} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip
-            contentStyle={tooltipStyle}
-            formatter={(value, name) => {
-              const n = Number(value) || 0;
-              return [
-                `${n} (${total > 0 ? Math.round((n / total) * 100) : 0}%)`,
-                String(name),
-              ];
-            }}
-          />
-          <Legend
-            verticalAlign="bottom"
-            iconSize={8}
-            wrapperStyle={{ fontSize: 11, color: "var(--text-muted)" }}
-          />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-function PlanPill({ plan }: { plan: string }) {
-  const color = PLAN_COLORS[plan] ?? "#94a3b8";
-  const label = PLAN_LABELS[plan] ?? plan;
-  return (
-    <span
-      className="rounded-full border px-2 py-0.5 text-xs font-medium tabular-nums"
-      style={{
-        color,
-        borderColor: `color-mix(in srgb, ${color} 40%, transparent)`,
-        background: `color-mix(in srgb, ${color} 12%, transparent)`,
-      }}
-    >
-      {label}
-    </span>
-  );
-}
-
-function Shortcut({
-  href,
-  title,
-  description,
-}: {
-  href: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="font-medium text-text">{title}</div>
-          <div className="mt-1 text-sm text-text-muted">{description}</div>
-        </div>
-        <ArrowRight
-          size={16}
-          className="mt-1 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent"
-        />
-      </div>
-    </Link>
   );
 }
