@@ -2,16 +2,16 @@
 
 /**
  * Orquestador principal de la app: enruta entre las vistas del tablero, posee
- * el estado de TODOS los modales y maneja la máquina de estados del ciclo de
- * vida de un proyecto (pausar/matar vía rituales de cierre, welcome-back al
- * reactivar, y la cola de proyectos "stalled" que el backend marca al cargar).
- * Concentra estado y prop-drilling a propósito por ahora (ver TODO al final).
+ * el estado de TODOS los modales (vía useDashboardModals) y maneja la máquina
+ * de estados del ciclo de vida de un proyecto (pausar/matar vía rituales de
+ * cierre, welcome-back al reactivar, y la cola de proyectos "stalled" que el
+ * backend marca al cargar).
  */
 
 import { useMemo, useState } from "react";
 import { AlertCircle } from "lucide-react";
 
-import type { Activity, Idea, Project, Routine, Task } from "@/lib/types";
+import type { Project } from "@/lib/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
 import { useThemeSync } from "@/hooks/useThemeSync";
@@ -26,6 +26,7 @@ import { useRoutineMutations } from "@/hooks/useRoutineMutations";
 import { useBackup } from "@/hooks/useBackup";
 import { useStalledQueue } from "@/hooks/useStalledQueue";
 import { useProjectLifecycle } from "@/hooks/useProjectLifecycle";
+import { useDashboardModals } from "@/hooks/useDashboardModals";
 import { ProjectDetailModal } from "./projects/ProjectDetailModal";
 import { ProjectModal } from "./projects/ProjectModal";
 import { PauseProjectModal } from "./projects/PauseProjectModal";
@@ -50,7 +51,7 @@ import { useAssistant } from "@/hooks/useAssistant";
 import { projectCapForPlan, countsTowardCap } from "@/lib/planQuotas";
 import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
-import { TabBar, type DashboardView } from "./dashboard/TabBar";
+import { TabBar } from "./dashboard/TabBar";
 import { BottomTabBar } from "./dashboard/BottomTabBar";
 import { MoreSheet } from "./dashboard/MoreSheet";
 import { AnalyticsView } from "./dashboard/AnalyticsView";
@@ -66,10 +67,8 @@ import { TodayView } from "./views/TodayView";
 /**
  * Componente raíz del tablero. Coordina la carga de datos (useDashboardData),
  * las mutaciones por entidad (proyectos/tareas/ideas/notas/categorías/rutinas),
- * el estado de modales y vistas, y los rituales de ciclo de vida de proyecto.
- * TODO: refactor — extraer useDashboardModals / useProjectLifecycle / useStalledQueue
- * y DashboardViewRouter/DashboardModals; god-object de estado + prop-drilling
- * (ver AUDITORIA_CODIGO.md).
+ * el estado de modales/vistas (useDashboardModals) y los rituales de ciclo de
+ * vida de proyecto (useProjectLifecycle / useStalledQueue).
  */
 export default function Dashboard() {
   useLocaleSync();
@@ -119,10 +118,35 @@ export default function Dashboard() {
   });
 
   // --- Estado de vista y modales ---
-  // Dashboard es el dueño único del estado de los modales: las vistas hijas solo
-  // reciben handlers para abrirlos/poblarlos, y aquí se cierran al confirmar.
-  const [view, setView] = useState<DashboardView>("today");
-  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
+  // Dashboard es el dueño único del estado de los modales (vía useDashboardModals):
+  // las vistas hijas solo reciben acciones para abrirlos/poblarlos, y aquí se
+  // cierran al confirmar. Las acciones semánticas (newProject, editTask, logUpdate…)
+  // viven en el hook para no duplicar los mismos arrows por cada vista.
+  const m = useDashboardModals();
+  const {
+    view,
+    setView,
+    showProjectModal,
+    showTaskModal,
+    showIdeaModal,
+    showNoteModal,
+    showBackupModal,
+    showCategoriesModal,
+    showRoutineModal,
+    editingProject,
+    editingTask,
+    editingIdea,
+    editingRoutine,
+    editingNote,
+    selectedProject,
+    setSelectedProject,
+    viewingProjectId,
+    setViewingProjectId,
+  } = m;
+  const viewingProject = projects.find((p) => p.id === viewingProjectId) ?? null;
+
+  // El asistente (panel + prompt pre-cargado) es estado aparte del de los modales
+  // de entidad; lo expone el AssistantLauncherProvider a toda la app.
   const [assistantOpen, setAssistantOpen] = useState(false);
   // When set, the assistant panel pre-fills this prompt into its input on open.
   const [assistantPrompt, setAssistantPrompt] = useState<string | null>(null);
@@ -130,21 +154,6 @@ export default function Dashboard() {
     if (initialPrompt) setAssistantPrompt(initialPrompt);
     setAssistantOpen(true);
   };
-  const [showProjectModal, setShowProjectModal] = useState(false);
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [showIdeaModal, setShowIdeaModal] = useState(false);
-  const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
-  const [showNoteModal, setShowNoteModal] = useState(false);
-  const [showBackupModal, setShowBackupModal] = useState(false);
-  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
-  const [showRoutineModal, setShowRoutineModal] = useState(false);
-  const [editingRoutine, setEditingRoutine] = useState<Partial<Routine> | null>(null);
-  const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
-  const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
-  const [editingNote, setEditingNote] = useState<Activity | null>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
-  const viewingProject = projects.find((p) => p.id === viewingProjectId) ?? null;
 
   // --- Ciclo de vida (State Closure) + cola de stalled, en hooks dedicados ---
   // Pausar/matar exigen notas de cierre, reactivar abre un welcome-back, y los
@@ -158,10 +167,7 @@ export default function Dashboard() {
     setWelcomeBack,
     requestSaveProject,
     handleClosureConfirm,
-  } = useProjectLifecycle<SaveArgs>(saveProject, () => {
-    setShowProjectModal(false);
-    setEditingProject(null);
-  });
+  } = useProjectLifecycle<SaveArgs>(saveProject, m.closeProjectModal);
   const { currentStalled, dismissStalled } = useStalledQueue(projects);
 
   /** Open a project: paused → WelcomeBackCard (notes + reactivate); else detail. */
@@ -220,29 +226,25 @@ export default function Dashboard() {
       return;
     }
     if (await saveProject(p)) {
-      setShowProjectModal(false);
-      setEditingProject(null);
+      m.closeProjectModal();
     }
   };
 
   const handleSaveTask = async (t: Parameters<typeof saveTask>[0]) => {
     if (await saveTask(t)) {
-      setShowTaskModal(false);
-      setEditingTask(null);
+      m.closeTaskModal();
     }
   };
 
   const handleSaveIdea = async (i: Parameters<typeof saveIdea>[0]) => {
     if (await saveIdea(i)) {
-      setShowIdeaModal(false);
-      setEditingIdea(null);
+      m.closeIdeaModal();
     }
   };
 
   const handleSaveRoutine = async (r: Parameters<typeof saveRoutine>[0]) => {
     if (await saveRoutine(r)) {
-      setShowRoutineModal(false);
-      setEditingRoutine(null);
+      m.closeRoutineModal();
     }
   };
 
@@ -253,8 +255,7 @@ export default function Dashboard() {
       ? await addNote(selectedProject.id, note)
       : false;
     if (ok) {
-      setShowNoteModal(false);
-      setEditingNote(null);
+      m.closeNoteModal();
     }
   };
 
@@ -293,8 +294,8 @@ export default function Dashboard() {
     <div className="min-h-screen bg-bg text-text">
       <TopNav
         workspace={{
-          onOpenCategories: () => setShowCategoriesModal(true),
-          onOpenBackup: () => setShowBackupModal(true),
+          onOpenCategories: m.openCategories,
+          onOpenBackup: m.openBackup,
         }}
         rightSlot={<AssistantTrigger onClick={() => setAssistantOpen(true)} />}
       />
@@ -304,12 +305,7 @@ export default function Dashboard() {
         initialPrompt={assistantPrompt}
         onConsumePrompt={() => setAssistantPrompt(null)}
       />
-      <DashboardTour
-        onFinalCta={() => {
-          setEditingProject(null);
-          setShowProjectModal(true);
-        }}
-      />
+      <DashboardTour onFinalCta={m.newProject} />
       <PullToRefresh onRefresh={() => refetch()} />
       <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">
         <NotificationStack />
@@ -343,7 +339,7 @@ export default function Dashboard() {
             backupOverdue={backupOverdue}
             hasData={hasData}
             productivityStats={productivityStats}
-            onOpenBackupModal={() => setShowBackupModal(true)}
+            onOpenBackupModal={m.openBackup}
             onJumpToProject={(p) => {
               setSelectedProject(p);
               setView("projects");
@@ -351,36 +347,14 @@ export default function Dashboard() {
             onJumpToTasks={() => setView("tasks")}
             onJumpToIdeas={() => setView("ideas")}
             onJumpToRoutines={() => setView("routines")}
-            onNewTask={() => {
-              setEditingTask(null);
-              setShowTaskModal(true);
-            }}
-            onNewProject={() => {
-              setEditingProject(null);
-              setShowProjectModal(true);
-            }}
-            onNewIdea={() => {
-              setEditingIdea(null);
-              setShowIdeaModal(true);
-            }}
-            onNewRoutine={() => {
-              setEditingRoutine(null);
-              setShowRoutineModal(true);
-            }}
-            onLogUpdate={(p) => {
-              setSelectedProject(p);
-              setEditingNote(null);
-              setShowNoteModal(true);
-            }}
+            onNewTask={m.newTask}
+            onNewProject={m.newProject}
+            onNewIdea={m.newIdea}
+            onNewRoutine={m.newRoutine}
+            onLogUpdate={m.logUpdate}
             onToggleTask={toggleTask}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setShowTaskModal(true);
-            }}
-            onEditRoutine={(r) => {
-              setEditingRoutine(r);
-              setShowRoutineModal(true);
-            }}
+            onEditTask={m.editTask}
+            onEditRoutine={m.editRoutine}
             onCompleteOccurrence={completeOccurrence}
             onUncompleteOccurrence={uncompleteOccurrence}
             onRefresh={refetch}
@@ -398,33 +372,17 @@ export default function Dashboard() {
             notesByProject={notesByProject}
             selectedProject={selectedProject}
             onSelectProject={setSelectedProject}
-            onNewProject={() => {
-              setEditingProject(null);
-              setShowProjectModal(true);
-            }}
-            onEditProject={(p) => {
-              setEditingProject(p);
-              setShowProjectModal(true);
-            }}
+            onNewProject={m.newProject}
+            onEditProject={m.editProject}
             onDeleteProject={async (id) => {
               await deleteProjectAction(id);
             }}
             onReorderProjects={reorderProjects}
             onOpenProject={openProject}
-            onAddTaskToProject={(projectId) => {
-              setEditingTask({ projectId });
-              setShowTaskModal(true);
-            }}
-            onLogUpdate={(p) => {
-              setSelectedProject(p);
-              setEditingNote(null);
-              setShowNoteModal(true);
-            }}
+            onAddTaskToProject={m.addTaskToProject}
+            onLogUpdate={m.logUpdate}
             onToggleTask={toggleTask}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setShowTaskModal(true);
-            }}
+            onEditTask={m.editTask}
             onDeleteTask={deleteTask}
           />
         )}
@@ -434,14 +392,8 @@ export default function Dashboard() {
           <TasksView
             tasks={tasks}
             projects={projects}
-            onNewTask={() => {
-              setEditingTask(null);
-              setShowTaskModal(true);
-            }}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setShowTaskModal(true);
-            }}
+            onNewTask={m.newTask}
+            onEditTask={m.editTask}
             onToggleTask={toggleTask}
             onDeleteTask={deleteTask}
           />
@@ -454,14 +406,8 @@ export default function Dashboard() {
             occurrences={routineOccurrences}
             projects={projects}
             categories={categories}
-            onNewRoutine={() => {
-              setEditingRoutine(null);
-              setShowRoutineModal(true);
-            }}
-            onEditRoutine={(r) => {
-              setEditingRoutine(r);
-              setShowRoutineModal(true);
-            }}
+            onNewRoutine={m.newRoutine}
+            onEditRoutine={m.editRoutine}
             onArchiveRoutine={(r) => archiveRoutine(r.id, !r.archived)}
             onDeleteRoutine={deleteRoutine}
             onCompleteOccurrence={completeOccurrence}
@@ -478,10 +424,7 @@ export default function Dashboard() {
             occurrences={routineOccurrences}
             categories={categories}
             onOpenProject={openProject}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setShowTaskModal(true);
-            }}
+            onEditTask={m.editTask}
             onToggleTask={toggleTask}
             onCompleteOccurrence={completeOccurrence}
             onUncompleteOccurrence={uncompleteOccurrence}
@@ -492,14 +435,8 @@ export default function Dashboard() {
         {view === "ideas" && (
           <IdeasView
             ideas={ideas}
-            onCapture={() => {
-              setEditingIdea(null);
-              setShowIdeaModal(true);
-            }}
-            onEdit={(idea) => {
-              setEditingIdea(idea);
-              setShowIdeaModal(true);
-            }}
+            onCapture={m.newIdea}
+            onEdit={m.editIdea}
             onPromote={promoteIdea}
             onDelete={deleteIdea}
           />
@@ -518,9 +455,7 @@ export default function Dashboard() {
             onEditNote={(a) => {
               const proj = projects.find((p) => p.id === a.projectId);
               if (!proj) return;
-              setSelectedProject(proj);
-              setEditingNote(a);
-              setShowNoteModal(true);
+              m.openNoteFor(proj, a);
             }}
             onDeleteNote={deleteNote}
           />
@@ -559,10 +494,7 @@ export default function Dashboard() {
           categories={categories}
           onSave={handleSaveProject}
           onCreateCategory={createCategory}
-          onClose={() => {
-            setShowProjectModal(false);
-            setEditingProject(null);
-          }}
+          onClose={m.closeProjectModal}
         />
       )}
 
@@ -578,7 +510,7 @@ export default function Dashboard() {
           onDelete={async (id) => {
             await deleteCategory(id);
           }}
-          onClose={() => setShowCategoriesModal(false)}
+          onClose={m.closeCategories}
         />
       )}
 
@@ -588,10 +520,7 @@ export default function Dashboard() {
           projects={projects}
           tasks={tasks}
           onSave={handleSaveTask}
-          onClose={() => {
-            setShowTaskModal(false);
-            setEditingTask(null);
-          }}
+          onClose={m.closeTaskModal}
         />
       )}
 
@@ -599,10 +528,7 @@ export default function Dashboard() {
         <IdeaModal
           idea={editingIdea}
           onSave={handleSaveIdea}
-          onClose={() => {
-            setShowIdeaModal(false);
-            setEditingIdea(null);
-          }}
+          onClose={m.closeIdeaModal}
         />
       )}
 
@@ -611,10 +537,7 @@ export default function Dashboard() {
           routine={editingRoutine}
           projects={projects}
           onSave={handleSaveRoutine}
-          onClose={() => {
-            setShowRoutineModal(false);
-            setEditingRoutine(null);
-          }}
+          onClose={m.closeRoutineModal}
         />
       )}
 
@@ -624,10 +547,7 @@ export default function Dashboard() {
           initialNote={editingNote?.note ?? ""}
           isEdit={!!editingNote}
           onSave={handleSaveNote}
-          onClose={() => {
-            setShowNoteModal(false);
-            setEditingNote(null);
-          }}
+          onClose={m.closeNoteModal}
         />
       )}
 
@@ -671,20 +591,10 @@ export default function Dashboard() {
           onDeleteProject={async (id) => {
             await deleteProjectAction(id);
           }}
-          onAddTaskToProject={(projectId) => {
-            setEditingTask({ projectId });
-            setShowTaskModal(true);
-          }}
-          onLogUpdate={(p) => {
-            setSelectedProject(p);
-            setEditingNote(null);
-            setShowNoteModal(true);
-          }}
+          onAddTaskToProject={m.addTaskToProject}
+          onLogUpdate={m.logUpdate}
           onToggleTask={toggleTask}
-          onEditTask={(task) => {
-            setEditingTask(task);
-            setShowTaskModal(true);
-          }}
+          onEditTask={m.editTask}
           onDeleteTask={deleteTask}
         />
       )}
@@ -700,7 +610,7 @@ export default function Dashboard() {
           lastBackup={lastBackup}
           onExport={exportData}
           onImport={(file, mode) => importData(file, mode)}
-          onClose={() => setShowBackupModal(false)}
+          onClose={m.closeBackup}
         />
       )}
 
@@ -791,14 +701,14 @@ export default function Dashboard() {
       <BottomTabBar
         view={view}
         onChange={setView}
-        onOpenMore={() => setMoreSheetOpen(true)}
+        onOpenMore={() => m.setMoreSheetOpen(true)}
       />
 
       <MoreSheet
-        open={moreSheetOpen}
+        open={m.moreSheetOpen}
         view={view}
         onSelect={setView}
-        onClose={() => setMoreSheetOpen(false)}
+        onClose={() => m.setMoreSheetOpen(false)}
       />
 
       <AssistantFab />
