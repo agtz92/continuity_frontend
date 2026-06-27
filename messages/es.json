@@ -569,12 +569,10 @@
       "claude": {
         "name": "Claude",
         "shortDescription": "Usa Continuity desde Claude (claude.ai, Desktop y Code).",
-        "statusComingSoon": "Próximamente",
         "statusConnected": "Conectado",
         "statusNotConnected": "No conectado",
         "title": "Conectar con Claude",
         "description": "Conecta tu cuenta de Continuity a Claude para consultar y gestionar tus proyectos, tareas e ideas desde una conversación.",
-        "comingSoonBanner": "Esta integración está en preparación. Cuando se active, podrás conectarla desde Claude usando la URL de abajo.",
         "howToTitle": "Cómo conectar",
         "step1": "Abre Claude (claude.ai o la app de escritorio) y ve a Configuración → Conectores.",
         "step2": "Elige “Agregar conector personalizado” y pega la URL de abajo.",

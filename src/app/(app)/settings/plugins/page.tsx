@@ -5,7 +5,10 @@ import { useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { ListTodo, ChevronRight, Sparkles, Calendar } from "lucide-react";
 import { SettingsShell } from "@/components/settings/SettingsShell";
-import { GOOGLE_TASKS_CONNECTION_QUERY } from "@/lib/graphql";
+import {
+  GOOGLE_TASKS_CONNECTION_QUERY,
+  MCP_CONNECTIONS_QUERY,
+} from "@/lib/graphql";
 
 type ConnectionData = {
   googleTasksConnection: {
@@ -14,12 +17,21 @@ type ConnectionData = {
   };
 };
 
+type McpConnectionsData = {
+  mcpConnections: { clientId: string }[];
+};
+
 export default function PluginsSettingsPage() {
   const t = useTranslations("settings.plugins");
   const { data } = useQuery<ConnectionData>(GOOGLE_TASKS_CONNECTION_QUERY, {
     fetchPolicy: "cache-and-network",
   });
   const connected = !!data?.googleTasksConnection?.connected;
+
+  const { data: mcpData } = useQuery<McpConnectionsData>(MCP_CONNECTIONS_QUERY, {
+    fetchPolicy: "cache-and-network",
+  });
+  const claudeConnected = (mcpData?.mcpConnections?.length ?? 0) > 0;
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
@@ -45,8 +57,12 @@ export default function PluginsSettingsPage() {
           icon={<Sparkles size={22} className="text-accent" />}
           name={t("claude.name")}
           description={t("claude.shortDescription")}
-          statusLabel={t("claude.statusNotConnected")}
-          connected={false}
+          statusLabel={
+            claudeConnected
+              ? t("statusConnected")
+              : t("claude.statusNotConnected")
+          }
+          connected={claudeConnected}
         />
       </section>
     </SettingsShell>
