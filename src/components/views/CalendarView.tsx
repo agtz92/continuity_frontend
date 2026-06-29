@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Gauge, ListChecks } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Category, Project, Routine, RoutineOccurrence, Task } from "@/lib/types";
 import { todayLocalISODate, toLocalISO } from "@/lib/date";
+import { isDailyViewStatus } from "@/lib/projectStatus";
 import {
   addDaysISO,
   dayLoad,
@@ -107,9 +108,26 @@ export function CalendarView({
     return { fromISO: w[0][0], toISO: w[w.length - 1][6], days: [] as string[], weeks: w };
   }, [view, refISO, refDate]);
 
+  const projectStatusById = useMemo(
+    () => new Map(projects.map((p) => [p.id, p.status])),
+    [projects]
+  );
+  // Mirror Today/Tasks: tasks of a closed project (paused/stalled/killed/
+  // archived) are withdrawn from the calendar; standalone tasks and tasks of a
+  // live project stay. Keeps the calendar in sync with the other task views.
+  const visibleTasks = useMemo(
+    () =>
+      tasks.filter((task) => {
+        if (!task.projectId) return true;
+        const status = projectStatusById.get(task.projectId);
+        return status ? isDailyViewStatus(status) : true;
+      }),
+    [tasks, projectStatusById]
+  );
+
   const tByDay = useMemo(
-    () => tasksByDay(tasks, fromISO, toISO),
-    [tasks, fromISO, toISO]
+    () => tasksByDay(visibleTasks, fromISO, toISO),
+    [visibleTasks, fromISO, toISO]
   );
   const rByDay = useMemo(
     () => routineItemsByDay(routines, occurrences, fromISO, toISO),
