@@ -9,6 +9,7 @@ import { isDailyViewStatus } from "@/lib/projectStatus";
 import {
   addDaysISO,
   dayLoad,
+  isSameMonth,
   monthMatrix,
   routineItemsByDay,
   tasksByDay,
@@ -19,6 +20,7 @@ import type { CalendarHandlers } from "../calendar/parts";
 import { WeekGrid } from "../calendar/WeekGrid";
 import { MonthGrid } from "../calendar/MonthGrid";
 import { DayGrid } from "../calendar/DayGrid";
+import { SelectedDayAgenda } from "../calendar/SelectedDayAgenda";
 
 const VIEW_KEY = "cont.calendar.view";
 const TASKS_KEY = "cont.calendar.showTasks";
@@ -56,6 +58,8 @@ export function CalendarView({
 
   const [view, setView] = useState<CalendarViewMode>("week");
   const [refISO, setRefISO] = useState<string>(todayISO);
+  // Day highlighted in the Month grid; its agenda renders under the matrix.
+  const [selectedISO, setSelectedISO] = useState<string>(todayISO);
   const [showTasks, setShowTasks] = useState(false);
   const [showLoad, setShowLoad] = useState(true);
 
@@ -157,6 +161,12 @@ export function CalendarView({
       const d = new Date(refDate);
       d.setMonth(d.getMonth() + dir);
       setRefISO(toLocalISO(d));
+      // Keep the month selection meaningful: today when visible, else the 1st.
+      setSelectedISO(
+        isSameMonth(todayISO, d)
+          ? todayISO
+          : toLocalISO(new Date(d.getFullYear(), d.getMonth(), 1))
+      );
     }
   };
 
@@ -259,7 +269,10 @@ export function CalendarView({
         </button>
         <button
           type="button"
-          onClick={() => setRefISO(todayISO)}
+          onClick={() => {
+            setRefISO(todayISO);
+            setSelectedISO(todayISO);
+          }}
           className="text-xs px-3 py-1.5 rounded-md border border-border text-text-muted hover:text-text"
         >
           {t("today")}
@@ -288,29 +301,54 @@ export function CalendarView({
           handlers={handlers}
         />
       ) : view === "month" ? (
-        <MonthGrid
-          weeks={weeks}
-          refDate={refDate}
-          todayISO={todayISO}
-          locale={locale}
-          weekdayLabels={(weeks[0] ?? []).map((iso) =>
-            new Date(iso + "T00:00:00").toLocaleDateString(locale, {
-              weekday: "short",
-            })
-          )}
-          tasksByDay={tByDay}
-          routinesByDay={rByDay}
-          projectsById={projectsById}
-          categoryById={categoryById}
-          showTasks={showTasks}
-          showLoad={showLoad}
-          handlers={handlers}
-          onPickDay={(iso) => {
-            setRefISO(iso);
-            setView("day");
-          }}
-          moreLabel={(n) => t("more", { count: n })}
-        />
+        <div>
+          <MonthGrid
+            weeks={weeks}
+            refDate={refDate}
+            todayISO={todayISO}
+            selectedISO={selectedISO}
+            locale={locale}
+            weekdayLabels={(weeks[0] ?? []).map((iso) =>
+              new Date(iso + "T00:00:00").toLocaleDateString(locale, {
+                weekday: "short",
+              })
+            )}
+            tasksByDay={tByDay}
+            routinesByDay={rByDay}
+            projectsById={projectsById}
+            categoryById={categoryById}
+            showTasks={showTasks}
+            showLoad={showLoad}
+            handlers={handlers}
+            onPickDay={(iso) => {
+              // First click selects; clicking the selected day drills in.
+              if (iso === selectedISO) {
+                setRefISO(iso);
+                setView("day");
+              } else {
+                setSelectedISO(iso);
+              }
+            }}
+            moreLabel={(n) => t("more", { count: n })}
+          />
+          <SelectedDayAgenda
+            iso={selectedISO}
+            locale={locale}
+            dayTasks={tByDay.get(selectedISO) ?? []}
+            dayRoutines={rByDay.get(selectedISO) ?? []}
+            projectsById={projectsById}
+            categoryById={categoryById}
+            showTasks={showTasks}
+            handlers={handlers}
+            openDayLabel={t("openDay")}
+            activitiesLabel={(count) => t("activities", { count })}
+            emptyLabel={t("empty")}
+            onOpenDay={(iso) => {
+              setRefISO(iso);
+              setView("day");
+            }}
+          />
+        </div>
       ) : (
         <DayGrid
           iso={refISO}
@@ -325,7 +363,11 @@ export function CalendarView({
           showLoad={showLoad}
           handlers={handlers}
           allDayLabel={t("allDay")}
+          withTimeLabel={t("withTime")}
+          moreLabel={(count) => t("allDayMore", { count })}
+          lessLabel={t("allDayLess")}
           nowLabel={t("now")}
+          emptyLabel={t("empty")}
         />
       )}
     </div>

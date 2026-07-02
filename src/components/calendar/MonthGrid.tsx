@@ -23,6 +23,7 @@ export function MonthGrid({
   weeks,
   refDate,
   todayISO,
+  selectedISO,
   locale,
   weekdayLabels,
   tasksByDay,
@@ -37,6 +38,7 @@ export function MonthGrid({
   weeks: string[][];
   refDate: Date;
   todayISO: string;
+  selectedISO: string;
   locale: string;
   weekdayLabels: string[];
   tasksByDay: Map<string, Task[]>;
@@ -70,6 +72,7 @@ export function MonthGrid({
             const load = dayLoad(dayTasks, dayRoutines);
             const inMonth = isSameMonth(iso, refDate);
             const isToday = iso === todayISO;
+            const isSelected = iso === selectedISO;
             const d = new Date(iso + "T00:00:00");
 
             const chips: ReactNode[] = [];
@@ -120,8 +123,12 @@ export function MonthGrid({
             return (
               <div
                 key={iso}
-                className={`min-h-[104px] md:min-h-[112px] rounded-lg border p-1 flex flex-col gap-0.5 bg-surface ${
-                  isToday ? "border-accent" : "border-border"
+                className={`min-h-[104px] md:min-h-[112px] rounded-lg border p-1 flex flex-col gap-0.5 ${
+                  isSelected
+                    ? "border-accent ring-1 ring-accent bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
+                    : isToday
+                      ? "border-accent bg-surface"
+                      : "border-border bg-surface"
                 } ${inMonth ? "" : "opacity-45"}`}
               >
                 <div className="flex items-center justify-between gap-1">

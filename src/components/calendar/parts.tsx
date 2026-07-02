@@ -35,15 +35,28 @@ export const projectChipClass = (
 export const ROUTINE_CHIP =
   "bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-accent border-[color-mix(in_srgb,var(--accent)_28%,transparent)]";
 
+/**
+ * Chip sizing: "sm" is the dense Week/Month cell scale; "md" is the roomier
+ * row scale used by the Day list and the Month agenda panel (mirrors mobile).
+ */
+export type ChipSize = "sm" | "md";
+const chipSizeClass = (size: ChipSize) =>
+  size === "md"
+    ? "text-xs px-2 py-1.5 rounded-md"
+    : "text-[11px] px-1.5 py-1 rounded";
+const chipIconSize = (size: ChipSize) => (size === "md" ? 14 : 12);
+
 /** One chip per project for a day (default view), with a task count badge. */
 export function ProjectChip({
   rollup,
   categoryById,
   onOpenProject,
+  size = "sm",
 }: {
   rollup: ProjectRollup;
   categoryById: Map<string, Category>;
   onOpenProject: (p: Project) => void;
+  size?: ChipSize;
 }) {
   const { project, tasks } = rollup;
   return (
@@ -52,10 +65,11 @@ export function ProjectChip({
       onClick={() => project && onOpenProject(project)}
       disabled={!project}
       title={project?.name}
-      className={`w-full text-left text-[11px] leading-tight px-1.5 py-1 rounded border flex items-center gap-1.5 ${projectChipClass(
-        project,
-        categoryById
-      )} ${project ? "hover:opacity-80" : ""}`}
+      className={`w-full text-left leading-tight border flex items-center gap-1.5 ${chipSizeClass(
+        size
+      )} ${projectChipClass(project, categoryById)} ${
+        project ? "hover:opacity-80" : ""
+      }`}
     >
       <span className="truncate flex-1">{project?.name ?? ""}</span>
       <span className="shrink-0 rounded-full bg-[color-mix(in_srgb,currentColor_22%,transparent)] px-1.5 tabular-nums">
@@ -70,20 +84,26 @@ export function TaskChip({
   task,
   onEditTask,
   onToggleTask,
+  size = "sm",
 }: {
   task: Task;
   onEditTask: (t: Task) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
+  size?: ChipSize;
 }) {
   return (
-    <div className="w-full text-[11px] leading-tight px-1.5 py-1 rounded border bg-surface border-border text-text flex items-center gap-1.5 group">
+    <div
+      className={`w-full leading-tight border bg-surface border-border text-text flex items-center gap-1.5 group ${chipSizeClass(
+        size
+      )}`}
+    >
       <button
         type="button"
         onClick={() => onToggleTask(task)}
         aria-label={task.title}
         className="shrink-0 text-text-muted hover:text-accent"
       >
-        <Check size={12} />
+        <Check size={chipIconSize(size)} />
       </button>
       <button
         type="button"
@@ -107,6 +127,7 @@ export function RoutineChip({
   item,
   onCompleteOccurrence,
   onUncompleteOccurrence,
+  size = "sm",
 }: {
   item: RoutineItem;
   onCompleteOccurrence: (
@@ -114,6 +135,7 @@ export function RoutineChip({
     scheduledDate: string
   ) => void | Promise<void>;
   onUncompleteOccurrence: (occurrenceId: string) => void | Promise<void>;
+  size?: ChipSize;
 }) {
   const toggle = () => {
     if (item.completed && item.occurrenceId) {
@@ -124,9 +146,9 @@ export function RoutineChip({
   };
   return (
     <div
-      className={`w-full text-[11px] leading-tight px-1.5 py-1 rounded border flex items-center gap-1.5 ${ROUTINE_CHIP} ${
-        item.completed ? "opacity-55" : ""
-      }`}
+      className={`w-full leading-tight border flex items-center gap-1.5 ${chipSizeClass(
+        size
+      )} ${ROUTINE_CHIP} ${item.completed ? "opacity-55" : ""}`}
     >
       <button
         type="button"
@@ -134,7 +156,11 @@ export function RoutineChip({
         aria-label={item.routine.title}
         className="shrink-0 hover:opacity-80"
       >
-        {item.completed ? <Check size={12} /> : <Repeat size={12} />}
+        {item.completed ? (
+          <Check size={chipIconSize(size)} />
+        ) : (
+          <Repeat size={chipIconSize(size)} />
+        )}
       </button>
       <span
         className={`truncate flex-1 ${item.completed ? "line-through" : ""}`}
