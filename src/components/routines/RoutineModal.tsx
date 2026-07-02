@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
+import { ModalDeleteButton } from "../ui/ModalDeleteButton";
 import { Field } from "../ui/Field";
 import { TimeOfDayField } from "../ui/TimeOfDayField";
 import { ChipGroup, type ChipOption } from "../ui/ChipGroup";
@@ -26,6 +27,7 @@ export function RoutineModal({
   routine,
   projects,
   onSave,
+  onDelete,
   onClose,
 }: {
   routine: RoutineDraft | null;
@@ -46,6 +48,8 @@ export function RoutineModal({
     timeOfDay: string | null;
     durationMinutes: number | null;
   }) => void | Promise<void>;
+  /** Delete lives here (in the edit detail), not on the list row. */
+  onDelete?: (id: string) => void | Promise<void>;
   onClose: () => void;
 }) {
   const t = useTranslations("modals.routine");
@@ -151,6 +155,12 @@ export function RoutineModal({
   const currentEffort = effortHours.trim();
   const canSubmit = title.trim().length > 0;
 
+  const handleDelete = async () => {
+    if (!routine?.id || !onDelete) return;
+    await onDelete(routine.id);
+    onClose();
+  };
+
   const recurrenceOptions: ChipOption<RecurrenceType>[] = RECURRENCE_TYPES.map(
     (type) => ({
       value: type,
@@ -170,11 +180,20 @@ export function RoutineModal({
       title={routine?.id ? t("editTitle") : t("newTitle")}
       onClose={onClose}
       footer={
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {routine?.id && onDelete && (
+            <ModalDeleteButton
+              label={t("deleteButton")}
+              confirmLabel={t("deleteConfirm")}
+              onDelete={handleDelete}
+            />
+          )}
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
+            className={`px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm ${
+              routine?.id && onDelete ? "" : "flex-1"
+            }`}
           >
             {tCommon("save")}
           </button>

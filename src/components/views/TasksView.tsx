@@ -20,6 +20,8 @@ import {
   toLocalISO,
   todayLocalISODate,
 } from "@/lib/date";
+import { useTaskMutations } from "@/hooks/useTaskMutations";
+import { toast } from "@/lib/toast";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { FAB } from "../ui/FAB";
 import { TaskRow } from "../tasks/TaskRow";
@@ -47,6 +49,22 @@ export function TasksView({
   onDeleteTask: (id: string) => void | Promise<void>;
 }) {
   const t = useTranslations("views.tasks");
+  const tRow = useTranslations("taskRow");
+  const { saveTask } = useTaskMutations();
+  // Quick action on overdue rows: rewrite the due date to today in one click.
+  const moveTaskToToday = async (task: Task) => {
+    const ok = await saveTask({
+      id: task.id,
+      title: task.title,
+      projectId: task.projectId,
+      dueDate: todayLocalISODate(),
+      done: task.done,
+      effortHours: task.effortHours,
+      dueTime: task.dueTime,
+      durationMinutes: task.durationMinutes,
+    });
+    if (ok) toast.success(tRow("movedToast"), 2000);
+  };
   // The global Tasks list mirrors Today: tasks of a closed project
   // (paused/stalled/killed/archived) are withdrawn here; standalone tasks and
   // tasks of a live project stay. Manage closed-project tasks from the project
@@ -272,6 +290,7 @@ export function TasksView({
             onDelete={onDeleteTask}
             onSchedule={opts?.canSchedule ? onEditTask : undefined}
             onEdit={onEditTask}
+            onMoveToday={moveTaskToToday}
           />
         );
 

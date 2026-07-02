@@ -8,11 +8,14 @@
  */
 
 import { useState } from "react";
-import { CheckCircle2, ChevronRight, Clock, Target } from "lucide-react";
+import { CalendarCheck, CalendarClock, ChevronRight, Clock, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
-import { daysOverdue, daysSince } from "@/lib/date";
+import { daysOverdue, daysSince, todayLocalISODate } from "@/lib/date";
+import { useTaskMutations } from "@/hooks/useTaskMutations";
+import { toast } from "@/lib/toast";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { TaskToggle } from "../tasks/TaskToggle";
 import type { useTodayFocus } from "@/hooks/useTodayFocus";
 
 type FocusModel = ReturnType<typeof useTodayFocus>;
@@ -40,6 +43,22 @@ export function TodayFocusSection({
 }: TodayFocusSectionProps) {
   const [showTodayFocus, setShowTodayFocus] = useState(true);
   const tFocus = useTranslations("views.today.focus");
+  const tRow = useTranslations("taskRow");
+  const { saveTask } = useTaskMutations();
+  // Quick action on overdue focus cards: rewrite the due date to today.
+  const moveTaskToToday = async (task: Task) => {
+    const ok = await saveTask({
+      id: task.id,
+      title: task.title,
+      projectId: task.projectId,
+      dueDate: todayLocalISODate(),
+      done: task.done,
+      effortHours: task.effortHours,
+      dueTime: task.dueTime,
+      durationMinutes: task.durationMinutes,
+    });
+    if (ok) toast.success(tRow("movedToast"), 2000);
+  };
   return (
     <CollapsibleSection
       open={showTodayFocus}
@@ -92,26 +111,24 @@ export function TodayFocusSection({
             {todayFocus.items.map((item, idx) => (
               <div
                 key={idx}
-                className={`bg-surface p-4 rounded-xl border transition-all hover:border-border ${
+                className={`bg-surface p-4 rounded-xl border border-l-[3px] transition-all hover:border-border ${
                   item.type === "overdue"
-                    ? "border-red-500/30"
+                    ? "border-red-500/30 border-l-red-500"
                     : item.type === "today"
-                    ? "border-orange-500/30"
+                    ? "border-orange-500/30 border-l-amber-500"
                     : item.type === "stalled"
-                    ? "border-amber-500/30"
-                    : "border-border"
+                    ? "border-amber-500/30 border-l-amber-500"
+                    : "border-border border-l-accent"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   {item.task && (
-                    <button
-                      onClick={() => onToggleTask(item.task!)}
-                      className="shrink-0 text-text-muted hover:text-accent transition-colors"
-                      title={tFocus("markDone")}
-                      aria-label={tFocus("markDone")}
-                    >
-                      <CheckCircle2 size={20} />
-                    </button>
+                    <TaskToggle
+                      done={false}
+                      overdue={item.type === "overdue"}
+                      onToggle={() => onToggleTask(item.task!)}
+                      label={tFocus("markDone")}
+                    />
                   )}
                   <div
                     className={`flex-1 min-w-0 ${item.task ? "cursor-pointer" : ""}`}
@@ -181,6 +198,30 @@ export function TodayFocusSection({
                         </span>
                       )}
                     </div>
+                    {item.type === "overdue" && item.task && (
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveTaskToToday(item.task!);
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-md border border-[color-mix(in_srgb,var(--accent)_35%,transparent)] text-accent hover:bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] transition-colors"
+                        >
+                          <CalendarCheck size={12} />
+                          {tRow("moveToToday")}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditTask(item.task!);
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-md border border-border text-text-muted hover:text-text hover:bg-[color-mix(in_srgb,var(--text)_6%,transparent)] transition-colors"
+                        >
+                          <CalendarClock size={12} />
+                          {tRow("reschedule")}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

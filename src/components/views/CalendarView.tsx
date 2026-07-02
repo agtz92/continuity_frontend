@@ -35,8 +35,7 @@ export function CalendarView({
   onOpenProject,
   onEditTask,
   onToggleTask,
-  onCompleteOccurrence,
-  onUncompleteOccurrence,
+  onEditRoutine,
 }: {
   projects: Project[];
   tasks: Task[];
@@ -46,11 +45,7 @@ export function CalendarView({
   onOpenProject: (p: Project) => void;
   onEditTask: (t: Task) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
-  onCompleteOccurrence: (
-    routineId: string,
-    scheduledDate: string
-  ) => void | Promise<void>;
-  onUncompleteOccurrence: (occurrenceId: string) => void | Promise<void>;
+  onEditRoutine: (r: Routine) => void;
 }) {
   const t = useTranslations("views.calendar");
   const locale = useLocale();
@@ -150,8 +145,7 @@ export function CalendarView({
     onOpenProject,
     onEditTask,
     onToggleTask,
-    onCompleteOccurrence,
-    onUncompleteOccurrence,
+    onEditRoutine,
   };
 
   const shift = (dir: number) => {

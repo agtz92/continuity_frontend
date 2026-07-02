@@ -3,11 +3,9 @@
 import {
   Archive,
   ArchiveRestore,
-  CheckCircle2,
   Clock,
   Pencil,
   Repeat,
-  X,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { motion } from "framer-motion";
@@ -15,8 +13,9 @@ import { useLocale, useTranslations } from "next-intl";
 import type { Routine } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import { describeRecurrence } from "@/lib/recurrence";
-import { todayLocalISODate } from "@/lib/date";
+import { daysOverdue, todayLocalISODate } from "@/lib/date";
 import { toast } from "@/lib/toast";
+import { TaskToggle } from "../tasks/TaskToggle";
 
 /**
  * Row for an individual routine occurrence. Used inside RoutinesView and
@@ -60,6 +59,7 @@ export function RoutineRow({
   const today = todayLocalISODate();
   const overdue = !isDone && scheduledDate < today;
   const dueToday = !isDone && scheduledDate === today;
+  const lateDays = overdue ? daysOverdue(scheduledDate) : null;
 
   const handleToggle = () => {
     if (isDone) {
@@ -82,22 +82,21 @@ export function RoutineRow({
       initial={false}
       animate={{ opacity: optimisticDone ? 0 : 1 }}
       transition={{ duration: 0.2 }}
-      className={`bg-surface border rounded-lg p-3 flex items-center gap-3 group ${
+      className={`bg-surface border border-l-[3px] rounded-lg p-3 flex items-center gap-3 group ${
         overdue
-          ? "border-red-500/30"
+          ? "border-red-500/30 border-l-red-500"
           : dueToday
-          ? "border-orange-500/30"
-          : "border-border"
+          ? "border-orange-500/30 border-l-amber-500"
+          : "border-border border-l-border"
       }`}
     >
-      <button
-        onClick={handleToggle}
-        className={isDone ? "text-accent" : "text-text-muted hover:text-text"}
-        aria-label={isDone ? t("markNotDone") : t("markDone")}
-        title={isDone ? t("markNotDone") : t("markDone")}
-      >
-        <CheckCircle2 size={18} />
-      </button>
+      <TaskToggle
+        done={isDone}
+        overdue={overdue}
+        kind="routine"
+        onToggle={handleToggle}
+        label={isDone ? t("markNotDone") : t("markDone")}
+      />
       <div
         className={`flex-1 min-w-0 ${onEdit ? "cursor-pointer" : ""}`}
         onClick={onEdit ? () => onEdit(routine) : undefined}
@@ -117,20 +116,20 @@ export function RoutineRow({
             </span>
           )}
         </div>
-        <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 mt-0.5">
-          <span
-            className={
-              overdue
-                ? "text-red-400"
-                : dueToday
-                ? "text-orange-400"
-                : ""
-            }
-          >
-            {dueToday
-              ? t("today")
-              : new Date(scheduledDate + "T00:00:00").toLocaleDateString(locale)}
-          </span>
+        <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
+          {overdue && lateDays !== null ? (
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40">
+              {t("overdueDays", { count: lateDays })}
+            </span>
+          ) : dueToday ? (
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40">
+              {t("todayBadge")}
+            </span>
+          ) : (
+            <span>
+              {new Date(scheduledDate + "T00:00:00").toLocaleDateString(locale)}
+            </span>
+          )}
           {project && (
             <span className="inline-flex items-center gap-1">
               <span
@@ -166,19 +165,6 @@ export function RoutineRow({
           title={routine.archived ? t("unarchiveAria") : t("archiveAria")}
         >
           {routine.archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
-        </button>
-      )}
-      {onDelete && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(routine.id);
-          }}
-          className="text-text-muted hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
-          aria-label={t("deleteAria")}
-          title={t("deleteAria")}
-        >
-          <X size={16} />
         </button>
       )}
     </motion.div>

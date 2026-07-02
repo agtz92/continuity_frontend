@@ -426,8 +426,7 @@ export default function Dashboard() {
             onOpenProject={openProject}
             onEditTask={m.editTask}
             onToggleTask={toggleTask}
-            onCompleteOccurrence={completeOccurrence}
-            onUncompleteOccurrence={uncompleteOccurrence}
+            onEditRoutine={m.editRoutine}
           />
         )}
 
@@ -520,6 +519,7 @@ export default function Dashboard() {
           projects={projects}
           tasks={tasks}
           onSave={handleSaveTask}
+          onDelete={deleteTask}
           onClose={m.closeTaskModal}
         />
       )}
@@ -537,6 +537,7 @@ export default function Dashboard() {
           routine={editingRoutine}
           projects={projects}
           onSave={handleSaveRoutine}
+          onDelete={deleteRoutine}
           onClose={m.closeRoutineModal}
         />
       )}

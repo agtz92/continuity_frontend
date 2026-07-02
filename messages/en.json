@@ -1199,12 +1199,19 @@
     "dueToday": "Due today",
     "addDate": "Add date",
     "blocked": "Blocked",
-    "completedToast": "✓ Task completed"
+    "completedToast": "✓ Task completed",
+    "overdueDays": "Overdue · {count, plural, one {# day} other {# days}}",
+    "todayBadge": "Today",
+    "moveToToday": "Move to today",
+    "reschedule": "Reschedule",
+    "movedToast": "✓ Moved to today"
   },
   "routineRow": {
     "markDone": "Mark as done",
     "markNotDone": "Mark as not done",
     "today": "Today",
+    "overdueDays": "Overdue · {count, plural, one {# day} other {# days}}",
+    "todayBadge": "Today",
     "editAria": "Edit routine",
     "archiveAria": "Archive routine",
     "unarchiveAria": "Restore routine",
@@ -1289,6 +1296,9 @@
     "task": {
       "newTitle": "New Task",
       "editTitle": "Edit Task",
+      "deleteButton": "Delete task",
+      "deleteConfirm": "Delete this task?",
+      "deleteConfirmBody": "This can't be undone.",
       "titleField": "Title *",
       "project": "Project",
       "noProject": "No project",
@@ -1322,6 +1332,9 @@
     "routine": {
       "newTitle": "New routine",
       "editTitle": "Edit routine",
+      "deleteButton": "Delete routine",
+      "deleteConfirm": "Delete this routine?",
+      "deleteConfirmBody": "This can't be undone.",
       "titleField": "Title *",
       "description": "Description",
       "descriptionPlaceholder": "Optional — a short reminder.",

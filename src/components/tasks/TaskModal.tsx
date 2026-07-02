@@ -6,6 +6,7 @@ import { useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { ChevronDown, Lock, Search, X as XIcon } from "lucide-react";
 import { Modal } from "../ui/Modal";
+import { ModalDeleteButton } from "../ui/ModalDeleteButton";
 import { Field } from "../ui/Field";
 import { TimeOfDayField } from "../ui/TimeOfDayField";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
@@ -36,6 +37,7 @@ export function TaskModal({
   projects,
   tasks,
   onSave,
+  onDelete,
   onClose,
 }: {
   task: Partial<Task> | null;
@@ -51,6 +53,8 @@ export function TaskModal({
     dueTime: string | null;
     durationMinutes: number | null;
   }) => void | Promise<void>;
+  /** Delete lives here (in the edit detail), not on the list row. */
+  onDelete?: (id: string) => void | Promise<void>;
   onClose: () => void;
 }) {
   const t = useTranslations("modals.task");
@@ -94,6 +98,12 @@ export function TaskModal({
       friday: upcomingFridayISO(),
     };
   }, []);
+
+  const handleDelete = async () => {
+    if (!task?.id || !onDelete) return;
+    await onDelete(task.id);
+    onClose();
+  };
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -170,11 +180,20 @@ export function TaskModal({
       title={task?.id ? t("editTitle") : t("newTitle")}
       onClose={onClose}
       footer={
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {task?.id && onDelete && (
+            <ModalDeleteButton
+              label={t("deleteButton")}
+              confirmLabel={t("deleteConfirm")}
+              onDelete={handleDelete}
+            />
+          )}
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="flex-1 px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm"
+            className={`px-4 py-2 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-bg rounded-lg font-medium text-sm ${
+              task?.id && onDelete ? "" : "flex-1"
+            }`}
           >
             {tCommon("save")}
           </button>

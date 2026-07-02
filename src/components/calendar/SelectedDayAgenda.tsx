@@ -81,8 +81,7 @@ export function SelectedDayAgenda({
         node: (
           <RoutineChip
             item={item}
-            onCompleteOccurrence={handlers.onCompleteOccurrence}
-            onUncompleteOccurrence={handlers.onUncompleteOccurrence}
+            onEditRoutine={handlers.onEditRoutine}
             size="md"
           />
         ),
@@ -129,8 +128,7 @@ export function SelectedDayAgenda({
       node: (
         <RoutineChip
           item={item}
-          onCompleteOccurrence={handlers.onCompleteOccurrence}
-          onUncompleteOccurrence={handlers.onUncompleteOccurrence}
+          onEditRoutine={handlers.onEditRoutine}
           size="md"
         />
       ),

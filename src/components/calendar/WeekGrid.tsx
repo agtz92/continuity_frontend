@@ -74,8 +74,7 @@ export function WeekGrid({
         <RoutineChip
           key={`${item.routine.id}-${item.scheduledDate}`}
           item={item}
-          onCompleteOccurrence={handlers.onCompleteOccurrence}
-          onUncompleteOccurrence={handlers.onUncompleteOccurrence}
+          onEditRoutine={handlers.onEditRoutine}
         />
       );
     }

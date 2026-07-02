@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Repeat } from "lucide-react";
-import type { Category, Project, Task } from "@/lib/types";
+import type { Category, Project, Routine, Task } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import {
   OVERLOAD_HOURS,
@@ -15,11 +15,9 @@ export interface CalendarHandlers {
   onOpenProject: (p: Project) => void;
   onEditTask: (t: Task) => void;
   onToggleTask: (t: Task) => void | Promise<void>;
-  onCompleteOccurrence: (
-    routineId: string,
-    scheduledDate: string
-  ) => void | Promise<void>;
-  onUncompleteOccurrence: (occurrenceId: string) => void | Promise<void>;
+  // Routines aren't completable from the calendar — clicking one opens its edit
+  // modal instead (completion happens from the Routines/Today views).
+  onEditRoutine: (routine: Routine) => void;
 }
 
 export const projectChipClass = (
@@ -122,53 +120,37 @@ export function TaskChip({
   );
 }
 
-/** A routine occurrence chip with a complete/uncomplete toggle. */
+/** A routine occurrence chip; clicking opens the routine's edit modal. The
+ *  completed state is shown read-only (calendar doesn't toggle routines). */
 export function RoutineChip({
   item,
-  onCompleteOccurrence,
-  onUncompleteOccurrence,
+  onEditRoutine,
   size = "sm",
 }: {
   item: RoutineItem;
-  onCompleteOccurrence: (
-    routineId: string,
-    scheduledDate: string
-  ) => void | Promise<void>;
-  onUncompleteOccurrence: (occurrenceId: string) => void | Promise<void>;
+  onEditRoutine: (routine: Routine) => void;
   size?: ChipSize;
 }) {
-  const toggle = () => {
-    if (item.completed && item.occurrenceId) {
-      onUncompleteOccurrence(item.occurrenceId);
-    } else if (!item.completed) {
-      onCompleteOccurrence(item.routine.id, item.scheduledDate);
-    }
-  };
   return (
-    <div
-      className={`w-full leading-tight border flex items-center gap-1.5 ${chipSizeClass(
+    <button
+      type="button"
+      onClick={() => onEditRoutine(item.routine)}
+      title={item.routine.title}
+      className={`w-full text-left leading-tight border flex items-center gap-1.5 hover:opacity-80 ${chipSizeClass(
         size
       )} ${ROUTINE_CHIP} ${item.completed ? "opacity-55" : ""}`}
     >
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={item.routine.title}
-        className="shrink-0 hover:opacity-80"
-      >
-        {item.completed ? (
-          <Check size={chipIconSize(size)} />
-        ) : (
-          <Repeat size={chipIconSize(size)} />
-        )}
-      </button>
+      {item.completed ? (
+        <Check size={chipIconSize(size)} className="shrink-0" />
+      ) : (
+        <Repeat size={chipIconSize(size)} className="shrink-0" />
+      )}
       <span
         className={`truncate flex-1 ${item.completed ? "line-through" : ""}`}
-        title={item.routine.title}
       >
         {item.routine.title}
       </span>
-    </div>
+    </button>
   );
 }
 

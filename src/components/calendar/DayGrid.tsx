@@ -122,8 +122,7 @@ export function DayGrid({
       node: (
         <RoutineChip
           item={item}
-          onCompleteOccurrence={handlers.onCompleteOccurrence}
-          onUncompleteOccurrence={handlers.onUncompleteOccurrence}
+          onEditRoutine={handlers.onEditRoutine}
           size="md"
         />
       ),
@@ -250,10 +249,12 @@ export function DayGrid({
                     HOUR_PX
                 );
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={`${item.routine.id}-${item.scheduledDate}`}
+                    onClick={() => handlers.onEditRoutine(item.routine)}
                     style={{ top: topFor(start), height: h }}
-                    className={`absolute left-1.5 right-2 rounded border px-1.5 py-0.5 overflow-hidden flex items-start gap-1 ${ROUTINE_CHIP} ${
+                    className={`absolute left-1.5 right-2 rounded border px-1.5 py-0.5 overflow-hidden flex items-start gap-1 text-left hover:opacity-80 ${ROUTINE_CHIP} ${
                       item.completed ? "opacity-55" : ""
                     }`}
                   >
@@ -265,7 +266,7 @@ export function DayGrid({
                     >
                       {item.routine.title}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
 
