@@ -148,3 +148,22 @@ de marketing deben mantener su First Load JS bajo (~130 kB). Reglas para no regr
   no cargan en blog/resources/legal.
 - **Imágenes: siempre `next/image`** para covers (no `<img>` crudo) y `lazyLoadContentImages`
   (`src/lib/contentHtml.ts`) para el HTML del cuerpo. Evita servir originales multi-MB.
+
+## Calendario (vista del dashboard)
+
+`src/components/views/CalendarView.tsx` + sub-views/chips en `src/components/calendar/` + fechas en `src/lib/calendar.ts`. **Espejo del móvil** (`continuity-mobile`, mismos nombres de archivo). Aplica en **todos los anchos** (no solo móvil-web).
+
+- **Día** (`DayGrid.tsx`): items sin hora en **lista vertical legible** ("Todo el día · N", colapsa >4); la rejilla horaria **solo se dibuja si hay eventos con hora**. Lista acotada a `max-w-2xl` en desktop.
+- **Mes** (`MonthGrid.tsx`): un click **selecciona** el día → agenda debajo de la matriz (`SelectedDayAgenda.tsx`); click en el día ya seleccionado (o "Abrir día") entra a Día. Ring accent en la celda seleccionada.
+- **Semana** = `WeekGrid` de columnas (el móvil usa una agenda vertical).
+- **Chips** (`parts.tsx`) tienen prop **`size`**: `sm` (celdas densas) / `md` (renglón de la lista Día + agenda).
+- **Las rutinas NO se completan desde el calendario**: `RoutineChip` y el bloque de rutina con hora **abren el `RoutineModal`** vía `handlers.onEditRoutine` (cableado desde `Dashboard` con `m.editRoutine`). `CalendarHandlers` ya no tiene `onCompleteOccurrence`/`onUncompleteOccurrence`.
+
+## Filas de tarea/rutina + borrar en el detalle
+
+- **`TaskToggle`** (`src/components/tasks/TaskToggle.tsx`): control de completar de toda fila (círculo 24px, rojo si vencida, candado si bloqueada, punteado+↻ para rutina). Reemplazó el `CheckCircle2` sutil.
+- Spine de urgencia 3px + badges sólidos "Vencida·Nd"/"Hoy" (i18n `taskRow.overdueDays`/`todayBadge`, plural ICU). Filas vencidas: "Mover a hoy"/"Reprogramar".
+- **Borrar se movió de la fila al detalle de edición.** `ModalDeleteButton` (`src/components/ui/ModalDeleteButton.tsx`) = **confirm de dos pasos inline** en el footer de `TaskModal`/`RoutineModal` (`onDelete` cableado desde `Dashboard`). Las filas conservan `onDelete?` opcional sin usar; el tap/lápiz abre la edición.
+- **Today's Focus** (`src/components/today/TodayFocusSection.tsx`) es un componente aparte (lista mixta: tareas + proyectos estancados + próximos pasos) que **comparte el lenguaje visual** (toggle + spine + badges), no reusa `TaskRow`.
+- Estado del proyecto (incl. **"launched"**) se cambia desde el selector de `ProjectDetailModal.tsx` (`onSaveProject({status})`). En móvil eso es un botón Launch dedicado.
+- Tareas de proyecto **paused/killed** se ocultan de Today/Tasks/Calendario vía `isDailyViewStatus` (`src/lib/projectStatus.ts`); standalone se quedan.
