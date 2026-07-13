@@ -94,7 +94,7 @@ describe("createErrorLink", () => {
     await collect(ApolloLink.from([errorLink, downstream]));
 
     expect(onAuthFailure).toHaveBeenCalledTimes(1);
-    expect(lastToast()?.message).toMatch(/session expired/i);
+    expect(lastToast()?.messageKey).toBe("errors.unauthenticated");
   });
 
   it("treats a 401 networkError as an auth failure", async () => {
@@ -113,10 +113,10 @@ describe("createErrorLink", () => {
     await collect(ApolloLink.from([errorLink, downstream])).catch(() => {});
 
     expect(onAuthFailure).toHaveBeenCalledTimes(1);
-    expect(lastToast()?.message).toMatch(/session expired/i);
+    expect(lastToast()?.messageKey).toBe("errors.unauthenticated");
   });
 
-  it("toasts a generic message for non-401 network errors and includes the operation name", async () => {
+  it("emits a localized connection-lost key for non-401 network errors", async () => {
     const onAuthFailure = vi.fn();
     const errorLink = createErrorLink({ onAuthFailure });
     const downstream = new ApolloLink(
@@ -130,9 +130,32 @@ describe("createErrorLink", () => {
 
     expect(onAuthFailure).not.toHaveBeenCalled();
     expect(lastToast()?.kind).toBe("error");
-    expect(lastToast()?.message).toMatch(/ECONNREFUSED/);
-    // Operation name is "Ping" (from the gql tag).
-    expect(lastToast()?.message).toMatch(/Ping/);
+    // Raw transport text (ECONNREFUSED) is never shown — only a localized key.
+    expect(lastToast()?.messageKey).toBe("errors.connectionLost");
+    expect(lastToast()?.message).toBeUndefined();
+  });
+
+  it("emits a localized connection-lost key for a DB_UNAVAILABLE GraphQL error", async () => {
+    const onAuthFailure = vi.fn();
+    const errorLink = createErrorLink({ onAuthFailure });
+    const downstream = new ApolloLink(
+      () =>
+        new Observable<FetchResult>((obs) => {
+          obs.next({
+            errors: [
+              new GraphQLError("The server is temporarily unavailable.", {
+                extensions: { code: "DB_UNAVAILABLE" },
+              }),
+            ],
+          });
+          obs.complete();
+        })
+    );
+
+    await collect(ApolloLink.from([errorLink, downstream]));
+
+    expect(onAuthFailure).not.toHaveBeenCalled();
+    expect(lastToast()?.messageKey).toBe("errors.connectionLost");
   });
 
   it("does not toast on success", async () => {

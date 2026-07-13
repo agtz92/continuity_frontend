@@ -54,18 +54,32 @@ const authLink = setContext(async (_, { headers }) => {
 export const createErrorLink = (deps: {
   onAuthFailure: () => void;
 }): ApolloLink =>
-  onError(({ graphQLErrors, networkError, operation }) => {
-    const opName = operation.operationName || "request";
-
+  onError(({ graphQLErrors, networkError }) => {
+    // All user-facing copy is localized: the link emits i18n keys (resolved by
+    // the Toaster at render time), never raw English. `DB_UNAVAILABLE` and a
+    // stale-connection hiccup (a tab left open for days, surfacing as "server
+    // closed the connection unexpectedly") are treated as transient/retryable
+    // and, critically, do NOT sign the user out. The backend also masks the raw
+    // psycopg text behind the `DB_UNAVAILABLE` code (see core/auth.py).
     if (graphQLErrors && graphQLErrors.length > 0) {
       for (const err of graphQLErrors) {
         const code = (err.extensions as { code?: string } | undefined)?.code;
         if (code === "UNAUTHENTICATED") {
-          toast.error("Your session expired. Please sign in again.");
+          toast.errorKey("errors.unauthenticated");
           deps.onAuthFailure();
           continue;
         }
-        toast.error(err.message || `Server error during ${opName}.`);
+        if (code === "DB_UNAVAILABLE") {
+          toast.errorKey("errors.connectionLost");
+          continue;
+        }
+        // App-level errors carry a human message from the backend; show it, or
+        // fall back to a localized generic if absent.
+        if (err.message) {
+          toast.error(err.message);
+        } else {
+          toast.errorKey("errors.generic");
+        }
       }
       return;
     }
@@ -73,13 +87,14 @@ export const createErrorLink = (deps: {
     if (networkError) {
       const status = (networkError as { statusCode?: number }).statusCode;
       if (status === 401) {
-        toast.error("Your session expired. Please sign in again.");
+        toast.errorKey("errors.unauthenticated");
         deps.onAuthFailure();
         return;
       }
-      const reason =
-        (networkError as { message?: string }).message || "connection failed";
-      toast.error(`Could not reach server (${opName}): ${reason}`);
+      // Any other network failure — no status (offline / DNS / connection reset)
+      // or a 5xx from the backend — is transient. Show the localized retry
+      // message instead of leaking a raw fetch/proxy string.
+      toast.errorKey("errors.connectionLost");
     }
   });
 

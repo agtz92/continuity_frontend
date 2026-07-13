@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { subscribeToasts, toast as toastApi, type Toast } from "@/lib/toast";
 
@@ -23,10 +24,20 @@ const styles: Record<Toast["kind"], { ring: string; icon: React.ReactNode }> = {
 
 export function Toaster() {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  // Root translator: toasts carry dotted keys (e.g. "errors.connectionLost").
+  const t = useTranslations();
 
   useEffect(() => subscribeToasts(setToasts), []);
 
   if (toasts.length === 0) return null;
+
+  const render = (toast: Toast): string => {
+    if (toast.messageKey) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return t(toast.messageKey as any, toast.values as any);
+    }
+    return toast.message ?? "";
+  };
 
   return (
     <div
@@ -34,20 +45,20 @@ export function Toaster() {
       role="region"
       aria-label="Notifications"
     >
-      {toasts.map((t) => {
-        const s = styles[t.kind];
+      {toasts.map((item) => {
+        const s = styles[item.kind];
         return (
           <div
-            key={t.id}
-            role={t.kind === "error" ? "alert" : "status"}
+            key={item.id}
+            role={item.kind === "error" ? "alert" : "status"}
             className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 shadow-lg ${s.ring}`}
           >
             {s.icon}
             <div className="flex-1 text-sm leading-snug whitespace-pre-wrap break-words">
-              {t.message}
+              {render(item)}
             </div>
             <button
-              onClick={() => toastApi.dismiss(t.id)}
+              onClick={() => toastApi.dismiss(item.id)}
               className="text-text-muted/70 hover:text-text shrink-0"
               aria-label="Dismiss"
             >

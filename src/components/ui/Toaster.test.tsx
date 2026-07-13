@@ -3,6 +3,11 @@ import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Toaster } from "./Toaster";
 import { toast } from "@/lib/toast";
+import enMessages from "../../../messages/en.json";
+
+// `next-intl` is stubbed globally in vitest.setup.ts: `useTranslations()`
+// resolves dotted keys against messages/en.json. So the Toaster renders the
+// real English copy for key-based toasts without a provider.
 
 describe("<Toaster />", () => {
   it("renders nothing when there are no toasts", () => {
@@ -10,12 +15,22 @@ describe("<Toaster />", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders an error toast pushed via the bus", () => {
+  it("renders a raw-message error toast pushed via the bus", () => {
     render(<Toaster />);
     act(() => {
       toast.error("Project not found");
     });
     expect(screen.getByRole("alert")).toHaveTextContent("Project not found");
+  });
+
+  it("resolves a message key to its localized copy", () => {
+    render(<Toaster />);
+    act(() => {
+      toast.errorKey("errors.connectionLost");
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      enMessages.errors.connectionLost
+    );
   });
 
   it("renders success toasts as status (not alert)", () => {
