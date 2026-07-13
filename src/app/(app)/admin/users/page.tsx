@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
                     {u.email || "—"}
                   </div>
                   <div className="mt-0.5 text-xs text-text-muted">
-                    Creado {formatDate(u.createdAt)} · Último ingreso{" "}
+                    Creado {formatDate(u.createdAt)} · Última interacción{" "}
                     {formatDate(u.lastSignInAt)}
                   </div>
                 </div>
@@ -341,7 +341,7 @@ export default function AdminUsersPage() {
               <th className="px-4 py-2.5 font-semibold">Admin</th>
               <th className="px-4 py-2.5 font-semibold">Exento</th>
               <th className="px-4 py-2.5 font-semibold">Creado</th>
-              <th className="px-4 py-2.5 font-semibold">Último ingreso</th>
+              <th className="px-4 py-2.5 font-semibold">Última interacción</th>
               <th className="px-4 py-2.5 font-semibold">Proyectos</th>
               <th className="px-4 py-2.5 font-semibold">Tareas (abiertas/hechas)</th>
               <th className="px-4 py-2.5 font-semibold">Interacciones (30d)</th>
