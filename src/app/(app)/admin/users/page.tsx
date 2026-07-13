@@ -260,7 +260,7 @@ export default function AdminUsersPage() {
                   </div>
                   <div className="mt-0.5 text-xs text-text-muted">
                     Creado {formatDate(u.createdAt)} · Última interacción{" "}
-                    {formatDate(u.lastSignInAt)}
+                    {formatDate(u.lastActivity)}
                   </div>
                 </div>
                 <Link
@@ -410,7 +410,7 @@ export default function AdminUsersPage() {
                     {formatDate(u.createdAt)}
                   </td>
                   <td className="px-4 py-2.5 text-text-muted">
-                    {formatDate(u.lastSignInAt)}
+                    {formatDate(u.lastActivity)}
                   </td>
                   <td className="px-4 py-2.5 text-text">{u.counts.projects}</td>
                   <td className="px-4 py-2.5 text-text">
