@@ -118,6 +118,17 @@ export function ProjectsView({
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showSortSheet, setShowSortSheet] = useState(false);
 
+  // Killed projects live in the Graveyard, not the main list: once a project is
+  // killed it should drop out of Projects entirely (it stays visible in the
+  // Graveyard view). We exclude them up front so every downstream computation —
+  // the list, status/priority counts, the empty state — never sees a killed
+  // project. As a side effect the "killed" count becomes 0, so its filter chip
+  // auto-hides. Other terminal states (e.g. archived) stay filterable.
+  const visibleProjects = useMemo(
+    () => projects.filter((p) => p.status !== "killed"),
+    [projects]
+  );
+
   const horizonISO = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
@@ -140,7 +151,7 @@ export function ProjectsView({
   /** Conteo en vivo que muestra el sheet de filtros mientras el usuario edita un
    *  draft, sin aplicarlo todavía (la búsqueda no entra: el sheet no la edita). */
   const previewCount = (draft: ProjectFilterDraft) =>
-    projects.filter(
+    visibleProjects.filter(
       (p) =>
         matchesStatusWith(p, draft.status) &&
         matchesPriorityWith(p, draft.priority) &&
@@ -182,7 +193,7 @@ export function ProjectsView({
 
   const projectStatusCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      all: projects.length,
+      all: visibleProjects.length,
       active: 0,
       idea: 0,
       stalled: 0,
@@ -191,25 +202,25 @@ export function ProjectsView({
       killed: 0,
       archived: 0,
     };
-    for (const p of projects) {
+    for (const p of visibleProjects) {
       counts[p.status] = (counts[p.status] ?? 0) + 1;
     }
     return counts;
-  }, [projects]);
+  }, [visibleProjects]);
 
   const projectPriorityCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      all: projects.length,
+      all: visibleProjects.length,
       critical: 0,
       high: 0,
       medium: 0,
       low: 0,
     };
-    for (const p of projects) {
+    for (const p of visibleProjects) {
       counts[p.priority] = (counts[p.priority] ?? 0) + 1;
     }
     return counts;
-  }, [projects]);
+  }, [visibleProjects]);
 
   // ----- Sorting + stable layout (A/B/C/D) -----
   // Hooks must run unconditionally, so all the sort/layout math lives here at
@@ -222,7 +233,7 @@ export function ProjectsView({
   const q = projectSearch.trim().toLowerCase();
   const matchesSearch = (p: Project) => matchesSearchProject(p, q, categoryById);
 
-  const filtered = projects.filter(
+  const filtered = visibleProjects.filter(
     (p) =>
       matchesSearch(p) &&
       matchesStatusWith(p, projectStatusFilter) &&
@@ -259,9 +270,9 @@ export function ProjectsView({
 
   const projectById = useMemo(() => {
     const m = new Map<string, Project>();
-    for (const p of projects) m.set(p.id, p);
+    for (const p of visibleProjects) m.set(p.id, p);
     return m;
-  }, [projects]);
+  }, [visibleProjects]);
 
   // (D) Manual drag is only enabled with no narrowing filters/search active —
   // reordering a partial list has no unambiguous global meaning.
@@ -310,7 +321,7 @@ export function ProjectsView({
         </div>
       </div>
 
-      {projects.length > 0 && (
+      {visibleProjects.length > 0 && (
         <ProjectsFilters
           projectStatusFilter={projectStatusFilter}
           setProjectStatusFilter={setProjectStatusFilter}
@@ -329,7 +340,7 @@ export function ProjectsView({
         />
       )}
 
-      {projects.length === 0 ? (
+      {visibleProjects.length === 0 ? (
         <div className="bg-surface border border-border rounded-xl p-12 text-center">
           <p className="text-text-muted mb-4">{t("empty")}</p>
           <button
