@@ -181,7 +181,7 @@ export function TodayFocusSection({
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-text">
+                      <span className="text-text min-w-0 break-words">
                         {item.task
                           ? item.task.title
                           : item.type === "stalled" && item.project

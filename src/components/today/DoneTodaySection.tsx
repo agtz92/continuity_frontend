@@ -163,7 +163,7 @@ export function DoneTodaySection({
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm text-text-muted line-through decoration-emerald-500/40 break-words">
+                        <span className="text-sm text-text-muted line-through decoration-emerald-500/40 min-w-0 break-words">
                           {taskItem.title}
                         </span>
                         {taskItem.effortHours != null && (
@@ -210,7 +210,7 @@ export function DoneTodaySection({
                         </span>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm text-text-muted break-words">
+                        <span className="text-sm text-text-muted min-w-0 break-words">
                           {item.title}
                         </span>
                         {item.effortHours != null && (
