@@ -51,6 +51,11 @@ function fmtDate(v: string | null): string {
   return new Date(v).toLocaleDateString();
 }
 
+function fmtDateTime(v: string | null): string {
+  if (!v) return "nunca";
+  return new Date(v).toLocaleString();
+}
+
 export default function AdminBetaPage() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [exemptFilter, setExemptFilter] = useState<string>("");
@@ -76,6 +81,9 @@ export default function AdminBetaPage() {
       statusCounts: LabeledCount[];
       thresholdCounts: LabeledCount[];
       recentReclaims: { userId: string; email: string; betaStatus: string }[];
+      lastRunAt: string | null;
+      lastRunMode: string;
+      lastRunSummary: string;
     };
   }>(ADMIN_BETA_PIPELINE_QUERY, { fetchPolicy: "cache-and-network" });
   const configQ = useQuery<{ adminAppConfig: AppConfigRow[] }>(ADMIN_APP_CONFIG_QUERY, {
@@ -168,6 +176,13 @@ export default function AdminBetaPage() {
   const users = usersQ.data?.adminBetaUsers ?? [];
   const pipeline = pipelineQ.data?.adminBetaPipeline;
 
+  const lastRunAt = pipeline?.lastRunAt ? new Date(pipeline.lastRunAt) : null;
+  // The cron fires daily (15:00 UTC). Older than ~26h — or never — means it's
+  // not running in Render, which is the usual reason no emails go out.
+  const cronStale = !pipelineQ.loading
+    ? !lastRunAt || Date.now() - lastRunAt.getTime() > 26 * 3600 * 1000
+    : false;
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-medium text-text">Beta lifecycle</h1>
@@ -179,6 +194,18 @@ export default function AdminBetaPage() {
       ) : (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-text">
           <strong>dry_run</strong> activo — nada se envía ni se reclama (solo preview en email_sends).
+        </div>
+      )}
+
+      {cronStale && (
+        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-text">
+          <strong>Cron sin correr</strong> — la secuencia de inactividad{" "}
+          {lastRunAt
+            ? `no corre desde ${fmtDateTime(pipeline?.lastRunAt ?? null)}`
+            : "nunca ha corrido"}
+          . Debería correr a diario (15:00 UTC). Revisa el servicio{" "}
+          <code>continuity-beta-lifecycle-daily</code> en Render (que exista y tenga sus
+          env vars).
         </div>
       )}
 
@@ -298,6 +325,14 @@ export default function AdminBetaPage() {
           <div>
             <div className="mb-1 text-xs text-text-muted">Reclaims recientes</div>
             <div className="text-sm text-text">{pipeline?.recentReclaims.length ?? 0}</div>
+          </div>
+          <div>
+            <div className="mb-1 text-xs text-text-muted">Última corrida del cron</div>
+            <div className={`text-sm ${cronStale ? "text-red-500" : "text-text"}`}>
+              {fmtDateTime(pipeline?.lastRunAt ?? null)}
+              {pipeline?.lastRunMode ? ` · ${pipeline.lastRunMode}` : ""}
+              {pipeline?.lastRunSummary ? ` · ${pipeline.lastRunSummary}` : ""}
+            </div>
           </div>
         </div>
       </section>

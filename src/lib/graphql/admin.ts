@@ -291,6 +291,9 @@ export const ADMIN_BETA_PIPELINE_QUERY = gql`
         email
         betaStatus
       }
+      lastRunAt
+      lastRunMode
+      lastRunSummary
     }
   }
 `;
