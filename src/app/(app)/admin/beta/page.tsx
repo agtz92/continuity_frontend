@@ -248,6 +248,23 @@ export default function AdminBetaPage() {
             />
           </label>
           <label className="flex items-center gap-2 text-sm text-text">
+            Hora corrida (UTC)
+            <input
+              key={`runhour-${String(config["lifecycle_run_hour_utc"] ?? 15)}`}
+              type="number"
+              min={0}
+              max={23}
+              defaultValue={Number(config["lifecycle_run_hour_utc"] ?? 15)}
+              className="w-20 rounded border border-border bg-bg px-2 py-1"
+              onBlur={(e) => {
+                const n = Number(e.target.value);
+                const cur = Number(config["lifecycle_run_hour_utc"] ?? 15);
+                if (!Number.isNaN(n) && n >= 0 && n <= 23 && n !== cur)
+                  saveConfig("lifecycle_run_hour_utc", n);
+              }}
+            />
+          </label>
+          <label className="flex items-center gap-2 text-sm text-text">
             <input
               type="checkbox"
               checked={dryRun}
@@ -258,7 +275,8 @@ export default function AdminBetaPage() {
         </div>
         <p className="mt-2 text-xs text-text-muted">
           "Inicio de secuencia": nadie cuenta como inactivo desde antes de esa fecha
-          (arranque gradual). Vacío = desde sus fechas reales.
+          (arranque gradual). Vacío = desde sus fechas reales. "Hora corrida (UTC)": el
+          cron corre cada hora pero solo envía en esa hora — cámbiala aquí, no en el cron.
         </p>
       </section>
 
