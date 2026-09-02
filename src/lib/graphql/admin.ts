@@ -86,8 +86,8 @@ export const ADMIN_USER_QUERY = gql`
       isAdmin
       isBillingExempt
       planRenewsAt
-      stripeCustomerId
-      stripeSubscriptionId
+      billingCustomerId
+      billingTransactionId
       createdAt
       lastSignInAt
       emailConfirmedAt

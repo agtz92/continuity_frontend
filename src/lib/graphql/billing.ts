@@ -132,8 +132,11 @@ export const ADMIN_SUBSCRIBERS_QUERY = gql`
         planRenewsAt
         cancelAtPeriodEnd
         isBillingExempt
-        stripeCustomerId
-        stripeSubscriptionId
+        billingSource
+        billingCustomerId
+        billingTransactionId
+        billingProductId
+        netMonthlyCents
       }
       page
       perPage

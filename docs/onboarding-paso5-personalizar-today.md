@@ -1,5 +1,9 @@
 # Onboarding · Paso 5 — Personalizar el Today view
 
+> **Pagos, precios y suscripciones — fuente de verdad:** [Integración de pagos web y móvil](../../backend/docs/integracion-pagos-web-y-movil.md).
+> Lo que este documento diga sobre Stripe, cobros, planes de pago o tiendas es
+> contexto; ante cualquier diferencia, manda ese.
+
 Paso final del onboarding (web **y** móvil) que presenta el editor del **Today
 view** y lleva al usuario directo a él para mostrar/ocultar y reordenar
 secciones. Mantiene la voz de marca del resto del onboarding (directo, informal,

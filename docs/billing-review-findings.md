@@ -1,5 +1,15 @@
 # Revisión de billing — hallazgos
 
+> **Pagos, precios y suscripciones — fuente de verdad:** [Integración de pagos web y móvil](../../backend/docs/integracion-pagos-web-y-movil.md).
+> Lo que este documento diga sobre Stripe, cobros, planes de pago o tiendas es
+> contexto; ante cualquier diferencia, manda ese.
+
+> **Estado: cerrado (2026-08-05).** Los tres riesgos que quedaron señalados aquí
+> se arreglaron al integrar los pagos in-app, porque una segunda fuente de cobro
+> los volvía probables en vez de teóricos. Abajo se conserva el diagnóstico
+> original —sigue siendo la mejor explicación de *por qué* fallaban— con la
+> resolución de cada uno.
+
 Revisión del flujo de billing/Stripe (backend `core/billing`, web
 `settings/billing`, móvil read-only). Un bug concreto **arreglado** y tres
 riesgos **señalados** (tocan lógica de dinero/Stripe; no se cambiaron sin tu OK).
@@ -38,6 +48,11 @@ un doble cobro real.
 **Mitigación sugerida (client-only, segura):** tras disparar el auto-checkout,
 `router.replace("/settings/billing")` para borrar el param del historial.
 
+> ✅ **Resuelto.** Se aplicó exactamente esa mitigación en `page.tsx`: el
+> `router.replace` corre **antes** de irse a Stripe. El efecto además ignora las
+> cuentas con `store_managed`, para no vender por Stripe a quien ya paga en una
+> tienda.
+
 ### 2. `sync_subscription_to_profile`: la rama *activa* no tiene el guard `is_current_sub`
 
 En `core/billing/services.py`, la rama terminal (cancel/unpaid) ignora eventos de
@@ -51,6 +66,16 @@ pero el guard debería ser simétrico. Es lógica delicada: **mejor confirmarlo
 antes de tocar** (un guard ingenuo bloquearía un upgrade legítimo vía checkout
 nuevo).
 
+> ✅ **Resuelto, y el diagnóstico se quedó corto.** Con tres emisores escribiendo
+> la misma fila esto dejaba de ser un caso raro, así que en vez de parchear la
+> rama se movió *toda* la escritura a `core/billing/entitlements.py`.
+> `sync_subscription_to_profile` ya sólo traduce el evento de Stripe y delega; el
+> guard es simétrico para todas las ramas y todas las fuentes. El caso que
+> preocupaba —bloquear un upgrade legítimo— se resuelve por duración, no por
+> orden de llegada: si la titularidad entrante corre más tiempo, toma el control
+> y la desplazada queda en el audit log para cancelarla y reembolsarla.
+> Cubierto por `core/billing/tests/test_entitlements.py`.
+
 ### 3. Fragilidad ante upgrade de la API de Stripe
 
 Los webhooks y `cancel_subscription` leen `sub.get("current_period_end")` del
@@ -60,3 +85,10 @@ API `2025-03-31.basil`+ ese campo **se movió a los items** de la subscription, 
 `plan_renews_at` quedaría en `None` silenciosamente. Si algún día se sube el SDK
 o se fija una `api_version` más nueva, leer `current_period_end` desde
 `items.data[0]` en vez del root.
+
+> ✅ **Resuelto por los dos lados.** `stripe_client.py` ahora **fija**
+> `api_version` (vía `STRIPE_API_VERSION`), así que subir el SDK ya no cambia la
+> forma de los objetos por accidente; y `period_end_from_subscription()` lee
+> **ambas** formas —raíz e items, tomando el vencimiento más lejano cuando hay
+> varios—, así que subir el pin es seguro. La usan el webhook de Stripe y
+> `cancel_subscription`.

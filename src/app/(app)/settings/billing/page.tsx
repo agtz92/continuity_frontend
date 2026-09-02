@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { useLocale, useTranslations } from "next-intl";
 import { Check, Sparkles } from "lucide-react";
@@ -29,6 +29,7 @@ export default function BillingSettingsPage() {
   const locale = useLocale();
   const billingError = useBillingErrorMessage();
   const params = useSearchParams();
+  const router = useRouter();
   const [usage, setUsage] = useState<UsageSnapshot | null>(null);
   const [period, setPeriod] = useState<Period>("monthly");
 
@@ -132,7 +133,8 @@ export default function BillingSettingsPage() {
 
   // Auto-checkout when arriving from the landing pricing CTA
   // (?upgrade=pro|studio&period=monthly|annual). Only fires once per visit
-  // and only for free users — exempt or already-paid accounts ignore it.
+  // and only for free users — exempt, store-managed or already-paid accounts
+  // ignore it.
   const [autoCheckoutFired, setAutoCheckoutFired] = useState(false);
   useEffect(() => {
     if (autoCheckoutFired || !usage) return;
@@ -140,16 +142,24 @@ export default function BillingSettingsPage() {
     const periodParam = params?.get("period");
     if (!upgrade || !periodParam) return;
     if (usage.is_billing_exempt) return;
+    if (usage.store_managed) return;
     if (usage.plan !== "free") return;
     const planEnum = upgrade.toUpperCase();
     const periodEnum = periodParam.toUpperCase();
     if (!["PRO", "STUDIO"].includes(planEnum)) return;
     if (!["MONTHLY", "ANNUAL"].includes(periodEnum)) return;
     setAutoCheckoutFired(true);
+    // Drop `?upgrade=…` from the history entry *before* leaving for Stripe.
+    // Otherwise the entry survives, and pressing Back after paying returns
+    // here while the webhook has not promoted the plan yet — `plan` still
+    // reads "free", this effect fires again, and the user ends up with two
+    // parallel subscriptions and two charges. `replace` (not `push`) is what
+    // makes the offending entry unreachable.
+    router.replace("/settings/billing");
     createCheckout({
       variables: { plan: planEnum, period: periodEnum, locale },
     });
-  }, [params, usage, autoCheckoutFired, createCheckout, locale]);
+  }, [params, usage, autoCheckoutFired, createCheckout, locale, router]);
 
   const plan = (usage?.plan ?? "free") as
     | "free"
@@ -165,6 +175,17 @@ export default function BillingSettingsPage() {
   const renewsAt = usage?.plan_renews_at ?? null;
   const subscriptionPeriod = usage?.subscription_period ?? null;
   const cancelScheduled = usage?.cancel_at_period_end ?? false;
+  // Apple and Google own the payment method, the plan switcher and the
+  // cancel button for anything bought in their stores. We can show the plan
+  // here, but every control has to point back at the store — our Stripe
+  // portal knows nothing about that subscription.
+  const storeManaged = usage?.store_managed ?? false;
+  const storeName =
+    usage?.billing_source === "apple"
+      ? t("storeApple")
+      : usage?.billing_source === "google"
+      ? t("storeGoogle")
+      : "";
 
   const planLabel =
     plan === "studio"
@@ -188,7 +209,7 @@ export default function BillingSettingsPage() {
   // change plans through the Stripe Customer Portal instead — creating a
   // brand-new checkout for an existing customer would spawn a parallel
   // subscription, not upgrade the current one.
-  const showUpgradeCards = !isExempt && plan === "free";
+  const showUpgradeCards = !isExempt && !storeManaged && plan === "free";
   const tiersToShow: PaidTier[] = showUpgradeCards ? ["pro", "studio"] : [];
 
   return (
@@ -206,7 +227,7 @@ export default function BillingSettingsPage() {
               </span>
             )}
           </div>
-          {hasSubscription && !isExempt && (
+          {hasSubscription && !isExempt && !storeManaged && (
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
@@ -251,6 +272,21 @@ export default function BillingSettingsPage() {
         {isExempt ? (
           <div className="text-xs text-text-muted mb-3">
             {t("exemptBlurb", { plan: planLabel })}
+          </div>
+        ) : storeManaged ? (
+          <div className="mb-3 rounded-lg border border-border bg-bg px-3 py-2 text-xs text-text-muted">
+            <div className="font-semibold text-text mb-0.5">
+              {t("storeManagedTitle", { store: storeName })}
+            </div>
+            <div className="leading-snug">
+              {t("storeManagedBlurb", { store: storeName })}
+              {renewsAt
+                ? ` ${t("renewsAtWithDays", {
+                    date: new Date(renewsAt).toLocaleDateString(),
+                    days: Math.max(0, daysUntil(renewsAt) ?? 0),
+                  })}`
+                : ""}
+            </div>
           </div>
         ) : cancelScheduled && renewsAt ? (
           <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">

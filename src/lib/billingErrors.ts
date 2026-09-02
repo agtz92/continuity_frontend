@@ -15,6 +15,7 @@ export type BillingErrorCode =
   | "QUOTA_EXCEEDED"
   | "RETENTION_ALREADY_USED"
   | "NO_ACTIVE_SUBSCRIPTION"
+  | "SUBSCRIPTION_STORE_MANAGED"
   | "BILLING_NOT_CONFIGURED"
   | "UNAUTHENTICATED"
   | "BAD_INPUT";
@@ -25,6 +26,8 @@ export interface BillingErrorExtensions {
   current?: number;
   cap?: number;
   plan?: string;
+  /** SUBSCRIPTION_STORE_MANAGED only: "apple" | "google". */
+  source?: string;
 }
 
 export function extractBillingError(
@@ -70,6 +73,11 @@ export function useBillingErrorMessage() {
         return t("retentionAlreadyUsed");
       case "NO_ACTIVE_SUBSCRIPTION":
         return t("noActiveSubscription");
+      case "SUBSCRIPTION_STORE_MANAGED":
+        // The user does have a subscription — it just isn't ours to change.
+        return t("subscriptionStoreManaged", {
+          store: ext.source === "google" ? "Google Play" : "App Store",
+        });
       case "BILLING_NOT_CONFIGURED":
         return t("billingNotConfigured");
       case "UNAUTHENTICATED":

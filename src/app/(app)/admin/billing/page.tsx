@@ -42,8 +42,12 @@ type SubscriberRow = {
   planRenewsAt: string | null;
   cancelAtPeriodEnd: boolean;
   isBillingExempt: boolean;
-  stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  /** Who sold the plan: "stripe" | "web" | "apple" | "google". */
+  billingSource: string;
+  billingCustomerId: string;
+  billingTransactionId: string;
+  billingProductId: string;
+  netMonthlyCents: number;
 };
 
 type SubscriberPage = {
@@ -82,8 +86,21 @@ function formatDate(iso: string | null) {
   }
 }
 
-function stripeCustomerUrl(customerId: string, isTest: boolean) {
-  if (!customerId) return null;
+/**
+ * Deep link to the customer record at whoever sold the plan.
+ *
+ * Only the web channel has one we can build: its identifier is a customer id
+ * at the card processor. An App Store or Google Play subscriber's identifier
+ * is a transaction id or purchase token, and those consoles expose no
+ * per-customer URL — so we return null and the UI shows the id as plain text
+ * rather than a link that always 404s.
+ */
+function customerUrl(
+  source: string,
+  customerId: string,
+  isTest: boolean
+): string | null {
+  if (!customerId || source !== "web") return null;
   const base = "https://dashboard.stripe.com";
   return `${base}/${isTest ? "test/" : ""}customers/${customerId}`;
 }
@@ -383,7 +400,7 @@ export default function BillingPage() {
                 </div>
               )}
               {subs.rows.map((r) => {
-                const url = stripeCustomerUrl(r.stripeCustomerId, isTest);
+                const url = customerUrl(r.billingSource, r.billingCustomerId, isTest);
                 return (
                   <div
                     key={r.userId}
@@ -470,7 +487,7 @@ export default function BillingPage() {
                     </tr>
                   )}
                   {subs.rows.map((r) => {
-                    const url = stripeCustomerUrl(r.stripeCustomerId, isTest);
+                    const url = customerUrl(r.billingSource, r.billingCustomerId, isTest);
                     return (
                       <tr key={r.userId} className="border-t border-border">
                         <td className="px-4 py-2">

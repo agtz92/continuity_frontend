@@ -10,3 +10,8 @@ out/
 next-env.d.ts
 tsconfig.tsbuildinfo
 coverage/
+
+# Paquete de handoff de diseño: copia de src/ + HTMLs de referencia.
+# Se genera aparte (ver continuity-design-handoff/ en la raíz) y se
+# desincroniza del código real, así que no se versiona.
+docs/design/

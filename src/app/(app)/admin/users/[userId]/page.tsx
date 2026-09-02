@@ -55,8 +55,8 @@ type AdminUserDetail = {
   isAdmin: boolean;
   isBillingExempt: boolean;
   planRenewsAt: string | null;
-  stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  billingCustomerId: string;
+  billingTransactionId: string;
   createdAt: string | null;
   lastSignInAt: string | null;
   emailConfirmedAt: string | null;
@@ -289,12 +289,12 @@ export default function AdminUserDetailPage() {
           <dl className="space-y-1 text-sm">
             <Field
               label="Customer"
-              value={user.stripeCustomerId || "—"}
+              value={user.billingCustomerId || "—"}
               mono
             />
             <Field
               label="Subscription"
-              value={user.stripeSubscriptionId || "—"}
+              value={user.billingTransactionId || "—"}
               mono
             />
           </dl>
