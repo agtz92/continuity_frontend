@@ -16,7 +16,7 @@ type Period = "monthly" | "annual";
 // the confirmation modal.
 const PRICE_PER_MONTH: Record<Plan, Record<Period, string>> = {
   pro: { monthly: "9", annual: "7" },
-  studio: { monthly: "24", annual: "19" },
+  studio: { monthly: "19", annual: "15.83" },
 };
 
 export function SwitchPeriodModal({

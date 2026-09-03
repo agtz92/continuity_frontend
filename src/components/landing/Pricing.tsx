@@ -58,6 +58,17 @@ function PricingCard({
         <span className="text-sm text-ls-text-secondary">{cadence}</span>
       </div>
 
+      {/*
+        Per-tier saving. It used to be one line under the toggle, but the tiers
+        don't discount by the same amount — Pro saves 22% a year and Studio 17%
+        — so a single figure was wrong for one of them either way.
+      */}
+      <div className="mt-1 h-5">
+        {isPaid && period === "annual" ? (
+          <span className="text-xs text-ls-ochre">{t("annualSaving")}</span>
+        ) : null}
+      </div>
+
       {isPaid ? (
         <p className="mt-4 text-sm text-ls-text-secondary">
           {t("inheritsFrom")}
@@ -133,11 +144,6 @@ function BillingToggle({
           {t("annual")}
         </button>
       </div>
-      {period === "annual" ? (
-        <span className="text-xs text-ls-ochre">{t("annualHint")}</span>
-      ) : (
-        <span className="text-xs text-transparent select-none">.</span>
-      )}
     </div>
   );
 }

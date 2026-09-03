@@ -1691,8 +1691,7 @@
       "popular": "Más popular",
       "billingToggle": {
         "monthly": "Mensual",
-        "annual": "Anual",
-        "annualHint": "Ahorra ~22% pagando anual"
+        "annual": "Anual"
       },
       "tiers": {
         "free": {
@@ -1717,6 +1716,7 @@
           "priceAnnual": "$7",
           "priceCadence": "USD al mes",
           "priceCadenceAnnual": "USD al mes, facturado anual",
+          "annualSaving": "Ahorra 22%",
           "inheritsFrom": "Todo lo de Free, más:",
           "perks": [
             "25 proyectos activos, 200 tareas por proyecto",
@@ -1733,10 +1733,11 @@
         },
         "studio": {
           "name": "Studio",
-          "price": "$24",
-          "priceAnnual": "$19",
+          "price": "$19",
+          "priceAnnual": "$15.83",
           "priceCadence": "USD al mes",
           "priceCadenceAnnual": "USD al mes, facturado anual",
+          "annualSaving": "Ahorra 17%",
           "inheritsFrom": "Todo lo de Pro, más:",
           "perks": [
             "Proyectos, tareas y rutinas ilimitadas",
