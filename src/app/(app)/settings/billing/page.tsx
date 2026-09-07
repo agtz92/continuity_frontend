@@ -142,7 +142,7 @@ export default function BillingSettingsPage() {
     const periodParam = params?.get("period");
     if (!upgrade || !periodParam) return;
     if (usage.is_billing_exempt) return;
-    if (usage.store_managed) return;
+    if (usage.externally_managed) return;
     if (usage.plan !== "free") return;
     const planEnum = upgrade.toUpperCase();
     const periodEnum = periodParam.toUpperCase();
@@ -175,11 +175,13 @@ export default function BillingSettingsPage() {
   const renewsAt = usage?.plan_renews_at ?? null;
   const subscriptionPeriod = usage?.subscription_period ?? null;
   const cancelScheduled = usage?.cancel_at_period_end ?? false;
-  // Apple and Google own the payment method, the plan switcher and the
-  // cancel button for anything bought in their stores. We can show the plan
-  // here, but every control has to point back at the store — our Stripe
-  // portal knows nothing about that subscription.
-  const storeManaged = usage?.store_managed ?? false;
+  // Nobody's subscription is ours to change any more: the stores own the
+  // ones they sold, and the web moved to RevenueCat's customer portal. So we
+  // show the plan and point at whoever can actually change it.
+  const externallyManaged = usage?.externally_managed ?? false;
+  const manageUrl = usage?.manage_url ?? null;
+  const boughtInStore =
+    usage?.billing_source === "apple" || usage?.billing_source === "google";
   const storeName =
     usage?.billing_source === "apple"
       ? t("storeApple")
@@ -209,7 +211,7 @@ export default function BillingSettingsPage() {
   // change plans through the Stripe Customer Portal instead — creating a
   // brand-new checkout for an existing customer would spawn a parallel
   // subscription, not upgrade the current one.
-  const showUpgradeCards = !isExempt && !storeManaged && plan === "free";
+  const showUpgradeCards = !isExempt && !externallyManaged && plan === "free";
   const tiersToShow: PaidTier[] = showUpgradeCards ? ["pro", "studio"] : [];
 
   return (
@@ -227,7 +229,7 @@ export default function BillingSettingsPage() {
               </span>
             )}
           </div>
-          {hasSubscription && !isExempt && !storeManaged && (
+          {hasSubscription && !isExempt && !externallyManaged && (
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
@@ -273,13 +275,17 @@ export default function BillingSettingsPage() {
           <div className="text-xs text-text-muted mb-3">
             {t("exemptBlurb", { plan: planLabel })}
           </div>
-        ) : storeManaged ? (
+        ) : externallyManaged ? (
           <div className="mb-3 rounded-lg border border-border bg-bg px-3 py-2 text-xs text-text-muted">
             <div className="font-semibold text-text mb-0.5">
-              {t("storeManagedTitle", { store: storeName })}
+              {boughtInStore
+                ? t("storeManagedTitle", { store: storeName })
+                : t("portalManagedTitle")}
             </div>
             <div className="leading-snug">
-              {t("storeManagedBlurb", { store: storeName })}
+              {boughtInStore
+                ? t("storeManagedBlurb", { store: storeName })
+                : t("portalManagedBlurb")}
               {renewsAt
                 ? ` ${t("renewsAtWithDays", {
                     date: new Date(renewsAt).toLocaleDateString(),
@@ -287,6 +293,22 @@ export default function BillingSettingsPage() {
                   })}`
                 : ""}
             </div>
+            {/*
+              Only stores get a link here. A web subscriber's `manage_url` is
+              this very page, so rendering it would be a button that reloads
+              what you are already looking at; the portal link is per
+              subscription and arrives with the Web SDK in phase B.
+            */}
+            {boughtInStore && manageUrl ? (
+              <a
+                href={manageUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1.5 inline-block font-medium text-accent hover:underline"
+              >
+                {t("manageInStore", { store: storeName })}
+              </a>
+            ) : null}
           </div>
         ) : cancelScheduled && renewsAt ? (
           <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">

@@ -49,13 +49,21 @@ export type UsageSnapshot = {
   subscription_period: "monthly" | "annual" | null;
   cancel_at_period_end: boolean;
   /** Which channel sold the current plan. "" for free and exempt accounts. */
-  billing_source: "" | "stripe" | "apple" | "google";
+  billing_source: "" | "web" | "apple" | "google";
   /**
-   * True when Apple or Google owns this subscription. The web can then show
-   * the plan but must not offer to change or cancel it — only the store that
-   * sold it can. See backend docs/integracion-pagos-web-y-movil.md.
+   * True for every paid source, web included. Since the web moved to
+   * RevenueCat's customer portal we no longer own a checkout or a cancel
+   * button for anyone, so this is the flag to check before offering to sell,
+   * change or cancel a plan. Replaced `store_managed`, which was true only
+   * for Apple and Google.
    */
-  store_managed: boolean;
+  externally_managed: boolean;
+  /**
+   * Where to send this person to manage their plan, or null when there is
+   * nothing to manage (free and exempt accounts). Resolved by the server so
+   * web and mobile can't drift. See backend `core/billing/manage.py`.
+   */
+  manage_url: string | null;
 };
 
 export async function getUsage(): Promise<UsageSnapshot> {
