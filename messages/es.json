@@ -373,7 +373,7 @@
       "admin": "Admin (staff)",
       "freeBlurb": "Sube a Pro o Studio cuando necesites más espacio o más asistente.",
       "exemptBadge": "Cortesía del equipo",
-      "exemptBlurb": "Tu cuenta tiene el plan {plan} sin costo, cortesía del equipo. No verás cobros de Stripe mientras tengas esta exención.",
+      "exemptBlurb": "Tu cuenta tiene el plan {plan} sin costo, cortesía del equipo. No verás ningún cobro mientras tengas esta exención.",
       "storeApple": "App Store",
       "storeGoogle": "Google Play",
       "storeManagedTitle": "Tu suscripción se compró en {store}",
@@ -394,7 +394,7 @@
       "billingMonthly": "Mensual",
       "billingAnnual": "Anual",
       "billingAnnualHint": "Ahorra ~22% con pago anual",
-      "checkoutSuccess": "¡Listo! Tu plan se activará en cuanto Stripe confirme el pago.",
+      "checkoutSuccess": "¡Listo! Tu plan se activará en cuanto se confirme el pago.",
       "checkoutError": "No se pudo abrir el checkout. Intenta de nuevo en unos segundos."
     },
     "plugins": {

@@ -373,7 +373,7 @@
       "admin": "Admin (staff)",
       "freeBlurb": "Upgrade to Pro or Studio when you need more room or more AI.",
       "exemptBadge": "Team comp",
-      "exemptBlurb": "Your account has the {plan} plan free of charge, courtesy of the team. You won't see Stripe charges while this exemption is active.",
+      "exemptBlurb": "Your account has the {plan} plan free of charge, courtesy of the team. You won't be charged while this exemption is active.",
       "storeApple": "the App Store",
       "storeGoogle": "Google Play",
       "storeManagedTitle": "Your subscription was bought on {store}",
@@ -394,7 +394,7 @@
       "billingMonthly": "Monthly",
       "billingAnnual": "Annual",
       "billingAnnualHint": "Save ~22% paying annually",
-      "checkoutSuccess": "All set! Your plan will activate as soon as Stripe confirms the payment.",
+      "checkoutSuccess": "All set! Your plan will activate as soon as the payment is confirmed.",
       "checkoutError": "Couldn't open checkout. Please try again in a moment."
     },
     "plugins": {

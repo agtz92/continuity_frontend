@@ -159,7 +159,7 @@ export default function BillingPage() {
                   : "border-green-500/40 bg-green-500/10 text-green-400")
               }
             >
-              {isTest ? "Stripe: TEST MODE" : "Stripe: LIVE"}
+              {isTest ? "Sandbox: acepta compras de prueba" : "Producción"}
             </span>
           )}
           <button
