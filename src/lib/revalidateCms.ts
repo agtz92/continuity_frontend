@@ -6,7 +6,7 @@
  * which Next.js will do on its own after the `revalidate` interval.
  */
 export async function revalidateCmsCache(payload: {
-  kind: "post" | "page" | "resource" | "category" | "all";
+  kind: "post" | "page" | "resource" | "category" | "beta" | "all";
   slug?: string;
   path?: string;
 }): Promise<void> {

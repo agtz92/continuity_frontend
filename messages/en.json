@@ -1458,14 +1458,18 @@
       "beta": "Beta",
       "signIn": "Login",
       "dashboard": "Go to dashboard",
-      "ctaShort": "Join beta"
+      "ctaShort": "Get started free",
+      "ctaShortBeta": "Join beta"
     },
     "hero": {
-      "eyebrow": "Currently in private beta. 50 spots available.",
+      "eyebrow": "Free to start. No card.",
+      "eyebrowBeta": "Currently in private beta. {spots} spots available.",
       "headline": "Finish what you start.",
       "subheadline": "The project manager for people who start more than they finish. Built for founders, freelancers, and side-project builders who keep abandoning what matters most.",
-      "ctaPrimary": "Get beta access — free",
-      "ctaSecondary": "No credit card. Lifetime free for the first 50 testers.",
+      "ctaPrimary": "Start free",
+      "ctaPrimaryBeta": "Get beta access — free",
+      "ctaSecondary": "No credit card. The free plan doesn't expire.",
+      "ctaSecondaryBeta": "No credit card. Lifetime free for the first 50 testers.",
       "scrollHint": "See how it works"
     },
     "recognition": {
@@ -1504,7 +1508,8 @@
       "p3": "Never abandoned. Never drifting. Never lost in the graveyard of 'I'll get to it later.'",
       "p4": "Because the cost of unfinished work isn't time. It's competitive position. It's trust. It's the slow erosion of your relationship with your own ideas.",
       "p5": "We built continuu.it to give you that back.",
-      "cta": "Get beta access"
+      "cta": "Start free",
+      "ctaBeta": "Get beta access"
     },
     "features": {
       "intro": {
@@ -1665,7 +1670,8 @@
           "body": "continuu.it nudges, summarizes, reminds, and ritualizes. You just have to answer five questions every Sunday and pick what's next."
         }
       ],
-      "cta": "Start your beta — free for life"
+      "cta": "Start free",
+      "ctaBeta": "Start your beta — free for life"
     },
     "beta": {
       "eyebrow": "Currently in private beta",
@@ -1768,8 +1774,10 @@
       "p4": "What if you decided, today, to do something about the seventeen things you started and never finished?",
       "p5": "Even one of them. Pick one. Open it. Decide if it lives or dies. Make the call.",
       "p6": "That's the whole game. The rest of your life is downstream of that single habit.",
-      "cta": "Join the beta",
-      "subCta": "Free for life. No credit card. 50 spots.",
+      "cta": "Start free",
+      "ctaBeta": "Join the beta",
+      "subCta": "No credit card. The free plan doesn't expire.",
+      "subCtaBeta": "Free for life. No credit card. 50 spots.",
       "tagline": "Finish what you start."
     },
     "footer": {

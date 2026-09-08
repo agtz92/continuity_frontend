@@ -20,6 +20,7 @@ const TAGS = {
   helpResource: (slug: string) => `cms:help-resource:${slug}`,
   helpCategoryResources: (slug: string) => `cms:help-category:${slug}`,
   platformStats: "public:platform-stats",
+  betaProgram: "public:beta-program",
 } as const;
 
 export const PUBLIC_CMS_TAGS = TAGS;
@@ -356,4 +357,31 @@ export async function fetchHelpResource(
     [TAGS.helpResource(slug), TAGS.helpResources]
   );
   return data?.publicHelpResource ?? null;
+}
+
+export type PublicBetaProgram = {
+  enrollmentOpen: boolean;
+  spotsLeft: number;
+};
+
+/**
+ * Whether the site should still be selling the beta.
+ *
+ * Mirrors the `beta_enrollment_open` switch in /admin/beta, so closing
+ * enrolment there also closes the beta messaging here instead of leaving the
+ * landing advertising spots that signup will refuse to grant. Revalidates on
+ * the same 10-minute window as the rest of the marketing content, so the
+ * change shows up without a deploy.
+ *
+ * Falls back to closed when the backend is unreachable: a landing that
+ * undersells is recoverable, one that promises a beta we can't honor is not.
+ */
+export async function fetchBetaProgram(): Promise<PublicBetaProgram> {
+  const data = await publicFetch<{ publicBetaProgram: PublicBetaProgram }>(
+    `query { publicBetaProgram { enrollmentOpen spotsLeft } }`,
+    {},
+    [TAGS.betaProgram],
+    600
+  );
+  return data?.publicBetaProgram ?? { enrollmentOpen: false, spotsLeft: 0 };
 }

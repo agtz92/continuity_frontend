@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
+import { type BetaProgram } from "./betaCta";
 
 type TierKey = "free" | "pro" | "studio";
 type Period = "monthly" | "annual";
@@ -148,7 +149,7 @@ function BillingToggle({
   );
 }
 
-export default function Pricing() {
+export default function Pricing({ beta }: { beta: BetaProgram }) {
   const t = useTranslations("landing.pricing");
   const [period, setPeriod] = useState<Period>("annual");
 
@@ -174,16 +175,22 @@ export default function Pricing() {
         <PricingCard tierKey="studio" period={period} />
       </div>
 
-      <div className="ls-reveal mt-16 mx-auto max-w-2xl rounded-2xl border border-ls-ochre/30 bg-gradient-to-r from-ls-ochre/10 via-ls-vermillion/10 to-ls-ochre/10 p-6 text-center">
-        <p className="text-base text-ls-text-primary leading-relaxed">
-          {t("betaBanner")}
-        </p>
-        <div className="mt-5">
-          <CTAButton href="#beta" variant="primary" size="md">
-            {t("betaCta")}
-          </CTAButton>
+      {/*
+        Only while the beta runs. The banner promises Studio free for life,
+        which is not something to leave on screen once no spot can be granted.
+      */}
+      {beta.enrollmentOpen ? (
+        <div className="ls-reveal mt-16 mx-auto max-w-2xl rounded-2xl border border-ls-ochre/30 bg-gradient-to-r from-ls-ochre/10 via-ls-vermillion/10 to-ls-ochre/10 p-6 text-center">
+          <p className="text-base text-ls-text-primary leading-relaxed">
+            {t("betaBanner")}
+          </p>
+          <div className="mt-5">
+            <CTAButton href="#beta" variant="primary" size="md">
+              {t("betaCta")}
+            </CTAButton>
+          </div>
         </div>
-      </div>
+      ) : null}
     </SectionContainer>
   );
 }

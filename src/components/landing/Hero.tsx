@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
+import { betaKey, ctaHref, type BetaProgram } from "./betaCta";
 
-export default function Hero() {
+export default function Hero({ beta }: { beta: BetaProgram }) {
   const t = useTranslations("landing.hero");
 
   return (
@@ -26,7 +27,7 @@ export default function Hero() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ls-ochre opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ls-ochre" />
           </span>
-          {t("eyebrow")}
+          {t(betaKey(beta, "eyebrow"), { spots: beta.spotsLeft })}
         </p>
 
         <AnimatedHeadline
@@ -41,10 +42,10 @@ export default function Hero() {
         </p>
 
         <div className="ls-fade-up ls-fade-up-3 mt-10 flex flex-col items-center gap-3">
-          <CTAButton href="#beta" variant="primary" size="lg">
-            {t("ctaPrimary")}
+          <CTAButton href={ctaHref(beta)} variant="primary" size="lg">
+            {t(betaKey(beta, "ctaPrimary"))}
           </CTAButton>
-          <p className="text-xs text-ls-text-secondary/80">{t("ctaSecondary")}</p>
+          <p className="text-xs text-ls-text-secondary/80">{t(betaKey(beta, "ctaSecondary"))}</p>
         </div>
 
         {/* Scroll hint */}

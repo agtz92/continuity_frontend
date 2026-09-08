@@ -11,6 +11,7 @@ import {
   ADMIN_SET_BETA,
   ADMIN_SET_BILLING_EXEMPT,
 } from "@/lib/graphql";
+import { revalidateCmsCache } from "@/lib/revalidateCms";
 import { toast } from "@/lib/toast";
 
 type BetaUserRow = {
@@ -132,6 +133,12 @@ export default function AdminBetaPage() {
   const saveConfig = async (key: string, value: unknown) => {
     try {
       await setConfig({ variables: { key, valueJson: JSON.stringify(value) } });
+      // The landing reads these two through a cached public query, so without
+      // busting the tag the site keeps advertising beta spots for up to ten
+      // minutes after enrolment is closed here.
+      if (key === "beta_enrollment_open" || key === "beta_spot_cap") {
+        void revalidateCmsCache({ kind: "beta" });
+      }
       toast.success(`Config "${key}" actualizada`);
     } catch (e) {
       toast.error(`Error: ${(e as Error).message}`);

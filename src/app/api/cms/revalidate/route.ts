@@ -59,12 +59,21 @@ export async function POST(request: Request) {
       }
       break;
     }
+    case "beta": {
+      // The landing reads `beta_enrollment_open` through this tag. Without
+      // busting it, closing enrolment in /admin/beta keeps advertising spots
+      // for up to the 10-minute revalidate window, and whoever flipped the
+      // switch reasonably concludes it didn't work.
+      tagsHit.push(PUBLIC_CMS_TAGS.betaProgram);
+      break;
+    }
     case "all": {
       tagsHit.push(
         PUBLIC_CMS_TAGS.blogPosts,
         PUBLIC_CMS_TAGS.navPages,
         PUBLIC_CMS_TAGS.helpCategories,
         PUBLIC_CMS_TAGS.helpResources,
+        PUBLIC_CMS_TAGS.betaProgram,
       );
       break;
     }

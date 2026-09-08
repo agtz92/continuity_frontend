@@ -4,10 +4,11 @@ import { useTranslations } from "next-intl";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
+import { betaKey, ctaHref, type BetaProgram } from "./betaCta";
 
 type Step = { title: string; body: string };
 
-export default function HowItWorks() {
+export default function HowItWorks({ beta }: { beta: BetaProgram }) {
   const t = useTranslations("landing.howItWorks");
   const steps = t.raw("steps") as Step[];
 
@@ -40,8 +41,8 @@ export default function HowItWorks() {
       </div>
 
       <div className="ls-reveal mt-16 text-center">
-        <CTAButton href="#beta" variant="primary" size="lg">
-          {t("cta")}
+        <CTAButton href={ctaHref(beta)} variant="primary" size="lg">
+          {t(betaKey(beta, "cta"))}
         </CTAButton>
       </div>
     </SectionContainer>

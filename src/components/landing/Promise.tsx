@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
+import { betaKey, ctaHref, type BetaProgram } from "./betaCta";
 
-export default function Promise() {
+export default function Promise({ beta }: { beta: BetaProgram }) {
   const t = useTranslations("landing.promise");
 
   return (
@@ -38,8 +39,8 @@ export default function Promise() {
         </div>
 
         <div className="ls-reveal mt-12">
-          <CTAButton href="#beta" variant="primary" size="lg">
-            {t("cta")}
+          <CTAButton href={ctaHref(beta)} variant="primary" size="lg">
+            {t(betaKey(beta, "cta"))}
           </CTAButton>
         </div>
       </div>

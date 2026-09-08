@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import SectionContainer from "./primitives/SectionContainer";
 import AnimatedHeadline from "./primitives/AnimatedHeadline";
 import CTAButton from "./primitives/CTAButton";
+import { betaKey, ctaHref, type BetaProgram } from "./betaCta";
 
-export default function FinalCall() {
+export default function FinalCall({ beta }: { beta: BetaProgram }) {
   const t = useTranslations("landing.finalCall");
 
   return (
@@ -48,10 +49,10 @@ export default function FinalCall() {
         </div>
 
         <div className="ls-reveal mt-16 flex flex-col items-center gap-3">
-          <CTAButton href="#beta" variant="primary" size="lg">
-            {t("cta")}
+          <CTAButton href={ctaHref(beta)} variant="primary" size="lg">
+            {t(betaKey(beta, "cta"))}
           </CTAButton>
-          <p className="text-sm text-ls-text-secondary">{t("subCta")}</p>
+          <p className="text-sm text-ls-text-secondary">{t(betaKey(beta, "subCta"))}</p>
         </div>
 
         <p className="ls-reveal mt-24 font-display text-3xl sm:text-4xl text-ls-ochre italic">

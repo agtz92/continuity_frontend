@@ -7,8 +7,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { marketingHref, switchLocalePath } from "@/i18n/marketingHref";
 import { SUPPORTED_LOCALES, type Locale } from "@/i18n/config";
 import CTAButton from "./primitives/CTAButton";
+import { BETA_CLOSED, betaKey, type BetaProgram } from "./betaCta";
 
-export default function MarketingNav() {
+export default function MarketingNav({ beta = BETA_CLOSED }: { beta?: BetaProgram }) {
   const t = useTranslations("landing.nav");
   const tLang = useTranslations("landing.langSwitcher");
   const locale = useLocale() as Locale;
@@ -128,8 +129,8 @@ export default function MarketingNav() {
                 {t("signIn")}
               </CTAButton>
               <span className="hidden sm:inline-block">
-                <CTAButton href={marketingHref(locale, "/#beta")} variant="primary" size="md">
-                  {t("ctaShort")}
+                <CTAButton href={marketingHref(locale, beta.enrollmentOpen ? "/#beta" : "/#pricing")} variant="primary" size="md">
+                  {t(betaKey(beta, "ctaShort"))}
                 </CTAButton>
               </span>
             </>

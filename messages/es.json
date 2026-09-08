@@ -1458,14 +1458,18 @@
       "beta": "Beta",
       "signIn": "Iniciar sesión",
       "dashboard": "Ir al dashboard",
-      "ctaShort": "Unirme a la beta"
+      "ctaShort": "Empezar gratis",
+      "ctaShortBeta": "Unirme a la beta"
     },
     "hero": {
-      "eyebrow": "En beta privada. Quedan 50 lugares.",
+      "eyebrow": "Gratis para empezar. Sin tarjeta.",
+      "eyebrowBeta": "En beta privada. Quedan {spots} lugares.",
       "headline": "Termina lo que empiezas.",
       "subheadline": "El gestor de proyectos para quienes empiezan más de lo que terminan. Para founders, freelancers y constructores de side projects que siguen abandonando lo que más importa.",
-      "ctaPrimary": "Acceder a la beta — gratis",
-      "ctaSecondary": "Sin tarjeta. Gratis de por vida para los primeros 50.",
+      "ctaPrimary": "Empezar gratis",
+      "ctaPrimaryBeta": "Acceder a la beta — gratis",
+      "ctaSecondary": "Sin tarjeta. El plan gratis no caduca.",
+      "ctaSecondaryBeta": "Sin tarjeta. Gratis de por vida para los primeros 50.",
       "scrollHint": "Mira cómo funciona"
     },
     "recognition": {
@@ -1504,7 +1508,8 @@
       "p3": "Nunca abandonado. Nunca a la deriva. Nunca perdido en el cementerio del 'algún día le entro'.",
       "p4": "Porque el costo del trabajo a medias no es tiempo. Es posición competitiva. Es confianza. Es la erosión lenta de tu relación con tus propias ideas.",
       "p5": "Construimos continuu.it para devolverte eso.",
-      "cta": "Acceder a la beta"
+      "cta": "Empezar gratis",
+      "ctaBeta": "Acceder a la beta"
     },
     "features": {
       "intro": {
@@ -1665,7 +1670,8 @@
           "body": "continuu.it empuja, resume, recuerda y ritualiza. Tú solo tienes que responder cinco preguntas cada domingo y elegir qué sigue."
         }
       ],
-      "cta": "Empieza tu beta — gratis de por vida"
+      "cta": "Empezar gratis",
+      "ctaBeta": "Empieza tu beta — gratis de por vida"
     },
     "beta": {
       "eyebrow": "En beta privada",
@@ -1768,8 +1774,10 @@
       "p4": "¿Y si decidieras, hoy, hacer algo con las diecisiete cosas que empezaste y nunca terminaste?",
       "p5": "Aunque sea una. Elige una. Ábrela. Decide si vive o muere. Toma la decisión.",
       "p6": "Ese es todo el juego. El resto de tu vida es consecuencia de ese hábito.",
-      "cta": "Unirme a la beta",
-      "subCta": "Gratis de por vida. Sin tarjeta. 50 lugares.",
+      "cta": "Empezar gratis",
+      "ctaBeta": "Unirme a la beta",
+      "subCta": "Sin tarjeta. El plan gratis no caduca.",
+      "subCtaBeta": "Gratis de por vida. Sin tarjeta. 50 lugares.",
       "tagline": "Termina lo que empiezas."
     },
     "footer": {
