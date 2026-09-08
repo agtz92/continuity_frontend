@@ -5,11 +5,7 @@ import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { Check, Loader2 } from "lucide-react";
-import {
-  COMPLETE_ONBOARDING,
-  CREATE_CHECKOUT_SESSION,
-  ONBOARDING_STATE_QUERY,
-} from "@/lib/graphql";
+import { COMPLETE_ONBOARDING, ONBOARDING_STATE_QUERY } from "@/lib/graphql";
 
 type PlanKey = "free" | "pro" | "studio";
 
@@ -54,7 +50,6 @@ export function Step4Plan({
   const [completeOnboarding] = useMutation(COMPLETE_ONBOARDING, {
     refetchQueries: [{ query: ONBOARDING_STATE_QUERY }],
   });
-  const [createCheckout] = useMutation(CREATE_CHECKOUT_SESSION);
 
   // ── Beta / exempt branch ─────────────────────────────────────────────
   if (isBillingExempt) {
@@ -148,28 +143,21 @@ export function Step4Plan({
       onContinue();
       return;
     }
-    // Paid tier: mark onboarding done first so the Stripe return doesn't
-    // bounce the user back here, then redirect to Stripe Checkout. This path
-    // leaves the flow entirely, so it skips the step-5 customize intro.
+    // Paid tier: finish onboarding first so the purchase doesn't bounce the
+    // user back here, then hand off to the billing page, which owns the only
+    // purchase flow there is now (RevenueCat's Web SDK) and opens it straight
+    // away from these params. This path leaves the flow entirely, so it skips
+    // the step-5 customize intro.
     setCheckingOut(true);
     try {
       await completeOnboarding({ variables: { mode: "finished" } });
-      const planEnum = selected.toUpperCase();
-      const result = await createCheckout({
-        variables: { plan: planEnum, period: "MONTHLY" },
-      });
-      const url = result.data?.createCheckoutSession?.url;
-      if (url) {
-        window.location.assign(url);
-      } else {
-        // No URL returned — fall through to step 5 so the user can still
-        // finish onboarding and retry billing later from /settings/billing.
-        onContinue();
-      }
+      window.location.assign(
+        `/settings/billing?upgrade=${selected}&period=monthly`
+      );
     } catch {
       setCheckingOut(false);
-      // Billing config errors etc. — let the user keep going so they're not
-      // stuck on the onboarding screen.
+      // Onboarding couldn't be marked done — let the user keep going rather
+      // than stranding them here; billing is still reachable from settings.
       onContinue();
     }
   };

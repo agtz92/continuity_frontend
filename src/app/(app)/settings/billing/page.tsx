@@ -1,37 +1,48 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@apollo/client";
-import { useLocale, useTranslations } from "next-intl";
-import { Check, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Check, Loader2, Sparkles } from "lucide-react";
+import type { Offering, Package } from "@revenuecat/purchases-js";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { PlanBadge } from "@/components/assistant/PlanBadge";
-import { RetentionFlow } from "@/components/settings/RetentionFlow";
-import { DowngradeConfirmModal } from "@/components/settings/DowngradeConfirmModal";
-import { SwitchPeriodModal } from "@/components/settings/SwitchPeriodModal";
-import {
-  CREATE_CHECKOUT_SESSION,
-  CREATE_PORTAL_SESSION,
-  REACTIVATE_SUBSCRIPTION,
-} from "@/lib/graphql";
 import { getUsage, type UsageSnapshot } from "@/lib/assistantApi";
-import { useBillingErrorMessage } from "@/lib/billingErrors";
+import {
+  getCurrentOffering,
+  getManagementUrl,
+  getPurchases,
+  isWebBillingConfigured,
+} from "@/lib/revenuecat";
 import { daysUntil } from "@/lib/date";
 import { toast } from "@/lib/toast";
 
 type Period = "monthly" | "annual";
 type PaidTier = "pro" | "studio";
 
+/**
+ * Package identifiers as configured in the RevenueCat offering.
+ *
+ * RevenueCat says "yearly" where we say "annual" everywhere else; the mapping
+ * is pinned here so that vocabulary difference stays in one place instead of
+ * leaking into the rest of the page.
+ */
+const PACKAGE_ID: Record<PaidTier, Record<Period, string>> = {
+  pro: { monthly: "$pro_monthly", annual: "$pro_yearly" },
+  studio: { monthly: "$studio_monthly", annual: "$studio_yearly" },
+};
+
 export default function BillingSettingsPage() {
   const t = useTranslations("settings.billing");
   const tAssistant = useTranslations("assistant.usage");
-  const locale = useLocale();
-  const billingError = useBillingErrorMessage();
   const params = useSearchParams();
   const router = useRouter();
+
   const [usage, setUsage] = useState<UsageSnapshot | null>(null);
   const [period, setPeriod] = useState<Period>("monthly");
+  const [offering, setOffering] = useState<Offering | null>(null);
+  const [buying, setBuying] = useState(false);
+  const [manageUrl, setManageUrl] = useState<string | null>(null);
 
   const refetchUsage = useCallback(() => {
     getUsage()
@@ -45,143 +56,99 @@ export default function BillingSettingsPage() {
     refetchUsage();
   }, [refetchUsage]);
 
-  const [showRetention, setShowRetention] = useState(false);
-  const [showDowngrade, setShowDowngrade] = useState(false);
-  const [showSwitchPeriod, setShowSwitchPeriod] = useState(false);
+  const plan = (usage?.plan ?? "free") as "free" | "pro" | "studio" | "admin";
+  const isExempt = usage?.is_billing_exempt ?? false;
+  const externallyManaged = usage?.externally_managed ?? false;
+  const boughtInStore =
+    usage?.billing_source === "apple" || usage?.billing_source === "google";
 
-  // Handle the return from Stripe Checkout. On success, the webhook that
-  // promotes the plan (`checkout.session.completed`) is asynchronous and races
-  // with this redirect, so the first `usage` read is almost always still
-  // "free". Poll briefly until the subscription shows up so the UI reflects the
-  // new plan without a manual reload. Guarded so it runs once per return.
-  const returnHandledRef = useRef(false);
+  // Prices come from RevenueCat, never from our own catalog: it knows the
+  // customer's currency and any active discount, and hardcoding them here is
+  // how a listed price drifts from the one actually charged.
+  const canSell = isWebBillingConfigured() && !isExempt && !externallyManaged;
+
   useEffect(() => {
-    const status = params?.get("status");
-    if (!status || returnHandledRef.current) return;
-    returnHandledRef.current = true;
-
-    if (status === "cancelled") {
-      toast.info(t("checkoutCancelled"));
-      return;
-    }
-    if (status !== "success") return;
-
-    toast.success(t("checkoutSuccess"));
-
+    if (!canSell || plan !== "free") return;
     let cancelled = false;
-    let attempts = 0;
-    const MAX_ATTEMPTS = 6; // ~ up to 10s of webhook lag (immediate + 5×2s)
-    const poll = async () => {
-      if (cancelled) return;
-      attempts += 1;
-      try {
-        const snap = await getUsage();
-        if (cancelled) return;
-        setUsage(snap);
-        // Stop as soon as the subscription is reflected.
-        if (snap.has_subscription || snap.plan !== "free") return;
-      } catch {
-        /* assistant might be offline — keep retrying up to the cap */
-      }
-      if (!cancelled && attempts < MAX_ATTEMPTS) {
-        setTimeout(poll, 2000);
-      }
-    };
-    void poll();
-
+    getCurrentOffering()
+      .then((o) => {
+        if (!cancelled) setOffering(o);
+      })
+      .catch(() => {
+        /* offerings unreachable — the page still shows plan and usage */
+      });
     return () => {
       cancelled = true;
     };
-  }, [params, t]);
+  }, [canSell, plan]);
 
-  const [createCheckout, { loading: checkingOut }] = useMutation(
-    CREATE_CHECKOUT_SESSION,
-    {
-      onCompleted: (data) => {
-        const url = data?.createCheckoutSession?.url;
-        if (url) window.location.assign(url);
-      },
-      onError: (e) => {
-        const code = e.graphQLErrors?.[0]?.extensions?.code;
-        toast.error(code ? billingError(e) : t("checkoutError"));
-      },
-    }
-  );
-  const [createPortal, { loading: openingPortal }] = useMutation(
-    CREATE_PORTAL_SESSION,
-    {
-      onCompleted: (data) => {
-        const url = data?.createPortalSession?.url;
-        if (url) window.location.assign(url);
-      },
-      onError: (e) => {
-        const code = e.graphQLErrors?.[0]?.extensions?.code;
-        toast.error(code ? billingError(e) : t("portalError"));
-      },
-    }
-  );
-  const [reactivate, { loading: reactivating }] = useMutation(
-    REACTIVATE_SUBSCRIPTION,
-    {
-      onCompleted: () => {
-        toast.success(t("reactivateSuccess"));
-        refetchUsage();
-      },
-      onError: (e) => toast.error(billingError(e)),
-    }
-  );
-
-  // Auto-checkout when arriving from the landing pricing CTA
-  // (?upgrade=pro|studio&period=monthly|annual). Only fires once per visit
-  // and only for free users — exempt, store-managed or already-paid accounts
-  // ignore it.
-  const [autoCheckoutFired, setAutoCheckoutFired] = useState(false);
+  // A web subscriber's portal link is per subscription, so only the SDK can
+  // mint it. Store subscribers already got a usable URL from `/usage/`.
   useEffect(() => {
-    if (autoCheckoutFired || !usage) return;
+    if (!externallyManaged || boughtInStore) return;
+    let cancelled = false;
+    getManagementUrl()
+      .then((url) => {
+        if (!cancelled) setManageUrl(url);
+      })
+      .catch(() => {
+        /* leave the button out rather than render a dead one */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [externallyManaged, boughtInStore]);
+
+  const buy = useCallback(
+    async (tier: PaidTier, forPeriod: Period) => {
+      const purchases = await getPurchases();
+      const pkg: Package | undefined =
+        offering?.packagesById?.[PACKAGE_ID[tier][forPeriod]];
+      if (!purchases || !pkg) {
+        toast.error(t("checkoutError"));
+        return;
+      }
+      setBuying(true);
+      try {
+        await purchases.purchase({ rcPackage: pkg });
+        toast.success(t("checkoutSuccess"));
+        // The plan arrives through the webhook, which races this callback, so
+        // poll briefly rather than showing a stale "free" right after paying.
+        await pollUntilUpgraded(setUsage);
+      } catch (e) {
+        // The SDK throws on user-cancelled too; that isn't worth an error toast.
+        if (!isUserCancelled(e)) toast.error(t("checkoutError"));
+      } finally {
+        setBuying(false);
+      }
+    },
+    [offering, t]
+  );
+
+  // Arriving from the landing's pricing CTA (?upgrade=pro&period=annual).
+  // Opens the purchase sheet once, for free accounts only.
+  const autoFired = useRef(false);
+  useEffect(() => {
+    if (autoFired.current || !usage || !offering) return;
     const upgrade = params?.get("upgrade");
     const periodParam = params?.get("period");
-    if (!upgrade || !periodParam) return;
-    if (usage.is_billing_exempt) return;
-    if (usage.externally_managed) return;
-    if (usage.plan !== "free") return;
-    const planEnum = upgrade.toUpperCase();
-    const periodEnum = periodParam.toUpperCase();
-    if (!["PRO", "STUDIO"].includes(planEnum)) return;
-    if (!["MONTHLY", "ANNUAL"].includes(periodEnum)) return;
-    setAutoCheckoutFired(true);
-    // Drop `?upgrade=…` from the history entry *before* leaving for Stripe.
-    // Otherwise the entry survives, and pressing Back after paying returns
-    // here while the webhook has not promoted the plan yet — `plan` still
-    // reads "free", this effect fires again, and the user ends up with two
-    // parallel subscriptions and two charges. `replace` (not `push`) is what
-    // makes the offending entry unreachable.
+    if (upgrade !== "pro" && upgrade !== "studio") return;
+    if (periodParam !== "monthly" && periodParam !== "annual") return;
+    if (!canSell || plan !== "free") return;
+    autoFired.current = true;
+    // Drop the params so a refresh doesn't reopen the sheet.
     router.replace("/settings/billing");
-    createCheckout({
-      variables: { plan: planEnum, period: periodEnum, locale },
-    });
-  }, [params, usage, autoCheckoutFired, createCheckout, locale, router]);
+    setPeriod(periodParam);
+    void buy(upgrade, periodParam);
+  }, [params, usage, offering, canSell, plan, router, buy]);
 
-  const plan = (usage?.plan ?? "free") as
-    | "free"
-    | "pro"
-    | "studio"
-    | "admin";
   const cap = usage?.daily_message_cap ?? null;
   const used = usage?.messages_sent_today ?? 0;
   const monthlyCap = usage?.monthly_token_cap ?? null;
   const monthlyUsed = usage?.tokens_used_month ?? 0;
-  const isExempt = usage?.is_billing_exempt ?? false;
-  const hasSubscription = usage?.has_subscription ?? false;
   const renewsAt = usage?.plan_renews_at ?? null;
-  const subscriptionPeriod = usage?.subscription_period ?? null;
   const cancelScheduled = usage?.cancel_at_period_end ?? false;
-  // Nobody's subscription is ours to change any more: the stores own the
-  // ones they sold, and the web moved to RevenueCat's customer portal. So we
-  // show the plan and point at whoever can actually change it.
-  const externallyManaged = usage?.externally_managed ?? false;
-  const manageUrl = usage?.manage_url ?? null;
-  const boughtInStore =
-    usage?.billing_source === "apple" || usage?.billing_source === "google";
+  const storeUrl = usage?.manage_url ?? null;
   const storeName =
     usage?.billing_source === "apple"
       ? t("storeApple")
@@ -198,25 +165,10 @@ export default function BillingSettingsPage() {
       ? t("pro")
       : t("free");
 
-  const handleUpgrade = (tier: PaidTier) =>
-    createCheckout({
-      variables: {
-        plan: tier.toUpperCase(),
-        period: period.toUpperCase(),
-        locale,
-      },
-    });
-
-  // Show in-app upgrade cards only for free users. Paid users (pro/studio)
-  // change plans through the Stripe Customer Portal instead — creating a
-  // brand-new checkout for an existing customer would spawn a parallel
-  // subscription, not upgrade the current one.
-  const showUpgradeCards = !isExempt && !externallyManaged && plan === "free";
-  const tiersToShow: PaidTier[] = showUpgradeCards ? ["pro", "studio"] : [];
+  const showUpgradeCards = canSell && plan === "free" && offering !== null;
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      {/* Current plan banner */}
       <div className="bg-surface/50 border border-border rounded-xl p-5 mb-5">
         <div className="text-xs text-text-muted mb-1">{t("currentPlan")}</div>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -229,46 +181,6 @@ export default function BillingSettingsPage() {
               </span>
             )}
           </div>
-          {hasSubscription && !isExempt && !externallyManaged && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                type="button"
-                disabled={openingPortal}
-                onClick={() => createPortal({ variables: { locale } })}
-                className="px-3 py-1.5 text-xs rounded-lg border border-border bg-surface text-text font-medium hover:bg-bg disabled:opacity-50"
-              >
-                {t("manageSubscription")}
-              </button>
-              {!cancelScheduled && plan === "studio" && (
-                <button
-                  type="button"
-                  onClick={() => setShowDowngrade(true)}
-                  className="px-3 py-1.5 text-xs rounded-lg text-text-muted hover:text-text hover:bg-bg"
-                >
-                  {t("downgradeToProButton")}
-                </button>
-              )}
-              {!cancelScheduled && (plan === "pro" || plan === "studio") && (
-                <button
-                  type="button"
-                  onClick={() => setShowRetention(true)}
-                  className="px-3 py-1.5 text-xs rounded-lg text-text-muted hover:text-text hover:bg-bg"
-                >
-                  {t("cancelSubscription")}
-                </button>
-              )}
-              {cancelScheduled && (
-                <button
-                  type="button"
-                  disabled={reactivating}
-                  onClick={() => reactivate()}
-                  className="px-3 py-1.5 text-xs rounded-lg bg-accent text-white font-medium hover:opacity-90 disabled:opacity-50"
-                >
-                  {t("reactivate")}
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
         {isExempt ? (
@@ -293,21 +205,11 @@ export default function BillingSettingsPage() {
                   })}`
                 : ""}
             </div>
-            {/*
-              Only stores get a link here. A web subscriber's `manage_url` is
-              this very page, so rendering it would be a button that reloads
-              what you are already looking at; the portal link is per
-              subscription and arrives with the Web SDK in phase B.
-            */}
-            {boughtInStore && manageUrl ? (
-              <a
-                href={manageUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-1.5 inline-block font-medium text-accent hover:underline"
-              >
-                {t("manageInStore", { store: storeName })}
-              </a>
+            {boughtInStore && storeUrl ? (
+              <ManageLink href={storeUrl} label={t("manageInStore", { store: storeName })} />
+            ) : null}
+            {!boughtInStore && manageUrl ? (
+              <ManageLink href={manageUrl} label={t("manageSubscription")} />
             ) : null}
           </div>
         ) : cancelScheduled && renewsAt ? (
@@ -348,99 +250,24 @@ export default function BillingSettingsPage() {
         </div>
       </div>
 
-      {/* Retention / cancel flow modal */}
-      {(plan === "pro" || plan === "studio") && (
-        <RetentionFlow
-          open={showRetention}
-          onClose={() => setShowRetention(false)}
-          plan={plan}
-          hadRetentionOffer={usage?.had_retention_offer ?? false}
-          renewsAt={renewsAt}
-          onChange={refetchUsage}
-        />
-      )}
-
-      {/* Studio → Pro downgrade confirm modal */}
-      {plan === "studio" && (
-        <DowngradeConfirmModal
-          open={showDowngrade}
-          onClose={() => setShowDowngrade(false)}
-          onSuccess={refetchUsage}
-        />
-      )}
-
-      {/* Monthly ↔ Annual period switch modal */}
-      {(plan === "pro" || plan === "studio") && subscriptionPeriod && (
-        <SwitchPeriodModal
-          open={showSwitchPeriod}
-          onClose={() => setShowSwitchPeriod(false)}
-          onSuccess={refetchUsage}
-          plan={plan}
-          currentPeriod={subscriptionPeriod}
-        />
-      )}
-
-      {/* Billing period card (only for paid users with a known period) */}
-      {!isExempt &&
-        (plan === "pro" || plan === "studio") &&
-        subscriptionPeriod && (
-          <div className="bg-surface/50 border border-border rounded-xl p-5 mb-5">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <div className="text-xs text-text-muted mb-1">
-                  {t("billingPeriod.label")}
-                </div>
-                <div className="text-sm text-text font-medium">
-                  {subscriptionPeriod === "annual"
-                    ? t("billingPeriod.currentAnnual")
-                    : t("billingPeriod.currentMonthly")}
-                </div>
-                {subscriptionPeriod === "monthly" && (
-                  <div className="text-xs text-accent mt-1">
-                    {t("billingPeriod.annualSavingsHint")}
-                  </div>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowSwitchPeriod(true)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-border bg-surface text-text font-medium hover:bg-bg"
-              >
-                {subscriptionPeriod === "monthly"
-                  ? t("billingPeriod.switchToAnnual")
-                  : t("billingPeriod.switchToMonthly")}
-              </button>
-            </div>
-          </div>
-        )}
-
-      {/* Upgrade cards */}
-      {showUpgradeCards && tiersToShow.length > 0 && (
+      {showUpgradeCards && (
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-base font-semibold text-text">
-              {plan === "free"
-                ? t("upgradeSectionTitle")
-                : t("upgradeSectionTitlePro")}
+              {t("upgradeSectionTitle")}
             </h2>
             <BillingToggle period={period} onChange={setPeriod} />
           </div>
 
-          <div
-            className={`grid gap-4 ${
-              tiersToShow.length === 2
-                ? "grid-cols-1 md:grid-cols-2"
-                : "grid-cols-1"
-            }`}
-          >
-            {tiersToShow.map((tier) => (
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+            {(["pro", "studio"] as PaidTier[]).map((tier) => (
               <TierCard
                 key={tier}
                 tier={tier}
-                period={period}
-                popular={tier === "pro" && plan === "free"}
-                disabled={checkingOut}
-                onUpgrade={() => handleUpgrade(tier)}
+                pkg={offering?.packagesById?.[PACKAGE_ID[tier][period]]}
+                popular={tier === "pro"}
+                disabled={buying}
+                onUpgrade={() => void buy(tier, period)}
               />
             ))}
           </div>
@@ -450,15 +277,56 @@ export default function BillingSettingsPage() {
   );
 }
 
+function ManageLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1.5 inline-block font-medium text-accent hover:underline"
+    >
+      {label}
+    </a>
+  );
+}
+
+/**
+ * A cancelled purchase is a normal outcome, not a failure.
+ *
+ * The SDK reports it as an error, so without this the user gets a red toast
+ * for closing a dialog they opened on purpose.
+ */
+function isUserCancelled(e: unknown): boolean {
+  const code = (e as { errorCode?: unknown })?.errorCode;
+  const message = String((e as { message?: unknown })?.message ?? "");
+  return code === "UserCancelledError" || /cancel/i.test(message);
+}
+
+/** Wait for the webhook to promote the plan, up to ~10s. */
+async function pollUntilUpgraded(
+  setUsage: (u: UsageSnapshot) => void
+): Promise<void> {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    try {
+      const snap = await getUsage();
+      setUsage(snap);
+      if (snap.has_subscription || snap.plan !== "free") return;
+    } catch {
+      /* keep trying up to the cap */
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+}
+
 function TierCard({
   tier,
-  period,
+  pkg,
   popular,
   disabled,
   onUpgrade,
 }: {
   tier: PaidTier;
-  period: Period;
+  pkg: Package | undefined;
   popular?: boolean;
   disabled: boolean;
   onUpgrade: () => void;
@@ -467,9 +335,8 @@ function TierCard({
   const tBilling = useTranslations("settings.billing");
   const perks = (t.raw("perks") as string[]).slice(0, 6);
 
-  const price = period === "annual" ? t("priceAnnual") : t("price");
-  const cadence =
-    period === "annual" ? t("priceCadenceAnnual") : t("priceCadence");
+  const product = pkg?.webBillingProduct;
+  const price = product?.currentPrice?.formattedPrice ?? "—";
   const ctaLabel =
     tier === "pro" ? tBilling("upgradeToPro") : tBilling("upgradeToStudio");
 
@@ -488,13 +355,10 @@ function TierCard({
         </span>
       )}
 
-      <div className="flex items-baseline justify-between mb-1">
-        <h3 className="text-lg font-semibold text-text">{t("name")}</h3>
-      </div>
+      <h3 className="text-lg font-semibold text-text mb-1">{t("name")}</h3>
 
       <div className="flex items-baseline gap-1 mb-1">
         <span className="text-3xl font-bold text-text">{price}</span>
-        <span className="text-xs text-text-muted">{cadence}</span>
       </div>
 
       <p className="text-xs text-text-muted mb-4">{t("inheritsFrom")}</p>
@@ -505,11 +369,7 @@ function TierCard({
             key={p}
             className="flex items-start gap-2 text-sm text-text leading-snug"
           >
-            <Check
-              size={14}
-              className="mt-0.5 text-accent shrink-0"
-              strokeWidth={3}
-            />
+            <Check size={14} className="mt-0.5 text-accent shrink-0" strokeWidth={3} />
             <span>{p}</span>
           </li>
         ))}
@@ -517,14 +377,15 @@ function TierCard({
 
       <button
         type="button"
-        disabled={disabled}
+        disabled={disabled || !pkg}
         onClick={onUpgrade}
-        className={`w-full px-4 py-2 text-sm rounded-lg font-medium transition-opacity disabled:opacity-50 ${
+        className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-lg font-medium transition-opacity disabled:opacity-50 ${
           popular
             ? "bg-accent text-white hover:opacity-90"
             : "border border-border bg-surface text-text hover:bg-bg"
         }`}
       >
+        {disabled && <Loader2 size={14} className="animate-spin" />}
         {ctaLabel}
       </button>
     </div>
