@@ -116,6 +116,10 @@ export default function BillingSettingsPage() {
         // poll briefly rather than showing a stale "free" right after paying.
         await pollUntilUpgraded(setUsage);
       } catch (e) {
+        // Logged unconditionally: this is the only place the SDK's error
+        // survives, and a purchase that fails with nothing on screen and
+        // nothing in the console is the worst possible thing to debug.
+        console.error("[billing] purchase failed", e);
         // The SDK throws on user-cancelled too; that isn't worth an error toast.
         if (!isUserCancelled(e)) toast.error(t("checkoutError"));
       } finally {
@@ -291,15 +295,28 @@ function ManageLink({ href, label }: { href: string; label: string }) {
 }
 
 /**
+ * `ErrorCode.UserCancelledError` from the SDK, inlined as its numeric value.
+ *
+ * Importing the enum would be a value import and would pull the whole SDK into
+ * this page's initial bundle, undoing the dynamic import in `revenuecat.ts`.
+ */
+const USER_CANCELLED = 1;
+
+/**
  * A cancelled purchase is a normal outcome, not a failure.
  *
  * The SDK reports it as an error, so without this the user gets a red toast
  * for closing a dialog they opened on purpose.
+ *
+ * The field matters: `purchasesErrorCode` carries `ErrorCode`, while
+ * `errorCode` carries `PurchaseFlowErrorCode` — a different enum with no
+ * cancellation value. This used to compare `errorCode` against the *string*
+ * `"UserCancelledError"`, which could never match (both enums are numeric),
+ * leaving a guessed regex over the message as the only filter — one that
+ * silently swallowed any real error whose text happened to say "cancel".
  */
 function isUserCancelled(e: unknown): boolean {
-  const code = (e as { errorCode?: unknown })?.errorCode;
-  const message = String((e as { message?: unknown })?.message ?? "");
-  return code === "UserCancelledError" || /cancel/i.test(message);
+  return (e as { purchasesErrorCode?: number })?.purchasesErrorCode === USER_CANCELLED;
 }
 
 /** Wait for the webhook to promote the plan, up to ~10s. */
