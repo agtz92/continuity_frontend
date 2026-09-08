@@ -380,6 +380,7 @@
       "storeManagedBlurb": "Para cambiar de plan o cancelar, abre la app de Continuity en tu teléfono o entra a tus suscripciones de {store}. Desde aquí no podemos modificarla.",
       "portalManagedTitle": "Tu suscripción se gestiona fuera de aquí",
       "portalManagedBlurb": "Los cambios de plan y la cancelación se hacen desde el portal de facturación.",
+      "portalUnavailable": "El enlace para gestionar tu plan también llega en el correo de tu recibo.",
       "manageInStore": "Administrar en {store}",
       "renewsAtWithDays": "Próximo cobro el {date} — en {days, plural, =0 {hoy} =1 {1 día} other {# días}}",
       "cancelScheduled": "Cancelación programada",

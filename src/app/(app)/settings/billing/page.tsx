@@ -91,8 +91,11 @@ export default function BillingSettingsPage() {
       .then((url) => {
         if (!cancelled) setManageUrl(url);
       })
-      .catch(() => {
-        /* leave the button out rather than render a dead one */
+      .catch((e) => {
+        // Never swallow this one. Managing and cancelling a subscription is
+        // not optional — the stores require it — so a missing link has to be
+        // diagnosable instead of just absent.
+        console.error("[billing] could not resolve the management URL", e);
       });
     return () => {
       cancelled = true;
@@ -212,8 +215,16 @@ export default function BillingSettingsPage() {
             {boughtInStore && storeUrl ? (
               <ManageLink href={storeUrl} label={t("manageInStore", { store: storeName })} />
             ) : null}
-            {!boughtInStore && manageUrl ? (
-              <ManageLink href={manageUrl} label={t("manageSubscription")} />
+            {!boughtInStore ? (
+              manageUrl ? (
+                <ManageLink href={manageUrl} label={t("manageSubscription")} />
+              ) : (
+                // The portal link is minted per subscription and can come back
+                // empty (no active subscription, SDK unreachable). Say where to
+                // find it rather than rendering nothing: a paid subscriber with
+                // no way to cancel is the worst state this page can be in.
+                <div className="mt-1.5 italic">{t("portalUnavailable")}</div>
+              )
             ) : null}
           </div>
         ) : cancelScheduled && renewsAt ? (

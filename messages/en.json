@@ -380,6 +380,7 @@
       "storeManagedBlurb": "To change plans or cancel, open Continuity on your phone or go to your {store} subscriptions. We can't change it from here.",
       "portalManagedTitle": "Your subscription is managed elsewhere",
       "portalManagedBlurb": "Plan changes and cancellation happen in the billing portal.",
+      "portalUnavailable": "The link to manage your plan also comes in your receipt email.",
       "manageInStore": "Manage in {store}",
       "renewsAtWithDays": "Next charge on {date} — in {days, plural, =0 {today} =1 {1 day} other {# days}}",
       "cancelScheduled": "Cancellation scheduled",
