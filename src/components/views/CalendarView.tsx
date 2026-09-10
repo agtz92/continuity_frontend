@@ -19,6 +19,7 @@ import {
 import type { CalendarHandlers } from "../calendar/parts";
 import { WeekGrid } from "../calendar/WeekGrid";
 import { MonthGrid } from "../calendar/MonthGrid";
+import { BlockedRail } from "../calendar/BlockedRail";
 import { DayGrid } from "../calendar/DayGrid";
 import { SelectedDayAgenda } from "../calendar/SelectedDayAgenda";
 
@@ -164,6 +165,54 @@ export function CalendarView({
     }
   };
 
+  /**
+   * Atajos del artboard: `D · S · M` cambian de vista, `T` vuelve a hoy y las
+   * flechas mueven el rango. Van con las teclas del **idioma de la interfaz**
+   * (D/S/M en español, D/W/M en inglés) porque son iniciales, no códigos.
+   *
+   * No se disparan si hay un campo con el foco ni con un diálogo abierto: en la
+   * pantalla del calendario se escribe (buscar, editar una tarea) y robarle una
+   * letra a un input es peor que no tener atajo.
+   */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = document.activeElement;
+      if (
+        el instanceof HTMLElement &&
+        (el.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))
+      ) {
+        return;
+      }
+      if (document.querySelector('[role="dialog"]')) return;
+
+      const key = e.key.toLowerCase();
+      if (key === "arrowleft") {
+        e.preventDefault();
+        shift(-1);
+      } else if (key === "arrowright") {
+        e.preventDefault();
+        shift(1);
+      } else if (key === t("keys.today").toLowerCase()) {
+        e.preventDefault();
+        setRefISO(todayISO);
+        setSelectedISO(todayISO);
+      } else if (key === t("keys.day").toLowerCase()) {
+        e.preventDefault();
+        setView("day");
+      } else if (key === t("keys.week").toLowerCase()) {
+        e.preventDefault();
+        setView("week");
+      } else if (key === t("keys.month").toLowerCase()) {
+        e.preventDefault();
+        setView("month");
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   const periodLabel = useMemo(() => {
     if (view === "day") {
       return refDate.toLocaleDateString(locale, {
@@ -188,6 +237,8 @@ export function CalendarView({
     <button
       type="button"
       onClick={() => setView(mode)}
+      // El atajo se enseña en el tooltip: un atajo que nadie descubre no existe.
+      title={`${label} · ${t(`keys.${mode}`).toUpperCase()}`}
       className={`text-xs px-3 py-1.5 ${
         view === mode ? "bg-accent text-bg font-medium" : "text-text-muted hover:text-text"
       }`}
@@ -249,6 +300,7 @@ export function CalendarView({
           type="button"
           onClick={() => shift(-1)}
           aria-label={t("prev")}
+          title={`${t("prev")} · ←`}
           className="p-1.5 rounded-md border border-border text-text-muted hover:text-text"
         >
           <ChevronLeft size={16} />
@@ -257,6 +309,7 @@ export function CalendarView({
           type="button"
           onClick={() => shift(1)}
           aria-label={t("next")}
+          title={`${t("next")} · →`}
           className="p-1.5 rounded-md border border-border text-text-muted hover:text-text"
         >
           <ChevronRight size={16} />
@@ -267,6 +320,7 @@ export function CalendarView({
             setRefISO(todayISO);
             setSelectedISO(todayISO);
           }}
+          title={`${t("today")} · ${t("keys.today").toUpperCase()}`}
           className="text-xs px-3 py-1.5 rounded-md border border-border text-text-muted hover:text-text"
         >
           {t("today")}
@@ -275,6 +329,10 @@ export function CalendarView({
           {periodLabel}
         </span>
       </div>
+
+      {/* Lo atorado sin fecha, sobre la rejilla: no cabe en ninguna casilla
+          justamente porque nadie le ha puesto día. */}
+      <BlockedRail tasks={visibleTasks} onEditTask={onEditTask} />
 
       {/* Grid */}
       {!hasAny ? (
@@ -324,6 +382,15 @@ export function CalendarView({
               }
             }}
             moreLabel={(n) => t("more", { count: n })}
+            pickDayLabel={(iso) =>
+              t("pickDay", {
+                date: new Date(iso + "T00:00:00").toLocaleDateString(locale, {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                }),
+              })
+            }
           />
           <SelectedDayAgenda
             iso={selectedISO}

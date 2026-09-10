@@ -30,7 +30,7 @@ export function UserAvatar({
   return (
     <div
       style={dim}
-      className={`rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-text font-semibold shrink-0 ${className}`}
+      className={`rounded-full bg-accent flex items-center justify-center text-bg font-semibold shrink-0 ${className}`}
     >
       {fallbackInitial}
     </div>

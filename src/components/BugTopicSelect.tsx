@@ -120,7 +120,7 @@ export function BugTopicSelect({
           ref={listRef}
           id="bug-topic-listbox"
           role="listbox"
-          className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-surface border border-border rounded-lg shadow-lg"
+          className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-surface border border-border rounded-lg shadow-hard"
         >
           {filtered.map((opt, idx) => {
             const isHighlighted = idx === highlight;
@@ -137,8 +137,8 @@ export function BugTopicSelect({
                   commit(opt);
                 }}
                 onMouseEnter={() => setHighlight(idx)}
-                className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-accent/10 ${
-                  isHighlighted ? "bg-accent/10" : ""
+                className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-accent-a22 ${
+                  isHighlighted ? "bg-accent-a12" : ""
                 } ${isSelected ? "font-medium text-accent" : ""}`}
               >
                 {opt}

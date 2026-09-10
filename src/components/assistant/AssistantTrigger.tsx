@@ -12,7 +12,7 @@ export function AssistantTrigger({ onClick }: { onClick: () => void }) {
       data-tour="assistant"
       title={t("openTooltip")}
       aria-label={t("openTooltip")}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border border-accent-a35 bg-accent-a12 text-accent hover:bg-accent-a22 transition-colors"
     >
       <Sparkles size={12} />
       <span className="hidden sm:inline">{t("buttonLabel")}</span>

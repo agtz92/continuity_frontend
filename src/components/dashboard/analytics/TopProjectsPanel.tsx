@@ -34,7 +34,7 @@ export function TopProjectsPanel({ rows }: { rows: ProjectInteractionRow[] }) {
   return (
     <PanelCard
       title={t("title")}
-      icon={<TrendingUp size={16} className="text-accent-2" />}
+      icon={<TrendingUp size={16} className="text-text-3" />}
       subtitle={t("subtitle")}
     >
       {rows.length === 0 ? (
@@ -44,7 +44,7 @@ export function TopProjectsPanel({ rows }: { rows: ProjectInteractionRow[] }) {
           {rows.map((r) => (
             <li
               key={r.projectId}
-              className="flex items-center justify-between gap-3 bg-bg/50 border border-border rounded-lg px-3 py-2"
+              className="flex items-center justify-between gap-3 bg-well border border-border rounded-lg px-3 py-2"
             >
               <div className="min-w-0">
                 <div className="text-sm text-text truncate">{r.name}</div>

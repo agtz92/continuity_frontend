@@ -86,9 +86,9 @@ export default function OAuthConsentPage() {
 
   return (
     <div className="min-h-screen bg-bg text-text flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface p-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-bg border border-border flex items-center justify-center">
+          <div className="w-11 h-11 rounded-lg bg-bg border border-border flex items-center justify-center">
             <Sparkles size={22} className="text-accent" />
           </div>
           <h1 className="text-lg font-semibold">{t("title", { app: appName })}</h1>
@@ -130,7 +130,7 @@ export default function OAuthConsentPage() {
                 </li>
               )}
             </ul>
-            <div className="flex items-start gap-2 rounded-lg border border-border bg-bg/50 px-3 py-2.5">
+            <div className="flex items-start gap-2 rounded-lg border border-border bg-well px-3 py-2.5">
               <Lock size={14} className="text-text-muted shrink-0 mt-0.5" />
               <p className="text-xs text-text-muted">{t("note")}</p>
             </div>

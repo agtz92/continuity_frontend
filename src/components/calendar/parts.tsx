@@ -26,8 +26,8 @@ export const projectChipClass = (
 ): string => {
   const cat = project?.categoryId ? categoryById.get(project.categoryId) : null;
   if (cat) return categoryColorClass(cat.color).chip;
-  // No category → themed accent-2 tint (palette-safe via color-mix).
-  return "bg-[color-mix(in_srgb,var(--accent-2)_14%,transparent)] text-accent-2 border-[color-mix(in_srgb,var(--accent-2)_32%,transparent)]";
+  // Sin categoría no es un color: es ausencia de dato. Se dice con la regla.
+  return "bg-line-06 text-text-3 border-line-14";
 };
 
 export const ROUTINE_CHIP =

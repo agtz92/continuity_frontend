@@ -1,122 +1,106 @@
+/**
+ * Paletas de acento. Cinco curadas, no once: solo pisan `--accent`,
+ * `--accent-hi` y `--accent-lo`. `--signal` (bloqueado, vencido) y `--closed`
+ * (completado) NO son personalizables — son semántica, no gusto.
+ *
+ * Las trece paletas viejas siguen siendo entrada válida durante >=2 releases y
+ * el CSS generado las pinta con su equivalente curada, así que un usuario sin
+ * migrar ve colores coherentes en vez de caer al default. Se aceptan al LEER
+ * (`normalizePalette`) pero nunca se ESCRIBEN (`isPalette`).
+ *
+ * Los hex viven en `src/design/tokens.json` y los emite `pnpm tokens`; aquí
+ * solo están los nombres y los swatches del selector.
+ */
 export const SUPPORTED_PALETTES = [
-  "default",
-  "continuuit",
-  "pink",
-  "business",
-  "neon",
-  "green",
-  "turquoise",
-  "cute",
-  "midnight",
-  "boho",
-  "complimentary",
-  "sunset",
-  "retro",
+  "ocre",
+  "salvia",
+  "oxido",
+  "hielo",
+  "ciruela",
 ] as const;
 export type Palette = (typeof SUPPORTED_PALETTES)[number];
-export const DEFAULT_PALETTE: Palette = "default";
+export const DEFAULT_PALETTE: Palette = "ocre";
 
 export const PALETTE_COOKIE = "NEXT_PALETTE";
 
+/** Paletas retiradas → su equivalente curada. Se eliminan en la ola 8. */
+export const LEGACY_PALETTE_MAP: Readonly<Record<string, Palette>> = {
+  default: "ocre",
+  continuuit: "ocre",
+  green: "salvia",
+  turquoise: "salvia",
+  pink: "ciruela",
+  cute: "ciruela",
+  complimentary: "ciruela",
+  business: "hielo",
+  midnight: "hielo",
+  retro: "hielo",
+  neon: "oxido",
+  sunset: "oxido",
+  boho: "oxido",
+};
+
+/** ¿Es un nombre canónico? Úsalo en el camino de ESCRITURA. */
 export function isPalette(value: unknown): value is Palette {
-  return (
-    typeof value === "string" &&
-    (SUPPORTED_PALETTES as readonly string[]).includes(value)
-  );
+  return typeof value === "string" && (SUPPORTED_PALETTES as readonly string[]).includes(value);
+}
+
+/** Camino de LECTURA: acepta canónicas y retiradas, devuelve siempre canónica. */
+export function normalizePalette(value: unknown): Palette | null {
+  if (isPalette(value)) return value;
+  if (typeof value === "string" && value in LEGACY_PALETTE_MAP) return LEGACY_PALETTE_MAP[value];
+  return null;
 }
 
 export const PALETTE_LABEL_KEY: Record<Palette, string> = {
-  default: "paletteDefault",
-  continuuit: "paletteContinuuit",
-  pink: "palettePink",
-  business: "paletteBusiness",
-  neon: "paletteNeon",
-  green: "paletteGreen",
-  turquoise: "paletteTurquoise",
-  cute: "paletteCute",
-  midnight: "paletteMidnight",
-  boho: "paletteBoho",
-  complimentary: "paletteComplimentary",
-  sunset: "paletteSunset",
-  retro: "paletteRetro",
+  ocre: "paletteOcre",
+  salvia: "paletteSalvia",
+  oxido: "paletteOxido",
+  hielo: "paletteHielo",
+  ciruela: "paletteCiruela",
 };
 
 /**
- * Hex pairs (accent, accent-2) shown as small swatches next to each option.
- * Kept in sync with the CSS overrides in globals.css. One pair per theme
- * variant: the selector picks the right pair based on the active theme so
- * the swatch always previews what you'll actually see. Under the continuuit
- * theme the `default` palette resolves to the brand accents (ochre +
- * vermillion); every other palette mirrors its dark accents since the
- * continuuit palette overrides reuse those values.
+ * `data-theme` del documento → la variante de swatch que aplica.
+ * Solo hay dos: el acento se oscurece en `light` y se conserva claro en los dos
+ * temas oscuros. Acepta los nombres retirados, así que sirve antes y después de
+ * la migración. Sin atributo (o con `system`) lee la preferencia del sistema.
+ */
+export function effectiveSwatchMode(dataTheme?: string | null): "dark" | "light" {
+  if (dataTheme === "light") return "light";
+  if (dataTheme && dataTheme !== "system") return "dark";
+  if (typeof window === "undefined") return "dark";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+/**
+ * Pares de acento (base, hover) para los swatches del selector. Espejo de
+ * `src/design/tokens.json`: si cambias un hex allí, cámbialo aquí.
+ * En `light` el acento se oscurece para pasar AA sobre fondo claro; es una
+ * lista aparte, no un filtro sobre la oscura.
  */
 export const PALETTE_SWATCHES: Record<
   Palette,
-  { dark: [string, string]; light: [string, string]; continuuit: [string, string] }
+  { dark: [string, string]; light: [string, string] }
 > = {
-  default: {
-    dark: ["#34d399", "#60a5fa"],
-    light: ["#4f46e5", "#d97706"],
-    continuuit: ["#D4A847", "#F08C5C"],
+  ocre: {
+    dark: ["#D4A847", "#E5BC5E"],
+    light: ["#8A6410", "#A97C1D"],
   },
-  continuuit: {
-    dark: ["#D4A847", "#F08C5C"],
-    light: ["#D4A847", "#F08C5C"],
-    continuuit: ["#D4A847", "#F08C5C"],
+  salvia: {
+    dark: ["#8FB98A", "#A8CEA3"],
+    light: ["#3F6B45", "#527F58"],
   },
-  pink: {
-    dark: ["#f472b6", "#e879f9"],
-    light: ["#db2777", "#c026d3"],
-    continuuit: ["#f472b6", "#e879f9"],
+  oxido: {
+    dark: ["#E08A5A", "#F0A375"],
+    light: ["#9A4A16", "#B45E27"],
   },
-  business: {
-    dark: ["#93c5fd", "#94a3b8"],
-    light: ["#1d4ed8", "#475569"],
-    continuuit: ["#93c5fd", "#94a3b8"],
+  hielo: {
+    dark: ["#8FB4D9", "#A9C9EA"],
+    light: ["#1F4E79", "#2E6494"],
   },
-  neon: {
-    dark: ["#a3e635", "#22d3ee"],
-    light: ["#008BFF", "#9929EA"],
-    continuuit: ["#a3e635", "#22d3ee"],
-  },
-  green: {
-    dark: ["#6FCF97", "#2FA084"],
-    light: ["#0F8A5C", "#155F4A"],
-    continuuit: ["#6FCF97", "#2FA084"],
-  },
-  turquoise: {
-    dark: ["#5DF8D8", "#6FD1D7"],
-    light: ["#0D9488", "#0E7490"],
-    continuuit: ["#5DF8D8", "#6FD1D7"],
-  },
-  cute: {
-    dark: ["#C0E1D2", "#DC9B9B"],
-    light: ["#EF88AD", "#9BC09C"],
-    continuuit: ["#C0E1D2", "#DC9B9B"],
-  },
-  midnight: {
-    dark: ["#A5B4FC", "#818CF8"],
-    light: ["#080616", "#1A1953"],
-    continuuit: ["#A5B4FC", "#818CF8"],
-  },
-  boho: {
-    dark: ["#CAAA98", "#9A8678"],
-    light: ["#DF9152", "#A3573A"],
-    continuuit: ["#CAAA98", "#9A8678"],
-  },
-  complimentary: {
-    dark: ["#F0E9B6", "#B891C2"],
-    light: ["#62109F", "#EEA727"],
-    continuuit: ["#F0E9B6", "#B891C2"],
-  },
-  sunset: {
-    dark: ["#EA5252", "#FF9D23"],
-    light: ["#CF0F0F", "#E67E22"],
-    continuuit: ["#EA5252", "#FF9D23"],
-  },
-  retro: {
-    dark: ["#FF9B51", "#7A9CB3"],
-    light: ["#C46817", "#25343F"],
-    continuuit: ["#FF9B51", "#7A9CB3"],
+  ciruela: {
+    dark: ["#C08AC0", "#D3A4D3"],
+    light: ["#6B2E6B", "#843E84"],
   },
 };

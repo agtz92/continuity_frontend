@@ -20,12 +20,12 @@ const STYLES: Record<
   },
   studio: {
     label: "Studio",
-    tone: "border-purple-500/40 text-purple-700 dark:text-purple-300 bg-purple-500/10",
+    tone: "border-accent-a35 text-accent bg-accent-a12",
     Icon: Gem,
   },
   admin: {
     label: "Admin",
-    tone: "border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10",
+    tone: "border-accent-a35 text-accent bg-accent-a12",
     Icon: Crown,
   },
 };

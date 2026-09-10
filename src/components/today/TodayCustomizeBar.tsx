@@ -12,7 +12,7 @@ export function TodayCustomizeBar({
   labels: { title: string; close: string; reset: string; done: string };
 }) {
   return (
-    <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-bg/95 backdrop-blur border-b border-border flex items-center gap-3">
+    <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-surface border-b border-border flex items-center gap-3">
       <button
         type="button"
         onClick={onExit}

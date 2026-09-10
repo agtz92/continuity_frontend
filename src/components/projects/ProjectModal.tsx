@@ -228,7 +228,7 @@ export function ProjectModal({
               </button>
             </div>
           ) : (
-            <div className="space-y-2 bg-border/50 border border-border rounded-lg p-2.5">
+            <div className="space-y-2 bg-line-08 border border-border rounded-lg p-2.5">
               <input
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}

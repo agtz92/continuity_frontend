@@ -29,7 +29,7 @@ export function ModalDeleteButton({
       <button
         type="button"
         onClick={() => setArmed(true)}
-        className="mr-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors"
+        className="mr-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-signal hover:bg-signal-a16 transition-colors"
       >
         <Trash2 size={15} />
         {label}
@@ -42,7 +42,7 @@ export function ModalDeleteButton({
       <button
         type="button"
         onClick={() => void onDelete()}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-signal-a12 text-white hover:bg-signal-a16 transition-colors"
       >
         <Trash2 size={15} />
         {confirmLabel}

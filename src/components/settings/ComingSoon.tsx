@@ -12,7 +12,7 @@ export function ComingSoon({
 }) {
   const tCommon = useTranslations("common");
   return (
-    <div className="bg-surface/50 border border-border rounded-xl px-6 py-12 text-center">
+    <div className="bg-surface border border-border rounded-lg px-6 py-12 text-center">
       <Icon size={28} className="mx-auto mb-3 text-text-muted" />
       <p className="text-text-muted text-sm">{message}</p>
       <p className="text-text-muted text-xs mt-2">{tCommon("comingSoon")}</p>

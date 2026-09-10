@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { NoteSection } from "@/lib/types";
-import { MarkdownText } from "./MarkdownText";
+import { Markdown } from "@/components/markdown/Markdown";
 
 /**
  * One collapsible section (Notion-style toggle) inside a Quick Note.
@@ -29,10 +29,14 @@ export function NoteSectionBlock({
   section,
   onSave,
   onDelete,
+  highlight = false,
 }: {
   section: NoteSection;
   onSave: (data: { heading: string; body: string; collapsed: boolean }) => void;
   onDelete: () => void;
+  /** Es la sección a la que llevó un resultado de búsqueda: se marca para que
+   *  el ojo la encuentre después del salto. */
+  highlight?: boolean;
 }) {
   const t = useTranslations("views.quickNotes");
   const [open, setOpen] = useState(!section.collapsed);
@@ -73,8 +77,11 @@ export function NoteSectionBlock({
   return (
     <div
       ref={setNodeRef}
+      id={`note-section-${section.id}`}
       style={style}
-      className="border border-border rounded-xl bg-surface overflow-hidden"
+      className={`border rounded-lg bg-surface overflow-hidden ${
+        highlight ? "border-accent ring-1 ring-accent-a50" : "border-border"
+      }`}
     >
       <div className="flex items-center gap-2 px-3 py-2.5">
         <button
@@ -119,7 +126,7 @@ export function NoteSectionBlock({
           <button
             onClick={onDelete}
             aria-label={t("deleteSection")}
-            className="p-1 hover:text-red-400"
+            className="p-1 hover:text-signal"
           >
             <Trash2 size={14} />
           </button>
@@ -142,7 +149,7 @@ export function NoteSectionBlock({
               onClick={() => setEditing(true)}
               className="cursor-text rounded-lg px-1 py-1"
             >
-              <MarkdownText text={body} />
+              <Markdown text={body} variant="note" />
             </div>
           ) : (
             <button

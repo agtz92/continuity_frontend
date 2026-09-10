@@ -81,10 +81,12 @@ describe("Dashboard mutation error handling (integration)", () => {
     // Wait for Dashboard's initial render via the stable tab buttons.
     await screen.findByRole("button", { name: /^ideas$/i });
 
-    // Open the Ideas tab + the capture modal.
+    // Open the Ideas tab + the capture modal. El nombre va anclado a
+    // propósito: la barra lateral tiene su propio botón de "Quick capture"
+    // (⌘K) y un `/capture/i` suelto abría la paleta en vez del modal.
     await user.click(screen.getByRole("button", { name: /^ideas$/i }));
     const captureButtons = await screen.findAllByRole("button", {
-      name: /capture/i,
+      name: /^capture$/i,
     });
     await user.click(captureButtons[0]);
 

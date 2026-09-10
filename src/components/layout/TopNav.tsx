@@ -47,7 +47,7 @@ export function TopNav({
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-border/80 bg-bg/85 backdrop-blur supports-[backdrop-filter]:bg-bg/70">
+      <header className="sticky top-0 z-30 border-b border-border bg-surface">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center gap-3 sm:gap-4">
           <AccountMenuTrigger onClick={() => setMenuOpen(true)} />
           <Link
@@ -71,7 +71,7 @@ export function TopNav({
                     className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
                       active
                         ? "text-text bg-surface"
-                        : "text-text-muted hover:text-text hover:bg-surface/60"
+                        : "text-text-muted hover:text-text hover:bg-surface"
                     }`}
                   >
                     {l.label}

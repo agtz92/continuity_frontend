@@ -25,12 +25,12 @@ export function CollapsibleSection({
   if (variant === "card") {
     return (
       <div
-        className={`border border-border rounded-xl overflow-hidden ${className}`}
+        className={`border border-border rounded-lg overflow-hidden ${className}`}
       >
         <button
           onClick={onToggle}
           aria-expanded={open}
-          className="w-full flex items-center gap-2 px-3 py-2.5 bg-surface hover:bg-surface/70 text-left"
+          className="w-full flex items-center gap-2 px-3 py-2.5 bg-surface hover:bg-surface-2 text-left"
         >
           <ChevronRight
             size={16}
@@ -41,7 +41,7 @@ export function CollapsibleSection({
           {rightSlot}
         </button>
         {open && (
-          <div className="p-2 sm:p-3 bg-bg/40 border-t border-border">
+          <div className="p-2 sm:p-3 bg-well border-t border-border">
             {children}
           </div>
         )}
@@ -62,7 +62,7 @@ export function CollapsibleSection({
           }
         }}
         aria-expanded={open}
-        className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-surface/40 -mx-1 px-1 py-1"
+        className="cursor-pointer select-none mb-3 flex items-center gap-2 flex-wrap rounded-md hover:bg-surface -mx-1 px-1 py-1"
       >
         <ChevronRight
           size={16}

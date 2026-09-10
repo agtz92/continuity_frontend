@@ -326,7 +326,7 @@ export function RoutineModal({
         )}
 
         {recurrenceType === "monthly_day" && (
-          <div className="text-xs text-text-muted bg-border/40 border border-border rounded-lg px-3 py-2">
+          <div className="text-xs text-text-muted bg-line-08 border border-border rounded-lg px-3 py-2">
             {t("monthlyDayHint", {
               day: parseInt(startDate.split("-")[2] ?? "1", 10),
             })}

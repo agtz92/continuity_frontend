@@ -2,13 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { HeartPulse, Skull, Sparkles } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { Skull, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { GRAVEYARD_INSIGHT_QUERY } from "@/lib/graphql";
 import type { GraveyardInsight, Project, Task } from "@/lib/types";
-import { ProjectClosureNotes } from "./ProjectClosureNotes";
 import { ReviveProjectModal } from "./ReviveProjectModal";
-import { daysSince } from "@/lib/date";
+import { GraveTable } from "./GraveTable";
+import { Meta } from "@/components/ui/Meta";
+import { averageLifespan, dominantCause } from "@/lib/graveyard";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 /**
  * Read-only view of killed projects. Lists each tombstone with its closure
@@ -38,7 +40,6 @@ export function GraveyardView({
   ) => Promise<boolean>;
   onOpenAssistant: (initialPrompt?: string) => void;
 }) {
-  const locale = useLocale();
   const t = useTranslations("views.graveyard");
   const { data } = useQuery<{ graveyardInsight: GraveyardInsight | null }>(
     GRAVEYARD_INSIGHT_QUERY,
@@ -65,7 +66,7 @@ export function GraveyardView({
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
-        <Skull size={20} className="text-red-500" />
+        <Skull size={20} className="text-accent" />
         <h2 className="text-lg font-semibold">{t("title")}</h2>
       </div>
       <p className="text-sm text-text-muted mb-4">
@@ -81,55 +82,22 @@ export function GraveyardView({
         ) : null}
       </p>
 
-      <GraveyardAutopsy insight={insight} onOpenAssistant={onOpenAssistant} />
+      <GraveyardAutopsy
+        insight={insight}
+        killed={killed}
+        tasks={tasks}
+        onOpenAssistant={onOpenAssistant}
+      />
 
       {killed.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center mt-4">
-          <Skull size={28} className="text-text-muted mx-auto mb-3" />
-          <p className="text-text-muted">{t("empty")}</p>
-        </div>
+        <EmptyState
+          className="mt-4"
+          title={t("emptyTitle")}
+          body={t("empty")}
+        />
       ) : (
-        <div className="space-y-3 mt-4">
-          {killed.map((p) => {
-            const lifespan = daysSince(p.created) ?? 0;
-            return (
-              <div
-                key={p.id}
-                className="bg-surface border border-border border-l-4 border-l-red-500/60 rounded-xl p-4"
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-text truncate">{p.name}</h3>
-                    <div className="text-xs text-text-muted mt-0.5">
-                      {t("lived", { days: lifespan })}
-                      {p.killedAt ? (
-                        <>
-                          {" · "}
-                          {t("killedOn", {
-                            date: new Date(p.killedAt).toLocaleDateString(
-                              locale,
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            ),
-                          })}
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setReviving(p)}
-                    className="shrink-0 px-3 py-1.5 text-xs bg-accent hover:opacity-90 text-bg rounded-md font-medium flex items-center gap-1.5"
-                  >
-                    <HeartPulse size={12} /> {t("revive")}
-                  </button>
-                </div>
-                <ProjectClosureNotes project={p} />
-              </div>
-            );
-          })}
+        <div className="mt-4">
+          <GraveTable killed={killed} tasks={tasks} onRevive={setReviving} />
         </div>
       )}
 
@@ -164,39 +132,75 @@ export function GraveyardView({
   );
 }
 
+/**
+ * El panel de autopsia. El diseño lo quiere abriendo con **una frase
+ * discutible** y respaldándola con cifras: el texto lo escribe el modelo
+ * (`GraveyardInsight`, cacheado en el backend) y las cifras van debajo, en
+ * versalitas, como el respaldo que son.
+ *
+ * De las dos cifras del artboard —"17 días medios entre el blocker y la muerte"
+ * y "2.1 updates antes de rendirse"— **no hay ninguna calculable**: la primera
+ * necesitaría saber cuándo apareció el blocker, y los blockers se borran al
+ * resolverse; la segunda, contar updates por proyecto muerto en un rango que el
+ * dashboard no trae. Van aquí las dos que sí son reales y se derivan de lo que
+ * ya viaja: la vida media y el patrón de muerte que más se repite.
+ */
 function GraveyardAutopsy({
   insight,
+  killed,
+  tasks,
   onOpenAssistant,
 }: {
   insight: GraveyardInsight | null;
+  killed: Project[];
+  tasks: Task[];
   onOpenAssistant: (initialPrompt?: string) => void;
 }) {
   const t = useTranslations("views.graveyard");
   const hasBody = !!insight && insight.body.trim().length > 0;
+  const avg = averageLifespan(killed);
+  const pattern = dominantCause(killed, tasks);
 
   return (
-    <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
-      <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-2">
-        <Sparkles size={12} /> {t("autopsyLabel")}
-      </div>
+    <section className="border-l-[3px] border-accent pl-4 py-1">
+      <Meta variant="cintillo" tone="faint" className="flex items-center gap-1.5">
+        <Sparkles size={11} /> {t("autopsyLabel")}
+        {insight?.isStale ? ` · ${t("autopsyStale")}` : ""}
+      </Meta>
+
       {hasBody ? (
-        <>
-          <div className="text-sm text-text whitespace-pre-wrap">
-            {insight!.body}
-          </div>
-          {insight!.isStale ? (
-            <p className="text-xs text-text-muted mt-2">{t("autopsyStale")}</p>
-          ) : null}
-        </>
+        <p className="mt-2 text-[17px] leading-[1.5] text-text whitespace-pre-wrap max-w-[62ch]">
+          {insight!.body}
+        </p>
       ) : (
-        <p className="text-sm text-text-muted">{t("autopsyEmpty")}</p>
+        <p className="mt-2 text-[15px] leading-[1.6] text-text-3 max-w-[62ch]">
+          {t("autopsyEmpty")}
+        </p>
       )}
+
+      {/* Las cifras que respaldan, solo si hay de dónde sacarlas. */}
+      {killed.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1">
+          <Meta variant="cintillo" tone="muted">
+            {t("avgLifespan", { count: avg })}
+          </Meta>
+          {pattern && (
+            <Meta variant="cintillo" tone="muted">
+              {t("patternCount", {
+                count: pattern.count,
+                cause: t(`cause.${pattern.cause}`),
+              })}
+            </Meta>
+          )}
+        </div>
+      )}
+
       <button
         onClick={() => onOpenAssistant(t("askLoopPrompt"))}
-        className="mt-3 text-sm text-accent hover:opacity-80 flex items-center gap-1.5"
+        className="mt-3 text-sm text-accent hover:text-accent-hi transition-colors duration-150 ease-out flex items-center gap-1.5"
       >
         <Sparkles size={14} /> {t("askLoop")}
       </button>
-    </div>
+    </section>
   );
 }

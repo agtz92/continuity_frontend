@@ -37,7 +37,7 @@ export function BackupRestoreModal({
       <div className="space-y-4">
         <div className="text-sm text-text-muted">{t("intro")}</div>
 
-        <div className="bg-border/50 border border-border rounded-lg p-3 text-sm">
+        <div className="bg-line-08 border border-border rounded-lg p-3 text-sm">
           <div className="text-text-muted font-medium mb-1">{t("currentData")}</div>
           <div className="text-text-muted text-xs">
             {t("counts", {
@@ -79,7 +79,7 @@ export function BackupRestoreModal({
             </button>
             <button
               onClick={() => triggerImport("replace")}
-              className="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 bg-signal-a12 hover:bg-signal-a16 text-signal rounded-lg text-sm flex items-center justify-center gap-2"
             >
               <Upload size={14} /> {t("importReplace")}
             </button>

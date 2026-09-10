@@ -71,7 +71,7 @@ export function FAB({
               <span className="rounded-lg border border-border bg-surface px-3 py-2 text-sm font-semibold text-text shadow">
                 {t("buttonLabel")}
               </span>
-              <span className="w-12 h-12 rounded-full bg-accent text-bg flex items-center justify-center shadow-lg">
+              <span className="w-12 h-12 rounded-full bg-accent text-bg flex items-center justify-center shadow-hard">
                 <Sparkles size={20} />
               </span>
             </button>
@@ -86,7 +86,7 @@ export function FAB({
                 {label}
               </span>
               <span
-                className={`w-12 h-12 rounded-full bg-accent text-bg flex items-center justify-center shadow-lg ${className}`}
+                className={`w-12 h-12 rounded-full bg-accent text-bg flex items-center justify-center shadow-hard ${className}`}
               >
                 {icon}
               </span>
@@ -99,7 +99,7 @@ export function FAB({
           onClick={() => setOpen((o) => !o)}
           aria-label={label}
           aria-expanded={open}
-          className={`w-14 h-14 rounded-full bg-accent text-bg shadow-lg flex items-center justify-center hover:opacity-90 active:scale-95 transition-transform ${className}`}
+          className={`w-14 h-14 rounded-full bg-accent text-bg shadow-hard flex items-center justify-center hover:opacity-90 active:scale-95 transition-transform ${className}`}
         >
           <span className={`transition-transform ${open ? "rotate-45" : ""}`}>
             {icon}

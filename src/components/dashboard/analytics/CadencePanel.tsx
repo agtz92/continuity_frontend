@@ -21,7 +21,7 @@ export function CadencePanel({ cadence }: { cadence: CadenceStats }) {
         {tiles.map((tile) => (
           <div
             key={tile.label}
-            className="bg-bg/50 border border-border rounded-lg p-3"
+            className="bg-well border border-border rounded-lg p-3"
           >
             <div className="text-2xl font-semibold text-text">
               {tile.value}

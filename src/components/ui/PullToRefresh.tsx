@@ -140,7 +140,7 @@ export function PullToRefresh({
       }}
     >
       <div
-        className={`mb-2 w-9 h-9 rounded-full flex items-center justify-center shadow-md border ${
+        className={`mb-2 w-9 h-9 rounded-full flex items-center justify-center border ${
           triggered || refreshing
             ? "bg-accent text-bg border-accent"
             : "bg-surface text-text-muted border-border"

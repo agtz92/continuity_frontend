@@ -13,6 +13,14 @@ import { useTranslations } from "next-intl";
 import type { Category, Priority, ProjectStatus } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import { STATUS_FILTER_ORDER, statusConfig } from "@/lib/status";
+import type { StatusFilter } from "./projectSort";
+
+/** Las dos vistas del artboard 3a/3b, delante y como botones. */
+const PRIMARY_MODES: ProjectSortMode[] = ["smart", "manual"];
+/** El resto de órdenes, detrás del desplegable. Siguen existiendo. */
+const SECONDARY_MODES: ProjectSortMode[] = PROJECT_SORT_MODES.filter(
+  (m) => !PRIMARY_MODES.includes(m)
+);
 import {
   PRIORITY_FILTER_ORDER,
   PROJECT_SORT_MODES,
@@ -21,8 +29,8 @@ import {
 } from "@/lib/priority";
 
 interface ProjectsFiltersProps {
-  projectStatusFilter: "all" | ProjectStatus;
-  setProjectStatusFilter: Dispatch<SetStateAction<"all" | ProjectStatus>>;
+  projectStatusFilter: StatusFilter;
+  setProjectStatusFilter: Dispatch<SetStateAction<StatusFilter>>;
   projectCategoryFilter: string | null;
   setProjectCategoryFilter: Dispatch<SetStateAction<string | null>>;
   projectPriorityFilter: "all" | Priority;
@@ -57,7 +65,7 @@ export function ProjectsFilters({
   const tStatus = useTranslations("status");
   const tPriority = useTranslations("priority");
   return (
-        <div className="mb-4 md:bg-surface/40 md:border md:border-border/60 md:rounded-xl md:p-3">
+        <div className="mb-4 md:bg-surface md:border md:border-border md:rounded-lg md:p-3">
           {/* Mobile: two buttons opening sheets */}
           <div className="flex gap-2 md:hidden">
             <button
@@ -206,19 +214,43 @@ export function ProjectsFilters({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-1 border-t border-border/60">
+            {/* Las dos vistas del artboard van delante como botones —
+                "triaje" responde qué hago hoy, "mi orden" responde cómo lo
+                tengo yo ordenado. Los otros seis órdenes siguen existiendo
+                detrás del desplegable: nadie pierde el suyo. */}
+            <div className="flex items-center gap-3 pt-1 border-t border-border flex-wrap">
               <span className="text-[11px] uppercase tracking-wider text-text-muted w-20 shrink-0 mt-1.5">
                 {t("filterLabel.sort")}
               </span>
+              <div className="mt-1 flex items-center gap-1">
+                {PRIMARY_MODES.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setProjectSortMode(m)}
+                    aria-pressed={projectSortMode === m}
+                    className={`px-2.5 py-1 rounded-md border text-xs transition-colors duration-150 ease-out ${
+                      projectSortMode === m
+                        ? "border-accent-a50 bg-accent-a12 text-text"
+                        : "border-border text-text-4 hover:text-text-2"
+                    }`}
+                  >
+                    {t(`sortBy.${m}`)}
+                  </button>
+                ))}
+              </div>
               <select
-                value={projectSortMode}
-                onChange={(e) =>
-                  setProjectSortMode(e.target.value as ProjectSortMode)
-                }
-                className="mt-1 bg-surface border border-border rounded-md px-2 py-1 text-xs text-text hover:border-border focus:outline-none focus:ring-1 focus:ring-accent/40"
+                value={SECONDARY_MODES.includes(projectSortMode) ? projectSortMode : ""}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setProjectSortMode(e.target.value as ProjectSortMode);
+                  }
+                }}
+                className="mt-1 bg-surface border border-border rounded-md px-2 py-1 text-xs text-text hover:border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
                 aria-label={t("sortAria")}
               >
-                {PROJECT_SORT_MODES.map((m) => (
+                <option value="">{t("sortBy.other")}</option>
+                {SECONDARY_MODES.map((m) => (
                   <option key={m} value={m}>
                     {t(`sortBy.${m}`)}
                   </option>

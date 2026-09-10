@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { DEFAULT_THEME, THEME_COOKIE, isTheme, type Theme } from "./config";
+import { DEFAULT_THEME, THEME_COOKIE, normalizeTheme, type Theme } from "./config";
 
 /**
  * Resolve the user's preferred theme from the cookie set by `setTheme`.
@@ -11,5 +11,5 @@ import { DEFAULT_THEME, THEME_COOKIE, isTheme, type Theme } from "./config";
 export async function resolveTheme(): Promise<Theme> {
   const store = await cookies();
   const raw = store.get(THEME_COOKIE)?.value;
-  return isTheme(raw) ? raw : DEFAULT_THEME;
+  return normalizeTheme(raw) ?? DEFAULT_THEME;
 }

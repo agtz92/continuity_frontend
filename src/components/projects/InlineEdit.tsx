@@ -66,7 +66,7 @@ export function InlineText({
           }
         }}
         aria-label={ariaLabel}
-        className={`bg-surface border border-accent/40 rounded-md focus:outline-none ${inputClassName ?? ""}`}
+        className={`bg-surface border border-accent-a35 rounded-md focus:outline-none ${inputClassName ?? ""}`}
       />
     );
   }
@@ -77,7 +77,7 @@ export function InlineText({
       onClick={() => setEditing(true)}
       title={tCommon("clickToEdit")}
       aria-label={ariaLabel ?? tCommon("clickToEdit")}
-      className={`text-left hover:bg-surface/60 rounded transition-colors ${className ?? ""}`}
+      className={`text-left hover:bg-surface rounded transition-colors ${className ?? ""}`}
     >
       {value || (
         <span className="italic text-text-muted">
@@ -158,7 +158,7 @@ export function InlineTextarea({
         }}
         aria-label={ariaLabel}
         rows={rows}
-        className={`bg-surface border border-accent/40 rounded-md px-2.5 py-2 text-sm resize-y w-full focus:outline-none ${textareaClassName ?? ""}`}
+        className={`bg-surface border border-accent-a35 rounded-md px-2.5 py-2 text-sm resize-y w-full focus:outline-none ${textareaClassName ?? ""}`}
       />
     );
   }
@@ -169,7 +169,7 @@ export function InlineTextarea({
       onClick={() => setEditing(true)}
       title={tCommon("clickToEdit")}
       aria-label={ariaLabel ?? tCommon("clickToEdit")}
-      className={`text-left w-full hover:bg-surface/60 rounded transition-colors whitespace-pre-wrap ${className ?? ""}`}
+      className={`text-left w-full hover:bg-surface rounded transition-colors whitespace-pre-wrap ${className ?? ""}`}
     >
       {value || (
         <span className="italic text-text-muted">

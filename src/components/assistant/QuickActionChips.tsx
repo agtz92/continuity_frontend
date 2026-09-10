@@ -34,7 +34,7 @@ export function QuickActionChips({
           type="button"
           onClick={() => onPick(PROMPTS[k])}
           disabled={disabled}
-          className="text-[11px] px-2 py-1 rounded-full border border-border text-text-muted hover:text-text hover:border-text-muted hover:bg-surface/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-[11px] px-2 py-1 rounded-full border border-border text-text-muted hover:text-text hover:border-text-muted hover:bg-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t(k)}
         </button>

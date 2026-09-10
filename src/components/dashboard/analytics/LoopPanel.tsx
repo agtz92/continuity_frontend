@@ -64,7 +64,7 @@ export function LoopPanel({ loop }: { loop: LoopStats }) {
       <PanelCard
         title={t("title")}
         subtitle={t("subtitle")}
-        icon={<Sparkles size={16} className="text-accent-2" />}
+        icon={<Sparkles size={16} className="text-text-3" />}
       >
         <div className="text-sm text-text-muted py-4">{t("empty")}</div>
       </PanelCard>
@@ -99,13 +99,13 @@ export function LoopPanel({ loop }: { loop: LoopStats }) {
     <PanelCard
       title={t("title")}
       subtitle={t("subtitle")}
-      icon={<Sparkles size={16} className="text-accent-2" />}
+      icon={<Sparkles size={16} className="text-text-3" />}
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {tiles.map((tile) => (
           <div
             key={tile.label}
-            className="bg-bg/50 border border-border rounded-lg p-3"
+            className="bg-well border border-border rounded-lg p-3"
           >
             <div className="flex items-center justify-between gap-2">
               <div className="text-2xl font-semibold text-text tabular-nums">
@@ -192,7 +192,7 @@ export function LoopPanel({ loop }: { loop: LoopStats }) {
               {loop.topTools.map((row) => (
                 <li
                   key={row.tool}
-                  className="flex items-center justify-between gap-3 bg-bg/50 border border-border rounded-lg px-3 py-2"
+                  className="flex items-center justify-between gap-3 bg-well border border-border rounded-lg px-3 py-2"
                 >
                   <span className="text-sm text-text truncate capitalize">
                     {prettyTool(row.tool)}

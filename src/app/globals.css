@@ -1,255 +1,18 @@
+@import "./tokens.generated.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root,
-[data-theme="continuuit"] {
-  /* Continuuit brand theme — mirrors the landing page identity (navy bg,
-     cream text, ochre + warm-coral accents). Acts as the global default
-     so first-paint and unauthenticated visitors see the brand colors.
-     Note: accent-2 is a brightened terracotta (#F08C5C) instead of the
-     landing's pure vermillion (#A8412F) — vermillion fails contrast on
-     navy at small text sizes (~2.8:1). Marketing surface keeps the
-     darker vermillion via --ls-vermillion since it's used on large
-     headlines and accent shapes, not body-sized chips. */
-  --bg: #1A1F4D;
-  --surface: #3B4A7A;
-  --border: rgba(250, 247, 242, 0.12);
-  --text: #FAF7F2;
-  --text-muted: #A8AAB8;
-  --accent: #D4A847;
-  --accent-2: #F08C5C;
-}
+/* La capa de tokens (temas, paletas y los ámbitos aislados de admin/marketing)
+   vive en `tokens.generated.css`, emitido por `pnpm tokens` desde
+   `src/design/tokens.json`. No editar ese archivo ni duplicar tokens aquí.
+   Contexto y decisiones: ../../REDISENO_PLAN.md §4. */
 
-[data-theme="dark"] {
-  --bg: #09090b;
-  --surface: #18181b;
-  --border: #27272a;
-  --text: #f4f4f5;
-  --text-muted: #a1a1aa;
-  --accent: #34d399;
-  --accent-2: #60a5fa;
-}
-
-[data-theme="light"] {
-  --bg: #fafaf9;
-  --surface: #ffffff;
-  --border: #e7e5e4;
-  --text: #1c1917;
-  --text-muted: #78716c;
-  --accent: #4f46e5;
-  --accent-2: #d97706;
-}
-
-/* Palette overrides — only swap --accent and --accent-2. The base theme
-   block above still provides bg/surface/border/text, and acts as the
-   fallback when no palette attribute is set on <html>. */
-
-/* La paleta continuuit usa los accents del tema continuuit en cualquier
-   tema (dark/light/continuuit) — se mantiene constante a propósito. */
-[data-theme="dark"][data-palette="continuuit"] {
-  --accent: #D4A847;
-  --accent-2: #F08C5C;
-}
-[data-theme="continuuit"][data-palette="continuuit"] {
-  --accent: #D4A847;
-  --accent-2: #F08C5C;
-}
-[data-theme="light"][data-palette="continuuit"] {
-  --accent: #D4A847;
-  --accent-2: #F08C5C;
-}
-
-[data-theme="dark"][data-palette="pink"] {
-  --accent: #f472b6;
-  --accent-2: #e879f9;
-}
-[data-theme="light"][data-palette="pink"] {
-  --accent: #db2777;
-  --accent-2: #c026d3;
-}
-
-[data-theme="dark"][data-palette="business"] {
-  --accent: #93c5fd;
-  --accent-2: #94a3b8;
-}
-[data-theme="light"][data-palette="business"] {
-  --accent: #1d4ed8;
-  --accent-2: #475569;
-}
-
-[data-theme="dark"][data-palette="neon"] {
-  --accent: #a3e635;
-  --accent-2: #22d3ee;
-}
-[data-theme="light"][data-palette="neon"] {
-  --accent: #008BFF;
-  --accent-2: #9929EA;
-}
-
-[data-theme="dark"][data-palette="green"] {
-  --accent: #6FCF97;
-  --accent-2: #2FA084;
-}
-[data-theme="light"][data-palette="green"] {
-  --accent: #0F8A5C;
-  --accent-2: #155F4A;
-}
-
-[data-theme="dark"][data-palette="turquoise"] {
-  --accent: #5DF8D8;
-  --accent-2: #6FD1D7;
-}
-[data-theme="light"][data-palette="turquoise"] {
-  --accent: #0D9488;
-  --accent-2: #0E7490;
-}
-
-[data-theme="dark"][data-palette="cute"] {
-  --accent: #C0E1D2;
-  --accent-2: #DC9B9B;
-}
-[data-theme="light"][data-palette="cute"] {
-  --accent: #EF88AD;
-  --accent-2: #9BC09C;
-}
-
-[data-theme="dark"][data-palette="midnight"] {
-  --accent: #A5B4FC;
-  --accent-2: #818CF8;
-}
-[data-theme="light"][data-palette="midnight"] {
-  --accent: #080616;
-  --accent-2: #1A1953;
-}
-
-[data-theme="dark"][data-palette="boho"] {
-  --accent: #CAAA98;
-  --accent-2: #9A8678;
-}
-[data-theme="light"][data-palette="boho"] {
-  --accent: #DF9152;
-  --accent-2: #A3573A;
-}
-
-[data-theme="dark"][data-palette="complimentary"] {
-  --accent: #F0E9B6;
-  --accent-2: #B891C2;
-}
-[data-theme="light"][data-palette="complimentary"] {
-  --accent: #62109F;
-  --accent-2: #EEA727;
-}
-
-[data-theme="dark"][data-palette="sunset"] {
-  --accent: #EA5252;
-  --accent-2: #FF9D23;
-}
-[data-theme="light"][data-palette="sunset"] {
-  --accent: #CF0F0F;
-  --accent-2: #E67E22;
-}
-
-[data-theme="dark"][data-palette="retro"] {
-  --accent: #FF9B51;
-  --accent-2: #7A9CB3;
-}
-[data-theme="light"][data-palette="retro"] {
-  --accent: #C46817;
-  --accent-2: #25343F;
-}
-
-/* Continuuit palette overrides — same accent pairs as the dark theme so
-   palette switching feels consistent across themes. The `default` palette
-   intentionally has no override here: it falls through to the base
-   [data-theme="continuuit"] block (ochre + vermillion brand accents). */
-[data-theme="continuuit"][data-palette="pink"] {
-  --accent: #f472b6;
-  --accent-2: #e879f9;
-}
-[data-theme="continuuit"][data-palette="business"] {
-  --accent: #93c5fd;
-  --accent-2: #94a3b8;
-}
-[data-theme="continuuit"][data-palette="neon"] {
-  --accent: #a3e635;
-  --accent-2: #22d3ee;
-}
-[data-theme="continuuit"][data-palette="green"] {
-  --accent: #6FCF97;
-  --accent-2: #2FA084;
-}
-[data-theme="continuuit"][data-palette="turquoise"] {
-  --accent: #5DF8D8;
-  --accent-2: #6FD1D7;
-}
-[data-theme="continuuit"][data-palette="cute"] {
-  --accent: #C0E1D2;
-  --accent-2: #DC9B9B;
-}
-[data-theme="continuuit"][data-palette="midnight"] {
-  --accent: #A5B4FC;
-  --accent-2: #818CF8;
-}
-[data-theme="continuuit"][data-palette="boho"] {
-  --accent: #CAAA98;
-  --accent-2: #9A8678;
-}
-[data-theme="continuuit"][data-palette="complimentary"] {
-  --accent: #F0E9B6;
-  --accent-2: #B891C2;
-}
-[data-theme="continuuit"][data-palette="sunset"] {
-  --accent: #EA5252;
-  --accent-2: #FF9D23;
-}
-[data-theme="continuuit"][data-palette="retro"] {
-  --accent: #FF9B51;
-  --accent-2: #7A9CB3;
-}
-
-/* Admin scope — overrides the active theme + palette when the
-   AdminShell is mounted (it sets data-admin="true" on its root).
-   Goal: a neutral, business-y look that is visually distinct from the
-   user dashboard so it's always obvious which app you're in.
-   - Light: slate-50/100 surface stack with a confident indigo accent.
-   - Dark:  slate-950 bg with desaturated indigo + sky accents.
-   `data-admin="true"` wins over `data-palette` because it's a more
-   specific selector chain (theme + admin scope). */
-
-[data-theme="light"] [data-admin="true"] {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --accent: #4f46e5;
-  --accent-2: #0284c7;
-}
-
-[data-theme="dark"] [data-admin="true"],
-[data-theme="continuuit"] [data-admin="true"] {
-  --bg: #020617;
-  --surface: #0f172a;
-  --border: #1e293b;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --accent: #818cf8;
-  --accent-2: #38bdf8;
-}
-
-/* Marketing surface — Loop Society brand identity. Scoped via
-   data-surface="marketing" so it never leaks into the dashboard's
-   palette system. The marketing layout applies this attribute on its
-   wrapper; everything inside picks up the fixed brand tokens. The
-   :has() rule below paints html/body navy when the marketing surface
-   is on the page so dynamic-viewport overscroll never reveals the
-   dashboard's dark theme bg behind it. */
-html:has([data-surface="marketing"]),
-body:has([data-surface="marketing"]) {
-  background: #1A1F4D;
-}
-
+/* Identidad de marca del Loop Society. Solo se resuelve dentro de un wrapper
+   [data-surface="marketing"]; en el dashboard estas variables no existen.
+   Los tokens genéricos de ese ámbito (--bg, --text, --line-*, …) los emite el
+   generador: aquí quedan únicamente los colores propios de la marca. */
 [data-surface="marketing"] {
   --ls-navy: #1A1F4D;
   --ls-cream: #F5E6C8;
@@ -263,22 +26,43 @@ body:has([data-surface="marketing"]) {
   --ls-text-on-cream: #1A1F4D;
   --ls-text-on-cream-muted: #5C5740;
 
-  /* Default page background + text inside the marketing surface */
-  --bg: var(--ls-navy);
-  --surface: var(--ls-indigo);
-  --border: rgba(250, 247, 242, 0.12);
-  --text: var(--ls-text-primary);
-  --text-muted: var(--ls-text-secondary);
-  --accent: var(--ls-ochre);
-  --accent-2: var(--ls-vermillion);
-
   color-scheme: dark;
+}
+
+/* El :has() pinta html/body navy cuando hay superficie de marketing en la
+   página, para que el overscroll del viewport dinámico nunca deje ver el fondo
+   del dashboard por detrás. */
+html:has([data-surface="marketing"]),
+body:has([data-surface="marketing"]) {
+  background: #1A1F4D;
 }
 
 html,
 body {
   background: var(--bg);
   color: var(--text);
+}
+
+/* Tipografía. `font-sans` de Tailwind apunta a --font-ui (Schibsted Grotesk),
+   la grotesca del rediseño. Marketing y admin quedan fuera del rediseño, así
+   que se les devuelve Inter: sin esto, cambiar la familia del tool repintaría
+   el landing, el blog y las legales (REDISENO_PLAN.md §8, DP-07). */
+[data-surface="marketing"],
+[data-admin="true"] {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+}
+
+@layer components {
+  /* Versalitas de metadato. Sustituyen al patrón `text-xs text-text-muted` que
+     se repite por decenas, y hacen de mono sin serlo: la familia mono
+     desaparece del sistema. `.meta` para etiquetas de sección (caja alta,
+     tracking amplio); `.meta-flat` para datos, contadores y fechas. */
+  .meta {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums;
+  }
+  .meta-flat {
+    @apply text-[11px] font-semibold tracking-[0.02em] tabular-nums;
+  }
 }
 
 /* Subtle vertical drift used for hero yokai when reduced-motion is off.

@@ -3,25 +3,41 @@
 import { useState } from "react";
 import { Edit2, Lightbulb, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { Idea } from "@/lib/types";
+import type { Category, Idea, Priority } from "@/lib/types";
+import { daysSince } from "@/lib/date";
 import { FAB } from "../ui/FAB";
+import { Meta } from "../ui/Meta";
+import { PromoteIdeaModal } from "../ideas/PromoteIdeaModal";
+import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
+
+/** A partir de aquí la idea lleva demasiado en la bandeja para seguir siendo
+ *  "reciente". Mismo umbral que el tramo templado del enfriamiento. */
+const COOLING_DAYS = 7;
 
 export function IdeasView({
   ideas,
+  categories,
   onCapture,
   onEdit,
   onPromote,
   onDelete,
 }: {
   ideas: Idea[];
+  categories: Category[];
   onCapture: () => void;
   onEdit: (idea: Idea) => void;
-  onPromote: (id: string) => void | Promise<void>;
+  /** Promover pasa SIEMPRE por el modal ceremonioso: la primera acción es
+   *  obligatoria y no hay camino corto que se la salte. */
+  onPromote: (
+    id: string,
+    extra: { firstAction: string; categoryId: string | null; priority: Priority }
+  ) => Promise<boolean> | boolean;
   onDelete: (id: string) => void | Promise<void>;
 }) {
   const t = useTranslations("views.ideas");
   const tCommon = useTranslations("common");
   const [ideaSearch, setIdeaSearch] = useState("");
+  const [promoting, setPromoting] = useState<Idea | null>(null);
 
   return (
     <div>
@@ -43,7 +59,7 @@ export function IdeasView({
           </div>
           <button
             onClick={onCapture}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-text rounded-lg font-medium text-sm hidden md:flex items-center gap-2 shrink-0"
+            className="px-4 py-2 bg-line-06 hover:bg-line-08 text-text rounded-lg font-medium text-sm hidden md:flex items-center gap-2 shrink-0"
           >
             <Plus size={16} /> {t("capture")}
           </button>
@@ -51,15 +67,13 @@ export function IdeasView({
       </div>
       <p className="text-sm text-text-muted mb-4">{t("subtitle")}</p>
       {ideas.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center">
-          <p className="text-text-muted mb-4">{t("empty")}</p>
-          <button
-            onClick={onCapture}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium text-sm"
-          >
-            {t("addFirst")}
-          </button>
-        </div>
+        <EmptyState
+          title={t("emptyTitle")}
+          body={t("empty")}
+          actions={
+            <EmptyStateAction label={t("addFirst")} onClick={onCapture} />
+          }
+        />
       ) : (() => {
         const q = ideaSearch.trim().toLowerCase();
         const filteredIdeas = q
@@ -73,7 +87,7 @@ export function IdeasView({
 
         if (filteredIdeas.length === 0) {
           return (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
+            <div className="bg-surface border border-border rounded-lg p-8 text-center text-text-muted text-sm">
               {t("noMatch", { query: ideaSearch })}
             </div>
           );
@@ -84,16 +98,16 @@ export function IdeasView({
             {filteredIdeas.map((i) => (
               <div
                 key={i.id}
-                className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4"
+                className="bg-line-06 border border-line-22 rounded-lg p-4"
               >
                 <div className="flex items-start gap-2 mb-2">
-                  <Lightbulb className="text-purple-400 shrink-0 mt-0.5" size={16} />
-                  <div className="font-semibold text-purple-800 dark:text-purple-100 flex-1 break-words">
+                  <Lightbulb className="text-text-3 shrink-0 mt-0.5" size={16} />
+                  <div className="font-semibold text-text-3 flex-1 break-words">
                     {i.title}
                   </div>
                 </div>
                 {i.why && (
-                  <div className="text-sm text-purple-700/80 dark:text-purple-200/80 italic mb-2 break-words">
+                  <div className="text-sm text-text-3 italic mb-2 break-words">
                     → {i.why}
                   </div>
                 )}
@@ -102,10 +116,20 @@ export function IdeasView({
                     {i.description}
                   </div>
                 )}
+                {/* Cuánto lleva en la bandeja. Se apaga mientras es reciente y
+                    sube a tinta plena cuando ya se está enfriando: una idea
+                    vieja no es una alarma, pero tiene que verse. */}
+                <Meta
+                  variant="cintillo"
+                  tone={(daysSince(i.created) ?? 0) > COOLING_DAYS ? "muted" : "faint"}
+                  className="block mb-3"
+                >
+                  {t("inInbox", { count: daysSince(i.created) ?? 0 })}
+                </Meta>
                 <div className="flex gap-2 flex-wrap">
                   <button
-                    onClick={() => onPromote(i.id)}
-                    className="text-xs px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-700 dark:text-purple-200 rounded-md"
+                    onClick={() => setPromoting(i)}
+                    className="text-xs px-3 py-1.5 bg-line-06 hover:bg-line-08 text-text-3 rounded-md"
                   >
                     {t("promote")}
                   </button>
@@ -128,11 +152,20 @@ export function IdeasView({
         );
       })()}
 
+      {promoting && (
+        <PromoteIdeaModal
+          idea={promoting}
+          categories={categories}
+          onClose={() => setPromoting(null)}
+          onPromote={onPromote}
+        />
+      )}
+
       <FAB
         icon={<Plus size={24} />}
         label={t("captureAria")}
         onClick={onCapture}
-        className="!bg-purple-500 !text-white"
+        className="!bg-line-06 !text-white"
       />
     </div>
   );

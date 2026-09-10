@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type InitialHeight = "auto" | "50" | "75" | "95";
 
@@ -37,6 +38,7 @@ export function BottomSheet({
   footer,
   className = "",
 }: BottomSheetProps) {
+  const tCommon = useTranslations("common");
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<{
     startY: number;
@@ -155,14 +157,14 @@ export function BottomSheet({
       aria-label={title}
     >
       <div
-        className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-200 ${
+        className={`absolute inset-0 bg-scrim transition-opacity duration-150 ease-out ${
           mounted ? "opacity-100" : "opacity-0"
         }`}
         onClick={dismissible ? onClose : undefined}
       />
       <div
         ref={sheetRef}
-        className={`relative w-full bg-surface border-t border-border rounded-t-2xl shadow-2xl flex flex-col ${heightClass} ${className}`}
+        className={`relative w-full bg-surface border-t border-border rounded-t-lg shadow-hard-lg flex flex-col ${heightClass} ${className}`}
         style={{
           transform: mounted
             ? `translateY(${dragOffset}px)`
@@ -191,7 +193,7 @@ export function BottomSheet({
             <button
               onClick={onClose}
               className="text-text-muted hover:text-text p-1 -m-1"
-              aria-label="Close"
+              aria-label={tCommon("close")}
             >
               <X size={18} />
             </button>

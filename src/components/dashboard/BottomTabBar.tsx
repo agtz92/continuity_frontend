@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { DashboardView } from "./TabBar";
+import type { DashboardView } from "@/lib/dashboardViews";
 
 type PrimaryTab = {
   id: Extract<DashboardView, "today" | "projects" | "tasks" | "routines">;
@@ -65,7 +65,7 @@ export function BottomTabBar({
     <nav
       role="tablist"
       aria-label={t("more")}
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border/80 bg-bg/85 backdrop-blur supports-[backdrop-filter]:bg-bg/70"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="flex items-stretch justify-around h-16">

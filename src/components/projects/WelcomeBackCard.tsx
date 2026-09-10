@@ -92,7 +92,7 @@ export function WelcomeBackCard({
         {hasParked && (
           <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
             <p className="text-sm flex items-center gap-1.5">
-              <CalendarClock size={14} className="text-accent-2" />
+              <CalendarClock size={14} className="text-text-3" />
               <span>
                 {t("parkedTasks", { count: parkedTaskCount })}
                 {nextDateLabel

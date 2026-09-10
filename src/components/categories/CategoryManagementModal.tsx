@@ -54,7 +54,7 @@ function CategoryForm({
   };
 
   return (
-    <div className="space-y-2.5 p-3 bg-border/50 border border-border rounded-md">
+    <div className="space-y-2.5 p-3 bg-line-08 border border-border rounded-md">
       <input
         autoFocus
         value={name}
@@ -143,7 +143,7 @@ export function CategoryManagementModal({
               return (
                 <div
                   key={c.id}
-                  className="flex items-center gap-2 bg-border/50 border border-border rounded-md px-3 py-2"
+                  className="flex items-center gap-2 bg-line-08 border border-border rounded-md px-3 py-2"
                 >
                   <span className={`w-3 h-3 rounded-full flex-shrink-0 ${cls.dot}`} />
                   <span className="flex-1 text-sm">{c.name}</span>

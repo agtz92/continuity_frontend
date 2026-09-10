@@ -12,6 +12,9 @@
  */
 
 export type TodaySectionId =
+  | "resume-thread"
+  | "stopped"
+  | "cooling"
   | "counters"
   | "stalled-alert"
   | "today-focus"
@@ -21,7 +24,8 @@ export type TodaySectionId =
   | "sleeping"
   | "stale-ideas"
   | "active-projects"
-  | "launched-with-tasks";
+  | "launched-with-tasks"
+  | "log-tail";
 
 export type TodaySectionMeta = {
   id: TodaySectionId;
@@ -32,6 +36,13 @@ export type TodaySectionMeta = {
 };
 
 export const TODAY_SECTIONS: readonly TodaySectionMeta[] = [
+  // Las tres primeras y la última son del rediseño (ola 3, S01): el Home abre
+  // con "dónde te quedaste" y cierra con la cola del log. Este orden es el
+  // DEFECTO para cuentas nuevas; a quien ya tenga un layout guardado le
+  // aparecen al final, sin recolocarle nada (ver `reconcile` en useTodayLayout).
+  { id: "resume-thread", labelKey: "resumeThread", hideable: true },
+  { id: "stopped", labelKey: "stopped", hideable: true },
+  { id: "cooling", labelKey: "cooling", hideable: true },
   { id: "counters", labelKey: "counters", hideable: true },
   { id: "stalled-alert", labelKey: "stalledAlert", hideable: true },
   { id: "today-focus", labelKey: "todayFocus", hideable: false },
@@ -42,6 +53,7 @@ export const TODAY_SECTIONS: readonly TodaySectionMeta[] = [
   { id: "stale-ideas", labelKey: "staleIdeas", hideable: true },
   { id: "active-projects", labelKey: "activeProjects", hideable: true },
   { id: "launched-with-tasks", labelKey: "launchedWithTasks", hideable: true },
+  { id: "log-tail", labelKey: "logTail", hideable: true },
 ] as const;
 
 export const TODAY_SECTION_IDS: readonly TodaySectionId[] = TODAY_SECTIONS.map(

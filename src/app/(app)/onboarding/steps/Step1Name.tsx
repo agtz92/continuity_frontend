@@ -38,7 +38,7 @@ export function Step1Name({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl sm:text-4xl text-text">
+        <h1 className="font-display-app text-3xl sm:text-4xl text-text">
           {t("step1.heading")}
         </h1>
         <p className="text-text-muted text-sm mt-2">{t("step1.sub")}</p>
@@ -75,7 +75,7 @@ export function Step1Name({
         {error && (
           <p
             id="onboarding-first-name-error"
-            className="text-xs text-red-500 mt-1.5"
+            className="text-xs text-signal mt-1.5"
           >
             {error}
           </p>

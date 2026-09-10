@@ -106,7 +106,7 @@ export function SettingsShell({
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                       active
                         ? "bg-surface text-text"
-                        : "text-text-muted hover:text-text hover:bg-surface/60"
+                        : "text-text-muted hover:text-text hover:bg-surface"
                     }`}
                   >
                     <Icon

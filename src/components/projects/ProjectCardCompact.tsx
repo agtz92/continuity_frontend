@@ -4,7 +4,7 @@ import { Clock, Rocket, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Category, Project, Task } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
-import { priorityStripeClass } from "@/lib/priority";
+import { priorityDotClass } from "@/lib/priority";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
 
 /**
@@ -47,35 +47,35 @@ export function ProjectCardCompact({
 
   const baseBg =
     variant === "launched"
-      ? "bg-accent-2/5 hover:border-accent-2/40"
+      ? "bg-line-08 hover:border-line-14"
       : "bg-surface hover:border-border";
   const restBorder =
-    variant === "launched" ? "border-accent-2/20" : "border-border";
+    variant === "launched" ? "border-line-14" : "border-border";
   const border =
     overdueCount > 0
-      ? "border-red-500/40"
+      ? "border-signal-a50"
       : todayCount > 0
-      ? "border-orange-500/40"
+      ? "border-accent-a35"
       : restBorder;
 
   return (
     <button
       onClick={onClick}
-      className={`text-left ${baseBg} border rounded-xl p-4 transition-all ${border}`}
+      className={`text-left ${baseBg} border rounded-lg p-4 transition-colors duration-150 ease-out ${border}`}
     >
       <div className="flex items-center gap-2 mb-1 flex-wrap">
         {variant === "launched" ? (
-          <Rocket size={14} className="text-accent-2 shrink-0" />
+          <Rocket size={14} className="text-text-3 shrink-0" />
         ) : (
           <span
             title={tPriority(p.priority)}
-            className={`w-2.5 h-2.5 rounded-full shrink-0 ${priorityStripeClass[p.priority]}`}
+            className={`w-2.5 h-2.5 rounded-full shrink-0 ${priorityDotClass[p.priority]}`}
           />
         )}
         <span className="font-semibold truncate flex-1">{p.name}</span>
         {comebackGapDays != null && comebackGapDays > 0 && (
           <span
-            className="text-xs px-1.5 py-0.5 rounded bg-accent/20 text-accent border border-accent/40 shrink-0 inline-flex items-center gap-1"
+            className="text-xs px-1.5 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35 shrink-0 inline-flex items-center gap-1"
             title={t("comebackTooltip")}
           >
             <Sparkles size={10} />
@@ -83,17 +83,17 @@ export function ProjectCardCompact({
           </span>
         )}
         {variant === "launched" && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-accent-2/20 text-accent-2 border border-accent-2/40 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-line-08 text-text-3 border border-line-14 shrink-0">
             {t("openCount", { count: openCount })}
           </span>
         )}
         {overdueCount > 0 && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-signal-a12 text-signal border border-signal-a50 shrink-0">
             {t("overdueBadge", { count: overdueCount })}
           </span>
         )}
         {todayCount > 0 && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35 shrink-0">
             {t("todayBadge", { count: todayCount })}
           </span>
         )}
@@ -120,7 +120,7 @@ export function ProjectCardCompact({
                 donePct >= 80
                   ? "bg-accent"
                   : donePct >= 40
-                  ? "bg-accent-2"
+                  ? "bg-line-22"
                   : "bg-text-muted"
               }`}
               style={{ width: `${donePct}%` }}
@@ -138,7 +138,7 @@ export function ProjectCardCompact({
         <div className="inline-flex items-center gap-2 flex-wrap">
           {todayEffortHours != null && todayEffortHours > 0 && (
             <span
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35"
               title={t("todayHoursTooltip")}
             >
               <Clock size={10} />
@@ -156,7 +156,7 @@ export function ProjectCardCompact({
           )}
         </div>
         {variant === "active" && (
-          <span className={days > 6 ? "text-amber-400" : ""}>
+          <span className={days > 6 ? "text-accent" : ""}>
             {t("daysAgo", { days })}
           </span>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   NotebookPen,
@@ -31,20 +31,14 @@ import { categoryColorClass } from "@/lib/types";
 import { useQuickNotes } from "@/hooks/useQuickNotes";
 import { useQuickNoteMutations } from "@/hooks/useQuickNoteMutations";
 import { FAB } from "../ui/FAB";
+import { Meta } from "../ui/Meta";
+import { EmptyState } from "../ui/EmptyState";
+import { NoteIndex } from "../notes/NoteIndex";
+import { NoteSearchResults } from "../notes/NoteSearchResults";
 import { NoteSectionBlock } from "../notes/NoteSectionBlock";
+import { searchSections, notesInHits } from "@/lib/noteSearch";
 
 type Filter = string; // "all" | "loose" | "pinned" | <categoryId>
-
-function noteMatches(note: QuickNote, q: string): boolean {
-  if (!q) return true;
-  const hay = [
-    note.title,
-    ...note.sections.flatMap((s) => [s.heading, s.body]),
-  ]
-    .join("\n")
-    .toLowerCase();
-  return hay.includes(q);
-}
 
 export function QuickNotesView({
   categories,
@@ -60,22 +54,34 @@ export function QuickNotesView({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  // Sección a la que saltar tras abrir una nota desde un resultado de búsqueda.
+  const [focusSectionId, setFocusSectionId] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return quickNotes.filter((n) => {
-      if (filter === "loose" && n.categoryId) return false;
-      if (filter === "pinned" && !n.pinned) return false;
-      if (
-        filter !== "all" &&
-        filter !== "loose" &&
-        filter !== "pinned" &&
-        n.categoryId !== filter
-      )
-        return false;
-      return noteMatches(n, q);
-    });
-  }, [quickNotes, search, filter]);
+  /** Las notas que pasan los chips de filtro. La búsqueda ya no filtra aquí:
+   *  cuando hay consulta, el panel enseña resultados por sección. */
+  const inFilter = useMemo(
+    () =>
+      quickNotes.filter((n) => {
+        if (filter === "loose" && n.categoryId) return false;
+        if (filter === "pinned" && !n.pinned) return false;
+        if (
+          filter !== "all" &&
+          filter !== "loose" &&
+          filter !== "pinned" &&
+          n.categoryId !== filter
+        )
+          return false;
+        return true;
+      }),
+    [quickNotes, filter]
+  );
+
+  const query = search.trim();
+  const searching = query.length > 0;
+  const hits = useMemo(
+    () => (searching ? searchSections(inFilter, query) : []),
+    [searching, inFilter, query]
+  );
 
   const selected = quickNotes.find((n) => n.id === selectedId) ?? null;
 
@@ -91,6 +97,12 @@ export function QuickNotesView({
     if (selectedId === id) setSelectedId(null);
   };
 
+  /** Abrir una nota desde un resultado y aterrizar en la sección que casó. */
+  const jumpTo = (noteId: string, sectionId: string | null) => {
+    setSelectedId(noteId);
+    setFocusSectionId(sectionId);
+  };
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-1">
@@ -99,8 +111,11 @@ export function QuickNotesView({
       </div>
       <p className="text-sm text-text-muted mb-4 max-w-2xl">{t("subtitle")}</p>
 
-      <div className={selected ? "grid md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] gap-4" : ""}>
-        {/* ---------- List pane ---------- */}
+      {/* Índice a la izquierda y editor al lado, SIEMPRE (DP-17): la rejilla de
+          tarjetas desapareció. En móvil sigue siendo una cosa u otra, que es lo
+          correcto — no caben dos columnas a 390px. */}
+      <div className="grid md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] gap-4 items-start">
+        {/* ---------- Índice ---------- */}
         <div className={`${selected ? "hidden md:block" : "block"}`}>
           <div className="flex items-center gap-2 mb-3">
             <div className="relative flex-1">
@@ -147,11 +162,16 @@ export function QuickNotesView({
 
           {loading && quickNotes.length === 0 ? (
             <div className="text-sm text-text-muted py-8 text-center">{t("loading")}</div>
-          ) : filtered.length === 0 ? (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center">
-              <p className="text-text-muted text-sm mb-4">
-                {search.trim() ? t("noMatch", { query: search }) : t("empty")}
-              </p>
+          ) : searching ? (
+            <>
+              <Meta variant="cintillo" tone="faint" className="block mb-1.5">
+                {t("hitCount", { hits: hits.length, notes: notesInHits(hits) })}
+              </Meta>
+              <NoteSearchResults hits={hits} query={query} onJump={jumpTo} />
+            </>
+          ) : inFilter.length === 0 ? (
+            <div className="bg-surface border border-border rounded-lg p-8 text-center">
+              <p className="text-text-muted text-sm mb-4">{t("empty")}</p>
               <button
                 onClick={handleNew}
                 className="px-4 py-2 bg-accent text-bg rounded-lg font-medium text-sm"
@@ -160,26 +180,18 @@ export function QuickNotesView({
               </button>
             </div>
           ) : (
-            <div className={`grid gap-2 ${selected ? "grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
-              {filtered.map((n) => (
-                <NoteCard
-                  key={n.id}
-                  note={n}
-                  categories={categories}
-                  projects={projects}
-                  selected={n.id === selectedId}
-                  onSelect={() => setSelectedId(n.id)}
-                  emptyTitle={t("untitled")}
-                  sectionsLabel={t("sectionCount", { count: n.sections.length })}
-                  standaloneLabel={t("standalone")}
-                />
-              ))}
-            </div>
+            <NoteIndex
+              notes={inFilter}
+              categories={categories}
+              projects={projects}
+              selectedId={selectedId}
+              onSelect={(id) => jumpTo(id, null)}
+            />
           )}
         </div>
 
-        {/* ---------- Editor pane (only when a note is open) ---------- */}
-        {selected && (
+        {/* ---------- Editor ---------- */}
+        {selected ? (
           <div className="block">
             <NoteEditor
               key={selected.id}
@@ -187,8 +199,27 @@ export function QuickNotesView({
               categories={categories}
               projects={projects}
               m={m}
+              focusSectionId={focusSectionId}
+              onFocused={() => setFocusSectionId(null)}
               onBack={() => setSelectedId(null)}
               onDelete={() => handleDelete(selected.id)}
+            />
+          </div>
+        ) : (
+          // El panel del editor no se queda en blanco: con el índice fijo, ese
+          // hueco es la mitad de la pantalla.
+          <div className="hidden md:block">
+            <EmptyState
+              title={t("pickOne")}
+              body={t("pickOneHint")}
+              actions={
+                <button
+                  onClick={handleNew}
+                  className="px-4 py-2 bg-accent text-bg rounded-md font-medium text-sm hover:bg-accent-hi transition-colors duration-150 ease-out"
+                >
+                  {t("newNote")}
+                </button>
+              }
             />
           </div>
         )}
@@ -222,75 +253,13 @@ function FilterChip({
   );
 }
 
-function NoteCard({
-  note,
-  categories,
-  projects,
-  selected,
-  onSelect,
-  emptyTitle,
-  sectionsLabel,
-  standaloneLabel,
-}: {
-  note: QuickNote;
-  categories: Category[];
-  projects: Project[];
-  selected: boolean;
-  onSelect: () => void;
-  emptyTitle: string;
-  sectionsLabel: string;
-  standaloneLabel: string;
-}) {
-  const cat = categories.find((c) => c.id === note.categoryId) ?? null;
-  const proj = projects.find((p) => p.id === note.projectId) ?? null;
-  const cls = cat ? categoryColorClass(cat.color) : null;
-  const preview =
-    note.sections.find((s) => s.body.trim())?.body.trim() ??
-    note.sections.find((s) => s.heading.trim())?.heading.trim() ??
-    "";
-
-  return (
-    <button
-      onClick={onSelect}
-      className={`relative w-full text-left bg-surface border rounded-xl p-3 pl-4 overflow-hidden transition-colors ${
-        selected ? "border-accent" : "border-border hover:border-text-muted"
-      }`}
-    >
-      <span
-        className={`absolute left-0 top-0 bottom-0 w-1 ${cls ? cls.dot : "bg-border"}`}
-      />
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-semibold text-sm truncate">
-          {note.title.trim() || emptyTitle}
-        </span>
-        {note.pinned && <Pin size={13} className="text-accent shrink-0 fill-current" />}
-      </div>
-      {preview && (
-        <p className="text-xs text-text-muted mt-1 line-clamp-2 break-words">{preview}</p>
-      )}
-      <div className="flex items-center gap-2 mt-2 flex-wrap">
-        {cat && cls && (
-          <span className={`text-[10px] px-2 py-0.5 rounded border ${cls.chip}`}>{cat.name}</span>
-        )}
-        {proj && (
-          <span className="text-[10px] px-2 py-0.5 rounded bg-bg border border-border text-text-muted truncate max-w-[8rem]">
-            {proj.name}
-          </span>
-        )}
-        {!cat && !proj && (
-          <span className="text-[10px] text-text-muted italic">{standaloneLabel}</span>
-        )}
-        <span className="text-[10px] text-text-muted ml-auto">{sectionsLabel}</span>
-      </div>
-    </button>
-  );
-}
-
 function NoteEditor({
   note,
   categories,
   projects,
   m,
+  focusSectionId,
+  onFocused,
   onBack,
   onDelete,
 }: {
@@ -298,6 +267,9 @@ function NoteEditor({
   categories: Category[];
   projects: Project[];
   m: ReturnType<typeof useQuickNoteMutations>;
+  /** Sección a la que saltar al abrir desde un resultado de búsqueda. */
+  focusSectionId?: string | null;
+  onFocused?: () => void;
   onBack: () => void;
   onDelete: () => void;
 }) {
@@ -322,6 +294,18 @@ function NoteEditor({
 
   const sections = [...note.sections].sort((a, b) => a.position - b.position);
 
+  /**
+   * Saltar a la sección que casó con la búsqueda. Se hace tras pintar y se
+   * consume una sola vez: si no, cualquier reordenado o guardado volvería a
+   * arrastrar la vista al mismo sitio.
+   */
+  useEffect(() => {
+    if (!focusSectionId) return;
+    const el = document.getElementById(`note-section-${focusSectionId}`);
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    onFocused?.();
+  }, [focusSectionId, onFocused]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -338,7 +322,7 @@ function NoteEditor({
   };
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-4 sm:p-5">
+    <div className="bg-surface border border-border rounded-lg p-4 sm:p-5">
       {/* Header row */}
       <div className="flex items-center gap-2 mb-3">
         <button
@@ -367,7 +351,7 @@ function NoteEditor({
         <button
           onClick={onDelete}
           aria-label={tCommon("delete")}
-          className="p-1.5 rounded-lg text-text-muted hover:text-red-400 shrink-0"
+          className="p-1.5 rounded-lg text-text-muted hover:text-signal shrink-0"
         >
           <Trash2 size={16} />
         </button>
@@ -429,6 +413,7 @@ function NoteEditor({
               <NoteSectionBlock
                 key={s.id}
                 section={s}
+                highlight={s.id === focusSectionId}
                 onSave={(data) => m.updateSection(s.id, data)}
                 onDelete={() => m.deleteSection(s.id)}
               />
@@ -439,7 +424,7 @@ function NoteEditor({
 
       <button
         onClick={() => m.addSection(note.id)}
-        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-dashed border-border hover:border-accent text-text-muted hover:text-accent rounded-xl text-sm transition-colors"
+        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-dashed border-border hover:border-accent text-text-muted hover:text-accent rounded-lg text-sm transition-colors"
       >
         <Plus size={15} /> {t("addSection")}
       </button>

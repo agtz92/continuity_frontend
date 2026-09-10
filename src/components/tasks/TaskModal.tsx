@@ -325,7 +325,7 @@ export function TaskModal({
                   return (
                     <div
                       key={b.id}
-                      className="flex items-center gap-2 text-sm bg-border/40 rounded-lg px-3 py-1.5"
+                      className="flex items-center gap-2 text-sm bg-line-08 rounded-lg px-3 py-1.5"
                     >
                       <Lock size={12} className="text-text-muted shrink-0" />
                       <span className="flex-1 flex items-center gap-1.5 min-w-0 text-text-muted">
@@ -443,6 +443,7 @@ function BlockerTaskCombobox({
   onChange: (id: string) => void;
   placeholder: string;
 }) {
+  const t = useTranslations("modals.task");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -556,7 +557,7 @@ function BlockerTaskCombobox({
         createPortal(
           <div
             ref={dropdownRef}
-            className="fixed z-[60] bg-surface border border-border rounded-lg shadow-lg overflow-hidden flex flex-col"
+            className="fixed z-[60] bg-surface border border-border rounded-lg shadow-hard overflow-hidden flex flex-col"
             style={{
               left: pos.left,
               top: pos.top,
@@ -572,7 +573,7 @@ function BlockerTaskCombobox({
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar..."
+                  placeholder={t("blockerSearch")}
                   className="flex-1 min-w-0 bg-transparent text-sm outline-none"
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
@@ -585,12 +586,14 @@ function BlockerTaskCombobox({
             </div>
             <div className="overflow-y-auto">
               {groups.length === 0 ? (
-                <div className="px-3 py-4 text-sm text-text-muted text-center">Sin resultados</div>
+                <div className="px-3 py-4 text-sm text-text-muted text-center">
+                  {t("blockerNoResults")}
+                </div>
               ) : (
                 groups.map((g) => (
                   <div key={g.id ?? "__none__"}>
                     <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-wider text-text-muted sticky top-0 bg-surface">
-                      {g.name ?? "Sin proyecto"}
+                      {g.name ?? t("noProject")}
                     </div>
                     {g.tasks.map((task) => (
                       <button

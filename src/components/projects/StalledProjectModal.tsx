@@ -83,7 +83,7 @@ export function StalledProjectModal({
                 onClick={() => setChoice(opt.value)}
                 className={`flex items-center gap-3 px-3 py-3 rounded-lg border text-left text-sm transition-colors ${
                   active
-                    ? "border-accent bg-accent/10 text-text"
+                    ? "border-accent bg-accent-a12 text-text"
                     : "border-border bg-border text-text-muted hover:opacity-80"
                 }`}
               >

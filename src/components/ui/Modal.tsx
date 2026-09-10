@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { BottomSheet } from "./BottomSheet";
+import { useTranslations } from "next-intl";
 
 export function Modal({
   title,
@@ -24,6 +25,7 @@ export function Modal({
   /** Tailwind width classes for the sm+ breakpoint. Override to make the modal wider by default. */
   widthClassName?: string;
 }) {
+  const tCommon = useTranslations("common");
   const isMobile = useIsMobile();
   const mouseDownTargetRef = useRef<EventTarget | null>(null);
 
@@ -42,7 +44,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-4 z-50"
+      className="fixed inset-0 bg-scrim flex items-end sm:items-center justify-center p-3 sm:p-4 z-50"
       onMouseDown={(e) => {
         mouseDownTargetRef.current = e.target;
       }}
@@ -57,7 +59,7 @@ export function Modal({
       }}
     >
       <div
-        className={`bg-surface border border-border rounded-xl w-full ${widthClassName} h-auto max-h-[90vh] sm:resize relative flex flex-col`}
+        className={`bg-surface border border-border rounded-lg w-full ${widthClassName} h-auto max-h-[90vh] sm:resize relative flex flex-col`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header — always visible, never scrolls */}
@@ -66,7 +68,7 @@ export function Modal({
           <button
             onClick={onClose}
             className="text-text-muted hover:text-text-muted p-1 -m-1"
-            aria-label="Close"
+            aria-label={tCommon("close")}
           >
             <X size={18} />
           </button>
@@ -82,7 +84,7 @@ export function Modal({
         <div
           aria-hidden
           className="hidden sm:block pointer-events-none absolute bottom-1 right-1 text-text-muted"
-          title="Drag to resize"
+          title={tCommon("dragToResize")}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
             <circle cx="10" cy="6" r="1" />

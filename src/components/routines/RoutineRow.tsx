@@ -15,7 +15,9 @@ import { categoryColorClass } from "@/lib/types";
 import { describeRecurrence } from "@/lib/recurrence";
 import { daysOverdue, todayLocalISODate } from "@/lib/date";
 import { toast } from "@/lib/toast";
+import type { OccurrenceMark } from "@/lib/routineHistory";
 import { TaskToggle } from "../tasks/TaskToggle";
+import { OccurrenceRule } from "./OccurrenceRule";
 
 /**
  * Row for an individual routine occurrence. Used inside RoutinesView and
@@ -34,16 +36,24 @@ export function RoutineRow({
   onUncomplete,
   onEdit,
   onArchive,
-  onDelete,
+  rule,
+  streak = 0,
 }: {
   routine: Routine;
   scheduledDate: string;
   occurrenceId: string | null;
   project?: { name: string; color: string } | null;
+  /** Historia derivada de la rutina. Solo se pasa en la PRIMERA fila que la
+   *  rutina ocupa dentro de un bucket: una rutina diaria genera siete filas y
+   *  siete reglas idénticas serían ruido, no información. */
+  rule?: OccurrenceMark[];
+  streak?: number;
   onComplete: (routineId: string, scheduledDate: string) => void | Promise<void>;
   onUncomplete: (occurrenceId: string) => void | Promise<void>;
   onEdit?: (r: Routine) => void;
   onArchive?: (r: Routine) => void | Promise<void>;
+  /** Aceptada y no usada: borrar vive en el modal de edición, no en la fila
+   *  (ver CLAUDE.md). Se mantiene para no romper los call sites que la pasan. */
   onDelete?: (id: string) => void | Promise<void>;
 }) {
   const t = useTranslations("routineRow");
@@ -84,9 +94,9 @@ export function RoutineRow({
       transition={{ duration: 0.2 }}
       className={`bg-surface border border-l-[3px] rounded-lg p-3 flex items-center gap-3 group ${
         overdue
-          ? "border-red-500/30 border-l-red-500"
+          ? "border-signal-a50 border-l-signal"
           : dueToday
-          ? "border-orange-500/30 border-l-amber-500"
+          ? "border-accent-a35 border-l-accent"
           : "border-border border-l-border"
       }`}
     >
@@ -105,12 +115,12 @@ export function RoutineRow({
           <span className={isDone ? "line-through text-text-muted" : "text-text"}>
             {routine.title}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+          <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
             <Repeat size={10} />
             {describeRecurrence(routine, recLabel)}
           </span>
           {routine.effortHours != null && (
-            <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+            <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
               <Clock size={10} />
               {routine.effortHours}h
             </span>
@@ -118,11 +128,11 @@ export function RoutineRow({
         </div>
         <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
           {overdue && lateDays !== null ? (
-            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40">
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-signal-a12 text-signal border border-signal-a50">
               {t("overdueDays", { count: lateDays })}
             </span>
           ) : dueToday ? (
-            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40">
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35">
               {t("todayBadge")}
             </span>
           ) : (
@@ -140,6 +150,9 @@ export function RoutineRow({
           )}
           {routine.description && <span>· {routine.description}</span>}
         </div>
+        {rule && rule.length > 0 && (
+          <OccurrenceRule marks={rule} streak={streak} className="mt-1.5" />
+        )}
       </div>
       {onEdit && (
         <button

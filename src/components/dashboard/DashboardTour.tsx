@@ -212,9 +212,9 @@ function FinalCtaModal({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onSecondary} />
-      <div className="relative bg-bg border border-border rounded-xl p-6 max-w-md w-full shadow-2xl">
-        <h2 className="font-display text-2xl text-text mb-2">{t("title")}</h2>
+      <div className="absolute inset-0 bg-scrim" onClick={onSecondary} />
+      <div className="relative bg-bg border border-border rounded-lg p-6 max-w-md w-full shadow-hard-lg">
+        <h2 className="font-display-app text-2xl text-text mb-2">{t("title")}</h2>
         <p className="text-text-muted text-sm mb-5">{t("body")}</p>
 
         {/* "There's more" footer block — links to the resources hub. */}

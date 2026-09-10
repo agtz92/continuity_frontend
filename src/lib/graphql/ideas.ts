@@ -33,9 +33,22 @@ export const DELETE_IDEA = gql`
 `;
 
 
+// `firstAction`, `categoryId` y `priority` son opcionales en el servidor para no
+// romper la app nativa, que todavía manda solo el id. La web SÍ exige la primera
+// acción, en el modal de promoción (ver REDISENO_DECISIONES.md, D-55).
 export const PROMOTE_IDEA = gql`
-  mutation PromoteIdea($id: ID!) {
-    promoteIdea(id: $id) {
+  mutation PromoteIdea(
+    $id: ID!
+    $firstAction: String
+    $categoryId: ID
+    $priority: String
+  ) {
+    promoteIdea(
+      id: $id
+      firstAction: $firstAction
+      categoryId: $categoryId
+      priority: $priority
+    ) {
       id
       name
       status

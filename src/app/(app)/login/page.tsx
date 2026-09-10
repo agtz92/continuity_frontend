@@ -176,7 +176,7 @@ export default function LoginPage() {
           initial={reduce ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]"
+          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.05] p-8 shadow-hard-lg"
         >
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-ls-ochre/40 bg-ls-ochre/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-ls-ochre">
             <span className="relative flex h-1.5 w-1.5">
@@ -282,7 +282,7 @@ export default function LoginPage() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative w-full max-w-md"
       >
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-8 shadow-hard-lg">
           <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-ls-text-secondary">
             <span className="h-1.5 w-1.5 rounded-full bg-ls-ochre" />
             {eyebrow}

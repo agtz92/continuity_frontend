@@ -12,7 +12,6 @@
 
 import type { ReactNode } from "react";
 import {
-  Activity,
   ChevronRight,
   Clock,
   Edit2,
@@ -28,10 +27,13 @@ import type {
   ProjectNote,
   Task,
 } from "@/lib/types";
-import { categoryColorClass } from "@/lib/types";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
-import { statusConfig } from "@/lib/status";
-import { priorityStripeClass } from "@/lib/priority";
+import { Spine, spineStrikesTitle } from "@/components/ui/Spine";
+import { NAME_SIZE_CLASS, type SmartSection } from "./projectSort";
+import { Meta } from "@/components/ui/Meta";
+import { CategoryTag } from "@/components/ui/CategoryTag";
+import { BlockerBadge } from "@/components/ui/BlockerBadge";
+import { ProgressTicks } from "@/components/ui/ProgressTicks";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectSection } from "@/components/projects/ProjectSection";
 import { ShowMoreList } from "@/components/ui/ShowMoreList";
@@ -55,7 +57,17 @@ interface ProjectRowProps {
   onDeleteTask: (id: string) => void | Promise<void>;
   onEditProject: (p: Project) => void;
   onDeleteProject: (id: string) => void | Promise<void>;
+  /** Banda del triaje a la que pertenece. Decide el cuerpo del nombre: la
+   *  jerarquía la hace el tamaño, no el gris. En "mi orden" no hay bandas y
+   *  todas las filas usan el mismo cuerpo. */
+  band?: SmartSection;
 }
+
+/** Trama de "detenido", compartida con `tasks/TaskRow` y `ProjectTaskRow`. */
+const BLOCKED_HATCH = {
+  backgroundImage:
+    "repeating-linear-gradient(45deg, var(--signal-a04) 0 6px, transparent 6px 14px)",
+} as const;
 
 export function ProjectRow({
   project: p,
@@ -74,11 +86,13 @@ export function ProjectRow({
   onDeleteTask,
   onEditProject,
   onDeleteProject,
+  band,
 }: ProjectRowProps) {
   const t = useTranslations("views.projects");
   const tCard = useTranslations("views.projects.card");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
+  const tBlocker = useTranslations("blocker");
   const tPriority = useTranslations("priority");
   const locale = useLocale();
 
@@ -95,78 +109,101 @@ export function ProjectRow({
     .filter((t) => !t.done && t.effortHours != null)
     .reduce((sum, t) => sum + (t.effortHours as number), 0);
   const pendingEffort = Math.round(pendingEffortRaw * 10) / 10;
-  const StatusIcon = statusConfig[p.status]?.icon ?? Activity;
-  const days = daysSince(p.lastActivity) ?? 0;
+  // "Atorado" no existe en el modelo: se deriva de tener alguna tarea abierta
+  // con blocker. Hasta que el backend lo mande calculado (B1), se calcula aquí.
+  const blockedTaskCount = projectTasks.filter(
+    (t) => !t.done && (t.blockers?.length ?? 0) > 0
+  ).length;
+  // El servidor ya manda `isBlocked` derivado (B1); el cálculo local es el
+  // fallback para formas cacheadas de antes del rediseño.
+  const hasOpenBlocker = p.isBlocked ?? blockedTaskCount > 0;
+  const days = p.daysSinceTouch ?? daysSince(p.lastActivity) ?? 0;
+  const blockedDays = p.blockedSince ? (daysSince(p.blockedSince) ?? 0) : days;
+  // La razón del blocker más antiguo: es el dato que desatasca, no el estado.
+  const blockerReason = projectTasks
+    .filter((t) => !t.done)
+    .flatMap((t) => t.blockers ?? [])
+    .sort((a, b) => a.created.localeCompare(b.created))
+    .find((b) => b.externalDescription)?.externalDescription;
+  // El enfriamiento se dice con el peso de la tinta, no con una alarma.
+  const coolingTone =
+    (p.cooling ?? (days > 21 ? "cold" : days > 7 ? "cool" : "warm")) === "cold"
+      ? "inherit"
+      : (p.cooling ?? (days > 7 ? "cool" : "warm")) === "cool"
+        ? "muted"
+        : "faint";
   // Soft visual hint only (D9). Not a status — the persisted
   // `stalled` status has its own badge via statusConfig.
   const isIdle =
     ["active", "idea"].includes(p.status) && days >= 7;
   const isExpanded = selectedProject?.id === p.id;
-  const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
     // ===== Fila base (siempre visible) =====
     <div
       key={p.id}
-      className={`relative transition-colors ${
-        isExpanded ? "bg-surface/60 ring-1 ring-inset ring-accent/30" : ""
+      // Igual que en la fila de tarea: si está atorado, se ve atorado — la
+      // trama recorre la fila entera, no vive solo en el chip.
+      style={hasOpenBlocker ? BLOCKED_HATCH : undefined}
+      className={`relative transition-colors duration-150 ease-out ${
+        isExpanded ? "bg-surface ring-1 ring-inset ring-accent-a35" : ""
       }`}
     >
-      <div
-        aria-hidden
-        className={`absolute left-0 top-0 bottom-0 w-1 ${priorityStripeClass[p.priority]}`}
-        title={tPriority(p.priority)}
+      <Spine
+        status={p.status}
+        priority={p.priority}
+        blocked={hasOpenBlocker}
+        title={hasOpenBlocker ? tStatus("blocked") : tPriority(p.priority)}
       />
       <div
-        className="flex items-center gap-3 pl-5 pr-4 py-2.5 cursor-pointer hover:bg-surface/40"
+        // Aire por fila. La densidad honesta del plan no es apretar: es que
+        // quepa lo que hace falta. Con dos líneas de contenido (nombre y
+        // siguiente acción, que ahora puede ocupar dos renglones) 2.5 de padding
+        // dejaba los proyectos pegados unos a otros.
+        className="flex items-start gap-4 pl-5 pr-4 py-4 cursor-pointer hover:bg-surface"
         onClick={() => onSelectProject(isExpanded ? null : p)}
       >
         {dragHandle}
         <ChevronRight
           size={16}
-          className={`shrink-0 text-text-muted transition-transform ${
+          className={`shrink-0 mt-1 text-text-muted transition-transform ${
             isExpanded ? "rotate-90" : ""
           }`}
         />
-        <span
-          className={`inline-flex items-center justify-center w-6 h-6 rounded border shrink-0 ${statusConfig[p.status]?.color}`}
-          title={tStatus(p.status)}
-          aria-label={tStatus(p.status)}
-        >
-          <StatusIcon size={12} />
-        </span>
+        {/* El estado lo dice la espina; el icono con caja se cae (el diseño
+            prohíbe iconos genéricos junto a cada texto). Queda la etiqueta
+            para lectores de pantalla: el color no puede ser la única señal. */}
+        <span className="sr-only">{tStatus(p.status)}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-semibold truncate">{p.name}</span>
-            {p.categoryId && categoryById[p.categoryId] && (
-              <span
-                className={`hidden md:inline-block text-xs px-2 py-0.5 rounded border shrink-0 ${
-                  categoryColorClass(
-                    categoryById[p.categoryId].color
-                  ).chip
-                }`}
-              >
-                {categoryById[p.categoryId].name}
-              </span>
+            <span
+              className={`font-display-app font-semibold truncate ${
+                band ? NAME_SIZE_CLASS[band] : "text-[17px] leading-snug text-text"
+              } ${spineStrikesTitle(p.status) ? "line-through text-text-4" : ""}`}
+            >
+              {p.name}
+            </span>
+            {hasOpenBlocker && (
+              <BlockerBadge compact label since={blockedDays} className="shrink-0" />
             )}
             {/* Un solo badge por prioridad: vencidas > hoy > inactivo
                 > horas pendientes. Es excluyente (cadena de ternarios),
                 no se apilan. */}
             {overdueCount > 0 ? (
-              <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40 shrink-0">
+              <span className="text-xs px-2 py-0.5 rounded bg-signal-a12 text-signal border border-signal-a50 shrink-0">
                 {tCard("overdueBadge", { count: overdueCount })}
               </span>
             ) : todayCount > 0 ? (
-              <span className="text-xs px-2 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 shrink-0">
+              <span className="text-xs px-2 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35 shrink-0">
                 {tCard("todayBadge", { count: todayCount })}
               </span>
             ) : isIdle ? (
-              <span className="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
+              <span className="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35 shrink-0">
                 {tCard("idleBadge", { count: days })}
               </span>
             ) : pendingEffort > 0 ? (
               <span
-                className="hidden md:inline-flex text-xs px-2 py-0.5 rounded bg-accent-2/15 text-accent-2 border border-accent-2/30 items-center gap-1 shrink-0"
+                className="hidden md:inline-flex text-xs px-2 py-0.5 rounded bg-line-08 text-text-3 border border-line-14 items-center gap-1 shrink-0"
                 title={tCard("pendingHoursTooltip")}
               >
                 <Clock size={10} />
@@ -174,31 +211,65 @@ export function ProjectRow({
               </span>
             ) : null}
           </div>
-          {p.nextStep && (
-            <div className="text-xs text-text-muted truncate mt-0.5">
-              → {p.nextStep}
+          {hasOpenBlocker && blockerReason ? (
+            <div className="text-xs text-signal truncate mt-0.5">
+              ✕ {blockerReason}
+              {blockedTaskCount > 1 ? ` — ${tBlocker("blocksTasks", { count: blockedTaskCount })}` : ""}
+            </div>
+          ) : p.nextStep ? (
+            <div className="text-xs text-text-muted line-clamp-2 mt-0.5">
+              <span className="text-accent">→ </span>
+              {p.nextStep}
+            </div>
+          ) : (
+            // Que falte la siguiente acción NO es un hueco en blanco: es el
+            // mejor predictor de muerte que tiene el producto, así que se dice.
+            <div className="text-xs text-text-4 italic mt-0.5">
+              {tCard("nextStepEmpty")}
             </div>
           )}
         </div>
-        {total > 0 && (
-          <>
-            <div className="hidden sm:flex items-center gap-2 shrink-0 w-32">
-              <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-accent transition-all"
-                  style={{ width: `${percent}%` }}
+        {/* Categoría, progreso y "sin tocar" como columnas: el índice se lee
+            en vertical, no fila por fila. Bajo `md` se caen (artboard 11). */}
+        <span className="hidden lg:flex shrink-0 w-40 pt-0.5">
+          {p.categoryId && categoryById[p.categoryId] ? (
+            <CategoryTag
+              name={categoryById[p.categoryId].name}
+              color={categoryById[p.categoryId].color}
                 />
-              </div>
-              <span className="text-xs text-text-muted tabular-nums w-10 text-right">
-                {done}/{total}
-              </span>
-            </div>
-            <span className="sm:hidden text-xs text-text-muted tabular-nums shrink-0">
-              {done}/{total}
-            </span>
-          </>
+          ) : (
+            <CategoryTag loose />
         )}
-      </div>
+        </span>
+        {total > 0 ? (
+          // La fracción arriba y los bloques debajo: "11/14 · 79%" se lee de
+          // un vistazo, y los bloques siguen siendo UNO POR TAREA para poder
+          // contarlos (los rayados son las bloqueadas).
+          <span className="hidden md:flex flex-col items-end gap-1.5 shrink-0 w-[116px]">
+            <span className="flex items-baseline gap-0.5 leading-none whitespace-nowrap">
+              <span className="font-display-app text-[19px] text-text">{done}</span>
+              <Meta tone="faint">
+                /{total} · {Math.round((done / total) * 100)}%
+              </Meta>
+            </span>
+            <ProgressTicks
+              done={done}
+              total={total}
+              blocked={blockedTaskCount}
+              showLabel={false}
+            />
+          </span>
+        ) : (
+          <span className="hidden md:block shrink-0 w-[116px]" />
+        )}
+        <Meta
+          tone={coolingTone}
+          className="shrink-0 w-12 text-right pt-1"
+          title={tCard("idleBadge", { count: days })}
+          >
+          {days} D
+        </Meta>
+              </div>
 
       {/* ===== Detalle expandido (solo la fila seleccionada) =====
           Los updates ("recent activity") salen de `activities` con
@@ -216,7 +287,7 @@ export function ProjectRow({
                 e.stopPropagation();
                 onOpenProject(p);
               }}
-              className="text-xs px-3 py-1.5 rounded-md bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent inline-flex items-center gap-1.5 transition-colors"
+              className="text-xs px-3 py-1.5 rounded-md bg-accent-a12 hover:bg-accent-a22 border border-accent-a35 text-accent inline-flex items-center gap-1.5 transition-colors"
             >
               <Maximize2 size={12} />
               {t("openFullView")}
@@ -224,7 +295,7 @@ export function ProjectRow({
           </div>
 
           {/* Next step — always shown, never collapsible */}
-          <div className="bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
+          <div className="bg-accent-a12 border border-accent-a35 rounded-lg px-3 py-2">
             <div className="text-xs uppercase tracking-wider text-accent mb-1">
               {tCard("nextStep")}
             </div>
@@ -266,7 +337,7 @@ export function ProjectRow({
             title={tCard("tasks")}
             rightSlot={
               total > 0 ? (
-                <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-xs font-normal text-text-muted bg-line-08 border border-border rounded-full px-2 py-0.5 tabular-nums">
                   {done}/{total}
                 </span>
               ) : null
@@ -334,7 +405,7 @@ export function ProjectRow({
             title={tCard("recentActivity")}
             rightSlot={
               projectNotes.length > 0 ? (
-                <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-xs font-normal text-text-muted bg-line-08 border border-border rounded-full px-2 py-0.5 tabular-nums">
                   {projectNotes.length}
                 </span>
               ) : null
@@ -385,7 +456,7 @@ export function ProjectRow({
             title={tCard("notes")}
             rightSlot={
               (notesByProject[p.id]?.length ?? 0) > 0 ? (
-                <span className="text-xs font-normal text-text-muted bg-border/80 border border-border rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-xs font-normal text-text-muted bg-line-08 border border-border rounded-full px-2 py-0.5 tabular-nums">
                   {notesByProject[p.id]!.length}
                 </span>
               ) : null
@@ -412,7 +483,7 @@ export function ProjectRow({
                 e.stopPropagation();
                 onDeleteProject(p.id);
               }}
-              className="px-3 py-1.5 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-md flex items-center gap-1"
+              className="px-3 py-1.5 text-xs bg-signal-a12 hover:bg-signal-a16 text-signal rounded-md flex items-center gap-1"
             >
               <Trash2 size={12} /> {tCommon("delete")}
             </button>

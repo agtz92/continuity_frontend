@@ -113,20 +113,28 @@ export function AssistantPanel({
 
   return (
     <div
-      className="fixed left-0 right-0 z-50 flex justify-end overflow-hidden"
+      // En escritorio Loop **no tapa ni oscurece**: el contenedor no captura
+      // clics (`pointer-events-none`) y solo el panel los recibe, así que la
+      // pantalla de detrás sigue leyéndose y usándose mientras se pregunta.
+      // Es lo que el diseño pide, y además es lo que hace útil "lee esto que
+      // estoy mirando": si lo tapa, ya no lo estás mirando.
+      //
+      // En móvil sigue siendo modal, con su capa oscura: a 390px el panel ocupa
+      // la pantalla entera y fingir que no es un modal sería mentira.
+      className="fixed left-0 right-0 z-50 flex justify-end overflow-hidden pointer-events-none"
       style={containerStyle}
       role="dialog"
-      aria-modal="true"
+      aria-modal={isMobile}
       aria-label={t("title")}
     >
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-scrim sm:hidden pointer-events-auto"
         onClick={() => !streaming && onClose()}
       />
-      <aside className="relative w-full sm:w-[28rem] h-full min-h-0 bg-bg border-l border-border flex flex-col shadow-2xl overflow-hidden">
-        <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/80">
+      <aside className="pointer-events-auto relative w-full sm:w-[28rem] h-full min-h-0 bg-bg border-l border-border flex flex-col shadow-hard-lg overflow-hidden">
+        <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="shrink-0 w-8 h-8 rounded-md bg-gradient-to-br from-accent to-accent-2 text-bg flex items-center justify-center">
+            <div className="shrink-0 w-8 h-8 rounded-md bg-accent text-bg flex items-center justify-center">
               <Sparkles size={15} />
             </div>
             <div className="min-w-0">
@@ -183,7 +191,7 @@ export function AssistantPanel({
         )}
 
         {error && (
-          <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2 rounded-md border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-200 text-xs">
+          <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2 rounded-md border border-signal-a50 bg-signal-a12 text-signal text-xs">
             <AlertCircle size={12} className="mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -213,7 +221,7 @@ export function AssistantPanel({
 
         <form
           onSubmit={handleSubmit}
-          className="shrink-0 border-t border-border/80 p-3 flex items-end gap-2"
+          className="shrink-0 border-t border-border p-3 flex items-end gap-2"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
         >
           <textarea
@@ -232,13 +240,13 @@ export function AssistantPanel({
             placeholder={t("inputPlaceholder")}
             rows={2}
             disabled={streaming}
-            className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent/50 resize-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent-a35 resize-none disabled:opacity-60 disabled:cursor-not-allowed"
           />
           {streaming ? (
             <button
               type="button"
               onClick={stop}
-              className="shrink-0 w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 flex items-center justify-center"
+              className="shrink-0 w-9 h-9 rounded-lg bg-signal-a12 border border-signal-a50 text-signal hover:bg-signal-a16 flex items-center justify-center"
               aria-label={t("stop")}
               title={t("stop")}
             >

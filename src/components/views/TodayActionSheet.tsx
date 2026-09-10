@@ -18,8 +18,8 @@ type Action = {
 
 const ACTIONS: Action[] = [
   { id: "newTask", icon: CheckCircle2, tint: "text-accent" },
-  { id: "newProject", icon: Folder, tint: "text-accent-2" },
-  { id: "newRoutine", icon: Repeat, tint: "text-accent-2" },
+  { id: "newProject", icon: Folder, tint: "text-text-3" },
+  { id: "newRoutine", icon: Repeat, tint: "text-text-3" },
   { id: "newIdea", icon: Lightbulb, tint: "text-purple-400" },
 ];
 

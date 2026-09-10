@@ -19,7 +19,12 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { ManualProjectList, ReorderPill, SectionHeader } from "./ProjectsListParts";
+import {
+  BandHeader,
+  ManualProjectList,
+  ReorderPill,
+} from "./ProjectsListParts";
+import { ProjectGroupHeader } from "./ProjectGroupHeader";
 import { useLocale, useTranslations } from "next-intl";
 import type {
   Activity as ActivityEntry,
@@ -27,14 +32,12 @@ import type {
   Priority,
   Project,
   ProjectNote,
-  ProjectStatus,
   Task,
 } from "@/lib/types";
 import { toLocalISO } from "@/lib/date";
 import { type ProjectSortMode } from "@/lib/priority";
 import { FAB } from "@/components/ui/FAB";
 import {
-  EMPTY_FILTER,
   ProjectsFilterSheet,
   type DueFilter,
   type ProjectFilterDraft,
@@ -49,9 +52,16 @@ import {
   matchesSearch as matchesSearchProject,
   matchesStatus,
   smartSectionOf as smartSectionOfProject,
+  COLLAPSED_SECTIONS,
+  type SmartSection,
+  categoryGroupOf,
+  diagnoseGroup,
+  LOOSE_GROUP,
 } from "./projectSort";
+import type { StatusFilter } from "./projectSort";
 import { ProjectRow } from "./ProjectRow";
 import { ProjectsFilters } from "./ProjectsFilters";
+import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
 
 /**
  * Vista de lista de proyectos. Mantiene en estado local el término de búsqueda,
@@ -104,7 +114,7 @@ export function ProjectsView({
   const locale = useLocale();
   const [projectSearch, setProjectSearch] = useState("");
   const [projectStatusFilter, setProjectStatusFilter] = useState<
-    "all" | ProjectStatus
+    StatusFilter
   >("all");
   const [projectCategoryFilter, setProjectCategoryFilter] = useState<string | null>(
     null
@@ -112,8 +122,15 @@ export function ProjectsView({
   const [projectPriorityFilter, setProjectPriorityFilter] = useState<
     "all" | Priority
   >("all");
+  // Triaje por defecto (artboard 3a): la pantalla responde "qué hago hoy" antes
+  // de que el usuario toque nada. "Mi orden" sigue a un clic.
   const [projectSortMode, setProjectSortMode] =
-    useState<ProjectSortMode>("manual");
+    useState<ProjectSortMode>("smart");
+  // Bandas plegadas. `sleeping` y `launched` nacen plegadas — están ahí, con su
+  // contador, sin ocupar pantalla.
+  const [collapsedBands, setCollapsedBands] = useState<Set<SmartSection>>(
+    () => new Set(COLLAPSED_SECTIONS)
+  );
   const [projectDueFilter, setProjectDueFilter] = useState<DueFilter>("all");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showSortSheet, setShowSortSheet] = useState(false);
@@ -251,7 +268,12 @@ export function ProjectsView({
   const sorted = [...filtered].sort(compare);
   const ideal: LayoutEntry[] = sorted.map((p) => ({
     id: p.id,
-    section: projectSortMode === "smart" ? smartSectionOf(p) : null,
+    section:
+      projectSortMode === "smart"
+        ? smartSectionOf(p)
+        : projectSortMode === "category"
+          ? categoryGroupOf(p)
+          : null,
   }));
   const liveIds = new Set(filtered.map((p) => p.id));
   const layoutSignature = [
@@ -294,10 +316,47 @@ export function ProjectsView({
     void onReorderProjects(arrayMove(ids, oldIndex, newIndex));
   };
 
+  /** Las dos cifras de la cabecera. "Vivos" = lo que sigue en juego. */
+  const aliveCount = useMemo(
+    () =>
+      projects.filter((p) =>
+        ["active", "idea", "stalled", "paused"].includes(p.status)
+      ).length,
+    [projects]
+  );
+  const stuckCount = useMemo(
+    () =>
+      projects.filter(
+        (p) =>
+          p.isBlocked ??
+          tasks.some(
+            (tk) =>
+              tk.projectId === p.id &&
+              !tk.done &&
+              (tk.blockers?.length ?? 0) > 0
+          )
+      ).length,
+    [projects, tasks]
+  );
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
+      <div className="flex items-end justify-between mb-4 gap-3 flex-wrap">
+        {/* La cabecera lleva la cifra que importa, no el nombre de la pantalla:
+            "24 vivos. 5 detenidos." dice en qué estado está el trabajo antes de
+            leer una sola fila. El título queda para lectores de pantalla. */}
+        <h2 className="min-w-0">
+          <span className="sr-only">{t("title")}</span>
+          <span
+            aria-hidden="true"
+            className="font-display-app text-[28px] leading-[1.05] tracking-[-0.02em] text-text block"
+          >
+            {t("headlineAlive", { count: aliveCount })}{" "}
+            <span className={stuckCount > 0 ? "text-signal" : "text-text-4"}>
+              {t("headlineStuck", { count: stuckCount })}
+            </span>
+          </span>
+        </h2>
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search
@@ -341,15 +400,13 @@ export function ProjectsView({
       )}
 
       {visibleProjects.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center">
-          <p className="text-text-muted mb-4">{t("empty")}</p>
-          <button
-            onClick={onNewProject}
-            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            {t("addFirst")}
-          </button>
-        </div>
+        <EmptyState
+          title={t("emptyTitle")}
+          body={t("empty")}
+          actions={
+            <EmptyStateAction label={t("addFirst")} onClick={onNewProject} />
+          }
+        />
       ) : (() => {
         if (filtered.length === 0) {
           const reason = q
@@ -357,7 +414,7 @@ export function ProjectsView({
             : t("noMatchFilters");
           const filtersAreNarrowing = activeFilterCount > 0 && !q;
           return (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center text-sm">
+            <div className="bg-surface border border-border rounded-lg p-8 text-center text-sm">
               <p className="text-text-muted mb-3">{reason}</p>
               {filtersAreNarrowing && (
                 <button
@@ -367,7 +424,7 @@ export function ProjectsView({
                     setProjectCategoryFilter(null);
                     setProjectDueFilter("all");
                   }}
-                  className="text-xs px-3 py-1.5 bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30 rounded-md"
+                  className="text-xs px-3 py-1.5 bg-accent-a12 hover:bg-accent-a22 text-accent border border-accent-a35 rounded-md"
                 >
                   {t("clearFilters")}
                 </button>
@@ -385,10 +442,15 @@ export function ProjectsView({
          * inyecta para arrastrar. Los contadores y badges se derivan aquí por fila
          * a partir de `tasks`/`activities`, no se memoizan (lista corta esperada).
          */
-        const renderRow = (p: Project, dragHandle?: ReactNode) => (
+        const renderRow = (
+          p: Project,
+          band?: SmartSection,
+          dragHandle?: ReactNode
+        ) => (
           <ProjectRow
             key={p.id}
             project={p}
+            band={band}
             dragHandle={dragHandle}
             tasks={tasks}
             activities={activities}
@@ -415,7 +477,9 @@ export function ProjectsView({
               dragEnabled={manualDragEnabled}
               sensors={sensors}
               onDragEnd={onManualDragEnd}
-              renderRow={renderRow}
+              // En "mi orden" no hay bandas: todas las filas usan el mismo
+              // cuerpo, que es justo lo que el artboard 3b pide.
+              renderRow={(p, handle) => renderRow(p, undefined, handle)}
               hint={manualDragEnabled ? t("manualHint") : t("manualFilteredHint")}
             />
           );
@@ -424,7 +488,7 @@ export function ProjectsView({
         // (A/C) Frozen layout, grouped into sections for Smart.
         // Recorre el orden congelado (`entries`, de useStableLayout) en vez de
         // `sorted` para no reordenar mientras el usuario edita; en Smart inserta
-        // un SectionHeader cada vez que cambia la sección de urgencia.
+        // una BandHeader cada vez que cambia la banda de triaje.
         const rows: ReactNode[] = [];
         let currentSection: string | null = null;
         for (const entry of entries) {
@@ -432,14 +496,60 @@ export function ProjectsView({
           if (!p) continue;
           if (projectSortMode === "smart" && entry.section !== currentSection) {
             currentSection = entry.section;
+            const band = entry.section as SmartSection;
+            const count = sorted.filter(
+              (x) => smartSectionOf(x) === band
+            ).length;
             rows.push(
-              <SectionHeader
-                key={`sec-${entry.section}`}
-                label={t(`sections.${entry.section}`)}
+              <BandHeader
+                key={`sec-${band}`}
+                label={t(`sections.${band}`)}
+                blurb={t(`sectionBlurbs.${band}`)}
+                count={count}
+                collapsed={collapsedBands.has(band)}
+                onToggle={() =>
+                  setCollapsedBands((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(band)) next.delete(band);
+                    else next.add(band);
+                    return next;
+                  })
+                }
               />
             );
           }
-          rows.push(renderRow(p));
+          // Banda plegada: la cabecera ya salió con su contador, las filas no.
+          if (
+            projectSortMode === "smart" &&
+            collapsedBands.has(entry.section as SmartSection)
+          ) {
+            continue;
+          }
+          if (projectSortMode === "category" && entry.section !== currentSection) {
+            currentSection = entry.section;
+            // El diagnóstico se calcula sobre TODO el grupo visible, no sobre
+            // las filas ya pintadas: es un resumen, no un acumulado.
+            const group = sorted.filter(
+              (x) => categoryGroupOf(x) === entry.section
+            );
+            rows.push(
+              <ProjectGroupHeader
+                key={`grp-${entry.section}`}
+                label={
+                  entry.section === LOOSE_GROUP
+                    ? t("group.loose")
+                    : categoryById[entry.section ?? ""]?.name ??
+                      t("group.loose")
+                }
+                diagnosis={diagnoseGroup(group, tasks)}
+              />
+            );
+          }
+          rows.push(
+            projectSortMode === "smart"
+              ? renderRow(p, entry.section as SmartSection)
+              : renderRow(p)
+          );
         }
 
         return (
@@ -451,7 +561,7 @@ export function ProjectsView({
                 onClick={resync}
               />
             )}
-            <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden bg-surface">
+            <div className="flex flex-col divide-y divide-border border border-border rounded-lg overflow-hidden bg-surface">
               {rows}
             </div>
           </div>

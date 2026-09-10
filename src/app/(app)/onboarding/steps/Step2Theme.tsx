@@ -5,43 +5,40 @@ import { useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { NOTIFICATION_SETTINGS_QUERY } from "@/lib/graphql";
+import { ThemeSwatch } from "@/components/settings/ThemeSwatch";
 import {
-  DEFAULT_PALETTE,
   PALETTE_LABEL_KEY,
   PALETTE_SWATCHES,
   SUPPORTED_PALETTES,
-  isPalette,
+  effectiveSwatchMode,
+  normalizePalette,
   type Palette,
 } from "@/palette/config";
 import {
   SUPPORTED_THEMES,
   THEME_LABEL_KEY,
-  isTheme,
+  normalizeTheme,
   type Theme,
 } from "@/theme/config";
 
 const ONBOARDING_DEFAULT_THEME: Theme = "light";
-const ONBOARDING_DEFAULT_PALETTE: Palette = "midnight";
+// Era `midnight`, retirada por el rediseño; `hielo` es su equivalente curada
+// (mismo azul frío). Ver LEGACY_PALETTE_MAP en @/palette/config.
+const ONBOARDING_DEFAULT_PALETTE: Palette = "hielo";
 
 function applyThemeAttribute(theme: Theme) {
   if (typeof document === "undefined") return;
   const effective =
     theme === "system"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
+        ? "carbon"
         : "light"
       : theme;
   document.documentElement.dataset.theme = effective;
 }
 
-function detectEffectiveTheme(theme: Theme): "dark" | "light" | "continuuit" {
-  if (theme === "system") {
-    if (typeof window === "undefined") return "light";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  }
-  return theme;
+function detectEffectiveTheme(theme: Theme): "dark" | "light" {
+  return effectiveSwatchMode(theme);
 }
 
 export function Step2Theme({
@@ -69,15 +66,14 @@ export function Step2Theme({
   const [hydrated, setHydrated] = useState(false);
 
   // Apply saved values if present, else the onboarding defaults (light +
-  // midnight). The hydration guard prevents a race where the query
+  // hielo). The hydration guard prevents a race where the query
   // resolves after the user has already clicked through and we overwrite
-  // their selection.
+  // their selection. Se normaliza porque un perfil sin migrar trae los nombres
+  // viejos de tema y paleta.
   useEffect(() => {
     if (loading || hydrated) return;
-    const nextTheme = isTheme(persistedTheme) ? persistedTheme : ONBOARDING_DEFAULT_THEME;
-    const nextPalette = isPalette(persistedPalette)
-      ? persistedPalette
-      : ONBOARDING_DEFAULT_PALETTE;
+    const nextTheme = normalizeTheme(persistedTheme) ?? ONBOARDING_DEFAULT_THEME;
+    const nextPalette = normalizePalette(persistedPalette) ?? ONBOARDING_DEFAULT_PALETTE;
     setTheme(nextTheme);
     setPalette(nextPalette);
     applyThemeAttribute(nextTheme);
@@ -104,7 +100,7 @@ export function Step2Theme({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl sm:text-4xl text-text">
+        <h1 className="font-display-app text-3xl sm:text-4xl text-text">
           {t("step2.heading")}
         </h1>
         <p className="text-text-muted text-sm mt-2">{t("step2.sub")}</p>
@@ -113,20 +109,30 @@ export function Step2Theme({
       {/* Mode */}
       <div>
         <div className="text-xs text-text-muted mb-2">{t("step2.mode")}</div>
-        <div className="inline-flex flex-wrap gap-1 bg-bg p-1 rounded-lg border border-border">
+        {/* Mismo preview que en Ajustes: elegir tema a ciegas en el onboarding,
+            cuando aún no has visto el producto, era pedir demasiado. */}
+        <div className="flex flex-wrap gap-2">
           {SUPPORTED_THEMES.map((th) => (
             <button
               key={th}
               type="button"
               onClick={() => onChangeTheme(th)}
               disabled={busy}
-              className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+              aria-pressed={theme === th}
+              className={`flex flex-col items-start gap-1.5 p-1.5 rounded-md border transition-colors duration-150 ease-out disabled:opacity-60 ${
                 theme === th
-                  ? "bg-border text-text"
-                  : "text-text-muted hover:text-text"
-              } disabled:opacity-60`}
+                  ? "border-accent bg-accent-a12"
+                  : "border-border hover:border-line-34"
+              }`}
             >
-              {tAppearance(THEME_LABEL_KEY[th])}
+              <ThemeSwatch theme={th} />
+              <span
+                className={`px-1 text-xs ${
+                  theme === th ? "text-text" : "text-text-3"
+                }`}
+              >
+                {tAppearance(THEME_LABEL_KEY[th])}
+              </span>
             </button>
           ))}
         </div>

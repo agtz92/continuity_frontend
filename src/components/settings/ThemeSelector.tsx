@@ -16,16 +16,18 @@ import {
   SUPPORTED_THEMES,
   THEME_COOKIE,
   THEME_LABEL_KEY,
+  normalizeTheme,
   type Theme,
 } from "@/theme/config";
 import { toast } from "@/lib/toast";
+import { ThemeSwatch } from "./ThemeSwatch";
 
 function applyThemeAttribute(theme: Theme) {
   if (typeof document === "undefined") return;
   const effective =
     theme === "system"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
+        ? "carbon"
         : "light"
       : theme;
   document.documentElement.dataset.theme = effective;
@@ -45,7 +47,9 @@ export function ThemeSelector() {
   const { data } = useQuery(NOTIFICATION_SETTINGS_QUERY, {
     fetchPolicy: "cache-first",
   });
-  const persisted = (data?.notificationSettings?.theme as Theme | undefined) ?? null;
+  // El perfil puede traer un nombre retirado (`continuuit`/`dark`), o venir de
+  // la app nativa, que no se migra en este rediseño: se normaliza al leer.
+  const persisted = normalizeTheme(data?.notificationSettings?.theme);
 
   // Sync the mutation response into the query cache so the sync hooks on
   // the next mounted page see the fresh value (NotificationSettings has no
@@ -89,19 +93,31 @@ export function ThemeSelector() {
         {t("theme")}
         {pending && <Loader2 size={12} className="animate-spin text-text-muted" />}
       </div>
-      <div className="inline-flex gap-1 bg-bg p-1 rounded-lg border border-border">
+      {/* Preview real de cada tema, no solo el nombre: "carbón" y "continuu"
+          son dos oscuros distintos y el nombre no los distingue. Los colores
+          salen de `tokens.json` vía el generador, así que no pueden divergir
+          de lo que se pinta de verdad. */}
+      <div className="flex flex-wrap gap-2">
         {SUPPORTED_THEMES.map((theme) => (
           <button
             key={theme}
             onClick={() => onChange(theme)}
             disabled={pending}
-            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+            aria-pressed={value === theme}
+            className={`flex flex-col items-start gap-1.5 p-1.5 rounded-md border transition-colors duration-150 ease-out disabled:opacity-60 ${
               value === theme
-                ? "bg-border text-text"
-                : "text-text-muted hover:text-text"
-            } disabled:opacity-60`}
+                ? "border-accent bg-accent-a12"
+                : "border-border hover:border-line-34"
+            }`}
           >
-            {t(THEME_LABEL_KEY[theme])}
+            <ThemeSwatch theme={theme} />
+            <span
+              className={`px-1 text-xs ${
+                value === theme ? "text-text" : "text-text-3"
+              }`}
+            >
+              {t(THEME_LABEL_KEY[theme])}
+            </span>
           </button>
         ))}
       </div>

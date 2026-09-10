@@ -26,6 +26,10 @@ export const DASHBOARD_QUERY = gql`
         killedAiReflection
         stalledAt
         position
+        daysSinceTouch
+        cooling
+        blockedSince
+        isBlocked
       }
       tasks {
         id
@@ -40,6 +44,8 @@ export const DASHBOARD_QUERY = gql`
         durationMinutes
         parkedDueDate
         parkedDueTime
+        blockedSince
+        blockedReason
         blockers {
           id
           blockedTaskId

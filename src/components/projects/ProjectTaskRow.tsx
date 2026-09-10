@@ -12,11 +12,21 @@
  * la fila vive dentro de un contenedor clickeable (ProjectRow), inocuo en el modal.
  */
 
+import { useState } from "react";
 import { Clock, Edit2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Task } from "@/lib/types";
-import { isOverdue } from "@/lib/date";
+import { daysSince, isOverdue } from "@/lib/date";
+import { BlockerBadge } from "@/components/ui/BlockerBadge";
+import { BlockedTaskDialog } from "../tasks/BlockedTaskDialog";
 import { TaskToggle } from "../tasks/TaskToggle";
+
+/** Trama de "detenido". Misma que en `tasks/TaskRow.tsx`: una tarea bloqueada
+ *  se ve igual esté donde esté, dentro del proyecto o en la lista general. */
+const BLOCKED_HATCH = {
+  backgroundImage:
+    "repeating-linear-gradient(45deg, var(--signal-a04) 0 6px, transparent 6px 14px)",
+} as const;
 
 interface ProjectTaskRowProps {
   task: Task;
@@ -39,15 +49,44 @@ export function ProjectTaskRow({
   const tRow = useTranslations("taskRow");
   const locale = useLocale();
   const overdue = !task.done && isOverdue(task.dueDate);
+  const isBlocked = !task.done && task.blockers.length > 0;
+  const blockReason =
+    task.blockedReason ||
+    task.blockers.find((b) => b.externalDescription)?.externalDescription;
+  const blockedDays = isBlocked
+    ? (daysSince(task.blockedSince ?? task.blockers.map((b) => b.created).sort()[0]) ?? 0)
+    : 0;
+  const [askBlocked, setAskBlocked] = useState(false);
   const containerClass = interactive
-    ? "flex items-center gap-2 group py-1 px-2 rounded-md hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors"
+    ? "flex items-center gap-2 group py-1 px-2 rounded-md hover:bg-accent-a12 transition-colors duration-150 ease-out"
     : "flex items-center gap-2 group py-1";
   return (
-    <div className={containerClass}>
+    <>
+      {askBlocked && (
+        <BlockedTaskDialog
+          task={task}
+          onClose={() => setAskBlocked(false)}
+          onResolve={() => onToggleTask(task)}
+        />
+      )}
+    <div
+      // Bloqueada: trama en toda la fila + espina de señal a la izquierda.
+      // No basta el chip — tiene que leerse detenida de un vistazo.
+      style={isBlocked ? BLOCKED_HATCH : undefined}
+      className={`${containerClass}${
+        isBlocked ? " border-l-[3px] border-signal pl-2 -ml-[3px]" : ""
+      }`}
+      title={isBlocked ? blockReason : undefined}
+    >
       <TaskToggle
         done={task.done}
         overdue={overdue}
-        onToggle={() => onToggleTask(task)}
+        blocked={isBlocked}
+        onToggle={() =>
+          // Mismo guardarraíl que en `tasks/TaskRow`: cerrar algo bloqueado
+          // pregunta primero qué pasó con el bloqueo.
+          !task.done && isBlocked ? setAskBlocked(true) : onToggleTask(task)
+        }
         label={task.done ? tRow("markNotDone") : tRow("markDone")}
       />
       <span
@@ -57,17 +96,27 @@ export function ProjectTaskRow({
       >
         {task.title}
       </span>
+      {isBlocked && (
+        <span className="inline-flex items-center gap-1.5 min-w-0 shrink">
+          <BlockerBadge compact since={blockedDays} />
+          {blockReason && (
+            <span className="truncate text-xs text-text-3 hidden sm:inline">
+              {blockReason}
+            </span>
+          )}
+        </span>
+      )}
       {task.dueDate && (
         <span
           className={`text-xs ${
-            overdue ? "text-red-400 font-medium" : "text-text-muted"
+            overdue ? "text-signal font-medium" : "text-text-muted"
           }`}
         >
           {new Date(task.dueDate).toLocaleDateString(locale)}
         </span>
       )}
       {task.effortHours != null && (
-        <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+        <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
           <Clock size={10} />
           {task.effortHours}h
         </span>
@@ -83,5 +132,6 @@ export function ProjectTaskRow({
         <Edit2 size={14} />
       </button>
     </div>
+    </>
   );
 }

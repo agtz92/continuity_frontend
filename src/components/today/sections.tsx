@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 import type { Category, Project, Routine, Task } from "@/lib/types";
 import { daysSince } from "@/lib/date";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { Meta } from "../ui/Meta";
 import { ProjectCardCompact } from "../projects/ProjectCardCompact";
 import { RoutineRow } from "../routines/RoutineRow";
 import type { useTodayFocus } from "@/hooks/useTodayFocus";
@@ -32,19 +33,24 @@ type FocusModel = ReturnType<typeof useTodayFocus>;
 type Stats = ReturnType<typeof useProductivityStats>;
 
 // Estilos por bucket de antigüedad (días inactivos): ámbar → naranja → rojo.
-// Clases fijas de Tailwind a propósito: la urgencia es semántica constante.
+/**
+ * Enfriamiento: 7-14, 15-30, 30+ días sin tocar. Antes eran ámbar/naranja/rojo
+ * fijos; el rediseño lo dice con el **peso de la regla**, no con un semáforo —
+ * un proyecto frío no es una alarma, es un dato. Solo el tramo terminal (30+)
+ * se lleva `--signal`, porque a los 45 el producto pregunta si sigue vivo.
+ */
 const sleepingBucketStyle = {
   "7-14": {
-    chip: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
-    dot: "bg-amber-400",
+    chip: "bg-line-06 text-text-3 border-line-22",
+    dot: "bg-line-34",
   },
   "15-30": {
-    chip: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30",
-    dot: "bg-orange-400",
+    chip: "bg-line-08 text-text-2 border-line-28",
+    dot: "bg-text-5",
   },
   "30+": {
-    chip: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
-    dot: "bg-red-400",
+    chip: "bg-signal-a12 text-signal border-signal-a50",
+    dot: "bg-signal",
   },
 } as const;
 
@@ -54,23 +60,37 @@ interface CountersSectionProps {
   counters: { id: string; label: string; value: number; tint: string }[];
 }
 
+/**
+ * Las cifras del Home. Ya no son tarjetas de colores en un carrusel solo-móvil:
+ * son una **regla de números** con filete de 1px, visible en todos los anchos
+ * (el artboard 01 las dibuja en el Home de escritorio).
+ *
+ * El color no es decorativo. Todas las cifras son tinta; solo la que duele
+ * —proyectos estancados, y únicamente si hay alguno— se pinta con la señal.
+ * Cinco cifras de colores distintos convierten la cabecera en un semáforo y
+ * ninguna acaba destacando.
+ */
 export function CountersSection({
   counters,
 }: CountersSectionProps) {
   return (
       <div
-        className="md:hidden flex gap-2 overflow-x-auto snap-x snap-mandatory -mx-3 px-3 pb-1"
+        className="flex gap-0 overflow-x-auto border-y border-line-08 -mx-3 px-3 md:mx-0 md:px-0"
         style={{ scrollbarWidth: "none" }}
       >
         {counters.map((c) => (
           <div
             key={c.id}
-            className="snap-start shrink-0 min-w-[120px] bg-surface border border-border rounded-xl px-4 py-3"
+            className="shrink-0 min-w-[104px] flex-1 py-3 px-3 first:pl-0 border-l border-line-08 first:border-l-0"
           >
-            <div className="text-[11px] uppercase tracking-wider text-text-muted">
+            <Meta variant="cintillo" tone="faint" className="block">
               {c.label}
+            </Meta>
+            <div
+              className={`font-display-app text-2xl leading-none mt-1 ${c.tint}`}
+            >
+              {c.value}
             </div>
-            <div className={`text-2xl font-bold mt-0.5 ${c.tint}`}>{c.value}</div>
           </div>
         ))}
       </div>
@@ -88,14 +108,14 @@ export function StalledAlertSection({
 }: StalledAlertSectionProps) {
   const t = useTranslations("views.today");
   return (
-      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+      <div className="bg-accent-a12 border border-accent-a35 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <Bell className="text-amber-400 shrink-0 mt-0.5" size={18} />
+          <Bell className="text-accent shrink-0 mt-0.5" size={18} />
           <div className="flex-1">
-            <div className="font-semibold text-amber-700 dark:text-amber-300 mb-1">
+            <div className="font-semibold text-accent mb-1">
               {t("stalledAlert.title", { count: stalled.length })}
             </div>
-            <div className="text-sm text-amber-700/80 dark:text-amber-200/80">
+            <div className="text-sm text-accent ">
               {t("stalledAlert.subtitle")}
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
@@ -103,7 +123,7 @@ export function StalledAlertSection({
                 <button
                   key={p.id}
                   onClick={() => onJumpToProject(p)}
-                  className="text-xs px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 rounded-md text-amber-700 dark:text-amber-200"
+                  className="text-xs px-3 py-1.5 bg-accent-a12 hover:bg-accent-a22 rounded-md text-accent "
                 >
                   {p.name} · {daysSince(p.lastActivity)}d
                 </button>
@@ -144,7 +164,7 @@ export function RoutinesTodaySection({
       <CollapsibleSection
         open={showRoutinesToday}
         onToggle={() => setShowRoutinesToday((s) => !s)}
-        icon={<Repeat size={18} className="text-accent-2" />}
+        icon={<Repeat size={18} className="text-text-3" />}
         title={t("routines.title")}
         rightSlot={
           todayRoutineCounts.total > 0 ? (
@@ -154,18 +174,18 @@ export function RoutinesTodaySection({
                   e.stopPropagation();
                   onJumpToRoutines();
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-700 dark:text-orange-200 shadow-sm shadow-orange-500/10 hover:from-orange-500/30 hover:to-red-500/30"
+                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm border border-line-22 bg-line-06 text-text-3 meta-flat transition-colors duration-150 ease-out hover:border-line-34 hover:text-text-2"
                 title={t("routines.routinesTooltip", {
                   dueToday: todayRoutineCounts.dueToday,
                   overdue: todayRoutineCounts.overdue,
                 })}
               >
-                <Repeat size={11} className="text-orange-700 dark:text-orange-300" />
+                <Repeat size={11} className="text-text-4" />
                 <span>
                   {t("routines.routinesLabel", { count: todayRoutineCounts.total })}
                 </span>
                 {todayRoutineCounts.overdue > 0 && (
-                  <span className="text-red-700 dark:text-red-300 font-semibold">
+                  <span className="text-signal font-semibold">
                     {t("routines.overdueExtra", {
                       count: todayRoutineCounts.overdue,
                     })}
@@ -173,10 +193,10 @@ export function RoutinesTodaySection({
                 )}
               </button>
               <span
-                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-accent-2/15 text-accent-2 border-accent-2/40"
+                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-line-08 text-text-3 border-line-14"
                 title={t("routines.totalHoursTooltip")}
               >
-                <Clock size={11} className="text-accent-2" />
+                <Clock size={11} className="text-text-3" />
                 {t("routines.totalHoursLabel", { hours: todayRoutineEffortHours })}
               </span>
             </span>
@@ -221,7 +241,7 @@ export function CloseableSection({
         icon={<Flag size={18} className="text-accent" />}
         title={tCloseable("title")}
         rightSlot={
-          <span className="text-xs font-normal text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
+          <span className="text-xs font-normal text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
             {closableTotal}
           </span>
         }
@@ -233,7 +253,7 @@ export function CloseableSection({
               <button
                 key={`almost-${s.project.id}`}
                 onClick={() => onJumpToProject(s.project)}
-                className="text-left bg-accent/5 border border-accent/30 rounded-xl p-4 hover:border-accent/50 transition-all"
+                className="text-left bg-accent-a12 border border-accent-a35 rounded-lg p-4 hover:border-accent-a55 transition-colors duration-150 ease-out"
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span className="text-xs uppercase tracking-wider font-medium text-accent">
@@ -258,7 +278,7 @@ export function CloseableSection({
             <button
               key={`quick-${s.project.id}`}
               onClick={() => onJumpToProject(s.project)}
-              className="text-left bg-surface border border-border rounded-xl p-4 hover:border-accent/40 transition-all"
+              className="text-left bg-surface border border-border rounded-lg p-4 hover:border-accent-a55 transition-colors duration-150 ease-out"
             >
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="text-xs uppercase tracking-wider font-medium text-accent">
@@ -292,10 +312,10 @@ export function SleepingSection({
       <CollapsibleSection
         open={showSleepingProjects}
         onToggle={() => setShowSleepingProjects((s) => !s)}
-        icon={<Moon size={18} className="text-amber-400" />}
+        icon={<Moon size={18} className="text-accent" />}
         title={tSleep("title")}
         rightSlot={
-          <span className="text-xs font-normal text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
+          <span className="text-xs font-normal text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
             {sleepingProjects.length}
           </span>
         }
@@ -306,7 +326,7 @@ export function SleepingSection({
             return (
               <div
                 key={project.id}
-                className={`flex items-center gap-3 p-3 rounded-xl border bg-surface/60 border-border hover:border-border transition-colors`}
+                className={`flex items-center gap-3 p-3 rounded-lg border bg-surface border-border hover:border-border transition-colors`}
               >
                 <span className={`shrink-0 w-2 h-2 rounded-full ${style.dot}`} />
                 <div className="flex-1 min-w-0">
@@ -331,7 +351,7 @@ export function SleepingSection({
                 </div>
                 <button
                   onClick={() => onLogUpdate(project)}
-                  className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-accent/15 text-accent border border-accent/40 hover:bg-accent/25 transition-colors"
+                  className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-accent-a12 text-accent border border-accent-a35 hover:bg-accent-a22 transition-colors"
                 >
                   {tSleep("resume")}
                 </button>
@@ -356,23 +376,23 @@ export function StaleIdeasSection({
   return (
       <button
         onClick={onJumpToIdeas}
-        className="w-full text-left bg-purple-500/5 border border-purple-500/30 rounded-xl p-4 hover:bg-purple-500/10 transition-colors"
+        className="w-full text-left bg-line-06 border border-line-22 rounded-lg p-4 hover:bg-line-08 transition-colors"
       >
         <div className="flex items-start gap-3">
           <Lightbulb
-            className="text-purple-700 dark:text-purple-300 shrink-0 mt-0.5"
+            className="text-text-3 shrink-0 mt-0.5"
             size={18}
           />
           <div className="flex-1">
-            <div className="font-semibold text-purple-700 dark:text-purple-200 mb-1">
+            <div className="font-semibold text-text-3 mb-1">
               {tStale("title", { count: staleIdeas.length })}
             </div>
-            <div className="text-sm text-purple-700/70 dark:text-purple-200/70">
+            <div className="text-sm text-text-3 ">
               {tStale("subtitle")}
             </div>
           </div>
           <ChevronRight
-            className="text-purple-700 dark:text-purple-300 shrink-0 mt-0.5"
+            className="text-text-3 shrink-0 mt-0.5"
             size={18}
           />
         </div>
@@ -404,7 +424,7 @@ export function ActiveProjectsSection({
         icon={<Zap size={18} className="text-accent" />}
         title={t("active.title")}
         rightSlot={
-          <span className="text-xs font-normal text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
+          <span className="text-xs font-normal text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
             {activeProjectsCount}
           </span>
         }
@@ -456,10 +476,10 @@ export function LaunchedWithTasksSection({
       <CollapsibleSection
         open={showLaunchedWithTasks}
         onToggle={() => setShowLaunchedWithTasks((s) => !s)}
-        icon={<Rocket size={18} className="text-accent-2" />}
+        icon={<Rocket size={18} className="text-text-3" />}
         title={t("launched.title")}
         rightSlot={
-          <span className="text-xs font-normal text-accent-2/80 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5">
+          <span className="text-xs font-normal text-text-4 bg-line-08 border border-line-14 rounded-full px-2 py-0.5">
             {launchedWithOpenTasks.length}
           </span>
         }

@@ -154,7 +154,7 @@ function NoteCard({
   const heading = note.title || firstLine(note.body);
   const preview = note.title ? note.body : restAfterFirstLine(note.body);
   return (
-    <div className="bg-bg/50 border border-border rounded-lg p-3 group">
+    <div className="bg-well border border-border rounded-lg p-3 group">
       <div className="flex items-start justify-between gap-2 mb-1">
         <div className="text-sm font-medium text-text truncate flex-1">
           {heading || (
@@ -222,14 +222,14 @@ function NoteEditor({
   const autoFocus = useAutoFocus();
   return (
     <div
-      className="bg-bg/70 border border-border rounded-lg p-3 space-y-2"
+      className="bg-well border border-border rounded-lg p-3 space-y-2"
       onClick={(e) => e.stopPropagation()}
     >
       <input
         value={title}
         onChange={(e) => onTitleChange(e.target.value)}
         placeholder={t("titlePlaceholder")}
-        className="w-full bg-transparent border-0 px-0 py-0 text-sm font-medium text-text placeholder:text-text-muted focus:outline-none focus:ring-0"
+        className="w-full bg-transparent border-0 px-0 py-0 text-sm font-medium text-text placeholder:text-text-muted focus:outline-none"
         autoFocus={autoFocus}
         enterKeyHint="next"
       />
@@ -247,7 +247,7 @@ function NoteEditor({
           }
         }}
         placeholder={t("bodyPlaceholder")}
-        className="w-full bg-surface border border-accent/40 rounded-md px-2.5 py-2 text-sm text-text placeholder:text-text-muted resize-y min-h-[100px] focus:outline-none"
+        className="w-full bg-surface border border-accent-a35 rounded-md px-2.5 py-2 text-sm text-text placeholder:text-text-muted resize-y min-h-[100px] focus:outline-none"
         rows={4}
       />
       <div className="flex items-center justify-between gap-2">

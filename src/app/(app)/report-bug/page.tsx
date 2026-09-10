@@ -99,7 +99,7 @@ export default function ReportBugPage() {
         </Link>
 
         <header className="mb-6 flex items-start gap-3">
-          <div className="rounded-lg bg-accent/15 p-2 text-accent">
+          <div className="rounded-lg bg-accent-a12 p-2 text-accent">
             <Bug size={20} />
           </div>
           <div>
@@ -109,7 +109,7 @@ export default function ReportBugPage() {
         </header>
 
         {sent ? (
-          <div className="rounded-xl border border-border bg-surface p-8 text-center">
+          <div className="rounded-lg border border-border bg-surface p-8 text-center">
             <CheckCircle2
               size={40}
               className="mx-auto text-emerald-500"

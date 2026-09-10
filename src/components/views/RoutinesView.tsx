@@ -7,21 +7,25 @@ import {
   Clock,
   Hourglass,
   Plus,
-  Repeat,
   Search,
   Target,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Category, Project, Routine, RoutineOccurrence } from "@/lib/types";
-import { categoryColorClass } from "@/lib/types";
 import { todayLocalISODate, toLocalISO } from "@/lib/date";
 import {
   completedDatesFor,
   computeDueDates,
 } from "@/lib/recurrence";
+import {
+  buildOccurrenceRule,
+  currentStreak,
+  type OccurrenceMark,
+} from "@/lib/routineHistory";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { FAB } from "../ui/FAB";
 import { RoutineRow } from "../routines/RoutineRow";
+import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
 
 const HORIZON_DAYS = 7; // how far ahead we materialize pending occurrences for "Upcoming"
 const BACKLOG_DAYS = 14; // how far back we surface missed pending occurrences
@@ -33,6 +37,22 @@ interface DueItem {
   routine: Routine;
   scheduledDate: string;
   occurrenceId: string | null;
+}
+
+/**
+ * Claves de la primera fila que cada rutina ocupa dentro de un bucket. Una
+ * rutina diaria genera siete filas en "Próximas"; siete reglas de ocurrencias
+ * idénticas serían ruido, así que solo la primera la lleva.
+ */
+function firstRowPerRoutine(items: DueItem[]): Set<string> {
+  const seen = new Set<string>();
+  const keys = new Set<string>();
+  for (const it of items) {
+    if (seen.has(it.routine.id)) continue;
+    seen.add(it.routine.id);
+    keys.add(`${it.routine.id}-${it.scheduledDate}`);
+  }
+  return keys;
 }
 
 export function RoutinesView({
@@ -211,6 +231,24 @@ export function RoutinesView({
   const filteredLater = filterByQuery(laterBucket);
   const filteredArchived = filterRoutinesByQuery(archivedRoutines);
 
+  // Historia derivada por rutina (bloques + racha). Se calcula una sola vez:
+  // la misma rutina puede aparecer en varios buckets.
+  const history = useMemo(() => {
+    const m = new Map<string, { rule: OccurrenceMark[]; streak: number }>();
+    for (const r of routines) {
+      const done = completedDatesFor(occurrences, r.id);
+      m.set(r.id, {
+        rule: buildOccurrenceRule(r, done, today),
+        streak: currentStreak(r, done, today),
+      });
+    }
+    return m;
+  }, [routines, occurrences, today]);
+
+  const firstToday = firstRowPerRoutine(filteredToday);
+  const firstUpcoming = firstRowPerRoutine(filteredUpcoming);
+  const firstLater = firstRowPerRoutine(filteredLater);
+
   const searching = q.length > 0;
   const todayOpen = searching || showToday;
   const completedOpen = searching || showCompleted;
@@ -246,25 +284,23 @@ export function RoutinesView({
       </div>
 
       {routines.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center">
-          <p className="text-text-muted mb-4">{t("empty")}</p>
-          <button
-            onClick={onNewRoutine}
-            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            {t("addFirst")}
-          </button>
-        </div>
+        <EmptyState
+          title={t("emptyTitle")}
+          body={t("empty")}
+          actions={
+            <EmptyStateAction label={t("addFirst")} onClick={onNewRoutine} />
+          }
+        />
       ) : (
         <div className="space-y-3">
           <CollapsibleSection
             variant="card"
             open={todayOpen}
             onToggle={() => setShowToday((s) => !s)}
-            icon={<Target size={14} className="text-orange-400" />}
+            icon={<Target size={14} className="text-accent" />}
             title={t("todayBucket")}
             rightSlot={
-              <span className="text-xs text-orange-700 dark:text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
+              <span className="text-xs text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
                 {filteredToday.length}
               </span>
             }
@@ -279,6 +315,12 @@ export function RoutinesView({
                   <RoutineRow
                     key={`${it.routine.id}-${it.scheduledDate}`}
                     routine={it.routine}
+                    rule={
+                      firstToday.has(`${it.routine.id}-${it.scheduledDate}`)
+                        ? history.get(it.routine.id)?.rule
+                        : undefined
+                    }
+                    streak={history.get(it.routine.id)?.streak ?? 0}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
                     project={resolveRoutineProject(it.routine)}
@@ -301,7 +343,7 @@ export function RoutinesView({
               icon={<CheckCircle2 size={14} className="text-accent" />}
               title={t("completedToday")}
               rightSlot={
-                <span className="text-xs text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
+                <span className="text-xs text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
                   {filteredCompleted.length}
                 </span>
               }
@@ -328,10 +370,10 @@ export function RoutinesView({
               variant="card"
               open={upcomingOpen}
               onToggle={() => setShowUpcoming((s) => !s)}
-              icon={<Clock size={14} className="text-accent-2" />}
+              icon={<Clock size={14} className="text-text-3" />}
               title={t("upcoming")}
               rightSlot={
-                <span className="text-xs text-accent-2 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5">
+                <span className="text-xs text-text-3 bg-line-08 border border-line-14 rounded-full px-2 py-0.5">
                   {filteredUpcoming.length}
                 </span>
               }
@@ -341,6 +383,12 @@ export function RoutinesView({
                   <RoutineRow
                     key={`${it.routine.id}-${it.scheduledDate}`}
                     routine={it.routine}
+                    rule={
+                      firstUpcoming.has(`${it.routine.id}-${it.scheduledDate}`)
+                        ? history.get(it.routine.id)?.rule
+                        : undefined
+                    }
+                    streak={history.get(it.routine.id)?.streak ?? 0}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
                     project={resolveRoutineProject(it.routine)}
@@ -362,7 +410,7 @@ export function RoutinesView({
               icon={<Hourglass size={14} className="text-text-muted" />}
               title={t("later")}
               rightSlot={
-                <span className="text-xs text-text-muted bg-border/50 border border-border rounded-full px-2 py-0.5">
+                <span className="text-xs text-text-muted bg-line-08 border border-border rounded-full px-2 py-0.5">
                   {filteredLater.length}
                 </span>
               }
@@ -372,6 +420,12 @@ export function RoutinesView({
                   <RoutineRow
                     key={`${it.routine.id}-${it.scheduledDate}`}
                     routine={it.routine}
+                    rule={
+                      firstLater.has(`${it.routine.id}-${it.scheduledDate}`)
+                        ? history.get(it.routine.id)?.rule
+                        : undefined
+                    }
+                    streak={history.get(it.routine.id)?.streak ?? 0}
                     scheduledDate={it.scheduledDate}
                     occurrenceId={it.occurrenceId}
                     project={resolveRoutineProject(it.routine)}
@@ -393,7 +447,7 @@ export function RoutinesView({
               icon={<Archive size={14} className="text-text-muted" />}
               title={t("archived")}
               rightSlot={
-                <span className="text-xs text-text-muted bg-border/50 border border-border rounded-full px-2 py-0.5">
+                <span className="text-xs text-text-muted bg-line-08 border border-border rounded-full px-2 py-0.5">
                   {filteredArchived.length}
                 </span>
               }
@@ -403,6 +457,8 @@ export function RoutinesView({
                   <RoutineRow
                     key={r.id}
                     routine={r}
+                    rule={history.get(r.id)?.rule}
+                    streak={history.get(r.id)?.streak ?? 0}
                     scheduledDate={r.startDate}
                     occurrenceId={null}
                     project={resolveRoutineProject(r)}

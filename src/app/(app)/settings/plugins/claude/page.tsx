@@ -72,7 +72,7 @@ export default function ClaudePluginPage() {
         Plugins
       </Link>
 
-      <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-5">
+      <section className="bg-surface border border-border rounded-lg p-5 space-y-5">
         <div className="flex items-center gap-3">
           <div className="shrink-0 w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center">
             <Sparkles size={22} className="text-accent" />
@@ -86,7 +86,7 @@ export default function ClaudePluginPage() {
           <span
             className={`text-xs px-2 py-0.5 rounded-full border ${
               connected
-                ? "border-accent/50 text-accent bg-accent/10"
+                ? "border-accent-a35 text-accent bg-accent-a12"
                 : "border-border text-text-muted"
             }`}
           >
@@ -96,7 +96,7 @@ export default function ClaudePluginPage() {
       </section>
 
       {connected && (
-        <section className="bg-surface/50 border border-border rounded-xl p-5 mt-4 space-y-3">
+        <section className="bg-surface border border-border rounded-lg p-5 mt-4 space-y-3">
           <h2 className="text-sm font-semibold text-text">
             {t("connectionsTitle")}
           </h2>
@@ -131,7 +131,7 @@ export default function ClaudePluginPage() {
         </section>
       )}
 
-      <section className="bg-surface/50 border border-border rounded-xl p-5 mt-4 space-y-4">
+      <section className="bg-surface border border-border rounded-lg p-5 mt-4 space-y-4">
         <h2 className="text-sm font-semibold text-text">{t("howToTitle")}</h2>
         <ol className="space-y-3">
           {steps.map((step, i) => (
@@ -164,7 +164,7 @@ export default function ClaudePluginPage() {
         </div>
       </section>
 
-      <section className="bg-surface/50 border border-border rounded-xl p-5 mt-4">
+      <section className="bg-surface border border-border rounded-lg p-5 mt-4">
         <div className="flex items-start gap-3">
           <Lock size={16} className="text-text-muted shrink-0 mt-0.5" />
           <div>

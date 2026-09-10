@@ -37,13 +37,13 @@ export function Step5Customize({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl sm:text-4xl text-text">
+        <h1 className="font-display-app text-3xl sm:text-4xl text-text">
           {t("step5.heading")}
         </h1>
         <p className="text-text-muted text-sm mt-2">{t("step5.sub")}</p>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface/50 p-5 flex items-center gap-4">
+      <div className="rounded-lg border border-border bg-surface p-5 flex items-center gap-4">
         <div className="shrink-0 h-10 w-10 rounded-lg border border-border bg-bg grid place-items-center text-text-muted">
           <Settings2 size={18} aria-hidden />
         </div>

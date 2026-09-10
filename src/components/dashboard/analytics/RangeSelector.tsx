@@ -25,7 +25,7 @@ export function RangeSelector({
         <button
           key={r.value}
           onClick={() => onChange(r.value)}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 ease-out ${
             range === r.value
               ? "bg-border text-text"
               : "text-text-muted hover:text-text"

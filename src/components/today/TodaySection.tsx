@@ -20,7 +20,6 @@ export function TodaySection({
   hideable,
   label,
   icon,
-  badge,
   children,
   onToggleHide,
   hideLabels,
@@ -31,8 +30,6 @@ export function TodaySection({
   hideable: boolean;
   label: string;
   icon: ReactNode;
-  /** Optional text shown after the label (e.g. "(mobile only)"). */
-  badge?: string;
   children: ReactNode;
   onToggleHide: () => void;
   hideLabels: { show: string; hide: string; locked: string; drag: string };
@@ -54,11 +51,11 @@ export function TodaySection({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 rounded-xl border bg-surface px-3 py-2.5 ${
+      className={`flex items-center gap-3 rounded-lg border bg-surface px-3 py-2.5 ${
         hidden
           ? "border-dashed border-border opacity-60"
           : "border-border"
-      } ${isDragging ? "shadow-lg ring-2 ring-accent/40" : ""}`}
+      } ${isDragging ? "shadow-hard" : ""}`}
     >
       <button
         {...attributes}
@@ -74,13 +71,8 @@ export function TodaySection({
 
       <div className="flex-1 min-w-0 flex items-center gap-2">
         <span className="font-medium text-text truncate">{label}</span>
-        {badge && (
-          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-border text-text-muted">
-            {badge}
-          </span>
-        )}
         {hidden && (
-          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35">
             {hideLabels.hide}
           </span>
         )}

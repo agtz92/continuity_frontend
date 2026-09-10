@@ -33,8 +33,15 @@ export function MessageList({
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-      {messages.map((m) => (
-        <Message key={m.id} message={m} />
+      {messages.map((m, i) => (
+        <Message
+          key={m.id}
+          message={m}
+          // Solo el ÚLTIMO mensaje puede tener un bloque a medias. Pasarle
+          // `streaming` a los anteriores dejaría sus tablas en "escribiendo…"
+          // para siempre.
+          streaming={streaming && i === messages.length - 1}
+        />
       ))}
       {showWorking && (
         <div

@@ -21,7 +21,7 @@ const STATUS_COLOR: Record<ProjectStatus, string> = {
   active: "bg-accent",
   stalled: "bg-rose-400",
   paused: "bg-text-muted",
-  launched: "bg-accent-2",
+  launched: "bg-line-22",
   killed: "bg-red-500",
   archived: "bg-text-muted",
 };

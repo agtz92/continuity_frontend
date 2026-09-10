@@ -9,7 +9,7 @@
  */
 
 import type { CSSProperties, ReactNode } from "react";
-import { ArrowDownUp, GripVertical } from "lucide-react";
+import { ArrowDownUp, ChevronRight, GripVertical } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -24,15 +24,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import type { Project } from "@/lib/types";
+import { Meta } from "@/components/ui/Meta";
 
-
-export function SectionHeader({ label }: { label: string }) {
-  return (
-    <div className="bg-surface/60 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-      {label}
-    </div>
-  );
-}
 
 /** Opt-in re-sort banner (A): shown when an edit made the live order diverge
  *  from the frozen one, so the user reorders on demand instead of mid-edit. */
@@ -46,11 +39,11 @@ export function ReorderPill({
   onClick: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-sm">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-accent-a35 bg-accent-a12 px-3 py-2 text-sm">
       <span className="text-text-muted">{label}</span>
       <button
         onClick={onClick}
-        className="shrink-0 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30"
+        className="shrink-0 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-accent-a12 hover:bg-accent-a22 text-accent border border-accent-a35"
       >
         <ArrowDownUp size={12} /> {cta}
       </button>
@@ -85,7 +78,7 @@ function SortableProjectRow({
       type="button"
       aria-label={reorderLabel}
       onClick={(e) => e.stopPropagation()}
-      className="shrink-0 -ml-1 text-text-muted hover:text-text cursor-grab active:cursor-grabbing touch-none"
+      className="shrink-0 -ml-1 mt-1 text-text-muted hover:text-text cursor-grab active:cursor-grabbing touch-none"
       {...attributes}
       {...listeners}
     >
@@ -131,7 +124,7 @@ export function ManualProjectList({
           items={order.map((p) => p.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden bg-surface">
+          <div className="flex flex-col divide-y divide-border border border-border rounded-lg overflow-hidden bg-surface">
             {order.map((p) => (
               <SortableProjectRow
                 key={p.id}
@@ -145,5 +138,61 @@ export function ManualProjectList({
         </SortableContext>
       </DndContext>
     </div>
+  );
+}
+
+
+/**
+ * Cabecera de banda del triaje (artboard 3a): cifra en display, nombre, y una
+ * línea que dice **por qué importa** esa banda.
+ *
+ * Es plegable porque el plan pide que "durmiendo" y "lanzados" nazcan
+ * colapsados — pero entonces plegar tiene que poder hacerse en todas, o sería
+ * un botón que aparece solo en dos filas sin explicación. Y el contador va en
+ * la cabecera precisamente para que **plegar no esconda nada**: sigues sabiendo
+ * cuántos hay dentro.
+ */
+export function BandHeader({
+  label,
+  blurb,
+  count,
+  collapsed,
+  onToggle,
+}: {
+  label: string;
+  blurb: string;
+  count: number;
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={!collapsed}
+      className="w-full text-left bg-surface px-5 pt-4 pb-2 flex items-baseline gap-3 hover:bg-line-04 transition-colors duration-150 ease-out group"
+    >
+      <span className="font-display-app text-2xl leading-none text-text tabular-nums">
+        {count}
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="flex items-center gap-1.5">
+          <ChevronRight
+            size={12}
+            className={`shrink-0 text-text-4 transition-transform duration-150 ease-out ${
+              collapsed ? "" : "rotate-90"
+            }`}
+          />
+          <Meta variant="cintillo" tone="muted">
+            {label}
+          </Meta>
+        </span>
+        {!collapsed && (
+          <Meta tone="faint" className="block mt-0.5 pl-[18px]">
+            {blurb}
+          </Meta>
+        )}
+      </span>
+    </button>
   );
 }

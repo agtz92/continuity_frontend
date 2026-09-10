@@ -34,7 +34,7 @@ export function Step3Avatar({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl sm:text-4xl text-text">
+        <h1 className="font-display-app text-3xl sm:text-4xl text-text">
           {t("step3.heading", { name })}
         </h1>
         <p className="text-text-muted text-sm mt-2">{t("step3.sub")}</p>

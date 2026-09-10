@@ -24,6 +24,10 @@
     "other": "Other"
   },
   "assistant": {
+      "markdown": {
+        "moreRows": "{count, plural, one {see the remaining row} other {see the remaining # rows}}",
+        "writingTable": "writing the table…"
+      },
     "title": "Loop",
     "subtitle": "Read-only Claude beta",
     "subtitleReadWrite": "Claude beta — reads & updates",
@@ -127,6 +131,9 @@
     "generic": "Something went wrong. Please try again."
   },
   "common": {
+    "dragToResize": "Drag to resize",
+    "dismiss": "Dismiss",
+    "notificationsAria": "Notifications",
     "loading": "Loading…",
     "save": "Save",
     "cancel": "Cancel",
@@ -144,12 +151,47 @@
     "showLess": "Show less"
   },
   "dashboard": {
+    "loadErrorTitle": "Couldn't load your data",
+    "loadErrorDetail": "Error: {message}",
     "header": {
       "active": "Active",
       "launched": "Launched",
       "stalled": "Stalled",
       "thisWeek": "This week",
       "weekTooltip": "Active on {count} of 7 days this week"
+    }
+  },
+  "commandPalette": {
+    "title": "Quick capture",
+    "tabHint": "TAB switches",
+    "save": "Save",
+    "hints": "↵ save · ⇧↵ save and open · ESC cancel",
+    "blockedNoReason": "Blocked",
+    "updateNeedsProject": "An update needs a project: type # and its name.",
+    "kind": {
+      "task": "Task",
+      "idea": "Idea",
+      "note": "Note",
+      "update": "Update"
+    },
+    "placeholder": {
+      "task": "What needs doing?  #project  !what is blocking it",
+      "idea": "What is the idea?",
+      "note": "Note title",
+      "update": "What happened?  #project"
+    }
+  },
+  "nav": {
+    "aria": "Sections",
+    "quickCapture": "Quick capture",
+    "blocked": "Stuck",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "groups": {
+      "work": "Work",
+      "do": "Do",
+      "material": "Material",
+      "reading": "Reading"
     }
   },
   "tabs": {
@@ -166,6 +208,7 @@
     "more": "More"
   },
   "status": {
+    "blocked": "Blocked",
     "idea": "Idea",
     "active": "Active",
     "stalled": "Stalled",
@@ -337,31 +380,23 @@
       "googleLinkError": "Couldn't connect Google. Please try again."
     },
     "appearance": {
+      "paletteCiruela": "Plum",
+      "paletteHielo": "Ice",
+      "paletteOxido": "Rust",
+      "paletteSalvia": "Sage",
+      "paletteOcre": "Ochre",
+      "themeCarbon": "Carbon",
+      "themeContinuu": "Continuu",
       "title": "Appearance & language",
       "description": "Pick how the app looks and the language you read it in.",
       "language": "Language",
       "languageHint": "Affects the app interface and any digests/notifications you receive.",
       "theme": "Theme",
       "themeHint": "Choose your preferred appearance. \"System\" follows your device setting.",
-      "themeContinuuit": "Continuuit",
       "themeLight": "Light",
-      "themeDark": "Dark",
       "themeSystem": "System",
       "palette": "Color palette",
-      "paletteHint": "Changes the accent colors only. Theme controls light/dark; palette swaps the highlights.",
-      "paletteDefault": "Default",
-      "paletteContinuuit": "Continuuit",
-      "palettePink": "Pink",
-      "paletteBusiness": "Business",
-      "paletteNeon": "Neon",
-      "paletteGreen": "Green",
-      "paletteTurquoise": "Turquoise",
-      "paletteCute": "Cute",
-      "paletteMidnight": "Midnight",
-      "paletteBoho": "Boho",
-      "paletteComplimentary": "Complimentary",
-      "paletteSunset": "Sunset",
-      "paletteRetro": "Retro"
+      "paletteHint": "Changes the accent colors only. Theme controls light/dark; palette swaps the highlights."
     },
     "billing": {
       "title": "Billing & plan",
@@ -544,6 +579,20 @@
     }
   },
   "analytics": {
+    "detailHint": "Activity, cadence, backlog, effort, weekday heatmap, idea funnel, top projects…",
+    "showDetail": "See the 12 panels",
+    "hideDetail": "Hide the panels",
+    "headline": {
+      "noCategory": "Loose",
+      "days": "{count, plural, one {#d} other {#d}}",
+      "coolingByCategory": "Cooling by category",
+      "whereTheyDie": "Where projects die",
+      "figure": {
+        "untouched": "Average days untouched",
+        "blocked": "Blocked tasks",
+        "updated": "With a recent update"
+      }
+    },
     "title": "Analytics",
     "chips": {
       "activity": "Activity",
@@ -656,6 +705,14 @@
   },
   "views": {
     "calendar": {
+      "stuckRail": "{count, plural, one {# stuck, no date} other {# stuck, no date}}",
+      "keys": {
+        "day": "d",
+        "week": "w",
+        "month": "m",
+        "today": "t"
+      },
+      "pickDay": "Pick {date}",
       "viewDay": "Day",
       "viewWeek": "Week",
       "viewMonth": "Month",
@@ -695,6 +752,10 @@
         "newIdea": "New idea"
       },
       "customize": {
+        "zoneMain": "Main column",
+        "zoneRail": "Side column",
+        "zoneMainHint": "Drag sections here",
+        "zoneRailHint": "Drag here what you want beside it",
         "entry": "Customize Today",
         "title": "Customize Today",
         "close": "Close",
@@ -704,10 +765,35 @@
         "hide": "Hidden",
         "alwaysVisible": "Always visible",
         "dragToReorder": "Drag to reorder",
-        "mobileOnly": "Mobile",
         "hiddenFooter": "{count, plural, one {# hidden section · Customize} other {# hidden sections · Customize}}"
       },
+      "resumeThread": {
+        "eyebrow": "Where you left off",
+        "daysAgo": "{count, plural, =0 {today} one {# day ago} other {# days ago}}",
+        "noUpdate": "You never wrote an update here.",
+        "write": "Write an update",
+        "open": "Open project"
+      },
+      "stopped": {
+        "title": "Stopped by something",
+        "tasks": "{count, plural, one {# blocked task} other {# blocked tasks}}"
+      },
+      "cooling": {
+        "stalledPromise": "At {count} days I ask you if it is still alive",
+        "title": "Cooling off",
+        "days": "{count, plural, one {#d} other {#d}}",
+        "resume": "Pick it up"
+      },
+      "logTail": {
+        "title": "Recent activity",
+        "openLog": "See the whole log",
+        "writtenUpdate": "Written update"
+      },
       "sections": {
+        "resumeThread": "Where you left off",
+        "stopped": "Stopped by something",
+        "cooling": "Cooling off",
+        "logTail": "Recent activity",
         "counters": "Counters",
         "stalledAlert": "Stalled alert",
         "todayFocus": "Today's Focus",
@@ -802,6 +888,7 @@
       }
     },
     "tasks": {
+      "emptyTitle": "No open tasks",
       "title": "All Tasks",
       "search": "Search tasks or project...",
       "empty": "No tasks yet.",
@@ -835,6 +922,7 @@
       }
     },
     "routines": {
+      "emptyTitle": "Nothing to keep up yet",
       "title": "Routines",
       "search": "Search routines...",
       "empty": "No routines yet. Create one to track recurring or standalone activities.",
@@ -848,6 +936,15 @@
       "newAria": "New routine"
     },
     "projects": {
+      "headlineAlive": "{count, plural, one {# alive.} other {# alive.}}",
+      "headlineStuck": "{count, plural, =0 {None stuck.} one {# stuck.} other {# stuck.}}",
+      "emptyTitle": "Nothing started yet",
+      "group": {
+        "loose": "Loose",
+        "projects": "{count, plural, one {# project} other {# projects}}",
+        "blocked": "{count, plural, one {# stuck} other {# stuck}}",
+        "avgDays": "{count, plural, one {# day untouched on average} other {# days untouched on average}}"
+      },
       "title": "All Projects",
       "search": "Search by name, description, category...",
       "empty": "No projects yet.",
@@ -885,8 +982,11 @@
         "sort": "Sort"
       },
       "sortBy": {
+        "other": "Other order…",
+        "category": "By category",
+        "cold": "Coldest first",
         "label": "Sort",
-        "smart": "Smart",
+        "smart": "Triage",
         "manual": "My order",
         "priority": "By priority",
         "recent": "Recent activity",
@@ -894,16 +994,50 @@
         "status": "By status"
       },
       "sections": {
-        "attention": "Needs attention",
-        "risk": "At risk",
-        "rest": "Everything else"
+        "blocked": "Stopped",
+        "active": "In motion",
+        "cooling": "Cooling off",
+        "sleeping": "Sleeping",
+        "launched": "Launched"
+      },
+      "sectionBlurbs": {
+        "blocked": "They wait on something that is not up to you. If you cannot unblock any, drop their priority and move on.",
+        "active": "Touched recently, or with a date on them today.",
+        "cooling": "Between one and three weeks untouched. The rule on the right fills on its own.",
+        "sleeping": "Paused on purpose. Still here, not shouting.",
+        "launched": "Shipped. Here so they do not disappear."
       },
       "orderChanged": "The order changed with your edits.",
       "reorder": "Re-sort",
       "manualHint": "Drag the handle to reorder your projects.",
       "manualFilteredHint": "Clear filters and search to drag-reorder projects.",
       "openFullView": "Open project",
+      "composer": {
+        "placeholder": "What happened? Where did you leave it?",
+        "hint": "⌘↵ to save",
+        "save": "Log update",
+        "ariaLabel": "Write a project update"
+      },
+      "logbook": {
+        "empty": "Nothing written here yet.",
+        "editAria": "Edit update",
+        "deleteAria": "Delete update",
+        "deleteConfirm": "Delete this update?"
+      },
+      "blockers": {
+        "title": "{count, plural, one {# open blocker} other {# open blockers}}",
+        "resolve": "Resolve now"
+      },
+      "rail": {
+        "progress": "Progress",
+        "untouched": "Untouched",
+        "age": "Alive",
+        "days": "{count, plural, one {#d} other {#d}}"
+      },
       "detail": {
+        "tabLogbook": "Logbook",
+        "tabTasks": "Tasks",
+        "tabNotes": "Notes",
         "title": "Project detail",
         "closeTooltip": "Close (Esc)",
         "dueDate": "Due date",
@@ -935,6 +1069,20 @@
       }
     },
     "ideas": {
+      "emptyTitle": "The inbox is empty",
+      "inInbox": "{count, plural, =0 {captured today} one {# day in the inbox} other {# days in the inbox}}",
+      "promoteModal": {
+        "title": "Promote to project",
+        "becomes": "This idea becomes a project",
+        "firstAction": "First action",
+        "required": "Required",
+        "firstActionPlaceholder": "The very next thing you will do",
+        "firstActionHint": "It is saved as the project's next step. A project born without one is born stalled.",
+        "category": "Category",
+        "noCategory": "No category",
+        "priority": "Priority",
+        "cta": "Promote"
+      },
       "title": "Ideas Parking Lot",
       "search": "Search ideas...",
       "capture": "Capture",
@@ -946,6 +1094,9 @@
       "promote": "Promote to project"
     },
     "quickNotes": {
+      "hitCount": "{hits, plural, one {# section} other {# sections}} in {notes, plural, one {# note} other {# notes}}",
+      "pickOne": "Pick a note",
+      "pickOneHint": "The index stays on the left. Open one to read or write it, or search — the results land on the section, not just the note.",
       "title": "Quick Notes",
       "subtitle": "Your notebook inside Continuity. Capture notes, group them into collapsible sections, and link them to a project or keep them standalone.",
       "search": "Search notes and sections...",
@@ -956,7 +1107,6 @@
       "loading": "Loading notes...",
       "untitled": "Untitled note",
       "standalone": "standalone",
-      "sectionCount": "{count, plural, =0 {No sections} one {# section} other {# sections}}",
       "selectHint": "Select a note to open it, or create a new one.",
       "titlePlaceholder": "Note title",
       "category": "Category",
@@ -984,6 +1134,8 @@
       }
     },
     "log": {
+      "emptyTitle": "No story yet",
+      "writtenUpdate": "Written update",
       "title": "Activity Log",
       "search": "Search log entries or project...",
       "empty": "No activity logged yet. Log updates from your projects to track momentum.",
@@ -1029,6 +1181,19 @@
       }
     },
     "graveyard": {
+      "emptyTitle": "Nothing buried here",
+      "colProject": "Project",
+      "colLived": "Lived",
+      "colDiedOf": "Died of",
+      "livedDays": "{count, plural, one {#d} other {#d}}",
+      "avgLifespan": "{count, plural, one {# day} other {# days}} average lifespan",
+      "patternCount": "{count} died of {cause}",
+      "cause": {
+        "blocked": "a blocker",
+        "noFirstAction": "never starting",
+        "deliberate": "a decision",
+        "faded": "silence"
+      },
       "title": "Project Graveyard",
       "subtitle": "A library of what didn't work so you don't repeat it.",
       "wouldRestart": "Would restart {count} of {total}.",
@@ -1138,6 +1303,23 @@
     "deleteAria": "Delete routine",
     "completedToast": "✓ Routine completed"
   },
+  "occurrenceRule": {
+    "streak": "{count, plural, one {# in a row} other {# in a row}}",
+    "next": "Next {date}",
+    "noneScheduled": "No occurrences scheduled",
+    "aria": "{done} done, {skipped} skipped",
+    "state": {
+      "done": "Done",
+      "skipped": "Skipped",
+      "pending": "Due today",
+      "next": "Next"
+    }
+  },
+  "progressTicks": {
+    "label": "{done}/{total} tasks · {pct}%",
+    "aria": "{done} of {total} tasks done",
+    "ariaBlocked": "{done} of {total} tasks done, {blocked} blocked"
+  },
   "recurrence": {
     "once": "Once · {date}",
     "weeklyEmpty": "No days selected",
@@ -1214,6 +1396,8 @@
       "createCategory": "Create"
     },
     "task": {
+      "blockerSearch": "Search…",
+      "blockerNoResults": "No matches",
       "newTitle": "New Task",
       "editTitle": "Edit Task",
       "deleteButton": "Delete task",
@@ -1912,5 +2096,19 @@
         }
       ]
     }
+  },
+  "blocker": {
+    "blocked": "Blocked",
+    "blockedDays": "Blocked · {count, plural, one {# day} other {# days}}",
+    "blocksTasks": "{count, plural, one {blocks # task} other {blocks # tasks}}"
+  },
+  "category": {
+    "none": "loose"
+  },
+  "blockedTaskDialog": {
+    "title": "This task is still blocked",
+    "hint": "Closing it with an open blocker would leave the project count wrong.",
+    "resolve": "The blocker is gone — complete it",
+    "delete": "Delete the task"
   }
 }

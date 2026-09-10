@@ -12,7 +12,7 @@ import {
 import { useTranslations } from "next-intl";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Tombstone } from "@/components/icons/Tombstone";
-import type { DashboardView } from "./TabBar";
+import type { DashboardView } from "@/lib/dashboardViews";
 
 type MoreItem = {
   id: Extract<

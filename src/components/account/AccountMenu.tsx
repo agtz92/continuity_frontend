@@ -122,11 +122,11 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
       aria-label={t("ariaLabel")}
     >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-scrim"
         onClick={onClose}
       />
-      <aside className="relative w-full sm:w-[22rem] h-full bg-bg border-r border-border flex flex-col shadow-2xl">
-        <header className="flex items-center justify-between px-5 py-4 border-b border-border/80">
+      <aside className="relative w-full sm:w-[22rem] h-full bg-bg border-r border-border flex flex-col shadow-hard-lg">
+        <header className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-3 min-w-0">
             <UserAvatar size={36} fallbackInitial={initial} />
             <div className="min-w-0">
@@ -245,7 +245,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
           </Group>
         </nav>
 
-        <footer className="px-3 py-3 border-t border-border/80">
+        <footer className="px-3 py-3 border-t border-border">
           <RowButton
             icon={LogOut}
             label={t("items.signOut")}
@@ -342,11 +342,11 @@ function RowButton({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
         danger
-          ? "text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-500/10"
+          ? "text-signal hover:text-signal hover:bg-signal-a16"
           : "text-text-muted hover:text-text hover:bg-surface"
       }`}
     >
-      <Icon size={16} className={danger ? "text-red-400" : "text-text-muted"} />
+      <Icon size={16} className={danger ? "text-signal" : "text-text-muted"} />
       <span>{label}</span>
     </button>
   );

@@ -17,16 +17,15 @@ import {
   PALETTE_LABEL_KEY,
   PALETTE_SWATCHES,
   SUPPORTED_PALETTES,
+  effectiveSwatchMode,
+  normalizePalette,
   type Palette,
 } from "@/palette/config";
 import { toast } from "@/lib/toast";
 
-function detectEffectiveTheme(): "dark" | "light" | "continuuit" {
-  if (typeof document === "undefined") return "continuuit";
-  const attr = document.documentElement.dataset.theme;
-  if (attr === "light" || attr === "dark" || attr === "continuuit") return attr;
-  // attr === "system" or missing → read OS preference
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+function detectEffectiveTheme(): "dark" | "light" {
+  if (typeof document === "undefined") return "dark";
+  return effectiveSwatchMode(document.documentElement.dataset.theme);
 }
 
 /**
@@ -41,8 +40,9 @@ export function PaletteSelector() {
   const { data } = useQuery(NOTIFICATION_SETTINGS_QUERY, {
     fetchPolicy: "cache-first",
   });
-  const persisted =
-    (data?.notificationSettings?.palette as Palette | undefined) ?? null;
+  // El perfil puede traer una paleta retirada (o venir de la app nativa, que no
+  // se migra en este rediseño): se normaliza a su equivalente curada al leer.
+  const persisted = normalizePalette(data?.notificationSettings?.palette);
 
   // Write the mutation response into the NOTIFICATION_SETTINGS_QUERY cache so
   // useThemeSync / usePaletteSync see the fresh value on subsequent navigation
@@ -60,9 +60,9 @@ export function PaletteSelector() {
   });
   const [pending, startTransition] = useTransition();
   const [savingValue, setSavingValue] = useState<Palette | null>(null);
-  const [effectiveTheme, setEffectiveTheme] = useState<"dark" | "light" | "continuuit">(
-    "continuuit",
-  );
+  // Arranca en "dark": el tema por defecto (continuu) es oscuro, y el efecto de
+  // abajo corrige en el primer paint del cliente si hace falta.
+  const [effectiveTheme, setEffectiveTheme] = useState<"dark" | "light">("dark");
 
   // Refresh the effective theme whenever the underlying data-theme attribute
   // changes (ThemeSelector flips it for instant feedback) or when the OS

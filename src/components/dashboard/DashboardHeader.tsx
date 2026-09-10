@@ -50,7 +50,7 @@ export function DashboardHeader({
           </div>
           <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-surface rounded-lg border border-border leading-tight">
             <div className="text-text-muted text-[10px] sm:text-xs">{t("launched")}</div>
-            <div className="text-accent-2 font-bold text-base sm:text-lg">
+            <div className="text-text-3 font-bold text-base sm:text-lg">
               {launchedCount}
             </div>
           </div>

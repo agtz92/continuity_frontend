@@ -181,7 +181,7 @@ export default function GoogleTasksPluginPage() {
         Plugins
       </Link>
 
-      <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-5">
+      <section className="bg-surface border border-border rounded-lg p-5 space-y-5">
         <div className="flex items-center gap-3">
           <div className="shrink-0 w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center">
             <ListTodo size={22} className="text-accent" />
@@ -218,7 +218,7 @@ export default function GoogleTasksPluginPage() {
       </section>
 
       {connected && (
-        <section className="bg-surface/50 border border-border rounded-xl p-5 mt-4 space-y-4">
+        <section className="bg-surface border border-border rounded-lg p-5 mt-4 space-y-4">
           {listsQuery.loading && !listsQuery.data ? (
             <div className="text-sm text-text-muted">{t("loadingLists")}</div>
           ) : lists.length === 0 ? (

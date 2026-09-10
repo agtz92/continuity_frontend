@@ -20,9 +20,77 @@ import { STATUS_FILTER_ORDER } from "@/lib/status";
 import type { ProjectSortMode } from "@/lib/priority";
 import type { DueFilter } from "./ProjectsFilterSheet";
 
-/** Smart layout sections (C): urgent first, at-risk next, everything else. */
-export type SmartSection = "attention" | "risk" | "rest";
-export const SMART_SECTION_ORDER: SmartSection[] = ["attention", "risk", "rest"];
+/**
+ * Las bandas del **triaje** (artboard 3a).
+ *
+ * El orden lo decide la urgencia, no el usuario. Antes eran tres bandas
+ * genéricas (`attention` / `risk` / `rest`) cuyo criterio de cabecera era
+ * "tiene tareas vencidas". Ahora la primera es **lo detenido**, y la distinción
+ * importa: bloqueado es "espera algo que no depende de ti"; vencido es "se te
+ * pasó". Son dos problemas con dos salidas distintas y el producto ya los
+ * distingue en todas partes — mezclarlos aquí sería el único sitio donde no.
+ *
+ *   blocked   → tiene al menos una tarea abierta con blocker
+ *   active    → vivo y con movimiento o con fecha encima (aquí caen las vencidas)
+ *   cooling   → vivo pero lleva 8+ días sin tocarse
+ *   sleeping  → en pausa. Colapsada al pie: sigue ahí, no grita
+ *   launched  → lanzado. Colapsada al pie
+ */
+export type SmartSection =
+  | "blocked"
+  | "active"
+  | "cooling"
+  | "sleeping"
+  | "launched";
+
+/** Clave de grupo en el modo "categoría". Los sueltos comparten una. */
+export const LOOSE_GROUP = "__loose";
+export const categoryGroupOf = (p: Project): string =>
+  p.categoryId ?? LOOSE_GROUP;
+
+/**
+ * La línea de diagnóstico de cada grupo: "3 proyectos · 1 atorado · 7 d de
+ * media sin tocar". Es lo que convierte el agrupado en información — sin ella,
+ * agrupar solo reordena.
+ */
+export interface GroupDiagnosis {
+  total: number;
+  blocked: number;
+  avgDays: number;
+}
+
+export const diagnoseGroup = (
+  group: Project[],
+  tasks: Task[]
+): GroupDiagnosis => {
+  const blocked = group.filter(
+    (p) =>
+      p.isBlocked ??
+      tasks.some(
+        (t) => t.projectId === p.id && !t.done && (t.blockers?.length ?? 0) > 0
+      )
+  ).length;
+  const days = group.map(
+    (p) => p.daysSinceTouch ?? daysSince(p.lastActivity) ?? 0
+  );
+  const avgDays = days.length
+    ? Math.round(days.reduce((s, d) => s + d, 0) / days.length)
+    : 0;
+  return { total: group.length, blocked, avgDays };
+};
+export const SMART_SECTION_ORDER: SmartSection[] = [
+  "blocked",
+  "active",
+  "cooling",
+  "sleeping",
+  "launched",
+];
+
+/** Bandas que nacen plegadas: están ahí, con su contador, sin ocupar pantalla. */
+export const COLLAPSED_SECTIONS: ReadonlySet<SmartSection> = new Set([
+  "sleeping",
+  "launched",
+]);
 
 /** Vencimiento: "all" pasa todo; "none" solo sin fecha; "overdue" antes de hoy;
  *  el resto es la ventana [hoy, hoy+7] definida por `horizonISO`. */
@@ -36,8 +104,15 @@ export const matchesDue = (p: Project, due: DueFilter, horizonISO: string) => {
   return dueIso >= today && dueIso <= horizonISO;
 };
 
-export const matchesStatus = (p: Project, status: "all" | ProjectStatus) =>
-  status === "all" || p.status === status;
+/** "Atorado" no es un `ProjectStatus`: se deriva de tener tareas bloqueadas
+ *  (DP-03). Se expone como filtro sintético junto a los estados reales. */
+export type StatusFilter = "all" | "blocked" | ProjectStatus;
+
+export const matchesStatus = (p: Project, status: StatusFilter) => {
+  if (status === "all") return true;
+  if (status === "blocked") return p.isBlocked === true;
+  return p.status === status;
+};
 
 export const matchesPriority = (p: Project, priority: "all" | Priority) =>
   priority === "all" || p.priority === priority;
@@ -80,10 +155,38 @@ export const urgencyBucket = (p: Project, tasks: Task[]) => {
 
 /** (C) Smart splits into sections; other modes are a single flat list. */
 export const smartSectionOf = (p: Project, tasks: Task[]): SmartSection => {
-  const b = urgencyBucket(p, tasks);
-  if (b <= 1) return "attention";
-  if (b === 2) return "risk";
-  return "rest";
+  // El estado del modelo manda sobre lo derivado: un proyecto en pausa no está
+  // "enfriándose", está guardado a propósito.
+  if (p.status === "paused") return "sleeping";
+  if (p.status === "launched") return "launched";
+
+  const own = tasks.filter((t) => t.projectId === p.id);
+  const blocked =
+    p.isBlocked ??
+    own.some((t) => !t.done && (t.blockers?.length ?? 0) > 0);
+  if (blocked) return "blocked";
+
+  const urgent = own.some(
+    (t) => !t.done && (isOverdue(t.dueDate) || isDueToday(t.dueDate))
+  );
+  if (urgent) return "active";
+
+  const idle = p.daysSinceTouch ?? daysSince(p.lastActivity) ?? 0;
+  return idle > 7 ? "cooling" : "active";
+};
+
+/**
+ * Tamaño del nombre por banda. La jerarquía la hace el cuerpo tipográfico, no
+ * el gris — pero en versión suave (20/17/15) y no la del artboard (26/22/20/18),
+ * porque con nombres de 26px dejan de caber los catorce proyectos sin scroll
+ * que el propio plan pide como criterio de aceptación.
+ */
+export const NAME_SIZE_CLASS: Record<SmartSection, string> = {
+  blocked: "text-[20px] leading-tight text-text",
+  active: "text-[17px] leading-snug text-text",
+  cooling: "text-[15px] leading-snug text-text-2",
+  sleeping: "text-[15px] leading-snug text-text-3",
+  launched: "text-[15px] leading-snug text-text-3",
 };
 
 export interface ProjectSortContext {
@@ -119,6 +222,27 @@ export const compareProjects = (
         new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
       return r !== 0 ? r : byName(a, b);
     }
+    case "cold": {
+      // Frío primero: más días sin tocar arriba. `daysSinceTouch` lo deriva el
+      // servidor; si no viene (forma cacheada vieja), se cae a lastActivity.
+      const da = a.daysSinceTouch ?? -new Date(a.lastActivity).getTime();
+      const db = b.daysSinceTouch ?? -new Date(b.lastActivity).getTime();
+      return db - da || byName(a, b);
+    }
+    case "category": {
+      // El orden dentro del grupo es alfabético; el agrupado real lo hace la
+      // vista con `categoryGroupOf`. Aquí solo hace falta que los de la misma
+      // categoría queden contiguos y de forma determinista.
+      const ca = a.categoryId ?? "";
+      const cb = b.categoryId ?? "";
+      if (ca !== cb) {
+        // Los sueltos van al final: son el resto, no un grupo más.
+        if (!ca) return 1;
+        if (!cb) return -1;
+        return ca.localeCompare(cb);
+      }
+      return byName(a, b);
+    }
     case "name":
       return byName(a, b);
     case "status": {
@@ -130,6 +254,14 @@ export const compareProjects = (
     }
     case "smart":
     default: {
+      // El orden del triaje es **el de las bandas**, y tiene que ser el mismo
+      // criterio que decide la cabecera (`smartSectionOf`). Cuando no lo era
+      // —ordenaba por `urgencyBucket` y agrupaba por banda— las secciones se
+      // intercalaban y la misma cabecera salía tres veces.
+      const sa = SMART_SECTION_ORDER.indexOf(smartSectionOf(a, tasks));
+      const sb = SMART_SECTION_ORDER.indexOf(smartSectionOf(b, tasks));
+      if (sa !== sb) return sa - sb;
+      // Dentro de la banda sí manda la urgencia: lo vencido antes que lo de hoy.
       const ba = urgencyBucket(a, tasks);
       const bb = urgencyBucket(b, tasks);
       if (ba !== bb) return ba - bb;

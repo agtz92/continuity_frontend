@@ -68,7 +68,10 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-bg">
       <div className="w-full max-w-sm bg-surface border border-border rounded-xl p-6">
-        <h1 className="text-2xl font-bold mb-1 bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">
+        {/* Titular en tinta, no en degradado: `--accent-2` es un alias que muere
+            en la ola 8 y un texto recortado sobre gradiente se lee peor en el
+            tema papel (D-63). */}
+        <h1 className="text-2xl font-bold mb-1 text-text">
           New password.
         </h1>
         <p className="text-sm text-text-muted mb-6">

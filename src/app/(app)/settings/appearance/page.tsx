@@ -11,7 +11,7 @@ export default function AppearanceSettingsPage() {
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-6">
+      <section className="bg-surface border border-border rounded-lg p-5 space-y-6">
         <LanguageSelector />
         <ThemeSelector />
         <PaletteSelector />

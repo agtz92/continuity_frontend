@@ -1,0 +1,574 @@
+/* GENERADO por scripts/generate-tokens.mjs desde src/design/tokens.json.
+   NO EDITAR A MANO — los cambios se pierden en el siguiente `pnpm tokens`. */
+
+/* ── Acento por defecto ────────────────────────────────────────────────── */
+/* Sin este bloque, un documento sin `data-palette` (el instante anterior al
+   no-flash script, o cualquier página que no lo aplique) dejaría --accent sin
+   valor y con él toda la rampa --accent-a*. */
+:root {
+  --accent: #D4A847;
+  --accent-hi: #E5BC5E;
+  --accent-lo: #BC9036;
+}
+
+/* ── Temas ─────────────────────────────────────────────────────────────── */
+/* Los nombres viejos (`continuuit`, `dark`) siguen siendo selectores válidos:
+   una cookie o un perfil sin migrar pinta el tema nuevo equivalente. */
+
+:root,
+[data-theme="continuu"],
+[data-theme="continuuit"] {
+  --canvas: #070914;
+  --bg: #0C0F26;
+  --surface: #101430;
+  --surface-2: #141935;
+  --surface-3: #1A2044;
+  --well: #0A0D22;
+  --scrim: rgba(7,9,20,0.78);
+  --text: #F5F1E8;
+  --text-2: #CFD3E6;
+  --text-3: #A6ABC8;
+  --text-4: #8A90AE;
+  --text-5: #7B819E;
+  --text-6: #6E7391;
+  --text-off: #5B5F7C;
+  --signal: #F0714E;
+  --closed: #6FCF97;
+  --toast-bg: #050710;
+  --toast-text: #F5F1E8;
+  --shadow: rgba(0,0,0,0.9);
+  --line-rgb: 245,241,232;
+  --line-03: rgba(var(--line-rgb), 0.03);
+  --line-04: rgba(var(--line-rgb), 0.04);
+  --line-06: rgba(var(--line-rgb), 0.06);
+  --line-07: rgba(var(--line-rgb), 0.07);
+  --line-08: rgba(var(--line-rgb), 0.08);
+  --line-10: rgba(var(--line-rgb), 0.10);
+  --line-14: rgba(var(--line-rgb), 0.14);
+  --line-16: rgba(var(--line-rgb), 0.16);
+  --line-18: rgba(var(--line-rgb), 0.18);
+  --line-22: rgba(var(--line-rgb), 0.22);
+  --line-28: rgba(var(--line-rgb), 0.28);
+  --line-30: rgba(var(--line-rgb), 0.30);
+  --line-34: rgba(var(--line-rgb), 0.34);
+  --accent-a12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-a14: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-a22: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-a35: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-a50: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --signal-a02: color-mix(in srgb, var(--signal) 2%, transparent);
+  --signal-a03: color-mix(in srgb, var(--signal) 3%, transparent);
+  --signal-a04: color-mix(in srgb, var(--signal) 4%, transparent);
+  --signal-a09: color-mix(in srgb, var(--signal) 9%, transparent);
+  --signal-a10: color-mix(in srgb, var(--signal) 10%, transparent);
+  --signal-a12: color-mix(in srgb, var(--signal) 12%, transparent);
+  --signal-a16: color-mix(in srgb, var(--signal) 16%, transparent);
+  --signal-a50: color-mix(in srgb, var(--signal) 50%, transparent);
+  --signal-a55: color-mix(in srgb, var(--signal) 55%, transparent);
+  --border: var(--line-10);
+  --text-muted: var(--text-4);
+  --accent-2: #E08A5A;
+}
+
+[data-theme="light"] {
+  --canvas: #E9E5DA;
+  --bg: #F7F5EF;
+  --surface: #FFFDF8;
+  --surface-2: #EFEBDF;
+  --surface-3: #E5E0D0;
+  --well: #FBF9F3;
+  --scrim: rgba(20,23,43,0.42);
+  --text: #14172B;
+  --text-2: #34322A;
+  --text-3: #4E4B3E;
+  --text-4: #5B5949;
+  --text-5: #6A6657;
+  --text-6: #6C6A62;
+  --text-off: #8A8778;
+  --signal: #C0341B;
+  --closed: #1F6B45;
+  --toast-bg: #14172B;
+  --toast-text: #FBF9F3;
+  --shadow: rgba(74,62,36,0.26);
+  --line-rgb: 92,78,46;
+  --line-03: rgba(var(--line-rgb), 0.03);
+  --line-04: rgba(var(--line-rgb), 0.04);
+  --line-06: rgba(var(--line-rgb), 0.06);
+  --line-07: rgba(var(--line-rgb), 0.07);
+  --line-08: rgba(var(--line-rgb), 0.08);
+  --line-10: rgba(var(--line-rgb), 0.10);
+  --line-14: rgba(var(--line-rgb), 0.14);
+  --line-16: rgba(var(--line-rgb), 0.16);
+  --line-18: rgba(var(--line-rgb), 0.18);
+  --line-22: rgba(var(--line-rgb), 0.22);
+  --line-28: rgba(var(--line-rgb), 0.28);
+  --line-30: rgba(var(--line-rgb), 0.30);
+  --line-34: rgba(var(--line-rgb), 0.34);
+  --accent-a12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-a14: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-a22: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-a35: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-a50: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --signal-a02: color-mix(in srgb, var(--signal) 2%, transparent);
+  --signal-a03: color-mix(in srgb, var(--signal) 3%, transparent);
+  --signal-a04: color-mix(in srgb, var(--signal) 4%, transparent);
+  --signal-a09: color-mix(in srgb, var(--signal) 9%, transparent);
+  --signal-a10: color-mix(in srgb, var(--signal) 10%, transparent);
+  --signal-a12: color-mix(in srgb, var(--signal) 12%, transparent);
+  --signal-a16: color-mix(in srgb, var(--signal) 16%, transparent);
+  --signal-a50: color-mix(in srgb, var(--signal) 50%, transparent);
+  --signal-a55: color-mix(in srgb, var(--signal) 55%, transparent);
+  --border: #D8D2C2;
+  --text-muted: var(--text-4);
+  --accent-2: #9A4A16;
+}
+
+[data-theme="carbon"],
+[data-theme="dark"] {
+  --canvas: #0B0A09;
+  --bg: #131210;
+  --surface: #1A1815;
+  --surface-2: #201D18;
+  --surface-3: #2A2620;
+  --well: #0F0E0C;
+  --scrim: rgba(11,10,9,0.78);
+  --text: #F1EDE3;
+  --text-2: #D6D0C2;
+  --text-3: #A9A192;
+  --text-4: #8B8474;
+  --text-5: #8B8474;
+  --text-6: #726C5F;
+  --text-off: #635E52;
+  --signal: #E8674A;
+  --closed: #7FA98A;
+  --toast-bg: #050505;
+  --toast-text: #F1EDE3;
+  --shadow: rgba(0,0,0,0.85);
+  --line-rgb: 241,237,227;
+  --line-03: rgba(var(--line-rgb), 0.03);
+  --line-04: rgba(var(--line-rgb), 0.04);
+  --line-06: rgba(var(--line-rgb), 0.06);
+  --line-07: rgba(var(--line-rgb), 0.07);
+  --line-08: rgba(var(--line-rgb), 0.08);
+  --line-10: rgba(var(--line-rgb), 0.10);
+  --line-14: rgba(var(--line-rgb), 0.14);
+  --line-16: rgba(var(--line-rgb), 0.16);
+  --line-18: rgba(var(--line-rgb), 0.18);
+  --line-22: rgba(var(--line-rgb), 0.22);
+  --line-28: rgba(var(--line-rgb), 0.28);
+  --line-30: rgba(var(--line-rgb), 0.30);
+  --line-34: rgba(var(--line-rgb), 0.34);
+  --accent-a12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-a14: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-a22: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-a35: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-a50: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --signal-a02: color-mix(in srgb, var(--signal) 2%, transparent);
+  --signal-a03: color-mix(in srgb, var(--signal) 3%, transparent);
+  --signal-a04: color-mix(in srgb, var(--signal) 4%, transparent);
+  --signal-a09: color-mix(in srgb, var(--signal) 9%, transparent);
+  --signal-a10: color-mix(in srgb, var(--signal) 10%, transparent);
+  --signal-a12: color-mix(in srgb, var(--signal) 12%, transparent);
+  --signal-a16: color-mix(in srgb, var(--signal) 16%, transparent);
+  --signal-a50: color-mix(in srgb, var(--signal) 50%, transparent);
+  --signal-a55: color-mix(in srgb, var(--signal) 55%, transparent);
+  --border: var(--line-10);
+  --text-muted: var(--text-4);
+  --accent-2: #E08A5A;
+}
+
+/* ── Paletas de acento ─────────────────────────────────────────────────── */
+/* Solo pisan --accent / --accent-hi / --accent-lo. --signal y --closed no son
+   personalizables: son semántica, no gusto. En `light` el acento se oscurece
+   para pasar AA sobre fondo claro; es una lista aparte, no un filtro. */
+
+[data-palette="ocre"] {
+  --accent: #D4A847;
+  --accent-hi: #E5BC5E;
+  --accent-lo: #BC9036;
+}
+[data-theme="light"][data-palette="ocre"] {
+  --accent: #8A6410;
+  --accent-hi: #A97C1D;
+  --accent-lo: #6B4C08;
+}
+
+[data-palette="salvia"] {
+  --accent: #8FB98A;
+  --accent-hi: #A8CEA3;
+  --accent-lo: #6E9A69;
+}
+[data-theme="light"][data-palette="salvia"] {
+  --accent: #3F6B45;
+  --accent-hi: #527F58;
+  --accent-lo: #2C5231;
+}
+
+[data-palette="oxido"] {
+  --accent: #E08A5A;
+  --accent-hi: #F0A375;
+  --accent-lo: #B96C40;
+}
+[data-theme="light"][data-palette="oxido"] {
+  --accent: #9A4A16;
+  --accent-hi: #B45E27;
+  --accent-lo: #7A390E;
+}
+
+[data-palette="hielo"] {
+  --accent: #8FB4D9;
+  --accent-hi: #A9C9EA;
+  --accent-lo: #6E93B8;
+}
+[data-theme="light"][data-palette="hielo"] {
+  --accent: #1F4E79;
+  --accent-hi: #2E6494;
+  --accent-lo: #153A5C;
+}
+
+[data-palette="ciruela"] {
+  --accent: #C08AC0;
+  --accent-hi: #D3A4D3;
+  --accent-lo: #9C689C;
+}
+[data-theme="light"][data-palette="ciruela"] {
+  --accent: #6B2E6B;
+  --accent-hi: #843E84;
+  --accent-lo: #511F51;
+}
+
+/* retirada → ocre */
+[data-palette="default"] {
+  --accent: #D4A847;
+  --accent-hi: #E5BC5E;
+  --accent-lo: #BC9036;
+}
+[data-theme="light"][data-palette="default"] {
+  --accent: #8A6410;
+  --accent-hi: #A97C1D;
+  --accent-lo: #6B4C08;
+}
+
+/* retirada → ocre */
+[data-palette="continuuit"] {
+  --accent: #D4A847;
+  --accent-hi: #E5BC5E;
+  --accent-lo: #BC9036;
+}
+[data-theme="light"][data-palette="continuuit"] {
+  --accent: #8A6410;
+  --accent-hi: #A97C1D;
+  --accent-lo: #6B4C08;
+}
+
+/* retirada → salvia */
+[data-palette="green"] {
+  --accent: #8FB98A;
+  --accent-hi: #A8CEA3;
+  --accent-lo: #6E9A69;
+}
+[data-theme="light"][data-palette="green"] {
+  --accent: #3F6B45;
+  --accent-hi: #527F58;
+  --accent-lo: #2C5231;
+}
+
+/* retirada → salvia */
+[data-palette="turquoise"] {
+  --accent: #8FB98A;
+  --accent-hi: #A8CEA3;
+  --accent-lo: #6E9A69;
+}
+[data-theme="light"][data-palette="turquoise"] {
+  --accent: #3F6B45;
+  --accent-hi: #527F58;
+  --accent-lo: #2C5231;
+}
+
+/* retirada → ciruela */
+[data-palette="pink"] {
+  --accent: #C08AC0;
+  --accent-hi: #D3A4D3;
+  --accent-lo: #9C689C;
+}
+[data-theme="light"][data-palette="pink"] {
+  --accent: #6B2E6B;
+  --accent-hi: #843E84;
+  --accent-lo: #511F51;
+}
+
+/* retirada → ciruela */
+[data-palette="cute"] {
+  --accent: #C08AC0;
+  --accent-hi: #D3A4D3;
+  --accent-lo: #9C689C;
+}
+[data-theme="light"][data-palette="cute"] {
+  --accent: #6B2E6B;
+  --accent-hi: #843E84;
+  --accent-lo: #511F51;
+}
+
+/* retirada → ciruela */
+[data-palette="complimentary"] {
+  --accent: #C08AC0;
+  --accent-hi: #D3A4D3;
+  --accent-lo: #9C689C;
+}
+[data-theme="light"][data-palette="complimentary"] {
+  --accent: #6B2E6B;
+  --accent-hi: #843E84;
+  --accent-lo: #511F51;
+}
+
+/* retirada → hielo */
+[data-palette="business"] {
+  --accent: #8FB4D9;
+  --accent-hi: #A9C9EA;
+  --accent-lo: #6E93B8;
+}
+[data-theme="light"][data-palette="business"] {
+  --accent: #1F4E79;
+  --accent-hi: #2E6494;
+  --accent-lo: #153A5C;
+}
+
+/* retirada → hielo */
+[data-palette="midnight"] {
+  --accent: #8FB4D9;
+  --accent-hi: #A9C9EA;
+  --accent-lo: #6E93B8;
+}
+[data-theme="light"][data-palette="midnight"] {
+  --accent: #1F4E79;
+  --accent-hi: #2E6494;
+  --accent-lo: #153A5C;
+}
+
+/* retirada → hielo */
+[data-palette="retro"] {
+  --accent: #8FB4D9;
+  --accent-hi: #A9C9EA;
+  --accent-lo: #6E93B8;
+}
+[data-theme="light"][data-palette="retro"] {
+  --accent: #1F4E79;
+  --accent-hi: #2E6494;
+  --accent-lo: #153A5C;
+}
+
+/* retirada → oxido */
+[data-palette="neon"] {
+  --accent: #E08A5A;
+  --accent-hi: #F0A375;
+  --accent-lo: #B96C40;
+}
+[data-theme="light"][data-palette="neon"] {
+  --accent: #9A4A16;
+  --accent-hi: #B45E27;
+  --accent-lo: #7A390E;
+}
+
+/* retirada → oxido */
+[data-palette="sunset"] {
+  --accent: #E08A5A;
+  --accent-hi: #F0A375;
+  --accent-lo: #B96C40;
+}
+[data-theme="light"][data-palette="sunset"] {
+  --accent: #9A4A16;
+  --accent-hi: #B45E27;
+  --accent-lo: #7A390E;
+}
+
+/* retirada → oxido */
+[data-palette="boho"] {
+  --accent: #E08A5A;
+  --accent-hi: #F0A375;
+  --accent-lo: #B96C40;
+}
+[data-theme="light"][data-palette="boho"] {
+  --accent: #9A4A16;
+  --accent-hi: #B45E27;
+  --accent-lo: #7A390E;
+}
+
+/* ── Ámbitos aislados ──────────────────────────────────────────────────── */
+/* Admin y marketing quedan FUERA del rediseño. Redeclaran el juego completo
+   de tokens para no heredar los del tool: sin esto, activar `light` pintaría
+   texto oscuro sobre el navy de marketing. `border` y `text-muted` van
+   literales, no como alias, para que estas zonas no cambien ni un píxel. */
+
+[data-surface="marketing"] {
+  --canvas: #12162F;
+  --bg: #1A1F4D;
+  --surface: #3B4A7A;
+  --surface-2: #46568A;
+  --surface-3: #52639B;
+  --well: #141838;
+  --scrim: rgba(18,22,47,0.70);
+  --text: #FAF7F2;
+  --text-2: #D9D8E0;
+  --text-3: #BEBFCC;
+  --text-4: #A8AAB8;
+  --text-5: #9A9CAC;
+  --text-6: #8C8E9F;
+  --text-off: #6E7085;
+  --signal: #A8412F;
+  --closed: #2D4A2E;
+  --toast-bg: #12162F;
+  --toast-text: #FAF7F2;
+  --shadow: rgba(0,0,0,0.45);
+  --line-rgb: 250,247,242;
+  --accent: #D4A847;
+  --accent-hi: #E5BC5E;
+  --accent-lo: #BC9036;
+  --line-03: rgba(var(--line-rgb), 0.03);
+  --line-04: rgba(var(--line-rgb), 0.04);
+  --line-06: rgba(var(--line-rgb), 0.06);
+  --line-07: rgba(var(--line-rgb), 0.07);
+  --line-08: rgba(var(--line-rgb), 0.08);
+  --line-10: rgba(var(--line-rgb), 0.10);
+  --line-14: rgba(var(--line-rgb), 0.14);
+  --line-16: rgba(var(--line-rgb), 0.16);
+  --line-18: rgba(var(--line-rgb), 0.18);
+  --line-22: rgba(var(--line-rgb), 0.22);
+  --line-28: rgba(var(--line-rgb), 0.28);
+  --line-30: rgba(var(--line-rgb), 0.30);
+  --line-34: rgba(var(--line-rgb), 0.34);
+  --accent-a12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-a14: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-a22: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-a35: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-a50: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --signal-a02: color-mix(in srgb, var(--signal) 2%, transparent);
+  --signal-a03: color-mix(in srgb, var(--signal) 3%, transparent);
+  --signal-a04: color-mix(in srgb, var(--signal) 4%, transparent);
+  --signal-a09: color-mix(in srgb, var(--signal) 9%, transparent);
+  --signal-a10: color-mix(in srgb, var(--signal) 10%, transparent);
+  --signal-a12: color-mix(in srgb, var(--signal) 12%, transparent);
+  --signal-a16: color-mix(in srgb, var(--signal) 16%, transparent);
+  --signal-a50: color-mix(in srgb, var(--signal) 50%, transparent);
+  --signal-a55: color-mix(in srgb, var(--signal) 55%, transparent);
+  --border: rgba(250, 247, 242, 0.12);
+  --text-muted: #A8AAB8;
+  --accent-2: #A8412F;
+}
+
+[data-theme="light"] [data-admin="true"] {
+  --canvas: #f1f5f9;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-3: #e2e8f0;
+  --well: #f8fafc;
+  --scrim: rgba(15,23,42,0.42);
+  --text: #0f172a;
+  --text-2: #1e293b;
+  --text-3: #334155;
+  --text-4: #64748b;
+  --text-5: #64748b;
+  --text-6: #94a3b8;
+  --text-off: #94a3b8;
+  --signal: #b91c1c;
+  --closed: #15803d;
+  --toast-bg: #0f172a;
+  --toast-text: #f8fafc;
+  --shadow: rgba(15,23,42,0.28);
+  --line-rgb: 15,23,42;
+  --accent: #4f46e5;
+  --accent-hi: #6366f1;
+  --accent-lo: #4338ca;
+  --line-03: rgba(var(--line-rgb), 0.03);
+  --line-04: rgba(var(--line-rgb), 0.04);
+  --line-06: rgba(var(--line-rgb), 0.06);
+  --line-07: rgba(var(--line-rgb), 0.07);
+  --line-08: rgba(var(--line-rgb), 0.08);
+  --line-10: rgba(var(--line-rgb), 0.10);
+  --line-14: rgba(var(--line-rgb), 0.14);
+  --line-16: rgba(var(--line-rgb), 0.16);
+  --line-18: rgba(var(--line-rgb), 0.18);
+  --line-22: rgba(var(--line-rgb), 0.22);
+  --line-28: rgba(var(--line-rgb), 0.28);
+  --line-30: rgba(var(--line-rgb), 0.30);
+  --line-34: rgba(var(--line-rgb), 0.34);
+  --accent-a12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-a14: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-a22: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-a35: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-a50: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --signal-a02: color-mix(in srgb, var(--signal) 2%, transparent);
+  --signal-a03: color-mix(in srgb, var(--signal) 3%, transparent);
+  --signal-a04: color-mix(in srgb, var(--signal) 4%, transparent);
+  --signal-a09: color-mix(in srgb, var(--signal) 9%, transparent);
+  --signal-a10: color-mix(in srgb, var(--signal) 10%, transparent);
+  --signal-a12: color-mix(in srgb, var(--signal) 12%, transparent);
+  --signal-a16: color-mix(in srgb, var(--signal) 16%, transparent);
+  --signal-a50: color-mix(in srgb, var(--signal) 50%, transparent);
+  --signal-a55: color-mix(in srgb, var(--signal) 55%, transparent);
+  --border: #e2e8f0;
+  --text-muted: #64748b;
+  --accent-2: #0284c7;
+}
+
+[data-theme="dark"] [data-admin="true"], [data-theme="carbon"] [data-admin="true"], [data-theme="continuuit"] [data-admin="true"], [data-theme="continuu"] [data-admin="true"] {
+  --canvas: #010309;
+  --bg: #020617;
+  --surface: #0f172a;
+  --surface-2: #16233c;
+  --surface-3: #1e293b;
+  --well: #010309;
+  --scrim: rgba(1,3,9,0.78);
+  --text: #f1f5f9;
+  --text-2: #cbd5e1;
+  --text-3: #a8b6cc;
+  --text-4: #94a3b8;
+  --text-5: #94a3b8;
+  --text-6: #7c8aa3;
+  --text-off: #64748b;
+  --signal: #f87171;
+  --closed: #4ade80;
+  --toast-bg: #020617;
+  --toast-text: #f1f5f9;
+  --shadow: rgba(0,0,0,0.6);
+  --line-rgb: 241,245,249;
+  --accent: #818cf8;
+  --accent-hi: #a5b4fc;
+  --accent-lo: #6366f1;
+  --line-03: rgba(var(--line-rgb), 0.03);
+  --line-04: rgba(var(--line-rgb), 0.04);
+  --line-06: rgba(var(--line-rgb), 0.06);
+  --line-07: rgba(var(--line-rgb), 0.07);
+  --line-08: rgba(var(--line-rgb), 0.08);
+  --line-10: rgba(var(--line-rgb), 0.10);
+  --line-14: rgba(var(--line-rgb), 0.14);
+  --line-16: rgba(var(--line-rgb), 0.16);
+  --line-18: rgba(var(--line-rgb), 0.18);
+  --line-22: rgba(var(--line-rgb), 0.22);
+  --line-28: rgba(var(--line-rgb), 0.28);
+  --line-30: rgba(var(--line-rgb), 0.30);
+  --line-34: rgba(var(--line-rgb), 0.34);
+  --accent-a12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-a14: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-a22: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-a35: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-a50: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --signal-a02: color-mix(in srgb, var(--signal) 2%, transparent);
+  --signal-a03: color-mix(in srgb, var(--signal) 3%, transparent);
+  --signal-a04: color-mix(in srgb, var(--signal) 4%, transparent);
+  --signal-a09: color-mix(in srgb, var(--signal) 9%, transparent);
+  --signal-a10: color-mix(in srgb, var(--signal) 10%, transparent);
+  --signal-a12: color-mix(in srgb, var(--signal) 12%, transparent);
+  --signal-a16: color-mix(in srgb, var(--signal) 16%, transparent);
+  --signal-a50: color-mix(in srgb, var(--signal) 50%, transparent);
+  --signal-a55: color-mix(in srgb, var(--signal) 55%, transparent);
+  --border: #1e293b;
+  --text-muted: #94a3b8;
+  --accent-2: #38bdf8;
+}

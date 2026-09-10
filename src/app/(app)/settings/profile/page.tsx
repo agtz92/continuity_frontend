@@ -60,7 +60,7 @@ export default function ProfileSettingsPage() {
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-5">
+      <section className="bg-surface border border-border rounded-lg p-5 space-y-5">
         <div>
           <div className="text-xs text-text-muted mb-2">{t("avatar")}</div>
           <div className="flex items-center gap-4">
@@ -84,13 +84,13 @@ export default function ProfileSettingsPage() {
         </div>
       </section>
 
-      <section className="bg-surface/50 border border-border rounded-xl p-5 space-y-4">
+      <section className="bg-surface border border-border rounded-lg p-5 space-y-4">
         <div className="text-xs text-text-muted">{t("connectedAccounts")}</div>
         {googleLinked === true && (
           <div className="flex items-center gap-3">
             <GoogleIcon />
             <span className="text-sm text-text">{t("googleConnected")}</span>
-            <Check size={16} className="ml-auto text-green-500" />
+            <Check size={16} className="ml-auto text-closed" />
           </div>
         )}
         {googleLinked === false && (
@@ -108,7 +108,7 @@ export default function ProfileSettingsPage() {
               {t("googleConnectDescription")}
             </p>
             {linkError && (
-              <p className="mt-2 text-xs text-red-500">{linkError}</p>
+              <p className="mt-2 text-xs text-signal">{linkError}</p>
             )}
           </div>
         )}

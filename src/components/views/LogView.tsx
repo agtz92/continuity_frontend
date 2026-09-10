@@ -1,22 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Calendar,
-  CheckCircle2,
-  Edit2,
-  FileText,
-  NotebookPen,
-  RefreshCw,
-  Rocket,
-  Search,
-  Sparkles,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Edit2, Search, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Activity, ActivityKind, Project } from "@/lib/types";
+import { Meta } from "@/components/ui/Meta";
+import {
+  describeActivity,
+  formatActivityDate,
+  iconFor,
+} from "@/components/log/entry";
 import { toLocalISO, todayLocalISODate, weekStartISO } from "@/lib/date";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type Filter = "all" | "achievements" | "notes" | "changes" | "deleted";
 
@@ -48,111 +43,6 @@ function matchesFilter(kind: ActivityKind, f: Filter): boolean {
   if (f === "changes") return CHANGE_KINDS.includes(kind);
   if (f === "deleted") return DELETED_KINDS.includes(kind);
   return true;
-}
-
-function iconFor(kind: ActivityKind) {
-  switch (kind) {
-    case "note":
-      return <FileText size={14} className="text-accent" />;
-    case "task_completed":
-    case "routine_completed":
-      return <CheckCircle2 size={14} className="text-emerald-400" />;
-    case "project_created":
-    case "idea_created":
-    case "task_created":
-    case "routine_created":
-      return <Sparkles size={14} className="text-amber-400" />;
-    case "quick_note_created":
-      return <NotebookPen size={14} className="text-accent" />;
-    case "idea_promoted":
-      return <Rocket size={14} className="text-purple-400" />;
-    case "project_status_changed":
-      return <RefreshCw size={14} className="text-cyan-400" />;
-    case "project_due_date_changed":
-    case "task_due_date_changed":
-      return <Calendar size={14} className="text-blue-400" />;
-    case "project_deleted":
-    case "task_deleted":
-    case "idea_deleted":
-    case "routine_deleted":
-    case "quick_note_deleted":
-      return <Trash2 size={14} className="text-red-400/70" />;
-    default:
-      return <FileText size={14} className="text-text-muted" />;
-  }
-}
-
-function formatDate(iso: string | null, locale: string) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-type DescribeArgs = {
-  activity: Activity;
-  locale: string;
-  tEntry: (key: string, params?: Record<string, string>) => string;
-  tStatus: (key: string) => string;
-};
-
-/** Renders an activity into a human-readable, localized line. */
-function describe({ activity: a, locale, tEntry, tStatus }: DescribeArgs): string {
-  const title = a.entityTitle || tEntry("untitled");
-  switch (a.kind) {
-    case "note":
-      return a.note;
-    case "task_completed":
-      return tEntry("taskCompleted", { title });
-    case "task_created":
-      return tEntry("taskCreated", { title });
-    case "task_deleted":
-      return tEntry("taskDeleted", { title });
-    case "task_due_date_changed":
-      return a.newValue
-        ? tEntry("taskRescheduled", {
-            title,
-            date: formatDate(a.newValue, locale),
-          })
-        : tEntry("taskDueCleared", { title });
-    case "project_created":
-      return tEntry("projectCreated", { title });
-    case "project_deleted":
-      return tEntry("projectDeleted", { title });
-    case "project_status_changed":
-      return tEntry("projectStatusChanged", {
-        title,
-        previous: a.previousValue ? tStatus(a.previousValue) : "",
-        next: a.newValue ? tStatus(a.newValue) : "",
-      });
-    case "project_due_date_changed":
-      return a.newValue
-        ? tEntry("projectDueSet", {
-            title,
-            date: formatDate(a.newValue, locale),
-          })
-        : tEntry("projectDueCleared", { title });
-    case "idea_created":
-      return tEntry("ideaCreated", { title });
-    case "idea_deleted":
-      return tEntry("ideaDeleted", { title });
-    case "idea_promoted":
-      return tEntry("ideaPromoted", { title });
-    case "routine_created":
-      return tEntry("routineCreated", { title });
-    case "routine_completed":
-      return tEntry("routineCompleted", { title });
-    case "routine_deleted":
-      return tEntry("routineDeleted", { title });
-    case "quick_note_created":
-      return tEntry("quickNoteCreated", { title });
-    case "quick_note_deleted":
-      return tEntry("quickNoteDeleted", { title });
-    default:
-      return a.entityTitle;
-  }
 }
 
 type BucketKey = "today" | "yesterday" | "thisWeek" | "thisMonth" | "older";
@@ -282,11 +172,9 @@ export function LogView({
       </div>
 
       {activities.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center text-text-muted">
-          {t("empty")}
-        </div>
+        <EmptyState title={t("emptyTitle")} body={t("empty")} />
       ) : visible.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
+        <div className="bg-surface border border-border rounded-lg p-8 text-center text-text-muted text-sm">
           {q ? t("noMatch", { query: logSearch }) : t("noneInFilter")}
         </div>
       ) : (
@@ -296,57 +184,67 @@ export function LogView({
             if (entries.length === 0) return null;
             return (
               <section key={bucket}>
-                <div className="text-[11px] uppercase tracking-wider text-text-muted font-semibold mb-2 px-1">
-                  {tBuckets(bucket)}
-                  <span className="ml-1.5 text-text-muted/70 normal-case font-normal">
-                    · {entries.length}
-                  </span>
-                </div>
-                <div className="space-y-2">
+                <Meta variant="cintillo" tone="muted" as="h3" className="block mb-2 px-1">
+                  {tBuckets(bucket)} · {entries.length}
+                </Meta>
+                {/* Diario, no feed: lo que TÚ escribiste pesa (párrafo de
+                    lectura); lo que hizo el sistema es una línea en
+                    versalitas. Sin cards — reglas de 1px. */}
+                <div className="divide-y divide-border border-y border-border">
                   {entries.map((a) => {
                     const proj = projects.find((p) => p.id === a.projectId);
                     const isNote = a.kind === "note";
+                    const body = describeActivity({ activity: a, locale, tEntry, tStatus });
+
+                    if (!isNote) {
                     return (
                       <div
                         key={a.id}
-                        className="bg-surface border border-border rounded-lg p-3 flex flex-col sm:flex-row gap-1 sm:gap-3 group"
+                          className="flex items-baseline gap-3 py-2 px-1"
                       >
-                        <div className="flex items-start gap-2 shrink-0 sm:w-32">
-                          <span className="mt-0.5">{iconFor(a.kind)}</span>
-                          <div className="text-xs text-text-muted">
-                            {formatDate(a.created, locale)}
+                          <Meta tone="faint" className="shrink-0 w-16 tabular-nums">
+                            {formatActivityDate(a.created, locale)}
+                          </Meta>
+                          <span className="shrink-0">{iconFor(a.kind)}</span>
+                          <Meta variant="cintillo" tone="muted">
+                            {body}
+                          </Meta>
                           </div>
-                        </div>
+                    );
+}
+
+                    return (
+                      <div key={a.id} className="flex gap-3 py-4 px-1 group">
+                        <Meta tone="faint" className="shrink-0 w-16 tabular-nums pt-1">
+                          {formatActivityDate(a.created, locale)}
+                        </Meta>
                         <div className="flex-1 min-w-0">
-                          {proj && (
-                            <div className="text-xs text-accent mb-0.5">
-                              {proj.name}
-                            </div>
-                          )}
-                          <div className="text-sm text-text break-words">
-                            {describe({ activity: a, locale, tEntry, tStatus })}
+                          <Meta variant="cintillo" tone="muted" className="block mb-1">
+                            {t("writtenUpdate")}
+                            {proj ? ` · ${proj.name}` : ""}
+                          </Meta>
+                          <p className="text-[15px] leading-[1.6] text-text-2 break-words max-w-[68ch]">
+                            {body}
+                          </p>
                           </div>
+                        <div className="flex items-start gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 ease-out">
+                          <button
+                            onClick={() => onEditNote(a)}
+                            className="text-text-4 hover:text-accent"
+                            aria-label={t("editEntryAria")}
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(t("deleteConfirm"))) onDeleteNote(a.id);
+                            }}
+                            className="text-text-4 hover:text-signal"
+                            aria-label={t("deleteEntryAria")}
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
-                        {isNote && (
-                          <div className="flex items-start gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => onEditNote(a)}
-                              className="text-text-muted hover:text-accent"
-                              aria-label={t("editEntryAria")}
-                            >
-                              <Edit2 size={14} />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm(t("deleteConfirm"))) onDeleteNote(a.id);
-                              }}
-                              className="text-text-muted hover:text-red-400"
-                              aria-label={t("deleteEntryAria")}
-                            >
-                              <X size={14} />
-                            </button>
-                          </div>
-                        )}
                       </div>
                     );
                   })}

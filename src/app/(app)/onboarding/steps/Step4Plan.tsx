@@ -57,7 +57,7 @@ export function Step4Plan({
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="font-display text-3xl sm:text-4xl text-text">
+          <h1 className="font-display-app text-3xl sm:text-4xl text-text">
             {t("step4Beta.heading", { name })}
           </h1>
         </div>
@@ -99,15 +99,15 @@ export function Step4Plan({
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="font-display text-3xl sm:text-4xl text-text">
+          <h1 className="font-display-app text-3xl sm:text-4xl text-text">
             {t("replay.planHeading")}
           </h1>
           <p className="text-text-muted text-sm mt-2">
             {t("replay.planInfo", { plan: planLabel })}
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-surface/50 p-5 flex items-center justify-between gap-4">
-          <div className="font-display text-2xl text-text">{planLabel}</div>
+        <div className="rounded-lg border border-border bg-surface p-5 flex items-center justify-between gap-4">
+          <div className="font-display-app text-2xl text-text">{planLabel}</div>
           <Link
             href="/settings/billing"
             className="inline-flex items-center text-sm text-accent hover:opacity-80 shrink-0"
@@ -167,7 +167,7 @@ export function Step4Plan({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl sm:text-4xl text-text">
+        <h1 className="font-display-app text-3xl sm:text-4xl text-text">
           {t("step4Plan.heading")}
         </h1>
         <p className="text-text-muted text-sm mt-2">{t("step4Plan.sub")}</p>
@@ -184,18 +184,18 @@ export function Step4Plan({
               type="button"
               onClick={() => setSelected(p)}
               disabled={total}
-              className={`text-left rounded-xl border p-4 flex flex-col transition-colors disabled:opacity-50 ${
+              className={`text-left rounded-lg border p-4 flex flex-col transition-colors disabled:opacity-50 ${
                 isSelected
                   ? "border-accent bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
-                  : "border-border bg-surface/30 hover:bg-surface/60"
+                  : "border-border bg-surface hover:bg-surface-2"
               }`}
               aria-pressed={isSelected}
             >
-              <div className="font-display text-lg text-text">
+              <div className="font-display-app text-lg text-text">
                 {tBilling(p)}
               </div>
               <div className="mt-1 flex items-baseline gap-1">
-                <span className="font-display text-2xl text-text">
+                <span className="font-display-app text-2xl text-text">
                   {tPricing(`${p}.price`)}
                 </span>
                 <span className="text-xs text-text-muted">

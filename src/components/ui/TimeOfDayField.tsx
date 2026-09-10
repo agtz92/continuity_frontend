@@ -46,7 +46,7 @@ export function TimeOfDayField({
 
   return (
     <div className="space-y-2">
-      <div className="inline-flex bg-border/60 border border-border rounded-lg p-0.5">
+      <div className="inline-flex bg-line-08 border border-border rounded-lg p-0.5">
         <button
           type="button"
           aria-pressed={!timed}

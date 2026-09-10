@@ -183,21 +183,21 @@ function severityPalette(severity: Severity) {
   switch (severity) {
     case "error":
       return {
-        bg: "bg-red-500/10",
-        border: "border-red-500/30",
-        icon: "text-red-600 dark:text-red-400",
-        title: "text-red-900 dark:text-red-100",
-        body: "text-red-800/90 dark:text-red-200/90",
-        cta: "text-red-700 dark:text-red-300",
+        bg: "bg-signal-a12",
+        border: "border-signal-a50",
+        icon: "text-signal ",
+        title: "text-signal ",
+        body: "text-signal ",
+        cta: "text-signal ",
       };
     case "warn":
       return {
-        bg: "bg-amber-500/10",
-        border: "border-amber-500/30",
-        icon: "text-amber-600 dark:text-amber-400",
-        title: "text-amber-900 dark:text-amber-100",
-        body: "text-amber-800/90 dark:text-amber-200/90",
-        cta: "text-amber-700 dark:text-amber-300",
+        bg: "bg-signal-a12",
+        border: "border-signal-a50",
+        icon: "text-signal ",
+        title: "text-signal ",
+        body: "text-signal ",
+        cta: "text-signal ",
       };
     case "info":
     default:

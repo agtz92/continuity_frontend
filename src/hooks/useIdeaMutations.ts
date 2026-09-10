@@ -48,11 +48,32 @@ export function useIdeaMutations() {
     }
   };
 
-  const promoteIdea = async (id: string): Promise<void> => {
+  /**
+   * Promover una idea a proyecto. `firstAction` es obligatoria **en la web**
+   * (la exige `PromoteIdeaModal`); el servidor la acepta opcional para no
+   * romper la app nativa, que todavía manda solo el id.
+   */
+  const promoteIdea = async (
+    id: string,
+    extra?: {
+      firstAction?: string;
+      categoryId?: string | null;
+      priority?: string | null;
+    }
+  ): Promise<boolean> => {
     try {
-      await promoteIdeaM({ variables: { id } });
+      await promoteIdeaM({
+        variables: {
+          id,
+          firstAction: extra?.firstAction ?? null,
+          categoryId: extra?.categoryId ?? null,
+          priority: extra?.priority ?? null,
+        },
+      });
+      return true;
     } catch {
       /* errorLink already toasted */
+      return false;
     }
   };
 

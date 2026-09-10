@@ -288,7 +288,7 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
           return (
             <span
               key={idx}
-              className={`h-1 rounded-full transition-all ${
+              className={`h-1 rounded-full transition-colors duration-150 ease-out ${
                 active
                   ? "w-8 bg-accent"
                   : done

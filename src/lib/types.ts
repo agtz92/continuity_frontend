@@ -9,6 +9,9 @@ export type ProjectStatus =
 
 export type Priority = "critical" | "high" | "medium" | "low";
 
+/** Tramo de enfriamiento. Los cortes viven en el backend, no aquí. */
+export type Cooling = "warm" | "cool" | "cold";
+
 export interface Category {
   id: string;
   name: string;
@@ -42,6 +45,16 @@ export interface Project {
   stalledAt?: string | null;
   /** Manual order ("Mi orden" sort). Dense 0..N once reordered; 0 by default. */
   position?: number;
+  /** Días desde el último movimiento. Derivado en el servidor para que web y
+   *  móvil no discrepen en los tramos (backend: core/services/cooling.py). */
+  daysSinceTouch?: number;
+  /** Tramo de enfriamiento: 0-7 warm · 8-21 cool · 22+ cold. */
+  cooling?: Cooling;
+  /** Blocker abierto más antiguo entre sus tareas pendientes. */
+  blockedSince?: string | null;
+  /** "Atorado": tiene al menos una tarea abierta con blocker. NO es un estado
+   *  del modelo, se deriva (REDISENO_PLAN.md §8, DP-03). */
+  isBlocked?: boolean;
 }
 
 export interface GraveyardInsight {
@@ -86,6 +99,9 @@ export interface Task {
   parkedDueDate: string | null;
   parkedDueTime: string | null;
   blockers: TaskBlocker[];
+  /** Derivados de `blockers` en el servidor: desde cuándo y por qué. */
+  blockedSince?: string | null;
+  blockedReason?: string;
 }
 
 export interface Idea {
@@ -354,18 +370,31 @@ export const CATEGORY_COLORS = [
   "orange",
 ] as const;
 
-// Static map — Tailwind needs the literal class names in source to keep them.
+/**
+ * Color de categoría. El rediseño lo saca de la pastilla y lo mete en una
+ * **muesca de 3px**: el chip queda neutro y solo el punto conserva el color.
+ * Con diez categorías, pintar el fondo y el texto de cada una convertía
+ * cualquier lista en un semáforo y no jerarquizaba nada.
+ *
+ * De paso desaparece la variante `dark:`: el chip neutro se resuelve con la
+ * escala de reglas, que ya es sensible al tema, y el punto usa un tono 400 que
+ * funciona sobre fondo claro y oscuro.
+ *
+ * Mapa estático: Tailwind necesita los nombres de clase literales en el fuente.
+ */
+const CATEGORY_CHIP = "bg-line-06 text-text-3 border-line-14";
+
 const CATEGORY_COLOR_MAP: Record<string, { chip: string; dot: string }> = {
-  emerald: { chip: "bg-accent/15 text-accent border-accent/30", dot: "bg-accent" },
-  blue: { chip: "bg-accent-2/15 text-accent-2 border-accent-2/30", dot: "bg-accent-2" },
-  purple: { chip: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30", dot: "bg-purple-400" },
-  amber: { chip: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30", dot: "bg-amber-400" },
-  rose: { chip: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30", dot: "bg-rose-400" },
-  cyan: { chip: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30", dot: "bg-cyan-400" },
-  indigo: { chip: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30", dot: "bg-indigo-400" },
-  pink: { chip: "bg-pink-500/15 text-pink-700 dark:text-pink-300 border-pink-500/30", dot: "bg-pink-400" },
-  lime: { chip: "bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30", dot: "bg-lime-400" },
-  orange: { chip: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30", dot: "bg-orange-400" },
+  emerald: { chip: CATEGORY_CHIP, dot: "bg-accent" },
+  blue: { chip: CATEGORY_CHIP, dot: "bg-sky-400" },
+  purple: { chip: CATEGORY_CHIP, dot: "bg-purple-400" },
+  amber: { chip: CATEGORY_CHIP, dot: "bg-amber-400" },
+  rose: { chip: CATEGORY_CHIP, dot: "bg-rose-400" },
+  cyan: { chip: CATEGORY_CHIP, dot: "bg-cyan-400" },
+  indigo: { chip: CATEGORY_CHIP, dot: "bg-indigo-400" },
+  pink: { chip: CATEGORY_CHIP, dot: "bg-pink-400" },
+  lime: { chip: CATEGORY_CHIP, dot: "bg-lime-400" },
+  orange: { chip: CATEGORY_CHIP, dot: "bg-orange-400" },
 };
 
 export const categoryColorClass = (color: string) =>

@@ -69,26 +69,26 @@ export function TodayFocusSection({
         todayTaskCounts.total > 0 ? (
           <span className="inline-flex items-center gap-2 flex-wrap">
             <span
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40 text-orange-700 dark:text-orange-200 shadow-sm shadow-orange-500/10"
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm border border-line-22 bg-line-06 text-text-3 meta-flat"
               title={tFocus("tasksTooltip", {
                 dueToday: todayTaskCounts.dueToday,
                 overdue: todayTaskCounts.overdue,
               })}
             >
-              <Target size={11} className="text-orange-700 dark:text-orange-300" />
+              <Target size={11} className="text-text-4" />
               <span>{tFocus("tasksLabel", { count: todayTaskCounts.total })}</span>
               {todayTaskCounts.overdue > 0 && (
-                <span className="text-red-700 dark:text-red-300 font-semibold">
+                <span className="text-signal font-semibold">
                   {tFocus("overdueExtra", { count: todayTaskCounts.overdue })}
                 </span>
               )}
             </span>
             {todayEffortHours > 0 && (
               <span
-                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-accent-2/15 text-accent-2 border-accent-2/40"
+                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border bg-line-08 text-text-3 border-line-14"
                 title={tFocus("totalHoursTooltip")}
               >
-                <Clock size={11} className="text-accent-2" />
+                <Clock size={11} className="text-text-3" />
                 {tFocus("totalHoursLabel", { hours: todayEffortHours })}
               </span>
             )}
@@ -98,7 +98,7 @@ export function TodayFocusSection({
     >
       <>
         {todayFocus.items.length === 0 ? (
-          <div className="bg-surface border border-border rounded-xl p-8 text-center">
+          <div className="bg-surface border border-border rounded-lg p-8 text-center">
             <p className="text-text-muted mb-3">{tFocus("emptyTitle")}</p>
             <p className="text-sm text-text-muted">
               {projects.length === 0
@@ -111,13 +111,13 @@ export function TodayFocusSection({
             {todayFocus.items.map((item, idx) => (
               <div
                 key={idx}
-                className={`bg-surface p-4 rounded-xl border border-l-[3px] transition-all hover:border-border ${
+                className={`bg-surface p-4 rounded-lg border border-l-[3px] transition-colors duration-150 ease-out hover:border-border ${
                   item.type === "overdue"
-                    ? "border-red-500/30 border-l-red-500"
+                    ? "border-signal-a50 border-l-red-500"
                     : item.type === "today"
-                    ? "border-orange-500/30 border-l-amber-500"
+                    ? "border-accent-a35 border-l-amber-500"
                     : item.type === "stalled"
-                    ? "border-amber-500/30 border-l-amber-500"
+                    ? "border-accent-a35 border-l-amber-500"
                     : "border-border border-l-accent"
                 }`}
               >
@@ -138,11 +138,11 @@ export function TodayFocusSection({
                       <span
                         className={`text-xs uppercase tracking-wider font-medium ${
                           item.type === "overdue"
-                            ? "text-red-400"
+                            ? "text-signal"
                             : item.type === "today"
-                            ? "text-orange-400"
+                            ? "text-accent"
                             : item.type === "stalled"
-                            ? "text-amber-400"
+                            ? "text-accent"
                             : "text-accent"
                         }`}
                       >
@@ -163,7 +163,7 @@ export function TodayFocusSection({
                         (() => {
                           const n = daysOverdue(item.task.dueDate);
                           return n !== null ? (
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-500/25 text-red-700 dark:text-red-200 border border-red-500/50">
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-signal-a12 text-signal border border-signal-a50">
                               {tFocus("daysLate", { count: n })}
                             </span>
                           ) : null;
@@ -192,7 +192,7 @@ export function TodayFocusSection({
                           : item.project?.nextStep}
                       </span>
                       {item.task?.effortHours != null && (
-                        <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+                        <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
                           <Clock size={10} />
                           {item.task.effortHours}h
                         </span>
@@ -231,10 +231,10 @@ export function TodayFocusSection({
         {todayFocus.total > todayFocus.items.length && (
           <button
             onClick={onJumpToTasks}
-            className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-700 dark:text-orange-200 text-sm font-medium transition-colors"
+            className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-line-22 bg-line-06 text-text-2 text-sm font-medium transition-colors duration-150 ease-out hover:border-line-34 hover:text-text"
           >
             {tFocus("viewAll")}
-            <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/30 text-orange-800 dark:text-orange-100">
+            <span className="meta-flat px-1.5 py-0.5 rounded-sm bg-line-14 text-text-3">
               {tFocus("moreCount", {
                 count: todayFocus.total - todayFocus.items.length,
               })}

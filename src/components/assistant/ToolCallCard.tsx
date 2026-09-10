@@ -25,7 +25,7 @@ function ProjectsList({ output }: { output: unknown }) {
       {projects.slice(0, 8).map((p, i) => (
         <li
           key={(p.id as string) || i}
-          className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded bg-surface/60 border border-border"
+          className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded bg-surface border border-border"
         >
           <span className="truncate text-text">{String(p.name || "")}</span>
           <span className="shrink-0 text-[10px] text-text-muted uppercase tracking-wide">
@@ -45,7 +45,7 @@ function TasksList({ output }: { output: unknown }) {
       {tasks.slice(0, 8).map((t, i) => (
         <li
           key={(t.id as string) || i}
-          className="flex items-center gap-2 text-xs px-2 py-1.5 rounded bg-surface/60 border border-border"
+          className="flex items-center gap-2 text-xs px-2 py-1.5 rounded bg-surface border border-border"
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
@@ -81,11 +81,11 @@ export function ToolCallCard({ block }: { block: AssistantToolUseBlock }) {
   const isLoading = block.output === undefined;
 
   return (
-    <div className="my-2 rounded-lg border border-border bg-surface/40 overflow-hidden">
+    <div className="my-2 rounded-lg border border-border bg-surface overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-text-muted hover:bg-surface/80 transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-text-muted hover:bg-surface transition-colors"
       >
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         <Wrench size={12} className="text-text-muted" />
@@ -101,7 +101,7 @@ export function ToolCallCard({ block }: { block: AssistantToolUseBlock }) {
         )}
       </button>
       {open && (
-        <div className="px-3 py-2 border-t border-border bg-bg/40">
+        <div className="px-3 py-2 border-t border-border bg-well">
           {Object.keys(block.input).length > 0 && (
             <div className="mb-2">
               <div className="text-[10px] uppercase tracking-wider text-text-muted mb-1">

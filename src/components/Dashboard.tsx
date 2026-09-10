@@ -8,7 +8,8 @@
  * backend marca al cargar).
  */
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
 import type { Project } from "@/lib/types";
@@ -51,7 +52,6 @@ import { useAssistant } from "@/hooks/useAssistant";
 import { projectCapForPlan, countsTowardCap } from "@/lib/planQuotas";
 import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
-import { TabBar } from "./dashboard/TabBar";
 import { BottomTabBar } from "./dashboard/BottomTabBar";
 import { MoreSheet } from "./dashboard/MoreSheet";
 import { AnalyticsView } from "./dashboard/AnalyticsView";
@@ -63,6 +63,11 @@ import { ProjectsView } from "./views/ProjectsView";
 import { RoutinesView } from "./views/RoutinesView";
 import { CalendarView } from "./views/CalendarView";
 import { TodayView } from "./views/TodayView";
+import type { DashboardView } from "@/lib/dashboardViews";
+import { Sidebar, type SidebarCounts } from "./layout/Sidebar";
+import { CommandPalette } from "./ui/CommandPalette";
+import { dashboardHref, parseDashboardRoute } from "@/lib/dashboardRoutes";
+import { useTranslations } from "next-intl";
 
 /**
  * Componente raíz del tablero. Coordina la carga de datos (useDashboardData),
@@ -111,7 +116,7 @@ export default function Dashboard() {
     () => Object.values(notesByProject).flat(),
     [notesByProject]
   );
-  const { exportData, importData, daysSinceBackup, backupOverdue } = useBackup({
+    const { exportData, importData } = useBackup({
     snapshot: { projects, tasks, ideas, activities, projectNotes: allProjectNotes },
     lastBackup,
     refetch,
@@ -122,7 +127,18 @@ export default function Dashboard() {
   // las vistas hijas solo reciben acciones para abrirlos/poblarlos, y aquí se
   // cierran al confirmar. Las acciones semánticas (newProject, editTask, logUpdate…)
   // viven en el hook para no duplicar los mismos arrows por cada vista.
-  const m = useDashboardModals();
+  // La URL manda. `usePathname` se actualiza sin desmontar porque este
+  // componente vive en el layout, no en la página (ver dashboard/layout.tsx).
+  const pathname = usePathname();
+  const route = useMemo(() => {
+    const segs = pathname.split("/").filter(Boolean); // ["dashboard", …]
+    return parseDashboardRoute(segs.slice(1));
+  }, [pathname]);
+
+  const m = useDashboardModals({
+    view: route.view,
+    viewingProjectId: route.projectId,
+  });
   const {
     view,
     setView,
@@ -170,12 +186,57 @@ export default function Dashboard() {
   } = useProjectLifecycle<SaveArgs>(saveProject, m.closeProjectModal);
   const { currentStalled, dismissStalled } = useStalledQueue(projects);
 
+  // --- Navegación: la URL manda, el estado va delante para no esperar al router ---
+  const tCommon = useTranslations("common");
+  const tDash = useTranslations("dashboard");
+
+  const router = useRouter();
+
+  /**
+   * Cambia de vista (y opcionalmente abre un proyecto). Escribe el estado
+   * primero para que el render sea inmediato y empuja la URL después; el efecto
+   * de abajo reconcilia y queda en no-op.
+   */
+  const goTo = useCallback(
+    (next: DashboardView, projectId: string | null = null) => {
+      setView(next);
+      setViewingProjectId(projectId);
+      router.push(dashboardHref(next, projectId));
+    },
+    [router, setView, setViewingProjectId]
+  );
+
+  /**
+   * La URL cambió por fuera: atrás/adelante del navegador, un enlace pegado o
+   * una recarga. Aquí el estado la sigue.
+   */
+  useEffect(() => {
+    setView(route.view);
+    setViewingProjectId(route.projectId);
+  }, [route.view, route.projectId, setView, setViewingProjectId]);
+
+  // --- Captura rápida (⌘K) ---
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== "k" || !(e.metaKey || e.ctrlKey)) return;
+      // Con otro diálogo abierto el atajo no se roba el foco: la captura
+      // rápida es para capturar, no para interrumpir lo que estabas haciendo.
+      if (document.querySelector('[role="dialog"]')) return;
+      e.preventDefault();
+      setPaletteOpen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   /** Open a project: paused → WelcomeBackCard (notes + reactivate); else detail. */
   const openProject = (p: Project) => {
     if (p.status === "paused") {
       setWelcomeBack(p);
     } else {
-      setViewingProjectId(p.id);
+      goTo("projects", p.id);
     }
   };
 
@@ -205,6 +266,30 @@ export default function Dashboard() {
     [projects]
   );
   const hasData = projects.length > 0 || tasks.length > 0 || ideas.length > 0;
+
+  /**
+   * Contadores de la barra lateral. Son metadato, no alarma: el único que se
+   * enciende es `blocked`. `routines` cuenta las rutinas vivas, no las de hoy —
+   * el número de la navegación dice cuánto hay, no cuánto urge.
+   */
+  const sidebarCounts: SidebarCounts = useMemo(
+    () => ({
+      projects: projects.filter((p) => p.status === "active").length,
+      tasks: tasks.filter((t) => !t.done).length,
+      routines: routines.filter((r) => !r.archived).length,
+      ideas: ideas.length,
+      notes: allProjectNotes.length,
+      blocked: projects.filter(
+        (p) =>
+          p.isBlocked ??
+          tasks.some(
+            (t) =>
+              t.projectId === p.id && !t.done && (t.blockers?.length ?? 0) > 0
+          )
+      ).length,
+    }),
+    [projects, tasks, routines, ideas, allProjectNotes]
+  );
 
   const productivityStats = useProductivityStats({
     projects,
@@ -262,7 +347,7 @@ export default function Dashboard() {
   if (initialLoading) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
-        <div className="text-text-muted">Loading your dashboard...</div>
+        <div className="text-text-muted">{tCommon("loading")}</div>
       </div>
     );
   }
@@ -270,19 +355,23 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-6">
-        <div className="max-w-md bg-surface border border-amber-500/30 rounded-xl p-6">
+        <div className="max-w-md bg-surface border border-signal-a50 rounded-lg p-6">
           <div className="flex items-start gap-3 mb-3">
-            <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={20} />
+            <AlertCircle className="text-signal shrink-0 mt-0.5" size={20} />
             <div>
-              <div className="font-semibold text-amber-700 dark:text-amber-300 mb-1">Couldn&apos;t load data</div>
-              <div className="text-sm text-text-muted mb-3">Error: {error.message}</div>
+              <div className="font-semibold text-signal mb-1">
+                {tDash("loadErrorTitle")}
+              </div>
+              <div className="text-sm text-text-muted mb-3">
+                {tDash("loadErrorDetail", { message: error.message })}
+              </div>
             </div>
           </div>
           <button
             onClick={() => refetch()}
             className="mt-2 px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
           >
-            Retry
+            {tCommon("retry")}
           </button>
         </div>
       </div>
@@ -307,7 +396,21 @@ export default function Dashboard() {
       />
       <DashboardTour onFinalCta={m.newProject} />
       <PullToRefresh onRefresh={() => refetch()} />
-      <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">
+      {paletteOpen && (
+        <CommandPalette
+          projects={projects}
+          onClose={() => setPaletteOpen(false)}
+          onOpenProject={openProject}
+        />
+      )}
+      <div className="flex">
+      <Sidebar
+        view={view}
+        counts={sidebarCounts}
+        onChange={goTo}
+        onQuickCapture={() => setPaletteOpen(true)}
+      />
+      <div className="flex-1 min-w-0 max-w-7xl mx-auto p-3 sm:p-6 pb-24 md:pb-6">
         <NotificationStack />
         <div className="hidden md:block">
           <DashboardHeader
@@ -318,8 +421,6 @@ export default function Dashboard() {
             hasData={hasData}
           />
         </div>
-
-        <TabBar view={view} onChange={setView} />
 
         {/* --- Ruteo de vista: una sola pestaña activa según `view` --- */}
 
@@ -334,19 +435,16 @@ export default function Dashboard() {
             routines={routines}
             routineOccurrences={routineOccurrences}
             categoryById={categoryById}
-            lastBackup={lastBackup}
-            daysSinceBackup={daysSinceBackup}
-            backupOverdue={backupOverdue}
             hasData={hasData}
             productivityStats={productivityStats}
-            onOpenBackupModal={m.openBackup}
             onJumpToProject={(p) => {
               setSelectedProject(p);
-              setView("projects");
+              goTo("projects");
             }}
-            onJumpToTasks={() => setView("tasks")}
-            onJumpToIdeas={() => setView("ideas")}
-            onJumpToRoutines={() => setView("routines")}
+            onJumpToTasks={() => goTo("tasks")}
+            onJumpToIdeas={() => goTo("ideas")}
+            onJumpToRoutines={() => goTo("routines")}
+            onJumpToLog={() => goTo("log")}
             onNewTask={m.newTask}
             onNewProject={m.newProject}
             onNewIdea={m.newIdea}
@@ -434,6 +532,7 @@ export default function Dashboard() {
         {view === "ideas" && (
           <IdeasView
             ideas={ideas}
+            categories={categories}
             onCapture={m.newIdea}
             onEdit={m.editIdea}
             onPromote={promoteIdea}
@@ -461,7 +560,14 @@ export default function Dashboard() {
         )}
 
         {/* ANALYTICS */}
-        {view === "analytics" && <AnalyticsView />}
+        {view === "analytics" && (
+          <AnalyticsView
+            projects={projects}
+            tasks={tasks}
+            activities={activities}
+            categories={categories}
+          />
+        )}
 
         {/* GRAVEYARD */}
         {view === "graveyard" && (
@@ -483,6 +589,7 @@ export default function Dashboard() {
             onOpenAssistant={openAssistant}
           />
         )}
+      </div>
       </div>
 
       {/* --- Capa de modales: montados a nivel raíz, gateados por su flag de estado --- */}
@@ -560,7 +667,7 @@ export default function Dashboard() {
           notes={notesByProject[viewingProject.id] ?? []}
           categories={categories}
           categoryById={categoryById}
-          onClose={() => setViewingProjectId(null)}
+          onClose={() => goTo("projects")}
           onSaveProject={async (patch) => {
             await requestSaveProject(
               {
@@ -593,7 +700,6 @@ export default function Dashboard() {
             await deleteProjectAction(id);
           }}
           onAddTaskToProject={m.addTaskToProject}
-          onLogUpdate={m.logUpdate}
           onToggleTask={toggleTask}
           onEditTask={m.editTask}
           onDeleteTask={deleteTask}
@@ -658,7 +764,7 @@ export default function Dashboard() {
                 await applyParkedDueDates(id, restoreDates);
               }
               setWelcomeBack(null);
-              setViewingProjectId(id);
+              goTo("projects", id);
             }
             return ok;
           }}
@@ -701,14 +807,14 @@ export default function Dashboard() {
 
       <BottomTabBar
         view={view}
-        onChange={setView}
+        onChange={goTo}
         onOpenMore={() => m.setMoreSheetOpen(true)}
       />
 
       <MoreSheet
         open={m.moreSheetOpen}
         view={view}
-        onSelect={setView}
+        onSelect={goTo}
         onClose={() => m.setMoreSheetOpen(false)}
       />
 

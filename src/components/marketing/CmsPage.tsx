@@ -82,7 +82,7 @@ export default async function CmsPage({
           </div>
         )}
         <div
-          className="prose dark:prose-invert max-w-none"
+          className="prose prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: lazyLoadContentImages(page.contentHtml) }}
         />
       </article>

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useQuery } from "@apollo/client";
 import { NOTIFICATION_SETTINGS_QUERY } from "@/lib/graphql";
-import { THEME_COOKIE, isTheme, type Theme } from "@/theme/config";
+import { THEME_COOKIE, normalizeTheme, type Theme } from "@/theme/config";
 
 function readCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
@@ -16,7 +16,7 @@ function applyThemeAttribute(theme: Theme) {
   const effective =
     theme === "system"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
+        ? "carbon"
         : "light"
       : theme;
   document.documentElement.setAttribute("data-theme", effective);
@@ -40,8 +40,9 @@ export function useThemeSync() {
 
   useEffect(() => {
     if (synced.current) return;
-    const saved = data?.notificationSettings?.theme as string | undefined;
-    if (!isTheme(saved)) return;
+    // Normalizar, no validar: un perfil sin migrar trae `continuuit` o `dark`.
+    const saved = normalizeTheme(data?.notificationSettings?.theme);
+    if (!saved) return;
     synced.current = true;
     const current = readCookie(THEME_COOKIE);
     if (saved === current) return;

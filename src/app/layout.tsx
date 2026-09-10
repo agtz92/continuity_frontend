@@ -1,15 +1,47 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import {
+  Fraunces,
+  Instrument_Sans,
+  Inter,
+  JetBrains_Mono,
+  Schibsted_Grotesk,
+} from "next/font/google";
 import "./globals.css";
 import { Analytics } from "./analytics";
 import { NO_FLASH_SCRIPT } from "@/theme/no-flash";
 import { resolveSiteUrl } from "@/lib/siteUrl";
+
+/* Cinco familias, dos sistemas.
+ *
+ * MARKETING (fuera del rediseño): Fraunces para titulares + Inter de cuerpo.
+ * Es la identidad del landing, el blog y las legales, y no cambia.
+ *
+ * PRODUCTO: Instrument Sans firma los titulares con tracking negativo;
+ * Schibsted Grotesk sostiene la interfaz y, en versalitas de 0.14em, hace de
+ * mono sin serlo. Dos familias, no tres: la mono deja de ser parte del sistema
+ * (sobrevive solo para bloques de código reales en admin y report-bug).
+ *
+ * El reparto lo hace `globals.css`: Tailwind mapea `font-sans` a --font-ui, y
+ * los ámbitos [data-surface="marketing"] y [data-admin="true"] lo devuelven a
+ * Inter. Ver REDISENO_PLAN.md §8, DP-07. */
 
 const fontDisplay = Fraunces({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-display",
   axes: ["SOFT", "WONK", "opsz"],
+});
+
+const fontDisplayApp = Instrument_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display-app",
+});
+
+const fontUi = Schibsted_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-ui",
 });
 
 const fontSans = Inter({
@@ -87,7 +119,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable}`}
+      className={`${fontDisplay.variable} ${fontDisplayApp.variable} ${fontUi.variable} ${fontSans.variable} ${fontMono.variable}`}
       suppressHydrationWarning
     >
       <head>

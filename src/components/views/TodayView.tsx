@@ -14,34 +14,24 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Ban,
   Bell,
+  BookOpen,
   Flag,
   Lightbulb,
   Moon,
   Plus,
   Repeat,
   Rocket,
+  ScrollText,
   Settings2,
+  Snowflake,
   Sparkles,
   Target,
   TrendingUp,
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import type {
   Activity,
   Category,
@@ -56,7 +46,7 @@ import { useTodayFocus } from "@/hooks/useTodayFocus";
 import type { useProductivityStats } from "@/hooks/useProductivityStats";
 import { useTodayLayout } from "@/hooks/useTodayLayout";
 import { TODAY_SECTIONS, type TodaySectionId } from "@/lib/todaySections";
-import { TodaySection } from "../today/TodaySection";
+import { TodayLayoutEditor } from "../today/TodayLayoutEditor";
 import { TodayCustomizeBar } from "../today/TodayCustomizeBar";
 import { HiddenSectionsFooter } from "../today/HiddenSectionsFooter";
 import {
@@ -77,6 +67,15 @@ import {
   StalledAlertSection,
 } from "../today/sections";
 import { TodayActionSheet } from "./TodayActionSheet";
+import { ResumeThread } from "../today/ResumeThread";
+import { StoppedList } from "../today/StoppedList";
+import { CoolingList } from "../today/CoolingList";
+import { HomeLogTail } from "../today/HomeLogTail";
+import {
+  coolingProjects,
+  pickResumeThread,
+  stoppedProjects,
+} from "@/lib/homeSignals";
 
 type ProductivityStats = ReturnType<typeof useProductivityStats>;
 
@@ -89,24 +88,21 @@ function greetingKey(): "morning" | "afternoon" | "evening" {
 
 // Icon shown next to each section name inside the customize-mode card.
 const SECTION_ICON: Record<TodaySectionId, ReactNode> = {
-  counters: <TrendingUp size={18} className="text-accent-2" />,
+  "resume-thread": <BookOpen size={18} className="text-accent" />,
+  stopped: <Ban size={18} className="text-signal" />,
+  cooling: <Snowflake size={18} className="text-text-3" />,
+  counters: <TrendingUp size={18} className="text-text-3" />,
   "stalled-alert": <Bell size={18} className="text-amber-400" />,
   "today-focus": <Target size={18} className="text-accent" />,
-  "routines-today": <Repeat size={18} className="text-accent-2" />,
+  "routines-today": <Repeat size={18} className="text-text-3" />,
   "done-today": <Sparkles size={18} className="text-accent" />,
   closeable: <Flag size={18} className="text-accent" />,
   sleeping: <Moon size={18} className="text-amber-400" />,
   "stale-ideas": <Lightbulb size={18} className="text-purple-400" />,
   "active-projects": <Zap size={18} className="text-accent" />,
-  "launched-with-tasks": <Rocket size={18} className="text-accent-2" />,
+  "launched-with-tasks": <Rocket size={18} className="text-text-3" />,
+  "log-tail": <ScrollText size={18} className="text-text-3" />,
 };
-
-// Sections whose normal rendering only happens on mobile. We badge them
-// in the customize-mode list so the user understands the hide toggle is
-// effectively a mobile-only setting today.
-const MOBILE_ONLY_SECTIONS: ReadonlySet<TodaySectionId> = new Set([
-  "counters",
-]);
 
 /**
  * Componente principal de la vista "Hoy". Recibe ya calculados los datos crudos del
@@ -130,16 +126,13 @@ export function TodayView({
   routines,
   routineOccurrences,
   categoryById,
-  lastBackup,
-  daysSinceBackup,
-  backupOverdue,
   hasData,
   productivityStats,
-  onOpenBackupModal,
   onJumpToProject,
   onJumpToTasks,
   onJumpToIdeas,
   onJumpToRoutines,
+  onJumpToLog,
   onNewTask,
   onNewProject,
   onNewIdea,
@@ -160,16 +153,13 @@ export function TodayView({
   routines: Routine[];
   routineOccurrences: RoutineOccurrence[];
   categoryById: Record<string, Category>;
-  lastBackup: string | null;
-  daysSinceBackup: number | null;
-  backupOverdue: boolean;
   hasData: boolean;
   productivityStats: ProductivityStats;
-  onOpenBackupModal: () => void;
   onJumpToProject: (p: Project) => void;
   onJumpToTasks: () => void;
   onJumpToIdeas: () => void;
   onJumpToRoutines: () => void;
+  onJumpToLog: () => void;
   onNewTask: () => void;
   onNewProject: () => void;
   onNewIdea: () => void;
@@ -191,13 +181,6 @@ export function TodayView({
    */
   onRefresh?: () => void | Promise<unknown>;
 }) {
-  const t = useTranslations("views.today");
-  const tFocus = useTranslations("views.today.focus");
-  const tDone = useTranslations("views.today.doneToday");
-  const tCloseable = useTranslations("views.today.closeable");
-  const tSleep = useTranslations("views.today.sleeping");
-  const tStale = useTranslations("views.today.staleIdeas");
-  const tTabs = useTranslations("tabs");
   const tGreeting = useTranslations("views.today.greeting");
   const tCounters = useTranslations("views.today.counters");
   const tFab = useTranslations("views.today.fab");
@@ -251,26 +234,6 @@ export function TodayView({
     }
   }, [searchParams, router, layout]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  /**
-   * Persiste el reorden de secciones tras un drag en el editor de layout: traduce los
-   * ids arrastrados (active/over) a índices dentro de `layout.order` y delega en
-   * `layout.reorder`. No hace nada si se suelta fuera o sobre la misma sección.
-   * Efecto secundario: muta el orden guardado en useTodayLayout.
-   */
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const fromIdx = layout.order.indexOf(active.id as TodaySectionId);
-    const toIdx = layout.order.indexOf(over.id as TodaySectionId);
-    if (fromIdx === -1 || toIdx === -1) return;
-    layout.reorder(fromIdx, toIdx);
-  };
-
   const projectById = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
     [projects]
@@ -309,25 +272,26 @@ export function TodayView({
       id: "active",
       label: tCounters("active"),
       value: activeProjectsCount,
-      tint: "text-accent",
+      tint: "text-text",
     },
     {
       id: "launched",
       label: tCounters("launched"),
       value: launchedProjectsCount,
-      tint: "text-accent-2",
+      tint: "text-text-3",
     },
     {
       id: "stalled",
       label: tCounters("stalled"),
       value: stalled.length,
-      tint: "text-amber-400",
+      // La única que se enciende, y solo si hay alguno: es la cifra que duele.
+      tint: stalled.length > 0 ? "text-signal" : "text-text-3",
     },
     {
       id: "ideas",
       label: tCounters("ideas"),
       value: ideasCount,
-      tint: "text-purple-400",
+      tint: "text-text-3",
     },
     {
       id: "tasks",
@@ -336,6 +300,21 @@ export function TodayView({
       tint: "text-text",
     },
   ];
+
+  // Las tres señales de apertura del Home (S01). `exceptId` es la regla que
+  // evita el eco: el protagonista ya dice arriba que está atorado o frío.
+  const resume = useMemo(
+    () => pickResumeThread(projects, activities),
+    [projects, activities]
+  );
+  const stopped = useMemo(
+    () => stoppedProjects(projects, resume?.project.id),
+    [projects, resume]
+  );
+  const cooling = useMemo(
+    () => coolingProjects(projects, { exceptId: resume?.project.id }),
+    [projects, resume]
+  );
 
   const formattedDate = new Date().toLocaleDateString(locale, {
     weekday: "long",
@@ -349,6 +328,43 @@ export function TodayView({
   // estos bloques NO determina el orden visual (eso lo decide `layout.order` en el render).
 
   const sectionNodes: Partial<Record<TodaySectionId, ReactNode>> = {};
+
+  // --- Sección: resume-thread ("dónde te quedaste", el bloque protagonista) ---
+  // Un proyecto, el último tocado. Las tres secciones del rediseño se derivan
+  // juntas porque comparten una regla: el protagonista NO se repite abajo.
+  if (resume) {
+    sectionNodes["resume-thread"] = (
+      <ResumeThread
+        thread={resume}
+        tasks={tasks}
+        categoryById={categoryById}
+        onOpen={onJumpToProject}
+        onLogUpdate={onLogUpdate}
+      />
+    );
+  }
+
+  // --- Sección: stopped (lo atorado, lo más viejo primero) ---
+  if (stopped.length > 0) {
+    sectionNodes.stopped = (
+      <StoppedList
+        projects={stopped}
+        tasks={tasks}
+        onJumpToProject={onJumpToProject}
+      />
+    );
+  }
+
+  // --- Sección: cooling (lo que lleva días sin moverse) ---
+  if (cooling.length > 0) {
+    sectionNodes.cooling = (
+      <CoolingList
+        entries={cooling}
+        onJumpToProject={onJumpToProject}
+        onLogUpdate={onLogUpdate}
+      />
+    );
+  }
 
   // --- Sección: counters (resumen numérico, solo mobile) ---
   if (hasData) {
@@ -466,6 +482,17 @@ export function TodayView({
     );
   }
 
+  // --- Sección: log-tail (la cola del diario, al pie) ---
+  if (activities.length > 0) {
+    sectionNodes["log-tail"] = (
+      <HomeLogTail
+        activities={activities}
+        projects={projects}
+        onOpenLog={onJumpToLog}
+      />
+    );
+  }
+
   // ---------- Render ---------- //
 
   // Entrar/salir del modo "personalizar" (editor de orden y visibilidad de secciones).
@@ -485,6 +512,21 @@ export function TodayView({
     locked: tCustom("alwaysVisible"),
     drag: tCustom("dragToReorder"),
   };
+
+  /** Pinta una columna: salta lo oculto y lo que no tiene datos. */
+  const renderColumn = (ids: TodaySectionId[]) =>
+    ids
+      .filter((id) => !layout.hidden.has(id))
+      .map((id) => {
+        const node = sectionNodes[id];
+        if (!node) return null;
+        return <Fragment key={id}>{node}</Fragment>;
+      });
+
+  /** ¿El lateral tiene algo que pintar? Si no, no se reserva su ancho. */
+  const railNodes = layout.rail.filter(
+    (id) => !layout.hidden.has(id) && sectionNodes[id]
+  );
 
   const customizeButton = (
     <button
@@ -533,52 +575,37 @@ export function TodayView({
               done: tCustom("done"),
             }}
           />
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={layout.order}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-2">
-                {layout.order.map((id) => {
-                  const meta = TODAY_SECTIONS.find((s) => s.id === id);
-                  if (!meta) return null;
-                  return (
-                    <TodaySection
-                      key={id}
-                      id={id}
-                      editMode
-                      hidden={layout.hidden.has(id)}
-                      hideable={meta.hideable}
-                      label={tSections(meta.labelKey)}
-                      icon={SECTION_ICON[id]}
-                      badge={
-                        MOBILE_ONLY_SECTIONS.has(id) ? tCustom("mobileOnly") : undefined
-                      }
-                      onToggleHide={() => layout.toggleVisibility(id)}
-                      hideLabels={hideLabels}
-                    >
-                      {/* Children unused in edit mode but kept for type satisfaction. */}
-                      {null}
-                    </TodaySection>
-                  );
-                })}
-              </div>
-            </SortableContext>
-          </DndContext>
+          <TodayLayoutEditor
+            layout={layout}
+            sectionIcon={SECTION_ICON}
+            labelOf={(id) => {
+              const meta = TODAY_SECTIONS.find((x) => x.id === id);
+              return meta ? tSections(meta.labelKey) : id;
+            }}
+            hideLabels={hideLabels}
+            zoneLabels={{
+              main: tCustom("zoneMain"),
+              rail: tCustom("zoneRail"),
+              mainHint: tCustom("zoneMainHint"),
+              railHint: tCustom("zoneRailHint"),
+            }}
+          />
         </>
       ) : (
         <>
-          {layout.order
-            .filter((id) => !layout.hidden.has(id))
-            .map((id) => {
-              const node = sectionNodes[id];
-              if (!node) return null;
-              return <Fragment key={id}>{node}</Fragment>;
-            })}
+          {/* Dos columnas a partir de `md`. Debajo de eso no hay lateral: a
+              390px las secciones del rail siguen en la pila, después de las
+              principales, que es donde el usuario las espera. */}
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
+            <div className="flex-1 min-w-0 w-full space-y-6">
+              {renderColumn(layout.order)}
+            </div>
+            {railNodes.length > 0 && (
+              <div className="w-full md:w-[300px] shrink-0 space-y-6">
+                {renderColumn(layout.rail)}
+              </div>
+            )}
+          </div>
           <HiddenSectionsFooter
             count={layout.hidden.size}
             onCustomize={enterEdit}

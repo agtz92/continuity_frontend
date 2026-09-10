@@ -34,6 +34,7 @@ export function MonthGrid({
   showLoad,
   onPickDay,
   moreLabel,
+  pickDayLabel,
 }: {
   weeks: string[][];
   refDate: Date;
@@ -50,6 +51,8 @@ export function MonthGrid({
   handlers: CalendarHandlers;
   onPickDay: (iso: string) => void;
   moreLabel: (n: number) => string;
+  /** Etiqueta accesible de la celda entera ("Elegir el 15 de marzo"). */
+  pickDayLabel: (iso: string) => string;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -123,7 +126,7 @@ export function MonthGrid({
             return (
               <div
                 key={iso}
-                className={`min-h-[104px] md:min-h-[112px] rounded-lg border p-1 flex flex-col gap-0.5 ${
+                className={`relative min-h-[104px] md:min-h-[112px] rounded-lg border p-1 flex flex-col gap-0.5 ${
                   isSelected
                     ? "border-accent ring-1 ring-accent bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
                     : isToday
@@ -131,11 +134,24 @@ export function MonthGrid({
                       : "border-border bg-surface"
                 } ${inMonth ? "" : "opacity-45"}`}
               >
+                {/* Toda la celda elige el día, no solo el número y los chips.
+                    Va como botón HERMANO en posición absoluta, por detrás del
+                    contenido: si fuera el contenedor, los chips —que también
+                    son botones— quedarían anidados dentro de un botón. */}
+                <button
+                  type="button"
+                  onClick={() => onPickDay(iso)}
+                  aria-label={pickDayLabel(iso)}
+                  className="absolute inset-0 rounded-lg cursor-pointer"
+                />
+                {/* La fila del número NO es `relative`: así el hueco entre el
+                    número y la barra de carga también elige el día. Solo el
+                    número, que es un botón propio, sube por encima. */}
                 <div className="flex items-center justify-between gap-1">
                   <button
                     type="button"
                     onClick={() => onPickDay(iso)}
-                    className={`text-xs font-medium tabular-nums hover:opacity-70 ${
+                    className={`relative text-xs font-medium tabular-nums hover:opacity-70 ${
                       isToday
                         ? "inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent text-bg"
                         : "text-text"
@@ -149,12 +165,15 @@ export function MonthGrid({
                     </div>
                   )}
                 </div>
-                {visible}
+                {/* `relative` para quedar por encima del botón de la celda. */}
+                <div className="relative flex flex-col gap-0.5 min-w-0">
+                  {visible}
+                </div>
                 {hidden > 0 && (
                   <button
                     type="button"
                     onClick={() => onPickDay(iso)}
-                    className="text-[10px] text-text-muted text-left hover:text-text px-1"
+                    className="relative text-[10px] text-text-muted text-left hover:text-text px-1"
                   >
                     {moreLabel(hidden)}
                   </button>

@@ -176,7 +176,7 @@ export default function BillingSettingsPage() {
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      <div className="bg-surface/50 border border-border rounded-xl p-5 mb-5">
+      <div className="bg-surface border border-border rounded-lg p-5 mb-5">
         <div className="text-xs text-text-muted mb-1">{t("currentPlan")}</div>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export default function BillingSettingsPage() {
             ) : null}
           </div>
         ) : cancelScheduled && renewsAt ? (
-          <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+          <div className="mb-3 rounded-lg border border-signal-a50 bg-signal-a12 px-3 py-2 text-xs text-signal ">
             <div className="font-semibold mb-0.5">{t("cancelScheduled")}</div>
             <div className="leading-snug">
               {t("cancelScheduledBlurb", {
@@ -370,10 +370,10 @@ function TierCard({
 
   return (
     <div
-      className={`relative rounded-xl border p-5 flex flex-col ${
+      className={`relative rounded-lg border p-5 flex flex-col ${
         popular
           ? "border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]"
-          : "border-border bg-surface/40"
+          : "border-border bg-surface"
       }`}
     >
       {popular && (
@@ -463,7 +463,7 @@ function BillingToggle({
 
 function UsageRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-bg/40 px-3 py-2">
+    <div className="rounded-lg border border-border bg-well px-3 py-2">
       <div className="text-[10px] uppercase tracking-wider text-text-muted">
         {label}
       </div>

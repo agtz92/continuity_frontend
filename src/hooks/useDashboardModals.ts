@@ -16,10 +16,15 @@
 import { useState } from "react";
 
 import type { Activity, Idea, Project, Routine, Task } from "@/lib/types";
-import type { DashboardView } from "@/components/dashboard/TabBar";
+import type { DashboardView } from "@/lib/dashboardViews";
 
-export function useDashboardModals() {
-  const [view, setView] = useState<DashboardView>("today");
+export function useDashboardModals(initial: {
+  view: DashboardView;
+  viewingProjectId: string | null;
+}) {
+  // La URL es la fuente de verdad de estos dos (ver `lib/dashboardRoutes.ts`);
+  // aquí solo viven como estado para que el render no espere al router.
+  const [view, setView] = useState<DashboardView>(initial.view);
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
 
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -36,7 +41,9 @@ export function useDashboardModals() {
   const [editingRoutine, setEditingRoutine] = useState<Partial<Routine> | null>(null);
   const [editingNote, setEditingNote] = useState<Activity | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
+  const [viewingProjectId, setViewingProjectId] = useState<string | null>(
+    initial.viewingProjectId
+  );
 
   // --- Acciones semánticas (antes arrows duplicados por cada vista/modal) ---
   const newProject = () => {

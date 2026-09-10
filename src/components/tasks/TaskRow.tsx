@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarCheck, CalendarClock, CalendarPlus, Clock, Lock } from "lucide-react";
+import { CalendarCheck, CalendarClock, CalendarPlus, Clock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
-import { daysOverdue, isDueToday, isOverdue } from "@/lib/date";
+import { daysOverdue, daysSince, isDueToday, isOverdue } from "@/lib/date";
 import { toast } from "@/lib/toast";
+import { BlockerBadge } from "@/components/ui/BlockerBadge";
+import { BlockedTaskDialog } from "./BlockedTaskDialog";
 import { TaskToggle } from "./TaskToggle";
 
 /**
@@ -19,6 +21,13 @@ import { TaskToggle } from "./TaskToggle";
  * Marking done confirms instantly (optimistic check + "✓ completed" toast) and
  * the row fades out as the refetch drops it — instead of freezing then popping.
  */
+/** Trama diagonal de "detenido". Es la misma que usa `<BlockerBadge>`, un poco
+ *  más suave porque aquí cubre toda la fila y hay texto encima. */
+const BLOCKED_HATCH = {
+  backgroundImage:
+    "repeating-linear-gradient(45deg, var(--signal-a04) 0 6px, transparent 6px 14px)",
+} as const;
+
 export function TaskRow({
   task,
   project,
@@ -46,11 +55,29 @@ export function TaskRow({
   const dueToday = !done && isDueToday(task.dueDate);
   const isBlocked = !done && task.blockers.length > 0;
   const lateDays = overdue ? daysOverdue(task.dueDate) : null;
+  // `blockedReason` y `blockedSince` los deriva el servidor (B1); el cálculo
+  // local es el fallback para formas cacheadas de antes del rediseño.
   const blockReason = isBlocked
-    ? task.blockers.find((b) => b.externalDescription)?.externalDescription
+    ? task.blockedReason ||
+      task.blockers.find((b) => b.externalDescription)?.externalDescription
     : undefined;
+  const blockedDays = isBlocked
+    ? (daysSince(
+        task.blockedSince ??
+          task.blockers.map((b) => b.created).sort()[0]
+      ) ?? 0)
+    : 0;
+
+  const [askBlocked, setAskBlocked] = useState(false);
 
   const handleToggle = () => {
+    // Cerrar algo que sigue bloqueado no es una acción, es una pregunta:
+    // ¿se levantó el bloqueo, o la tarea dejó de importar? Ver
+    // `BlockedTaskDialog`. Desmarcar una tarea ya hecha no pregunta nada.
+    if (!done && isBlocked) {
+      setAskBlocked(true);
+      return;
+    }
     if (!done) {
       setOptimisticDone(true);
       toast.success(t("completedToast"), 2500);
@@ -61,18 +88,37 @@ export function TaskRow({
   };
 
   return (
+    <>
+      {askBlocked && (
+        <BlockedTaskDialog
+          task={task}
+          onClose={() => setAskBlocked(false)}
+          onResolve={() => {
+            setOptimisticDone(true);
+            toast.success(t("completedToast"), 2500);
+            onToggle(task);
+          }}
+        />
+      )}
     <motion.div
       layout
       initial={false}
       animate={{ opacity: optimisticDone ? 0 : 1 }}
       transition={{ duration: 0.2 }}
+      // La trama recorre la fila entera, no solo el chip: una tarea detenida
+      // tiene que leerse detenida de un vistazo, y en escala de grises (§12.2).
+      // Nada de bajar la opacidad del bloque — el diseño lo prohíbe (§12.7):
+      // apagar el texto lo hace ilegible en vez de decir "esto no avanza".
+      style={isBlocked ? BLOCKED_HATCH : undefined}
       className={`bg-surface border border-l-[3px] rounded-lg p-3 flex items-start gap-3 group ${
-        overdue
-          ? "border-red-500/30 border-l-red-500"
+        isBlocked
+          ? "border-signal-a50 border-l-signal"
+          : overdue
+          ? "border-signal-a50 border-l-signal"
           : dueToday
-          ? "border-orange-500/30 border-l-amber-500"
+          ? "border-accent-a35 border-l-accent"
           : "border-border border-l-border"
-      } ${isBlocked ? "opacity-60" : ""}`}
+      }`}
     >
       <div className="mt-0.5">
         <TaskToggle
@@ -92,7 +138,7 @@ export function TaskRow({
             {task.title}
           </span>
           {task.effortHours != null && (
-            <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+            <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
               <Clock size={10} />
               {task.effortHours}h
             </span>
@@ -100,27 +146,29 @@ export function TaskRow({
         </div>
         <div className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
           {overdue && lateDays !== null && (
-            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40">
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-signal-a12 text-signal border border-signal-a50">
               {t("overdueDays", { count: lateDays })}
             </span>
           )}
           {dueToday && (
-            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40">
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-accent-a12 text-accent border border-accent-a35">
               {t("todayBadge")}
             </span>
           )}
           {isBlocked && (
+            // Trama + ✕ + días: un blocker tiene que distinguirse en una
+            // captura en escala de grises, no solo por el color (§12.2).
+            // La razón va al lado porque es el dato que desatasca.
             <span
-              className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-500/10 text-gray-500 border border-gray-500/30 inline-flex items-center gap-1 max-w-[240px]"
-              title={blockReason}
+              className="inline-flex items-center gap-1.5 max-w-[280px]"
+              title={blockReason ?? t("blocked")}
             >
-              <Lock size={10} className="shrink-0" />
-              <span className="truncate normal-case">
-                {t("blocked")}
-                {blockReason ? ` · ${blockReason}` : ""}
-              </span>
-            </span>
+              <BlockerBadge compact since={blockedDays} />
+              {blockReason && (
+                <span className="truncate text-xs text-text-3">{blockReason}</span>
           )}
+            </span>
+            )}
           {project && <span>{project.name}</span>}
           {task.dueDate ? (
             !overdue &&
@@ -133,7 +181,7 @@ export function TaskRow({
                 e.stopPropagation();
                 onSchedule(task);
               }}
-              className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200 hover:underline"
+              className="inline-flex items-center gap-1 text-accent hover:text-accent hover:underline"
               title={t("addDate")}
             >
               <CalendarPlus size={12} /> {t("addDate")}
@@ -170,5 +218,6 @@ export function TaskRow({
         )}
       </div>
     </motion.div>
+    </>
   );
 }

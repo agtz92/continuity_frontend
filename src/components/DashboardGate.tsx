@@ -25,8 +25,12 @@ type OnboardingProbe = {
  */
 export default function DashboardGate({
   initialSession,
+  children,
 }: {
   initialSession: Session | null;
+  /** La página del catch-all, que no pinta nada. Se renderiza igualmente
+   *  para no romper el contrato de layout de Next. */
+  children?: React.ReactNode;
 }) {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(initialSession);
@@ -97,5 +101,10 @@ export default function DashboardGate({
     return null;
   }
 
-  return <Dashboard />;
+  return (
+    <>
+      {children}
+      <Dashboard />
+    </>
+  );
 }

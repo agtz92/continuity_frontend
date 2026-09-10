@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { ChipGroup, type ChipOption } from "@/components/ui/ChipGroup";
-import type { Category, Priority, ProjectStatus } from "@/lib/types";
+import type { Category, Priority } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import { STATUS_FILTER_ORDER } from "@/lib/status";
 import { PRIORITY_FILTER_ORDER } from "@/lib/priority";
+import type { StatusFilter } from "./projectSort";
 
 export type DueFilter = "all" | "overdue" | "soon" | "none";
 
 export type ProjectFilterDraft = {
-  status: "all" | ProjectStatus;
+  status: StatusFilter;
   priority: "all" | Priority;
   categoryId: string | null;
   due: DueFilter;
@@ -55,7 +56,7 @@ export function ProjectsFilterSheet({
 
   if (!open) return null;
 
-  const statusOptions: ChipOption<"all" | ProjectStatus>[] =
+  const statusOptions: ChipOption<StatusFilter>[] =
     STATUS_FILTER_ORDER.map((s) => ({
       value: s,
       label: s === "all" ? tStatus("all") : tStatus(s),

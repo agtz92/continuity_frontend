@@ -101,7 +101,7 @@ export function ReviveProjectModal({
         </p>
 
         {project.killedWouldRestart ? (
-          <div className="rounded-lg border border-border bg-border/50 p-3">
+          <div className="rounded-lg border border-border bg-line-08 p-3">
             <div className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
               <RefreshCw size={11} /> {t("wouldRestartLabel")}
             </div>
@@ -118,7 +118,7 @@ export function ReviveProjectModal({
         {hasParked && (
           <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
             <p className="text-sm flex items-center gap-1.5">
-              <CalendarClock size={14} className="text-accent-2" />
+              <CalendarClock size={14} className="text-text-3" />
               <span>
                 {tw("parkedTasks", { count: parkedTaskCount })}
                 {nextDateLabel

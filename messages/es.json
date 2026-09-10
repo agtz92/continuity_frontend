@@ -24,6 +24,10 @@
     "other": "Otro"
   },
   "assistant": {
+      "markdown": {
+        "moreRows": "{count, plural, one {ver la fila restante} other {ver las # filas restantes}}",
+        "writingTable": "escribiendo la tabla…"
+      },
     "title": "Loop",
     "subtitle": "Beta de Claude — solo lectura",
     "subtitleReadWrite": "Beta de Claude — lee y edita",
@@ -65,6 +69,9 @@
     }
   },
   "common": {
+    "dragToResize": "Arrastra para redimensionar",
+    "dismiss": "Descartar",
+    "notificationsAria": "Notificaciones",
     "loading": "Cargando…",
     "save": "Guardar",
     "cancel": "Cancelar",
@@ -144,12 +151,47 @@
     "generic": "Algo salió mal. Inténtalo de nuevo."
   },
   "dashboard": {
+    "loadErrorTitle": "No se pudieron cargar tus datos",
+    "loadErrorDetail": "Error: {message}",
     "header": {
       "active": "Activos",
       "launched": "Lanzados",
       "stalled": "Estancados",
       "thisWeek": "Esta semana",
       "weekTooltip": "Activo {count} de 7 días esta semana"
+    }
+  },
+  "commandPalette": {
+    "title": "Captura rápida",
+    "tabHint": "TAB cambia",
+    "save": "Guardar",
+    "hints": "↵ guarda · ⇧↵ guarda y abre · ESC cancela",
+    "blockedNoReason": "Bloqueada",
+    "updateNeedsProject": "Un update necesita proyecto: escribe # y su nombre.",
+    "kind": {
+      "task": "Tarea",
+      "idea": "Idea",
+      "note": "Nota",
+      "update": "Update"
+    },
+    "placeholder": {
+      "task": "¿Qué hay que hacer?  #proyecto  !qué lo bloquea",
+      "idea": "¿Cuál es la idea?",
+      "note": "Título de la nota",
+      "update": "¿Qué pasó?  #proyecto"
+    }
+  },
+  "nav": {
+    "aria": "Secciones",
+    "quickCapture": "Captura rápida",
+    "blocked": "Atorados",
+    "collapse": "Plegar la barra",
+    "expand": "Desplegar la barra",
+    "groups": {
+      "work": "Trabajo",
+      "do": "Hacer",
+      "material": "Material",
+      "reading": "Lectura"
     }
   },
   "tabs": {
@@ -166,6 +208,7 @@
     "more": "Más"
   },
   "status": {
+    "blocked": "Bloqueado",
     "idea": "Idea",
     "active": "Activo",
     "stalled": "Estancado",
@@ -337,31 +380,23 @@
       "googleLinkError": "No se pudo conectar Google. Inténtalo de nuevo."
     },
     "appearance": {
+      "paletteCiruela": "Ciruela",
+      "paletteHielo": "Hielo",
+      "paletteOxido": "Óxido",
+      "paletteSalvia": "Salvia",
+      "paletteOcre": "Ocre",
+      "themeCarbon": "Carbón",
+      "themeContinuu": "Continuu",
       "title": "Apariencia e idioma",
       "description": "Elige cómo se ve la app y el idioma en el que la lees.",
       "language": "Idioma",
       "languageHint": "Afecta la interfaz y los digests/notificaciones que recibas.",
       "theme": "Tema",
       "themeHint": "Elige tu apariencia preferida. \"Sistema\" sigue la configuración de tu dispositivo.",
-      "themeContinuuit": "Continuuit",
       "themeLight": "Claro",
-      "themeDark": "Oscuro",
       "themeSystem": "Sistema",
       "palette": "Paleta de colores",
-      "paletteHint": "Cambia solo los colores de acento. El tema controla claro/oscuro; la paleta cambia los resaltes.",
-      "paletteDefault": "Predeterminada",
-      "paletteContinuuit": "Continuuit",
-      "palettePink": "Rosa",
-      "paletteBusiness": "Business",
-      "paletteNeon": "Neón",
-      "paletteGreen": "Verde",
-      "paletteTurquoise": "Turquesa",
-      "paletteCute": "Tierna",
-      "paletteMidnight": "Medianoche",
-      "paletteBoho": "Boho",
-      "paletteComplimentary": "Complementaria",
-      "paletteSunset": "Atardecer",
-      "paletteRetro": "Retro"
+      "paletteHint": "Cambia solo los colores de acento. El tema controla claro/oscuro; la paleta cambia los resaltes."
     },
     "billing": {
       "title": "Facturación y plan",
@@ -544,6 +579,20 @@
     }
   },
   "analytics": {
+    "detailHint": "Actividad, cadencia, backlog, esfuerzo, mapa por día, embudo de ideas, top de proyectos…",
+    "showDetail": "Ver los 12 paneles",
+    "hideDetail": "Ocultar los paneles",
+    "headline": {
+      "noCategory": "Sueltos",
+      "days": "{count, plural, one {#d} other {#d}}",
+      "coolingByCategory": "Enfriamiento por categoría",
+      "whereTheyDie": "Dónde mueren los proyectos",
+      "figure": {
+        "untouched": "Días medios sin tocar",
+        "blocked": "Tareas bloqueadas",
+        "updated": "Con update reciente"
+      }
+    },
     "title": "Analíticas",
     "refreshing": "actualizando…",
     "calculating": "Calculando analíticas…",
@@ -656,6 +705,14 @@
   },
   "views": {
     "calendar": {
+      "stuckRail": "{count, plural, one {# detenida, sin fecha} other {# detenidas, sin fecha}}",
+      "keys": {
+        "day": "d",
+        "week": "s",
+        "month": "m",
+        "today": "h"
+      },
+      "pickDay": "Elegir el {date}",
       "viewDay": "Día",
       "viewWeek": "Semana",
       "viewMonth": "Mes",
@@ -695,6 +752,10 @@
         "newIdea": "Nueva idea"
       },
       "customize": {
+        "zoneMain": "Columna principal",
+        "zoneRail": "Columna lateral",
+        "zoneMainHint": "Arrastra secciones aquí",
+        "zoneRailHint": "Arrastra aquí lo que quieras al lado",
         "entry": "Personalizar Today",
         "title": "Personalizar Today",
         "close": "Cerrar",
@@ -704,10 +765,35 @@
         "hide": "Oculta",
         "alwaysVisible": "Siempre visible",
         "dragToReorder": "Arrastra para reordenar",
-        "mobileOnly": "Móvil",
         "hiddenFooter": "{count, plural, one {# sección oculta · Personalizar} other {# secciones ocultas · Personalizar}}"
       },
+      "resumeThread": {
+        "eyebrow": "Dónde te quedaste",
+        "daysAgo": "{count, plural, =0 {hoy} one {hace # día} other {hace # días}}",
+        "noUpdate": "Nunca escribiste un update aquí.",
+        "write": "Escribir un update",
+        "open": "Abrir proyecto"
+      },
+      "stopped": {
+        "title": "Detenido por algo",
+        "tasks": "{count, plural, one {# tarea bloqueada} other {# tareas bloqueadas}}"
+      },
+      "cooling": {
+        "stalledPromise": "A los {count} días te pregunto si sigue vivo",
+        "title": "Se están enfriando",
+        "days": "{count, plural, one {#d} other {#d}}",
+        "resume": "Retomar"
+      },
+      "logTail": {
+        "title": "Últimos movimientos",
+        "openLog": "Ver el diario completo",
+        "writtenUpdate": "Update escrito"
+      },
       "sections": {
+        "resumeThread": "Dónde te quedaste",
+        "stopped": "Detenido por algo",
+        "cooling": "Se están enfriando",
+        "logTail": "Últimos movimientos",
         "counters": "Contadores",
         "stalledAlert": "Alerta de detenidos",
         "todayFocus": "Enfoque de hoy",
@@ -802,6 +888,7 @@
       }
     },
     "tasks": {
+      "emptyTitle": "No hay tareas abiertas",
       "title": "Todas las tareas",
       "search": "Buscar tareas o proyecto...",
       "empty": "Aún no hay tareas.",
@@ -835,6 +922,7 @@
       }
     },
     "routines": {
+      "emptyTitle": "Nada que sostener todavía",
       "title": "Rutinas",
       "search": "Buscar rutinas...",
       "empty": "Aún no hay rutinas. Crea una para registrar actividades recurrentes o sueltas.",
@@ -848,6 +936,15 @@
       "newAria": "Nueva rutina"
     },
     "projects": {
+      "headlineAlive": "{count, plural, one {# vivo.} other {# vivos.}}",
+      "headlineStuck": "{count, plural, =0 {Ninguno detenido.} one {# detenido.} other {# detenidos.}}",
+      "emptyTitle": "Todavía no hay nada empezado",
+      "group": {
+        "loose": "Sueltos",
+        "projects": "{count, plural, one {# proyecto} other {# proyectos}}",
+        "blocked": "{count, plural, one {# atorado} other {# atorados}}",
+        "avgDays": "{count, plural, one {# día de media sin tocar} other {# días de media sin tocar}}"
+      },
       "title": "Todos los proyectos",
       "search": "Buscar por nombre, descripción, categoría...",
       "empty": "Aún no hay proyectos.",
@@ -885,8 +982,11 @@
         "sort": "Orden"
       },
       "sortBy": {
+        "other": "Otro orden…",
+        "category": "Por categoría",
+        "cold": "Más frío primero",
         "label": "Orden",
-        "smart": "Inteligente",
+        "smart": "Triaje",
         "manual": "Mi orden",
         "priority": "Por prioridad",
         "recent": "Actividad reciente",
@@ -894,16 +994,50 @@
         "status": "Por estado"
       },
       "sections": {
-        "attention": "Necesitan atención",
-        "risk": "En riesgo",
-        "rest": "El resto"
+        "blocked": "Detenidos",
+        "active": "En marcha",
+        "cooling": "Enfriándose",
+        "sleeping": "Durmiendo",
+        "launched": "Lanzados"
+      },
+      "sectionBlurbs": {
+        "blocked": "Esperan algo que no depende de ti. Si no puedes desbloquear ninguno, bájalos de prioridad y sigue.",
+        "active": "Tocados hace poco, o con una fecha encima hoy.",
+        "cooling": "Entre una y tres semanas sin tocar. La regla de la derecha se llena sola.",
+        "sleeping": "En pausa a propósito. Siguen ahí, no gritan.",
+        "launched": "Lanzados. Aquí para que no desaparezcan."
       },
       "orderChanged": "El orden cambió con tus ediciones.",
       "reorder": "Reordenar",
       "manualHint": "Arrastra el asa para reordenar tus proyectos.",
       "manualFilteredHint": "Quita filtros y búsqueda para reordenar arrastrando.",
       "openFullView": "Abrir proyecto",
+      "composer": {
+        "placeholder": "¿Qué pasó? ¿Dónde lo dejaste?",
+        "hint": "⌘↵ guarda",
+        "save": "Registrar update",
+        "ariaLabel": "Escribir un update del proyecto"
+      },
+      "logbook": {
+        "empty": "Aquí no hay nada escrito todavía.",
+        "editAria": "Editar update",
+        "deleteAria": "Eliminar update",
+        "deleteConfirm": "¿Eliminar este update?"
+      },
+      "blockers": {
+        "title": "{count, plural, one {# bloqueo abierto} other {# bloqueos abiertos}}",
+        "resolve": "Resolver ahora"
+      },
+      "rail": {
+        "progress": "Progreso",
+        "untouched": "Sin tocar",
+        "age": "De vida",
+        "days": "{count, plural, one {#d} other {#d}}"
+      },
       "detail": {
+        "tabLogbook": "Bitácora",
+        "tabTasks": "Tareas",
+        "tabNotes": "Notas",
         "title": "Detalle del proyecto",
         "closeTooltip": "Cerrar (Esc)",
         "dueDate": "Fecha límite",
@@ -935,6 +1069,20 @@
       }
     },
     "ideas": {
+      "emptyTitle": "La bandeja está vacía",
+      "inInbox": "{count, plural, =0 {capturada hoy} one {# día en la bandeja} other {# días en la bandeja}}",
+      "promoteModal": {
+        "title": "Promover a proyecto",
+        "becomes": "Esta idea pasa a ser un proyecto",
+        "firstAction": "Primera acción",
+        "required": "Obligatoria",
+        "firstActionPlaceholder": "Lo siguiente que vas a hacer",
+        "firstActionHint": "Se guarda como el siguiente paso del proyecto. Un proyecto que nace sin él nace estancado.",
+        "category": "Categoría",
+        "noCategory": "Sin categoría",
+        "priority": "Prioridad",
+        "cta": "Promover"
+      },
       "title": "Parking lot de ideas",
       "search": "Buscar ideas...",
       "capture": "Capturar",
@@ -946,6 +1094,9 @@
       "promote": "Promover a proyecto"
     },
     "quickNotes": {
+      "hitCount": "{hits, plural, one {# sección} other {# secciones}} en {notes, plural, one {# nota} other {# notas}}",
+      "pickOne": "Elige una nota",
+      "pickOneHint": "El índice se queda a la izquierda. Abre una para leerla o escribirla, o busca — los resultados caen en la sección, no solo en la nota.",
       "title": "Quick Notes",
       "subtitle": "Tu cuaderno dentro de Continuity. Captura notas, agrúpalas en secciones plegables y enlázalas a un proyecto o déjalas sueltas.",
       "search": "Buscar en notas y secciones...",
@@ -956,7 +1107,6 @@
       "loading": "Cargando notas...",
       "untitled": "Nota sin título",
       "standalone": "suelta",
-      "sectionCount": "{count, plural, =0 {Sin secciones} one {# sección} other {# secciones}}",
       "selectHint": "Selecciona una nota para abrirla, o crea una nueva.",
       "titlePlaceholder": "Título de la nota",
       "category": "Categoría",
@@ -984,6 +1134,8 @@
       }
     },
     "log": {
+      "emptyTitle": "Todavía no hay historia",
+      "writtenUpdate": "Update escrito",
       "title": "Bitácora",
       "search": "Buscar entradas o proyecto...",
       "empty": "Sin actividad registrada todavía. Registra updates en tus proyectos para llevar momentum.",
@@ -1029,6 +1181,19 @@
       }
     },
     "graveyard": {
+      "emptyTitle": "Aquí no hay nadie enterrado",
+      "colProject": "Proyecto",
+      "colLived": "Vivió",
+      "colDiedOf": "Murió de",
+      "livedDays": "{count, plural, one {#d} other {#d}}",
+      "avgLifespan": "{count, plural, one {# día} other {# días}} de vida media",
+      "patternCount": "{count} murieron de {cause}",
+      "cause": {
+        "blocked": "un bloqueo",
+        "noFirstAction": "no arrancar",
+        "deliberate": "una decisión",
+        "faded": "silencio"
+      },
       "title": "Cementerio de proyectos",
       "subtitle": "Una biblioteca de lo que no funcionó para que no lo repitas.",
       "wouldRestart": "Reiniciarías {count} de {total}.",
@@ -1138,6 +1303,23 @@
     "deleteAria": "Eliminar rutina",
     "completedToast": "✓ Rutina completada"
   },
+  "occurrenceRule": {
+    "streak": "{count, plural, one {# seguida} other {# seguidas}}",
+    "next": "Próxima {date}",
+    "noneScheduled": "Sin ocurrencias programadas",
+    "aria": "{done} hechas, {skipped} saltadas",
+    "state": {
+      "done": "Hecha",
+      "skipped": "Saltada",
+      "pending": "Toca hoy",
+      "next": "Próxima"
+    }
+  },
+  "progressTicks": {
+    "label": "{done}/{total} tareas · {pct}%",
+    "aria": "{done} de {total} tareas completadas",
+    "ariaBlocked": "{done} de {total} tareas completadas, {blocked} bloqueadas"
+  },
   "recurrence": {
     "once": "Una vez · {date}",
     "weeklyEmpty": "Sin días seleccionados",
@@ -1214,6 +1396,8 @@
       "createCategory": "Crear"
     },
     "task": {
+      "blockerSearch": "Buscar…",
+      "blockerNoResults": "Sin resultados",
       "newTitle": "Nueva tarea",
       "editTitle": "Editar tarea",
       "deleteButton": "Borrar tarea",
@@ -1912,5 +2096,19 @@
         }
       ]
     }
+  },
+  "blocker": {
+    "blocked": "Bloqueado",
+    "blockedDays": "Bloqueado · {count, plural, one {# día} other {# días}}",
+    "blocksTasks": "{count, plural, one {bloquea # tarea} other {bloquea # tareas}}"
+  },
+  "category": {
+    "none": "suelta"
+  },
+  "blockedTaskDialog": {
+    "title": "Esta tarea sigue bloqueada",
+    "hint": "Cerrarla con el bloqueo abierto dejaría descuadrado el contador del proyecto.",
+    "resolve": "El bloqueo se resolvió — completarla",
+    "delete": "Eliminar la tarea"
   }
 }

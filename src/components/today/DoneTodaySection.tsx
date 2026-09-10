@@ -73,10 +73,10 @@ export function DoneTodaySection({
                 }
                 className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
                   doneTodayFilter === "task"
-                    ? "bg-accent/25 border border-accent/60 text-accent"
+                    ? "bg-accent-a12 border border-accent-a35 text-accent"
                     : doneTodayFilter === "log"
-                    ? "bg-accent/5 border border-accent/15 text-accent/50 hover:text-accent"
-                    : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20"
+                    ? "bg-accent-a12 border border-accent-a35 text-accent hover:text-accent"
+                    : "bg-accent-a12 border border-accent-a35 text-accent hover:bg-accent-a22"
                 }`}
               >
                 <CheckCircle2 size={11} />
@@ -97,10 +97,10 @@ export function DoneTodaySection({
                 }
                 className={`text-xs font-normal rounded-full px-2 py-0.5 flex items-center gap-1 transition-colors ${
                   doneTodayFilter === "log"
-                    ? "bg-accent-2/25 border border-accent-2/60 text-accent-2"
+                    ? "bg-line-08 border border-line-14 text-text-3"
                     : doneTodayFilter === "task"
-                    ? "bg-accent-2/5 border border-accent-2/15 text-accent-2/50 hover:text-accent-2"
-                    : "bg-accent-2/10 border border-accent-2/30 text-accent-2 hover:bg-accent-2/20"
+                    ? "bg-line-08 border border-line-14 text-text-3/50 hover:text-text-3"
+                    : "bg-line-08 border border-line-14 text-text-3 hover:bg-line-08"
                 }`}
               >
                 <TrendingUp size={11} />
@@ -109,7 +109,7 @@ export function DoneTodaySection({
             )}
             {doneTodayEffortHours > 0 && (
               <span
-                className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-accent-2/15 text-accent-2 border border-accent-2/40"
+                className="text-xs font-normal rounded-full px-2 py-0.5 inline-flex items-center gap-1 bg-line-08 text-text-3 border border-line-14"
                 title={tDone("hoursWorkedTooltip")}
               >
                 <Clock size={11} />
@@ -119,9 +119,9 @@ export function DoneTodaySection({
           </>
         }
       >
-        <div className="bg-surface/40 border border-border rounded-xl p-3 sm:p-4 space-y-3">
+        <div className="bg-surface border border-border rounded-lg p-3 sm:p-4 space-y-3">
           {todayHoursByProject.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-border/80">
+            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-border">
               <span className="text-[10px] uppercase tracking-wider text-text-muted self-center mr-1">
                 {tDone("hoursByProject")}
               </span>
@@ -129,7 +129,7 @@ export function DoneTodaySection({
                 <button
                   key={project.id}
                   onClick={() => onJumpToProject(project)}
-                  className="text-xs px-2 py-0.5 rounded border bg-accent/10 text-accent border-accent/30 hover:bg-accent/20 inline-flex items-center gap-1"
+                  className="text-xs px-2 py-0.5 rounded border bg-accent-a12 text-accent border-accent-a35 hover:bg-accent-a22 inline-flex items-center gap-1"
                 >
                   <Clock size={10} />
                   {project.name} · {hours}h
@@ -145,7 +145,7 @@ export function DoneTodaySection({
                 return (
                   <div
                     key={`task-${taskItem.id}`}
-                    className="flex items-start gap-2 group border-l-2 border-accent/40 pl-2.5"
+                    className="flex items-start gap-2 group border-l-2 border-accent-a35 pl-2.5"
                   >
                     <CheckCircle2 size={16} className="text-accent shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
@@ -167,7 +167,7 @@ export function DoneTodaySection({
                           {taskItem.title}
                         </span>
                         {taskItem.effortHours != null && (
-                          <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+                          <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
                             <Clock size={10} />
                             {taskItem.effortHours}h
                           </span>
@@ -197,7 +197,7 @@ export function DoneTodaySection({
                 return (
                   <div
                     key={`routine-${item.occurrenceId}`}
-                    className="flex items-start gap-2 group border-l-2 border-accent/40 pl-2.5"
+                    className="flex items-start gap-2 group border-l-2 border-accent-a35 pl-2.5"
                   >
                     <CheckCircle2 size={16} className="text-accent shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
@@ -214,7 +214,7 @@ export function DoneTodaySection({
                           {item.title}
                         </span>
                         {item.effortHours != null && (
-                          <span className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1">
+                          <span className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1">
                             <Clock size={10} />
                             {item.effortHours}h
                           </span>
@@ -237,12 +237,12 @@ export function DoneTodaySection({
               return (
                 <div
                   key={`log-${item.source}-${item.id}`}
-                  className="flex items-start gap-2 border-l-2 border-accent-2/40 pl-2.5"
+                  className="flex items-start gap-2 border-l-2 border-line-14 pl-2.5"
                 >
-                  <TrendingUp size={16} className="text-accent-2 shrink-0 mt-0.5" />
+                  <TrendingUp size={16} className="text-text-3 shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                      <span className="text-[10px] uppercase tracking-wider font-medium text-accent-2">
+                      <span className="text-[10px] uppercase tracking-wider font-medium text-text-3">
                         {tDone(badgeKey)}
                       </span>
                       {proj && (

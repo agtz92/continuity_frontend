@@ -178,6 +178,7 @@ export const ONBOARDING_STATE_FIELDS = `
 export const TODAY_LAYOUT_FIELDS = `
   order
   hidden
+  rail
 `;
 
 

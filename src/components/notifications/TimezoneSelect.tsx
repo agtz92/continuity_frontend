@@ -152,7 +152,7 @@ export function TimezoneSelect({
           ref={listRef}
           id="timezone-listbox"
           role="listbox"
-          className="absolute z-10 mt-1 w-full max-h-72 overflow-auto bg-surface border border-border rounded-lg shadow-lg"
+          className="absolute z-10 mt-1 w-full max-h-72 overflow-auto bg-surface border border-border rounded-lg shadow-hard"
         >
           {filteredGroups.length === 0 ? (
             <div className="px-3 py-2 text-sm text-text-muted">
@@ -185,8 +185,8 @@ export function TimezoneSelect({
                             commit(tz.value);
                           }}
                           onMouseEnter={() => setHighlight(idx)}
-                          className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-accent/10 ${
-                            isHighlighted ? "bg-accent/10" : ""
+                          className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-accent-a22 ${
+                            isHighlighted ? "bg-accent-a12" : ""
                           } ${isSelected ? "font-medium text-accent" : ""}`}
                         >
                           {tz.label}

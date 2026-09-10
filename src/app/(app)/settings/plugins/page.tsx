@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { ListTodo, ChevronRight, Sparkles, Calendar } from "lucide-react";
 import { SettingsShell } from "@/components/settings/SettingsShell";
+import { Meta } from "@/components/ui/Meta";
 import {
   GOOGLE_TASKS_CONNECTION_QUERY,
   MCP_CONNECTIONS_QUERY,
@@ -35,26 +36,29 @@ export default function PluginsSettingsPage() {
 
   return (
     <SettingsShell title={t("title")} description={t("description")}>
-      <section className="space-y-3">
-        <PluginCard
+      {/* Filas con filete, no tarjetas: tres integraciones en tres cajas con
+          sombra se leen como oferta de marketing. Lo único que hace falta saber
+          aquí es si están conectadas (S20). */}
+      <section className="divide-y divide-line-08 border-y border-line-08">
+        <PluginRow
           href="/settings/plugins/calendar"
-          icon={<Calendar size={22} className="text-accent" />}
+          icon={<Calendar size={18} />}
           name={t("calendar.name")}
           description={t("calendar.shortDescription")}
           statusLabel={t("calendar.statusAvailable")}
           connected={false}
         />
-        <PluginCard
+        <PluginRow
           href="/settings/plugins/google-tasks"
-          icon={<ListTodo size={22} className="text-accent" />}
+          icon={<ListTodo size={18} />}
           name={t("googleTasks.name")}
           description={t("googleTasks.shortDescription")}
           statusLabel={connected ? t("statusConnected") : t("statusNotConnected")}
           connected={connected}
         />
-        <PluginCard
+        <PluginRow
           href="/settings/plugins/claude"
-          icon={<Sparkles size={22} className="text-accent" />}
+          icon={<Sparkles size={18} />}
           name={t("claude.name")}
           description={t("claude.shortDescription")}
           statusLabel={
@@ -69,7 +73,7 @@ export default function PluginsSettingsPage() {
   );
 }
 
-function PluginCard({
+function PluginRow({
   href,
   icon,
   name,
@@ -87,29 +91,31 @@ function PluginCard({
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 bg-surface/50 border border-border rounded-xl p-4 hover:bg-surface transition-colors group"
+      className="flex items-center gap-3 px-3 py-3 hover:bg-line-04 transition-colors duration-150 ease-out group"
     >
-      <div className="shrink-0 w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center">
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-text">{name}</div>
-        <div className="text-xs text-text-muted mt-0.5 truncate">
+      <span className="shrink-0 text-text-4">{icon}</span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-sm font-medium text-text">{name}</span>
+        <span className="block text-xs text-text-4 mt-0.5 truncate">
           {description}
-        </div>
-      </div>
-      <span
-        className={`text-xs px-2 py-0.5 rounded-full border ${
-          connected
-            ? "border-accent/50 text-accent bg-accent/10"
-            : "border-border text-text-muted"
-        }`}
-      >
-        {statusLabel}
+        </span>
+      </span>
+      {/* Conectado o no, dicho con un punto lleno o hueco: se lee en escala de
+          grises y no necesita pastilla. */}
+      <span className="flex items-center gap-1.5 shrink-0">
+        <span
+          aria-hidden="true"
+          className={`w-2 h-2 rounded-full ${
+            connected ? "bg-closed" : "shadow-[inset_0_0_0_1px_var(--line-34)]"
+          }`}
+        />
+        <Meta variant="cintillo" tone={connected ? "muted" : "faint"}>
+          {statusLabel}
+        </Meta>
       </span>
       <ChevronRight
         size={16}
-        className="text-text-muted transition-transform group-hover:translate-x-0.5"
+        className="text-text-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
       />
     </Link>
   );

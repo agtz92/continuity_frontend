@@ -53,7 +53,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-surface/50 border border-border rounded-xl p-5 mb-4">
+    <section className="bg-surface border border-border rounded-lg p-5 mb-4">
       <h2 className="flex items-center gap-2 text-sm font-semibold text-text mb-3">
         {icon}
         {title}
@@ -153,7 +153,7 @@ function FeedSection({
           {t("howGoogle")}
         </div>
       </div>
-      <div className="mt-3 flex gap-2 text-xs text-text-muted bg-border/40 border border-border rounded-lg px-3 py-2">
+      <div className="mt-3 flex gap-2 text-xs text-text-muted bg-line-08 border border-border rounded-lg px-3 py-2">
         <Info size={14} className="shrink-0 mt-0.5" />
         <span>{t("latencyNote")}</span>
       </div>

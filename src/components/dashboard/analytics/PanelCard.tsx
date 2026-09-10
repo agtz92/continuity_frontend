@@ -17,7 +17,7 @@ export function PanelCard({
 }) {
   return (
     <div
-      className={`bg-surface border border-border rounded-xl p-4 sm:p-5 ${className}`}
+      className={`bg-surface border border-border rounded-lg p-4 sm:p-5 ${className}`}
     >
       <div className="flex items-start justify-between mb-3 gap-3">
         <div>

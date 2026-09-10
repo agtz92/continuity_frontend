@@ -63,8 +63,12 @@ export const TODAY_LAYOUT_QUERY = gql`
 
 
 export const UPDATE_TODAY_LAYOUT = gql`
-  mutation UpdateTodayLayout($order: [String!], $hidden: [String!]) {
-    updateTodayLayout(order: $order, hidden: $hidden) {
+  mutation UpdateTodayLayout(
+    $order: [String!]
+    $hidden: [String!]
+    $rail: [String!]
+  ) {
+    updateTodayLayout(order: $order, hidden: $hidden, rail: $rail) {
       ${TODAY_LAYOUT_FIELDS}
     }
   }

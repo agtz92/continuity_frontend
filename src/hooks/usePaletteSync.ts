@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useQuery } from "@apollo/client";
 import { NOTIFICATION_SETTINGS_QUERY } from "@/lib/graphql";
-import { PALETTE_COOKIE, isPalette } from "@/palette/config";
+import { PALETTE_COOKIE, normalizePalette } from "@/palette/config";
 
 function readCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
@@ -28,8 +28,10 @@ export function usePaletteSync() {
 
   useEffect(() => {
     if (synced.current) return;
-    const saved = data?.notificationSettings?.palette as string | undefined;
-    if (!isPalette(saved)) return;
+    // Normalizar, no validar: un perfil sin migrar trae una de las 8 paletas
+    // retiradas, que se pinta con su equivalente curada.
+    const saved = normalizePalette(data?.notificationSettings?.palette);
+    if (!saved) return;
     synced.current = true;
     const current = readCookie(PALETTE_COOKIE);
     if (saved === current) return;

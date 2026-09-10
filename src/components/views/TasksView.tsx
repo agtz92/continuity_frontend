@@ -25,6 +25,7 @@ import { toast } from "@/lib/toast";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import { FAB } from "../ui/FAB";
 import { TaskRow } from "../tasks/TaskRow";
+import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
 import {
   EMPTY_TASK_FILTER,
   TasksFilterSheet,
@@ -177,15 +178,13 @@ export function TasksView({
       )}
 
       {tasks.length === 0 ? (
-        <div className="bg-surface border border-border rounded-xl p-12 text-center">
-          <p className="text-text-muted mb-4">{t("empty")}</p>
-          <button
-            onClick={onNewTask}
-            className="px-4 py-2 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm"
-          >
-            {t("addFirst")}
-          </button>
-        </div>
+        <EmptyState
+          title={t("emptyTitle")}
+          body={t("empty")}
+          actions={
+            <EmptyStateAction label={t("addFirst")} onClick={onNewTask} />
+          }
+        />
       ) : (() => {
         const q = taskSearch.trim().toLowerCase();
         const matchesSearch = (task: Task) => {
@@ -203,12 +202,16 @@ export function TasksView({
 
         if (filteredTasks.length === 0) {
           return (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center text-text-muted text-sm">
+            <div className="bg-surface border border-border rounded-lg p-8 text-center text-text-muted text-sm">
               {q ? t("noMatch", { query: taskSearch }) : t("empty")}
             </div>
           );
         }
 
+        // El artboard 04 saca las detenidas a un bloque propio. Se descartó:
+        // movería de sitio tareas que el usuario ya sabe dónde buscar, y una
+        // bloqueada+vencida saldría dos veces o dejaría de contar como vencida.
+        // El bloqueo se dice en la fila (`TaskRow`), no reordenando la lista.
         const overdueBucket = filteredTasks
           .filter((task) => !task.done && task.dueDate && isOverdue(task.dueDate))
           .sort(
@@ -301,10 +304,10 @@ export function TasksView({
                 variant="card"
                 open={overdueOpen}
                 onToggle={() => setShowOverdueTasks((s) => !s)}
-                icon={<Target size={14} className="text-red-400" />}
+                icon={<Target size={14} className="text-signal" />}
                 title={t("overdueBucket")}
                 rightSlot={
-                  <span className="text-xs text-red-700 dark:text-red-300 bg-red-500/10 border border-red-500/30 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-signal bg-signal-a12 border border-signal-a50 rounded-full px-2 py-0.5">
                     {overdueBucket.length}
                   </span>
                 }
@@ -319,16 +322,16 @@ export function TasksView({
               variant="card"
               open={todayOpen}
               onToggle={() => setShowTodayTasks((s) => !s)}
-              icon={<Target size={14} className="text-orange-400" />}
+              icon={<Target size={14} className="text-accent" />}
               title={t("todayOnlyBucket")}
               rightSlot={
                 <>
-                  <span className="text-xs text-orange-700 dark:text-orange-300 bg-orange-500/10 border border-orange-500/30 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
                     {todayBucket.length}
                   </span>
                   {todayEffort > 0 && (
                     <span
-                      className="text-xs px-2 py-0.5 rounded border bg-accent-2/15 text-accent-2 border-accent-2/30 inline-flex items-center gap-1"
+                      className="text-xs px-2 py-0.5 rounded border bg-line-08 text-text-3 border-line-14 inline-flex items-center gap-1"
                       title={t("totalEffort")}
                     >
                       <Clock size={10} />
@@ -354,10 +357,10 @@ export function TasksView({
                 variant="card"
                 open={upcomingOpen}
                 onToggle={() => setShowUpcomingTasks((s) => !s)}
-                icon={<Clock size={14} className="text-accent-2" />}
+                icon={<Clock size={14} className="text-text-3" />}
                 title={t("upcoming")}
                 rightSlot={
-                  <span className="text-xs text-accent-2 bg-accent-2/10 border border-accent-2/30 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-text-3 bg-line-08 border border-line-14 rounded-full px-2 py-0.5">
                     {upcomingBucket.length}
                   </span>
                 }
@@ -373,11 +376,11 @@ export function TasksView({
                 variant="card"
                 open={unscheduledOpen}
                 onToggle={() => setShowUnscheduledTasks((s) => !s)}
-                icon={<CalendarPlus size={14} className="text-amber-400" />}
+                icon={<CalendarPlus size={14} className="text-accent" />}
                 title={t("pickDay")}
                 rightSlot={
                   <>
-                    <span className="text-xs text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
+                    <span className="text-xs text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
                       {unscheduledBucket.length}
                     </span>
                     <span className="hidden sm:inline text-xs text-text-muted ml-1">
@@ -402,7 +405,7 @@ export function TasksView({
                 icon={<CheckCircle2 size={14} className="text-accent" />}
                 title={t("completed")}
                 rightSlot={
-                  <span className="text-xs text-accent bg-accent/10 border border-accent/30 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-accent bg-accent-a12 border border-accent-a35 rounded-full px-2 py-0.5">
                     {doneBucket.length}
                   </span>
                 }

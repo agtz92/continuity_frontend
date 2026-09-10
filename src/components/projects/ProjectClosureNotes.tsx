@@ -48,8 +48,8 @@ export function ProjectClosureNotes({ project: p }: { project: Project }) {
           </div>
         ) : null}
         {p.killedAiReflection ? (
-          <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3">
-            <div className="text-xs uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-1 flex items-center gap-1">
+          <div className="rounded-lg border border-accent-a35 bg-accent-a12 p-3">
+            <div className="text-xs uppercase tracking-wider text-accent mb-1 flex items-center gap-1">
               <Sparkles size={11} /> {t("aiLabel")}
             </div>
             <div className="text-text-muted whitespace-pre-wrap">
