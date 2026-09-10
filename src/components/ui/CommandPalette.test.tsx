@@ -12,10 +12,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { InMemoryCache } from "@apollo/client";
 import { MockedProvider, type MockedResponse } from "@apollo/client/testing";
 
 import { CommandPalette } from "./CommandPalette";
 import {
+  ADD_NOTE,
   CREATE_TASK,
   DASHBOARD_QUERY,
   QUICK_NOTES_QUERY,
@@ -48,8 +50,9 @@ const PROJECTS = [
   project("p3", "Web · rediseño"),
 ];
 
-const dashboardMock = (): MockedResponse => ({
+const dashboardMock = (delay = 0): MockedResponse => ({
   request: { query: DASHBOARD_QUERY },
+  delay,
   result: {
     data: {
       dashboard: {
@@ -77,7 +80,13 @@ const notesMock = (): MockedResponse =>
     maxUsageCount: 10,
   }) as unknown as MockedResponse;
 
-function setup(mocks: MockedResponse[] = [], overrides = {}) {
+function setup(
+  mocks: MockedResponse[] = [],
+  overrides = {},
+  cache?: InMemoryCache,
+  /** Cuánto tarda el refetch del dashboard. Lo usa el test de la caché. */
+  dashboardDelay = 0
+) {
   const props = {
     projects: PROJECTS,
     onClose: vi.fn(),
@@ -88,8 +97,9 @@ function setup(mocks: MockedResponse[] = [], overrides = {}) {
   };
   render(
     <MockedProvider
-      mocks={[dashboardMock(), notesMock(), ...mocks]}
+      mocks={[dashboardMock(dashboardDelay), notesMock(), ...mocks]}
       addTypename={false}
+      cache={cache}
     >
       <CommandPalette {...props} />
     </MockedProvider>
@@ -170,7 +180,29 @@ describe("lo que se guarda es lo que se ve", () => {
       {
         request: { query: CREATE_TASK },
         variableMatcher,
-        result: { data: { createTask: { id: "t1" } } },
+        // La tarea vuelve **completa**: ahora se escribe en la caché del
+        // dashboard, y un objeto al que le faltan campos la deja rota.
+        result: {
+          data: {
+            createTask: {
+              id: "t1",
+              title: "Firmar el anexo",
+              projectId: "p1",
+              dueDate: "2026-04-01T00:00:00.000Z",
+              done: false,
+              completedAt: null,
+              created: "2026-03-10T10:00:00Z",
+              effortHours: null,
+              dueTime: "10:00",
+              durationMinutes: 30,
+              parkedDueDate: null,
+              parkedDueTime: null,
+              blockedSince: "2026-03-10T10:00:00Z",
+              blockedReason: "falta el poder",
+              blockers: [],
+            },
+          },
+        },
       } as unknown as MockedResponse,
     ]);
 
@@ -230,5 +262,90 @@ describe("modo ir a", () => {
     expect(props.onOpenProject).toHaveBeenCalledWith(
       expect.objectContaining({ id: "p1" })
     );
+  });
+});
+
+describe("aparece sin esperar al refetch", () => {
+  it("el update entra en la caché antes de que vuelva el dashboard", async () => {
+    const user = userEvent.setup();
+
+    // Caché ya poblada, como en la app real.
+    // `addTypename: false` a juego con el provider: una caché que sí añade
+    // `__typename` reescribe la operación y entonces NINGÚN mock coincide.
+    const cache = new InMemoryCache({ addTypename: false });
+    // El objeto sembrado lleva **todos** los campos que selecciona la query: uno
+    // incompleto deja la entrada rota y `readQuery` devuelve undefined.
+    const existing = {
+      id: "a1",
+      kind: "task_created",
+      entityId: "t1",
+      entityTitle: "Algo anterior",
+      projectId: null,
+      targetProjectId: null,
+      note: "",
+      previousValue: "",
+      newValue: "",
+      created: "2026-03-09T10:00:00Z",
+    };
+    cache.writeQuery({
+      query: DASHBOARD_QUERY,
+      data: {
+        dashboard: {
+          projects: [],
+          tasks: [],
+          ideas: [],
+          activities: [existing],
+          categories: [],
+          projectNotes: [],
+          routines: [],
+          routineOccurrences: [],
+          lastBackup: null,
+        },
+      },
+    });
+
+    const created = {
+      id: "a2",
+      kind: "note",
+      entityId: "p1",
+      entityTitle: "Impuestos",
+      projectId: "p1",
+      targetProjectId: null,
+      note: "cerramos el trato",
+      previousValue: "",
+      newValue: "",
+      created: "2026-03-10T10:00:00Z",
+    };
+
+    setup(
+      [
+        {
+          request: {
+            query: ADD_NOTE,
+            variables: { projectId: "p1", note: "cerramos el trato" },
+          },
+          result: { data: { addNote: created } },
+        } as unknown as MockedResponse,
+      ],
+      {},
+      cache,
+      // El refetch del dashboard tarda hora y media en llegar, a propósito: es
+      // el problema que esto arregla (~1,3 s de servidor en la cuenta más
+      // grande). Si el renglón solo apareciera con el refetch, el `waitFor` de
+      // abajo —un segundo— expiraría antes.
+      1500
+    );
+
+    // El `#` va antes del texto libre a propósito: si el cursor se quedara
+    // dentro del token, el primer ↵ aceptaría la sugerencia en vez de guardar.
+    await user.keyboard("/update #Impuestos cerramos el trato");
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => {
+      const read = cache.readQuery<{
+        dashboard: { activities: { id: string }[] };
+      }>({ query: DASHBOARD_QUERY });
+      expect(read?.dashboard.activities.map((a) => a.id)).toEqual(["a2", "a1"]);
+    });
   });
 });

@@ -16,6 +16,13 @@ export const CREATE_TASK = gql`
       durationMinutes
       parkedDueDate
       parkedDueTime
+      # Derivados en el servidor. Se piden aquí (y no solo en el dashboard)
+      # para que la tarea recién creada se pueda escribir **completa** en la
+      # caché: un objeto al que le faltan campos que la query del dashboard sí
+      # selecciona deja un hueco y Apollo vuelve a la red para rellenarlo, que
+      # es justo la espera que queríamos quitar.
+      blockedSince
+      blockedReason
       blockers {
         ${TASK_BLOCKER_FIELDS}
       }
