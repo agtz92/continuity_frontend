@@ -24,10 +24,10 @@
     "other": "Otro"
   },
   "assistant": {
-      "markdown": {
-        "moreRows": "{count, plural, one {ver la fila restante} other {ver las # filas restantes}}",
-        "writingTable": "escribiendo la tabla…"
-      },
+    "markdown": {
+      "moreRows": "{count, plural, one {ver la fila restante} other {ver las # filas restantes}}",
+      "writingTable": "escribiendo la tabla…"
+    },
     "title": "Loop",
     "subtitle": "Beta de Claude — solo lectura",
     "subtitleReadWrite": "Beta de Claude — lee y edita",
@@ -163,11 +163,20 @@
   },
   "commandPalette": {
     "title": "Captura rápida",
-    "tabHint": "TAB cambia",
     "save": "Guardar",
-    "hints": "↵ guarda · ⇧↵ guarda y abre · ESC cancela",
+    "hints": "↵ guarda · ⇧↵ guarda y abre · ⌘↵ lo interpreta · ESC cierra",
+    "gotoHint": "> para ir a…",
+    "today": "Hoy",
     "blockedNoReason": "Bloqueada",
     "updateNeedsProject": "Un update necesita proyecto: escribe # y su nombre.",
+    "duration": "{minutes} min",
+    "unresolved": "{tokens} no hizo nada: se queda en el texto.",
+    "ambiguous": "¿Cuál de estos?",
+    "failed": "Faltan datos para guardar esto.",
+    "queued": "Sin conexión: se guarda en cuanto vuelva.",
+    "undo": "Deshacer",
+    "undone": "Deshecho.",
+    "open": "Abrir",
     "kind": {
       "task": "Tarea",
       "idea": "Idea",
@@ -175,10 +184,44 @@
       "update": "Update"
     },
     "placeholder": {
-      "task": "¿Qué hay que hacer?  #proyecto  !qué lo bloquea",
-      "idea": "¿Cuál es la idea?",
-      "note": "Título de la nota",
+      "task": "¿Qué hay que hacer?  #proyecto  @mañana 9:30  ~30m  !qué lo bloquea",
+      "idea": "¿Cuál es la idea?  #proyecto",
+      "note": "Título de la nota  #proyecto",
       "update": "¿Qué pasó?  #proyecto"
+    },
+    "extra": {
+      "idea": "¿Por qué importa?",
+      "note": "Cuerpo de la nota"
+    },
+    "extraToggle": {
+      "idea": "+ por qué",
+      "note": "+ cuerpo"
+    },
+    "saved": {
+      "task": "Tarea guardada.",
+      "idea": "Idea guardada.",
+      "note": "Nota guardada.",
+      "update": "Update guardado."
+    },
+    "savedIn": {
+      "task": "Tarea guardada en {project}.",
+      "idea": "Idea guardada en {project}.",
+      "note": "Nota guardada en {project}.",
+      "update": "Update guardado en {project}."
+    },
+    "goto": {
+      "mode": "Ir a",
+      "placeholder": "Ir a una vista, un proyecto o una nota…",
+      "hints": "↑↓ elige · ↵ abre · ESC cierra",
+      "view": "Vista",
+      "project": "Proyecto"
+    },
+    "ai": {
+      "button": "Interpretar",
+      "working": "Leyendo…",
+      "tooltip": "Que lo lea la IA y lo ponga en su sitio (⌘↵)",
+      "planRequired": "Interpretar con IA es de los planes de pago. La captura funciona igual sin ello.",
+      "failed": "No se pudo interpretar. Sigue escribiéndolo a mano."
     }
   },
   "nav": {
@@ -192,7 +235,8 @@
       "do": "Hacer",
       "material": "Material",
       "reading": "Lectura"
-    }
+    },
+    "captureShort": "Capturar"
   },
   "tabs": {
     "today": "Hoy",
@@ -1587,10 +1631,22 @@
         "othersTitle": "Otras herramientas",
         "usTitle": "continuu.it",
         "rows": [
-          { "others": "Capturar más", "us": "Terminar más" },
-          { "others": "Planear más", "us": "Cerrar bucles" },
-          { "others": "Agregar proyectos nuevos", "us": "Confrontar los viejos" },
-          { "others": "Optimizar para empezar", "us": "Optimizar para terminar" }
+          {
+            "others": "Capturar más",
+            "us": "Terminar más"
+          },
+          {
+            "others": "Planear más",
+            "us": "Cerrar bucles"
+          },
+          {
+            "others": "Agregar proyectos nuevos",
+            "us": "Confrontar los viejos"
+          },
+          {
+            "others": "Optimizar para empezar",
+            "us": "Optimizar para terminar"
+          }
         ]
       }
     },
@@ -1657,7 +1713,10 @@
             "Video demo pendiente de grabar"
           ],
           "decisionsLabel": "Decisiones que ya habías tomado:",
-          "decisions": ["Stripe en lugar de Lemon Squeezy", "Tres tiers, descuento anual"]
+          "decisions": [
+            "Stripe en lugar de Lemon Squeezy",
+            "Tres tiers, descuento anual"
+          ]
         },
         "closing": "El costo de regresar baja a cero. Proyectos que dabas por muertos empiezan a terminarse solos."
       },
@@ -1673,7 +1732,10 @@
           "topPriority": "Terminar el hero de la landing page",
           "topPriorityNote": "Activo 5 días, te comprometiste a enviarlo esta semana",
           "secondaryLabel": "Secundario",
-          "secondary": ["Revisar tracking de conversión en GTM", "Responder feedback de beta testers"],
+          "secondary": [
+            "Revisar tracking de conversión en GTM",
+            "Responder feedback de beta testers"
+          ],
           "footer": "Responde STATUS para el reporte completo.",
           "userReply": "STATUS"
         },
@@ -1689,10 +1751,22 @@
           "modalTitle": "Antes de empezar uno nuevo…",
           "modalBody": "Ya tienes 4 proyectos activos. ¿Qué decisión estás tomando?",
           "activeProjects": [
-            { "name": "Rediseño de landing page", "status": "5 días activo" },
-            { "name": "Bot de Telegram v2", "status": "12 días pausado" },
-            { "name": "Migración del newsletter", "status": "23 días activo" },
-            { "name": "App de fantasy football", "status": "47 días a la deriva" }
+            {
+              "name": "Rediseño de landing page",
+              "status": "5 días activo"
+            },
+            {
+              "name": "Bot de Telegram v2",
+              "status": "12 días pausado"
+            },
+            {
+              "name": "Migración del newsletter",
+              "status": "23 días activo"
+            },
+            {
+              "name": "App de fantasy football",
+              "status": "47 días a la deriva"
+            }
           ],
           "continueNew": "Empezar igual",
           "pauseExisting": "Pausar uno primero",

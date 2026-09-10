@@ -43,9 +43,14 @@ type Filter = string; // "all" | "loose" | "pinned" | <categoryId>
 export function QuickNotesView({
   categories,
   projects,
+  openNote,
+  onConsumeOpenNote,
 }: {
   categories: Category[];
   projects: Project[];
+  /** Nota (y sección) que pidió abrir la captura rápida en su modo "ir a". */
+  openNote?: { noteId: string; sectionId: string | null } | null;
+  onConsumeOpenNote?: () => void;
 }) {
   const t = useTranslations("views.quickNotes");
   const { quickNotes, loading } = useQuickNotes();
@@ -102,6 +107,15 @@ export function QuickNotesView({
     setSelectedId(noteId);
     setFocusSectionId(sectionId);
   };
+
+  // Llegar desde ⌘K: la vista se monta ya con la nota abierta. Se consume una
+  // sola vez para que volver a Notas más tarde no la reabra sola.
+  useEffect(() => {
+    if (!openNote) return;
+    jumpTo(openNote.noteId, openNote.sectionId);
+    onConsumeOpenNote?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openNote]);
 
   return (
     <div>

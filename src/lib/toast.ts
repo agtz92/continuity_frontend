@@ -2,6 +2,19 @@ export type ToastKind = "error" | "success" | "info";
 
 export type ToastValues = Record<string, string | number>;
 
+/**
+ * Un botón dentro del toast. Existe por "Deshacer": la captura rápida guarda y
+ * cierra en una tecla, así que el único momento en el que se puede rectificar
+ * es el toast. Sin botón, deshacer significaba ir a buscar la tarea y borrarla.
+ */
+export type ToastAction = {
+  /** Clave i18n del rótulo (los toasts no llevan copy escrito a mano). */
+  labelKey: string;
+  run: () => void | Promise<void>;
+  /** Por defecto el toast se cierra al pulsar; `true` lo deja abierto. */
+  keepOpen?: boolean;
+};
+
 export type Toast = {
   id: number;
   kind: ToastKind;
@@ -18,9 +31,11 @@ export type Toast = {
   messageKey?: string;
   /** ICU values interpolated into `messageKey`. */
   values?: ToastValues;
+  /** Acciones opcionales, renderizadas como botones a la derecha del texto. */
+  actions?: ToastAction[];
 };
 
-type ToastEntry = Pick<Toast, "message" | "messageKey" | "values">;
+type ToastEntry = Pick<Toast, "message" | "messageKey" | "values" | "actions">;
 
 type Listener = (toasts: Toast[]) => void;
 
@@ -28,6 +43,7 @@ const listeners = new Set<Listener>();
 let toasts: Toast[] = [];
 let nextId = 0;
 const DEFAULT_TTL_MS = 6000;
+const ACTION_TTL_MS = 12000;
 
 const emit = () => {
   for (const l of listeners) l(toasts);
@@ -61,6 +77,17 @@ export const toast = {
     push("success", { messageKey, values }, ttl),
   infoKey: (messageKey: string, values?: ToastValues, ttl?: number) =>
     push("info", { messageKey, values }, ttl),
+  /**
+   * Toast con botones. El TTL por defecto es más largo que el normal: si el
+   * toast es la única vía para deshacer, seis segundos son pocos para leer,
+   * decidir y llegar con el ratón.
+   */
+  withActions: (
+    kind: ToastKind,
+    entry: ToastEntry,
+    actions: ToastAction[],
+    ttl = ACTION_TTL_MS
+  ) => push(kind, { ...entry, actions }, ttl),
   dismiss,
 };
 

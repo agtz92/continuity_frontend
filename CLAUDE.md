@@ -107,6 +107,27 @@ Notas con **secciones plegables** (toggles), **categorizables** y ligables a un 
 - **i18n:** `views.quickNotes.*` (en/es). El acento usa el `accent` del tema (no púrpura hardcodeado como Ideas) para respetar la palette.
 - **Onboarding:** el **tour** tiene un paso de Notes (`onboarding.tour.stepNotes`) en `DashboardTour.tsx`, **condicional** a que el tab sea visible (`findVisible("notes")`): aparece en desktop y se omite en mobile-web (ahí Notes vive en el `MoreSheet`). Requiere `data-tour="notes"` en `TabBar.tsx`. La nota de ejemplo para usuarios nuevos la siembra el backend (seed). Espejo en el repo móvil.
 
+## Captura rápida (⌘K)
+
+Referencia completa: **`../docs/captura-rapida.md`**. Lo imprescindible para no romperla:
+
+- **El parser vive en `src/lib/quickParse.ts` + `src/lib/quickDate.ts` y tiene tests.** Regla única:
+  un sigilo (`#` `@` `~` `!` `/`) **solo cuenta al principio de palabra** y se escapa duplicándolo.
+  Por eso "Avisar a Ana ya!" ya no crea un bloqueo y `precio@proveedor.com` no es una fecha. Un
+  token que no resuelve **se queda literal** en el título y se avisa bajo el campo.
+- **`#` no desempata solo.** Exacto → prefijo → contenido, y solo si es único; si empata devuelve
+  `projectCandidates` y la interfaz pregunta. Nombres con espacios: `#"Web · rediseño"`.
+- **Espejo en móvil.** `continuity-mobile/src/lib/quickParse.ts` y `quickDate.ts` son copias
+  literales. Si tocas uno, copia el otro: si divergen, la misma frase crea cosas distintas en los
+  dos sitios. Los tests solo existen aquí.
+- **Nada se pierde**: borrador y cola de reintento en `src/lib/captureQueue.ts`, escritura en
+  `src/hooks/useQuickCapture.ts`. La cola guarda **la línea original**, no los campos resueltos.
+- **La escritura es una sola mutation.** `TaskInput` lleva `blocker` (tarea + bloqueo en la misma
+  transacción) y `clientToken` (reintentar no duplica). No vuelvas a partirla en dos.
+- **TAB es TAB.** El tipo se cambia con `⌘1..⌘4` o `/tipo`. `>` al principio abre el modo "ir a".
+- `⌘↵` interpreta con IA (`POST /api/assistant/parse-capture/`, plan pro+). **No escribe**: devuelve
+  campos y la interfaz reescribe la línea con la sintaxis de tokens para que se vea qué entendió.
+
 ## Render: marketing ESTÁTICO vs herramienta DINÁMICA
 
 > Resumen cross-repo del trabajo de performance (problema, cambios, resultados, pendientes):

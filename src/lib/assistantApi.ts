@@ -129,3 +129,52 @@ export async function cancelConversation(
     body: JSON.stringify({ conversation_id: conversationId }),
   });
 }
+
+
+// ---------------------------------------------------------------- captura ⌘K
+
+export type CaptureDraft = {
+  kind: "task" | "idea" | "note" | "update";
+  title: string;
+  project_id: string | null;
+  due_date: string | null;
+  due_time: string | null;
+  duration_minutes: number | null;
+  blocker: string | null;
+  why: string | null;
+  /** Campos que el servidor descartó por no validar. Solo para depurar. */
+  dropped: string[];
+};
+
+/** El plan no alcanza. Se distingue del resto porque la interfaz lo cuenta distinto. */
+export class CapturePlanError extends Error {}
+
+/**
+ * Interpreta una línea de captura rápida con el modelo y devuelve un borrador
+ * **que el usuario tiene que confirmar**. No escribe nada: el guardado sigue
+ * siendo la mutation de siempre.
+ *
+ * La captura funciona sin esto (el parser de `#`, `@`, `~` y `!` es local y no
+ * llama a nadie); esto es el atajo para quien no quiere aprenderse la sintaxis.
+ */
+export async function parseCapture(
+  text: string,
+  kind?: string
+): Promise<CaptureDraft> {
+  const headers = await authHeaders();
+  const res = await fetch(`${assistantBaseUrl}/api/assistant/parse-capture/`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ text, kind }),
+  });
+
+  if (res.status === 403) {
+    throw new CapturePlanError("plan_required");
+  }
+  if (!res.ok) {
+    throw new Error(`parseCapture failed: ${res.status}`);
+  }
+
+  const body = await res.json();
+  return body.draft as CaptureDraft;
+}

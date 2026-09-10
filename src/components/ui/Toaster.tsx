@@ -60,8 +60,27 @@ export function Toaster() {
             className={`flex items-start gap-2 rounded-md border px-3 py-2.5 shadow-hard ${s.ring}`}
           >
             {s.icon}
-            <div className="flex-1 text-sm leading-snug whitespace-pre-wrap break-words">
-              {render(item)}
+            <div className="flex-1 min-w-0">
+              <div className="text-sm leading-snug whitespace-pre-wrap break-words">
+                {render(item)}
+              </div>
+              {item.actions && item.actions.length > 0 && (
+                <div className="flex flex-wrap gap-3 mt-1.5">
+                  {item.actions.map((action) => (
+                    <button
+                      key={action.labelKey}
+                      onClick={() => {
+                        void action.run();
+                        if (!action.keepOpen) toastApi.dismiss(item.id);
+                      }}
+                      className="text-xs font-medium underline underline-offset-2 opacity-80 hover:opacity-100"
+                    >
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                      {t(action.labelKey as any)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={() => toastApi.dismiss(item.id)}

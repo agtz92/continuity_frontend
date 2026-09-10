@@ -24,10 +24,10 @@
     "other": "Other"
   },
   "assistant": {
-      "markdown": {
-        "moreRows": "{count, plural, one {see the remaining row} other {see the remaining # rows}}",
-        "writingTable": "writing the table…"
-      },
+    "markdown": {
+      "moreRows": "{count, plural, one {see the remaining row} other {see the remaining # rows}}",
+      "writingTable": "writing the table…"
+    },
     "title": "Loop",
     "subtitle": "Read-only Claude beta",
     "subtitleReadWrite": "Claude beta — reads & updates",
@@ -163,11 +163,20 @@
   },
   "commandPalette": {
     "title": "Quick capture",
-    "tabHint": "TAB switches",
     "save": "Save",
-    "hints": "↵ save · ⇧↵ save and open · ESC cancel",
+    "hints": "↵ saves · ⇧↵ saves and opens · ⌘↵ reads it · ESC closes",
+    "gotoHint": "> to go to…",
+    "today": "Today",
     "blockedNoReason": "Blocked",
     "updateNeedsProject": "An update needs a project: type # and its name.",
+    "duration": "{minutes} min",
+    "unresolved": "{tokens} did nothing: it stays in the text.",
+    "ambiguous": "Which one?",
+    "failed": "This is missing something before it can be saved.",
+    "queued": "Offline: it will be saved as soon as you're back.",
+    "undo": "Undo",
+    "undone": "Undone.",
+    "open": "Open",
     "kind": {
       "task": "Task",
       "idea": "Idea",
@@ -175,10 +184,44 @@
       "update": "Update"
     },
     "placeholder": {
-      "task": "What needs doing?  #project  !what is blocking it",
-      "idea": "What is the idea?",
-      "note": "Note title",
+      "task": "What needs doing?  #project  @tomorrow 9:30  ~30m  !what blocks it",
+      "idea": "What's the idea?  #project",
+      "note": "Note title  #project",
       "update": "What happened?  #project"
+    },
+    "extra": {
+      "idea": "Why does it matter?",
+      "note": "Note body"
+    },
+    "extraToggle": {
+      "idea": "+ why",
+      "note": "+ body"
+    },
+    "saved": {
+      "task": "Task saved.",
+      "idea": "Idea saved.",
+      "note": "Note saved.",
+      "update": "Update saved."
+    },
+    "savedIn": {
+      "task": "Task saved in {project}.",
+      "idea": "Idea saved in {project}.",
+      "note": "Note saved in {project}.",
+      "update": "Update saved in {project}."
+    },
+    "goto": {
+      "mode": "Go to",
+      "placeholder": "Go to a view, a project or a note…",
+      "hints": "↑↓ to pick · ↵ opens · ESC closes",
+      "view": "View",
+      "project": "Project"
+    },
+    "ai": {
+      "button": "Interpret",
+      "working": "Reading…",
+      "tooltip": "Let AI read it and put it in place (⌘↵)",
+      "planRequired": "Interpreting with AI is for paid plans. Capture works the same without it.",
+      "failed": "Couldn't interpret it. Keep typing it by hand."
     }
   },
   "nav": {
@@ -192,7 +235,8 @@
       "do": "Do",
       "material": "Material",
       "reading": "Reading"
-    }
+    },
+    "captureShort": "Capture"
   },
   "tabs": {
     "today": "Today",
@@ -1587,10 +1631,22 @@
         "othersTitle": "Other tools",
         "usTitle": "continuu.it",
         "rows": [
-          { "others": "Capture more", "us": "Finish more" },
-          { "others": "Plan more", "us": "Close loops" },
-          { "others": "Add new projects", "us": "Confront old ones" },
-          { "others": "Optimize for start", "us": "Optimize for done" }
+          {
+            "others": "Capture more",
+            "us": "Finish more"
+          },
+          {
+            "others": "Plan more",
+            "us": "Close loops"
+          },
+          {
+            "others": "Add new projects",
+            "us": "Confront old ones"
+          },
+          {
+            "others": "Optimize for start",
+            "us": "Optimize for done"
+          }
         ]
       }
     },
@@ -1657,7 +1713,10 @@
             "Demo video pending recording"
           ],
           "decisionsLabel": "Decisions you'd already made:",
-          "decisions": ["Stripe over Lemon Squeezy", "Three pricing tiers, annual discount"]
+          "decisions": [
+            "Stripe over Lemon Squeezy",
+            "Three pricing tiers, annual discount"
+          ]
         },
         "closing": "The cost of returning drops to zero. Projects you wrote off start finishing themselves."
       },
@@ -1673,7 +1732,10 @@
           "topPriority": "Finish the landing page hero",
           "topPriorityNote": "Active for 5 days, you committed to shipping it this week",
           "secondaryLabel": "Secondary",
-          "secondary": ["Review GTM conversion tracking", "Reply to beta tester feedback"],
+          "secondary": [
+            "Review GTM conversion tracking",
+            "Reply to beta tester feedback"
+          ],
           "footer": "Reply STATUS for full report.",
           "userReply": "STATUS"
         },
@@ -1689,10 +1751,22 @@
           "modalTitle": "Before you start a new one…",
           "modalBody": "You already have 4 active projects. Which decision are you making?",
           "activeProjects": [
-            { "name": "Landing page redesign", "status": "5 days active" },
-            { "name": "Telegram bot v2", "status": "12 days paused" },
-            { "name": "Newsletter migration", "status": "23 days active" },
-            { "name": "Fantasy football tool", "status": "47 days drifting" }
+            {
+              "name": "Landing page redesign",
+              "status": "5 days active"
+            },
+            {
+              "name": "Telegram bot v2",
+              "status": "12 days paused"
+            },
+            {
+              "name": "Newsletter migration",
+              "status": "23 days active"
+            },
+            {
+              "name": "Fantasy football tool",
+              "status": "47 days drifting"
+            }
           ],
           "continueNew": "Start anyway",
           "pauseExisting": "Pause one first",

@@ -217,6 +217,11 @@ export default function Dashboard() {
 
   // --- Captura rápida (⌘K) ---
   const [paletteOpen, setPaletteOpen] = useState(false);
+  /** Nota (y sección) a abrir cuando se llega a Notas desde "ir a". */
+  const [gotoNote, setGotoNote] = useState<{
+    noteId: string;
+    sectionId: string | null;
+  } | null>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -401,6 +406,11 @@ export default function Dashboard() {
           projects={projects}
           onClose={() => setPaletteOpen(false)}
           onOpenProject={openProject}
+          onNavigate={(next) => goTo(next)}
+          onOpenNote={(noteId, sectionId) => {
+            setGotoNote({ noteId, sectionId });
+            goTo("notes");
+          }}
         />
       )}
       <div className="flex">
@@ -542,7 +552,12 @@ export default function Dashboard() {
 
         {/* QUICK NOTES */}
         {view === "notes" && (
-          <QuickNotesView categories={categories} projects={projects} />
+          <QuickNotesView
+            categories={categories}
+            projects={projects}
+            openNote={gotoNote}
+            onConsumeOpenNote={() => setGotoNote(null)}
+          />
         )}
 
         {/* LOG */}
@@ -809,6 +824,7 @@ export default function Dashboard() {
         view={view}
         onChange={goTo}
         onOpenMore={() => m.setMoreSheetOpen(true)}
+        onQuickCapture={() => setPaletteOpen(true)}
       />
 
       <MoreSheet

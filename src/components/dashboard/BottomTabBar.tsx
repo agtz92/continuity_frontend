@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Folder,
   MoreHorizontal,
+  Plus,
   Repeat,
   Sun,
   type LucideIcon,
@@ -39,12 +40,21 @@ export function BottomTabBar({
   view,
   onChange,
   onOpenMore,
+  onQuickCapture,
 }: {
   view: DashboardView;
   onChange: (v: DashboardView) => void;
   onOpenMore: () => void;
+  /**
+   * Captura rápida. En móvil no hay ⌘K ni barra lateral, así que sin este
+   * botón la captura **no existía**: el acceso vivía solo en la barra lateral,
+   * que es `hidden md:flex`. Va en el centro, que es donde se llega con el
+   * pulgar sin recolocar la mano.
+   */
+  onQuickCapture: () => void;
 }) {
   const t = useTranslations("tabs");
+  const tNav = useTranslations("nav");
   const lastTapRef = useRef<{ id: string; at: number } | null>(null);
 
   const moreActive = SECONDARY_VIEWS.includes(view);
@@ -69,10 +79,10 @@ export function BottomTabBar({
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="flex items-stretch justify-around h-16">
-        {PRIMARY_TABS.map((tab) => {
+        {PRIMARY_TABS.map((tab, index) => {
           const active = view === tab.id;
           const Icon = tab.icon;
-          return (
+          const item = (
             <li key={tab.id} className="flex-1">
               <button
                 role="tab"
@@ -94,6 +104,25 @@ export function BottomTabBar({
               </button>
             </li>
           );
+
+          // La captura parte la barra por la mitad. No es un destino: no lleva
+          // `role="tab"` ni estado activo, porque no navega a ningún sitio.
+          if (index !== 1) return item;
+          return [
+            item,
+            <li key="capture" className="flex-1">
+              <button
+                aria-label={tNav("quickCapture")}
+                onClick={onQuickCapture}
+                className="w-full h-full flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-accent"
+              >
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-accent-a12 border border-accent-a35">
+                  <Plus size={18} strokeWidth={2.2} />
+                </span>
+                <span>{tNav("captureShort")}</span>
+              </button>
+            </li>,
+          ];
         })}
         <li className="flex-1">
           <button
