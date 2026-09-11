@@ -59,6 +59,28 @@ const INITIAL: AssistantState = {
   usage: null,
 };
 
+/**
+ * El modo del asistente, con respaldo cuando el servidor no lo manda.
+ *
+ * `assistant_mode` es la fuente de verdad (backend `core/assistant/tiers.py`) y
+ * hay que leerla, no deducirla. Pero **ausente no puede significar bloqueado**:
+ * este repo y el backend despliegan por separado, así que hay una ventana en la
+ * que la web nueva habla con el backend viejo — y en esa ventana un usuario de
+ * Studio, que paga, se quedaba mirando un cartel de "disponible en planes
+ * superiores", sin composer y sin forma de entender por qué.
+ *
+ * Si el campo no viene, se deduce del plan con el mismo mapa que usa el
+ * servidor. Equivocarse de más solo cuesta un 403 `plan_required` visible;
+ * equivocarse de menos deja a alguien sin lo que pagó, en silencio. Es la
+ * dirección segura en la que fallar. Espejo de `continuity-mobile`.
+ */
+function resolveMode(snap: UsageSnapshot): AssistantMode {
+  if (snap.assistant_mode) return snap.assistant_mode;
+  if (snap.plan === "studio" || snap.plan === "admin") return "llm";
+  if (snap.plan === "pro") return "canned";
+  return "none";
+}
+
 export function useAssistant() {
   const [state, setState] = useState<AssistantState>(INITIAL);
   const abortRef = useRef<AbortController | null>(null);
@@ -68,13 +90,9 @@ export function useAssistant() {
   const refreshUsage = useCallback(async () => {
     try {
       const snap = await getUsage();
-      setState((s) => ({
-        ...s,
-        usage: snap,
-        plan: snap.plan,
-        mode: snap.assistant_mode,
-      }));
-      return snap.assistant_mode;
+      const mode = resolveMode(snap);
+      setState((s) => ({ ...s, usage: snap, plan: snap.plan, mode }));
+      return mode;
     } catch {
       return null;
     }
