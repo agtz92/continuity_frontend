@@ -1846,7 +1846,7 @@
       "headline": "50 spots. Lifetime free Pro access.",
       "body": "We're letting in the first 50 builders to test continuu.it before public launch. In exchange for your honest feedback, you get:",
       "perks": [
-        "Lifetime free access to Pro tier ($96/year value)",
+        "Lifetime free access to Pro tier ($89.99/year value)",
         "Direct line to the founder for feature requests",
         "Influence on what we build next",
         "Founding member badge in your profile",
@@ -1889,11 +1889,11 @@
         },
         "pro": {
           "name": "Pro",
-          "price": "$9",
-          "priceAnnual": "$7",
+          "price": "$8.99",
+          "priceAnnual": "$7.50",
           "priceCadence": "USD per month",
           "priceCadenceAnnual": "USD per month, billed annually",
-          "annualSaving": "Save 22%",
+          "annualSaving": "Save 17%",
           "inheritsFrom": "Everything in Free, plus:",
           "perks": [
             "25 active projects, 200 tasks per project",
@@ -1910,8 +1910,8 @@
         },
         "studio": {
           "name": "Studio",
-          "price": "$19",
-          "priceAnnual": "$15.83",
+          "price": "$14.99",
+          "priceAnnual": "$12.50",
           "priceCadence": "USD per month",
           "priceCadenceAnnual": "USD per month, billed annually",
           "annualSaving": "Save 17%",
