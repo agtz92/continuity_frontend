@@ -27,23 +27,39 @@ export default function OAuthConsentPage() {
   const state = params.get("state") || "";
   const appName = params.get("client_name") || "Claude";
 
-  const canWrite = scope.includes("continuity:write");
-
   const [status, setStatus] = useState<Status>("checking");
   const [token, setToken] = useState<string | null>(null);
+  // The plan caps what the connector can do, so it also caps what this
+  // screen may promise. The server drops `continuity:write` from the
+  // issued token for read-only plans (`_cap_scope_to_plan`); listing it
+  // here anyway would be promising a permission that silently fails.
+  const [planWrites, setPlanWrites] = useState(false);
+
+  const canWrite = scope.includes("continuity:write") && planWrites;
 
   useEffect(() => {
     if (!clientId || !redirectUri || !codeChallenge) {
       setStatus("invalid");
       return;
     }
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.access_token) {
-        setToken(data.session.access_token);
-        setStatus("ready");
-      } else {
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session?.access_token) {
         setStatus("unauth");
+        return;
       }
+      setToken(data.session.access_token);
+      try {
+        const res = await fetch(`${assistantBaseUrl}/api/assistant/usage/`, {
+          headers: { Authorization: `Bearer ${data.session.access_token}` },
+        });
+        if (res.ok) {
+          const snap = await res.json();
+          setPlanWrites(snap.plan === "studio" || snap.plan === "admin");
+        }
+      } catch {
+        // Leave it at false: under-promising is the safe failure here.
+      }
+      setStatus("ready");
     });
   }, [clientId, redirectUri, codeChallenge]);
 

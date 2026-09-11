@@ -29,21 +29,19 @@
       "writingTable": "writing the table…"
     },
     "title": "Loop",
-    "subtitle": "Read-only Claude beta",
-    "subtitleReadWrite": "Claude beta — reads & updates",
     "buttonLabel": "Open Loop",
     "openTooltip": "Open Loop to ask about your projects",
     "newChat": "New conversation",
     "close": "Close",
     "send": "Send",
     "stop": "Stop",
-    "deepMode": "Deep mode",
-    "deepModeHint": "Use the more capable Sonnet model for this reply. Costs more — daily limit applies.",
     "inputPlaceholder": "Ask about your projects, tasks, or ideas…",
     "welcome": {
       "title": "Hi! I'm here to help.",
-      "body": "I can read your projects and tasks to summarize, suggest priorities, and find things. I can't edit anything yet — that's coming soon.",
-      "bodyReadWrite": "I can read and organize your work — create and update tasks, set priorities, draft routines, and tidy up projects. Just tell me what you need."
+      "bodyFor": {
+        "canned": "Pick a question and I'll answer it from your real data, right away.",
+        "llm": "I can read and organise your work — create and update tasks, set priorities, draft routines and tidy projects. Tell me what you need."
+      }
     },
     "message": {
       "thinking": "Thinking…",
@@ -66,6 +64,23 @@
       "upgrade": "Upgrade",
       "dailyMessages": "Messages today",
       "monthlyTokens": "Tokens this month"
+    },
+    "subtitleFor": {
+      "none": "Available on higher plans",
+      "canned": "Queries over your data",
+      "llm": "Claude beta · reads and edits"
+    },
+    "locked": {
+      "title": "Loop isn't on your plan yet",
+      "body": "Loop reads your projects and tasks to tell you where to pick up. Here's what it would answer with your data:",
+      "sampleOverdue": "What's overdue, and for how long",
+      "sampleStalled": "Which projects haven't moved in weeks",
+      "sampleSearch": "Where you wrote that thing you can't find",
+      "cta": "See plans",
+      "footnote": "Your quick capture, notes and calendar keep working exactly the same."
+    },
+    "actions": {
+      "hint": "Pick a question"
     }
   },
   "notifications": {
@@ -450,7 +465,7 @@
       "pro": "Pro",
       "studio": "Studio",
       "admin": "Admin (staff)",
-      "freeBlurb": "Upgrade to Pro or Studio when you need more room or more AI.",
+      "freeBlurb": "Upgrade to Pro to query your data with Loop, or to Studio to converse with it.",
       "exemptBadge": "Team comp",
       "exemptBlurb": "Your account has the {plan} plan free of charge, courtesy of the team. You won't be charged while this exemption is active.",
       "storeApple": "the App Store",
@@ -1880,7 +1895,7 @@
             "3 active projects",
             "50 open tasks",
             "2 active routines",
-            "AI Assistant — 15 messages/day (read-only)",
+            "Claude connector (read) — use your own Claude",
             "Email and Telegram notifications",
             "Full Today view, analytics, and activity log",
             "30-day history",
@@ -1899,8 +1914,8 @@
           "perks": [
             "25 active projects, 200 tasks per project",
             "20 active routines, 500 ideas",
-            "AI Assistant — 200 messages/day with write + brainstorming",
-            "Deep Mode (Sonnet) — 5 messages/day",
+            "Loop — instant answers about your projects and tasks",
+            "Claude connector (read) — use your own Claude",
             "WhatsApp — 100 messages/month included",
             "Google Tasks + Calendar sync",
             "Sleeping alerts and daily digest",
@@ -1919,8 +1934,8 @@
           "inheritsFrom": "Everything in Pro, plus:",
           "perks": [
             "Unlimited projects, tasks, and routines",
-            "AI Assistant — 600 messages/day",
-            "Deep Mode (Sonnet) — 25 messages/day",
+            "Loop in conversation — it creates and organises your work",
+            "Claude connector with write + ⌘↵ AI capture",
             "WhatsApp — 500 messages/month + your assistant on WhatsApp (coming soon)",
             "All-time analytics",
             "Outbound webhooks and personal API key",

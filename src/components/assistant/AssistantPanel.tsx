@@ -2,13 +2,15 @@
 
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Send, Square, Sparkles, X, Plus, AlertCircle, Brain } from "lucide-react";
+import { Send, Square, Sparkles, X, Plus, AlertCircle } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MessageList } from "./MessageList";
 import { PlanBadge } from "./PlanBadge";
 import { UsageMeter } from "./UsageMeter";
 import { QuickActionChips } from "./QuickActionChips";
+import { ActionMenu } from "./ActionMenu";
+import { AssistantLocked } from "./AssistantLocked";
 
 const MAX_INPUT_CHARS = 4000;
 
@@ -33,21 +35,26 @@ export function AssistantPanel({
     streaming,
     error,
     plan,
+    mode,
+    actions,
     usage,
     send,
+    runCanned,
     stop,
     newConversation,
   } = useAssistant();
   const [input, setInput] = useState("");
-  const [deepMode, setDeepMode] = useState(false);
   // On mobile the on-screen keyboard's Enter must insert a newline (there's no
   // Shift), so we only send via the button. On desktop, Enter sends and
   // Shift+Enter inserts a newline.
   const isMobile = useIsMobile();
 
-  // Free is read-only; pro/studio/admin can create and edit (write tools
-  // require plan_required="pro"). Keep this in sync with the backend gating.
-  const canWrite = plan !== "free";
+  // Which assistant this account gets. The server decides (see
+  // core/assistant/tiers.py) and ships the answer in /usage/, so there is
+  // nothing to keep in sync here. `null` means we haven't heard back yet.
+  const isChat = mode === "llm";
+  const isCanned = mode === "canned";
+  const isLocked = mode === "none";
 
   // Track the visual viewport so the panel resizes with the iOS keyboard
   // and the collapsing Safari URL bar. Without this the form (Send button)
@@ -97,12 +104,12 @@ export function AssistantPanel({
     if (streaming || !input.trim()) return;
     const text = input;
     setInput("");
-    await send(text, deepMode);
+    await send(text);
   };
 
   const handleQuickAction = (prompt: string) => {
     if (streaming) return;
-    send(prompt, deepMode);
+    send(prompt);
   };
 
   // Anchor the dialog to the visual viewport when available; otherwise fall
@@ -143,7 +150,7 @@ export function AssistantPanel({
                 <PlanBadge plan={plan} />
               </div>
               <div className="text-[11px] text-text-muted">
-                {t(canWrite ? "subtitleReadWrite" : "subtitle")}
+                {t(`subtitleFor.${mode ?? "none"}`)}
               </div>
             </div>
           </div>
@@ -170,9 +177,12 @@ export function AssistantPanel({
           </div>
         </header>
 
-        <UsageMeter usage={usage} />
+        {/* Only the llm tier has a budget to meter. */}
+        {isChat && <UsageMeter usage={usage} />}
 
-        {messages.length === 0 ? (
+        {isLocked ? (
+          <AssistantLocked />
+        ) : messages.length === 0 ? (
           <div className="flex-1 overflow-y-auto px-4 py-8 flex flex-col items-center justify-start gap-4 text-center">
             <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center">
               <Sparkles size={20} className="text-accent" />
@@ -182,7 +192,7 @@ export function AssistantPanel({
                 {t("welcome.title")}
               </div>
               <div className="text-xs text-text-muted leading-relaxed">
-                {t(canWrite ? "welcome.bodyReadWrite" : "welcome.body")}
+                {t(`welcome.bodyFor.${mode ?? "canned"}`)}
               </div>
             </div>
           </div>
@@ -190,35 +200,34 @@ export function AssistantPanel({
           <MessageList messages={messages} streaming={streaming} />
         )}
 
-        {error && (
+        {error && !isLocked && (
           <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2 rounded-md border border-signal-a50 bg-signal-a12 text-signal text-xs">
             <AlertCircle size={12} className="mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <QuickActionChips onPick={handleQuickAction} disabled={streaming} />
-
-        {(plan === "studio" || plan === "admin") && (
-          <div className="px-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setDeepMode((v) => !v)}
-              disabled={streaming}
-              title={t("deepModeHint")}
-              aria-pressed={deepMode}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                deepMode
-                  ? "border-accent text-accent bg-[color-mix(in_srgb,var(--accent)_12%,transparent)]"
-                  : "border-border text-text-muted hover:text-text"
-              }`}
-            >
-              <Brain size={12} />
-              {t("deepMode")}
-            </button>
-          </div>
+        {isChat && (
+          <QuickActionChips onPick={handleQuickAction} disabled={streaming} />
         )}
 
+        {isCanned && (
+          <ActionMenu
+            groups={actions}
+            onRun={runCanned}
+            disabled={streaming}
+          />
+        )}
+
+        {/*
+          There used to be a "deep mode" toggle here. It is gone on purpose:
+          which model answers now depends on an admin switch and the
+          account's remaining budget, both server-side. A button that is
+          sometimes honoured and sometimes silently ignored — which is what
+          it became once the daily cap ran out — is worse than no button.
+        */}
+
+        {isChat && (
         <form
           onSubmit={handleSubmit}
           className="shrink-0 border-t border-border p-3 flex items-end gap-2"
@@ -264,6 +273,7 @@ export function AssistantPanel({
             </button>
           )}
         </form>
+        )}
       </aside>
     </div>
   );

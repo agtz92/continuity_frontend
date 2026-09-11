@@ -29,21 +29,19 @@
       "writingTable": "escribiendo la tabla…"
     },
     "title": "Loop",
-    "subtitle": "Beta de Claude — solo lectura",
-    "subtitleReadWrite": "Beta de Claude — lee y edita",
     "buttonLabel": "Abrir Loop",
     "openTooltip": "Abre Loop para preguntar sobre tus proyectos",
     "newChat": "Nueva conversación",
     "close": "Cerrar",
     "send": "Enviar",
     "stop": "Detener",
-    "deepMode": "Modo profundo",
-    "deepModeHint": "Usa el modelo Sonnet, más capaz, para esta respuesta. Cuesta más — aplica un límite diario.",
     "inputPlaceholder": "Pregunta sobre tus proyectos, tareas o ideas…",
     "welcome": {
       "title": "¡Hola! Estoy aquí para ayudar.",
-      "body": "Puedo leer tus proyectos y tareas para resumir, sugerir prioridades y buscar cosas. Aún no puedo editar nada — eso llega pronto.",
-      "bodyReadWrite": "Puedo leer y organizar tu trabajo — crear y actualizar tareas, fijar prioridades, redactar rutinas y ordenar proyectos. Dime qué necesitas."
+      "bodyFor": {
+        "canned": "Elige una consulta y te la respondo con tus datos reales, al momento.",
+        "llm": "Puedo leer y organizar tu trabajo — crear y actualizar tareas, fijar prioridades, redactar rutinas y ordenar proyectos. Dime qué necesitas."
+      }
     },
     "message": {
       "thinking": "Pensando…",
@@ -66,6 +64,23 @@
       "upgrade": "Mejorar plan",
       "dailyMessages": "Mensajes hoy",
       "monthlyTokens": "Tokens este mes"
+    },
+    "subtitleFor": {
+      "none": "Disponible en planes superiores",
+      "canned": "Consultas sobre tus datos",
+      "llm": "Beta de Claude · lee y edita"
+    },
+    "locked": {
+      "title": "Loop todavía no está en tu plan",
+      "body": "Loop lee tus proyectos y tareas para decirte por dónde seguir. Esto es lo que respondería con tus datos:",
+      "sampleOverdue": "Qué tienes vencido y desde cuándo",
+      "sampleStalled": "Qué proyectos llevan semanas sin moverse",
+      "sampleSearch": "Dónde escribiste aquello que no encuentras",
+      "cta": "Ver planes",
+      "footnote": "Tu captura rápida, tus notas y tu calendario siguen funcionando igual."
+    },
+    "actions": {
+      "hint": "Elige una consulta"
     }
   },
   "common": {
@@ -450,7 +465,7 @@
       "pro": "Pro",
       "studio": "Studio",
       "admin": "Admin (staff)",
-      "freeBlurb": "Sube a Pro o Studio cuando necesites más espacio o más asistente.",
+      "freeBlurb": "Sube a Pro para consultar tus datos con Loop, o a Studio para conversar con él.",
       "exemptBadge": "Cortesía del equipo",
       "exemptBlurb": "Tu cuenta tiene el plan {plan} sin costo, cortesía del equipo. No verás ningún cobro mientras tengas esta exención.",
       "storeApple": "App Store",
@@ -1880,7 +1895,7 @@
             "3 proyectos activos",
             "50 tareas abiertas",
             "2 rutinas activas",
-            "Asistente IA — 15 mensajes/día (solo lectura)",
+            "Conector de Claude (lectura) — usa tu propio Claude",
             "Notificaciones por Email y Telegram",
             "Today view, analíticas y bitácora completos",
             "Historial de 30 días",
@@ -1899,8 +1914,8 @@
           "perks": [
             "25 proyectos activos, 200 tareas por proyecto",
             "20 rutinas activas, 500 ideas",
-            "Asistente IA — 200 mensajes/día con escritura y brainstorming",
-            "Deep Mode (Sonnet) — 5 mensajes/día",
+            "Loop — consultas al instante sobre tus proyectos y tareas",
+            "Conector de Claude (lectura) — usa tu propio Claude",
             "WhatsApp — 100 mensajes/mes incluidos",
             "Google Tasks + Calendar sync",
             "Sleeping alerts y digest diario",
@@ -1919,8 +1934,8 @@
           "inheritsFrom": "Todo lo de Pro, más:",
           "perks": [
             "Proyectos, tareas y rutinas ilimitadas",
-            "Asistente IA — 600 mensajes/día",
-            "Deep Mode (Sonnet) — 25 mensajes/día",
+            "Loop en conversación — crea y organiza tu trabajo por ti",
+            "Conector de Claude con escritura + ⌘↵ interpreta con IA",
             "WhatsApp — 500 mensajes/mes + tu asistente vía WhatsApp (próximamente)",
             "All-time analytics",
             "Webhooks salientes y API key personal",

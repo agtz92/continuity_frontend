@@ -2,6 +2,39 @@
 
 ## Asistente "Loop"
 
+### Tres asistentes, un solo interruptor
+
+**No mires `plan` para decidir qué pintar.** `useAssistant()` expone `mode`, que viene del
+backend en `GET /usage/` como `assistant_mode` (la regla vive en
+`backend/core/assistant/tiers.py`). Tres valores:
+
+- **`none`** (free) — `<AssistantLocked/>`: cartel con lo que Loop haría con sus datos y CTA
+  a `/settings/billing`. Sin compositor. **El FAB y el botón del header se quedan**: el cartel
+  es el gancho, no un candado.
+- **`canned`** (pro) — `<ActionMenu/>`: catálogo de consultas, **sin campo de texto libre**
+  (salvo el buscador, etiquetado como tal). Cada botón llama a `POST /actions/<id>/`, que
+  responde JSON ya renderizado por el servidor en el locale del usuario. No hay stream, no
+  hay modelo, no hay cupo — por eso `<UsageMeter/>` no se pinta aquí.
+  Las etiquetas llegan del backend con el catálogo: **una consulta nueva no necesita
+  release de frontend.**
+- **`llm`** (studio/admin) — el chat de siempre: `streamChat`, `QuickActionChips`, medidor
+  de cupo y compositor.
+
+### El botón de "modo profundo" ya no existe
+
+Qué modelo contesta lo decide el servidor (switch de admin + cupo diario). No mandes
+`deep_mode` en el request ni reintroduzcas el toggle: un botón que a veces se honra y a
+veces se ignora en silencio —que es en lo que se convirtió al agotarse el cupo— es peor
+que no tener botón.
+
+### Presupuesto agotado ≠ error
+
+El stream puede emitir `budget_exhausted` y **seguir**: lo que llega después es el cierre
+que escribe el modelo sin herramientas, diciendo qué alcanzó a hacer. No lo pintes como
+error.
+
+---
+
 El asistente IA se llama **Loop** (mascota de marca; mismo nombre en el repo móvil).
 El rename vive en `messages/{es,en}.json` → `assistant.title:"Loop"`,
 `assistant.buttonLabel:"Abrir Loop"/"Open Loop"`, `assistant.openTooltip`,
