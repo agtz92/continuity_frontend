@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ProjectNote } from "@/lib/types";
 import { useProjectNoteMutations } from "@/hooks/useProjectNoteMutations";
 import { useAutoFocus } from "@/hooks/useAutoFocus";
+import { Markdown } from "@/components/markdown/Markdown";
 
 /**
  * List of notes attached to a project + inline editor for new/existing notes.
@@ -151,12 +152,43 @@ function NoteCard({
   tCommon: ReturnType<typeof useTranslations>;
   t: ReturnType<typeof useTranslations>;
 }) {
-  const heading = note.title || firstLine(note.body);
+  // Sin título, el encabezado es la primera línea del cuerpo: viene en
+  // markdown crudo, así que se le quitan los marcadores (un "##" suelto en
+  // negritas se lee como basura).
+  const heading = note.title || stripMarkdown(firstLine(note.body));
   const preview = note.title ? note.body : restAfterFirstLine(note.body);
+  // Plegada, la nota se recorta a ~3 renglones. Sin un "ver más" eso deja
+  // ilegible cualquier nota de más de una línea (el caso normal), así que el
+  // recorte solo vale si se puede deshacer: se mide si el texto realmente
+  // desborda y solo entonces aparece el toggle. El corte es por altura, no
+  // `line-clamp`: el cuerpo ya no es un texto plano sino bloques de markdown.
+  const [expanded, setExpanded] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = previewRef.current;
+    if (!el || expanded) return;
+    const measure = () =>
+      setOverflows(el.scrollHeight - el.clientHeight > 1);
+    measure();
+    // El ancho de la tarjeta cambia al redimensionar la ventana o al
+    // plegar/desplegar columnas: hay que volver a medir. (jsdom no trae
+    // ResizeObserver; ahí basta con la medición inicial.)
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [preview, expanded]);
+
   return (
     <div className="bg-well border border-border rounded-lg p-3 group">
       <div className="flex items-start justify-between gap-2 mb-1">
-        <div className="text-sm font-medium text-text truncate flex-1">
+        <div
+          className={`text-sm font-medium text-text flex-1 min-w-0 ${
+            expanded ? "break-words" : "truncate"
+          }`}
+        >
           {heading || (
             <span className="text-text-muted italic font-normal">
               {t("untitled")}
@@ -187,8 +219,29 @@ function NoteCard({
         </div>
       </div>
       {preview && (
-        <div className="text-sm text-text-muted whitespace-pre-wrap line-clamp-3 mb-1.5">
-          {preview}
+        <div className="mb-1.5">
+          <div
+            ref={previewRef}
+            // Los enlaces del markdown no deben plegar la fila del proyecto
+            // que contiene la tarjeta.
+            onClick={(e) => e.stopPropagation()}
+            className={expanded ? "" : "max-h-[4.5rem] overflow-hidden"}
+            style={!expanded && overflows ? FADE_OUT : undefined}
+          >
+            <Markdown text={preview} />
+          </div>
+          {(overflows || expanded) && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((v) => !v);
+              }}
+              className="text-xs text-accent hover:opacity-80 mt-1 inline-flex items-center gap-1"
+            >
+              {expanded ? tCommon("showLess") : t("showFull")}
+            </button>
+          )}
         </div>
       )}
       <div className="text-[10px] uppercase tracking-wider text-text-muted">
@@ -273,6 +326,27 @@ function NoteEditor({
       </div>
     </div>
   );
+}
+
+/** Difumina el último renglón visible cuando la nota sigue por debajo del
+ *  recorte: un corte a filo recto parece un error de render. */
+const FADE_OUT = {
+  WebkitMaskImage:
+    "linear-gradient(to bottom, black 55%, transparent 100%)",
+  maskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
+} as const;
+
+/** Marcadores de markdown fuera para usar una línea como encabezado plano. */
+function stripMarkdown(s: string): string {
+  return s
+    .replace(/^#{1,6}\s*/, "")
+    .replace(/^[-*+]\s+/, "")
+    .replace(/^>\s*/, "")
+    .replace(/\[([^\]]+)\]\([^)\s]+\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
 }
 
 function firstLine(s: string): string {

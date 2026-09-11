@@ -1401,6 +1401,7 @@
   "notes": {
     "newNote": "New note",
     "untitled": "Untitled note",
+    "showFull": "Read full note",
     "empty": "No notes yet. Capture decisions, links, ideas as you work.",
     "titlePlaceholder": "Title (optional)",
     "bodyPlaceholder": "Decisions, links, ideas, anything you don't want to forget…",
