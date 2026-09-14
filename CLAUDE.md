@@ -53,6 +53,25 @@ no prop-drillear el estado del panel por las vistas. Dos puntos de entrada:
   flotante abajo-derecha) abre Loop. El header conserva además el `AssistantTrigger`
   (con `data-tour="assistant"`).
 
+## Tour del dashboard — data-driven
+
+Diez pasos que **cambian a cada vista y recortan el velo sobre su entrada**
+(`src/components/dashboard/tour/`). Reemplazó al tour de `driver.js`, que eran
+tres focos sobre las pestañas y media dependencia para treinta líneas de
+`getBoundingClientRect` + `box-shadow: 0 0 0 9999px var(--scrim)`.
+
+**Para agregarle un paso no se toca ningún componente**: una entrada en
+`tour/steps.ts` + `onboarding.tour.<key>.title/.body` en los dos `messages`.
+Toda entrada de la barra lateral (y de la barra inferior de móvil-web) ya lleva
+`data-tour={view}`, así que una vista nueva nace señalable sin wiring.
+
+`steps.ts` es **gemelo** del de `continuity-mobile`: mismas claves, mismo orden,
+mismos textos. Si aquí se añade una sección, allá también. Procedimiento y
+decisiones: **`../continuity-mobile/docs/onboarding-tour.md`**.
+
+Si un ancla no está en el DOM (la barra inferior del móvil no lleva todas las
+entradas), el paso cae a pantalla completa solo: el texto es lo que importa.
+
 ## Onboarding (5 pasos) + paso "Personalizar Today"
 
 El onboarding tiene 5 pasos: nombre · tema · avatar · plan · **personalizar
@@ -138,7 +157,7 @@ Notas con **secciones plegables** (toggles), **categorizables** y ligables a un 
 - **Markdown:** `src/components/notes/MarkdownText.tsx` — renderer **propio sin dependencias** (encabezados, listas, **negrita**, *cursiva*, `código`, enlaces). En vista se renderiza; tocar para editar (textarea). Misma idea en móvil. ⚠️ El JSDoc del archivo **no** debe contener la secuencia `*/` (cierra el bloque): describe la sintaxis en prosa, no con asteriscos markdown.
 - **Datos:** hooks `src/hooks/useQuickNotes.ts` (query lazy, `cache-and-network`) y `useQuickNoteMutations.ts` (refetch `QUICK_NOTES_QUERY`). Tipos `QuickNote`/`NoteSection` en `src/lib/types.ts`. GraphQL en `src/lib/graphql/quick-notes.ts` (carpeta `graphql/` por dominio; import `@/lib/graphql`).
 - **i18n:** `views.quickNotes.*` (en/es). El acento usa el `accent` del tema (no púrpura hardcodeado como Ideas) para respetar la palette.
-- **Onboarding:** el **tour** tiene un paso de Notes (`onboarding.tour.stepNotes`) en `DashboardTour.tsx`, **condicional** a que el tab sea visible (`findVisible("notes")`): aparece en desktop y se omite en mobile-web (ahí Notes vive en el `MoreSheet`). Requiere `data-tour="notes"` en `TabBar.tsx`. La nota de ejemplo para usuarios nuevos la siembra el backend (seed). Espejo en el repo móvil.
+- **Onboarding:** el tour tiene un paso de Notes (`onboarding.tour.notes`), declarado en `src/components/dashboard/tour/steps.ts`. El ancla sale sola: toda entrada de la barra lateral lleva `data-tour={item.view}`. La nota de ejemplo para usuarios nuevos la siembra el backend (seed). Espejo en el repo móvil.
 
 ## Captura rápida (⌘K)
 

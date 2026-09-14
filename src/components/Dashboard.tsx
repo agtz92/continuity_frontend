@@ -42,7 +42,7 @@ import { CategoryManagementModal } from "./categories/CategoryManagementModal";
 import { RoutineModal } from "./routines/RoutineModal";
 import { BackupRestoreModal } from "./backup/BackupRestoreModal";
 import { TopNav } from "./layout/TopNav";
-import { DashboardTour } from "./dashboard/DashboardTour";
+import { DashboardTour } from "./dashboard/tour/DashboardTour";
 import { NotificationStack } from "./notifications/NotificationStack";
 import { AssistantTrigger } from "./assistant/AssistantTrigger";
 import { AssistantPanel } from "./assistant/AssistantPanel";
@@ -399,7 +399,7 @@ export default function Dashboard() {
         initialPrompt={assistantPrompt}
         onConsumePrompt={() => setAssistantPrompt(null)}
       />
-      <DashboardTour onFinalCta={m.newProject} />
+      <DashboardTour onNavigate={goTo} />
       <PullToRefresh onRefresh={() => refetch()} />
       {paletteOpen && (
         <CommandPalette

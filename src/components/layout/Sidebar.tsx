@@ -79,14 +79,6 @@ const GROUPS: Group[] = [
   },
 ];
 
-/** Los cuatro anclajes que el tour de onboarding necesita encontrar. */
-const TOUR_ANCHORS = new Set<DashboardView>([
-  "projects",
-  "tasks",
-  "routines",
-  "notes",
-]);
-
 export function Sidebar({
   view,
   counts,
@@ -186,9 +178,10 @@ export function Sidebar({
                       type="button"
                       onClick={() => onChange(item.view)}
                       aria-current={active ? "page" : undefined}
-                      data-tour={
-                        TOUR_ANCHORS.has(item.view) ? item.view : undefined
-                      }
+                      /* Toda entrada es ancla del tour. Antes solo lo eran
+                         cuatro, y añadir una sección al recorrido obligaba a
+                         venir aquí a apuntarla en una lista. */
+                      data-tour={item.view}
                       title={collapsed ? label : undefined}
                       className={`relative w-full flex items-center gap-2 py-1.5 transition-colors duration-150 ease-out ${
                         collapsed ? "justify-center px-0" : "px-4"
