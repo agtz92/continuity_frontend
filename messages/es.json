@@ -1739,9 +1739,9 @@
         "closing": "El costo de regresar baja a cero. Proyectos que dabas por muertos empiezan a terminarse solos."
       },
       "notifications": {
-        "label": "Telegram + WhatsApp",
+        "label": "Telegram",
         "headline": "Despierta a tu día. Recibe el recordatorio antes de perderlo.",
-        "body": "continuu.it te alcanza donde ya estás. Cada mañana, a la hora que elijas, te llega un resumen enfocado en Telegram. WhatsApp viene en camino. Mismo flujo, tu canal.",
+        "body": "continuu.it te alcanza donde ya estás. Cada mañana, a la hora que elijas, te llega un resumen enfocado en Telegram o por correo. Tú decides qué te avisa y cuándo.",
         "demo": {
           "botName": "Bot de continuu.it",
           "greeting": "Buenos días, Alfredo.",
@@ -1897,10 +1897,10 @@
             "3 proyectos activos",
             "50 tareas abiertas",
             "2 rutinas activas",
+            "Sin Loop — el asistente empieza en Pro",
             "Conector de Claude (lectura) — usa tu propio Claude",
-            "Notificaciones por Email y Telegram",
+            "Notificaciones por Email y Telegram, con tus reglas",
             "Today view, analíticas y bitácora completos",
-            "Historial de 30 días",
             "Hasta 30 ideas"
           ],
           "cta": "Crear cuenta gratis"
@@ -1915,13 +1915,11 @@
           "inheritsFrom": "Todo lo de Free, más:",
           "perks": [
             "25 proyectos activos, 200 tareas por proyecto",
-            "20 rutinas activas, 500 ideas",
-            "Loop — consultas al instante sobre tus proyectos y tareas",
+            "20 rutinas activas, 500 ideas, 1 000 notas",
+            "Loop en modo consulta — pregunta por tus proyectos y tareas",
             "Conector de Claude (lectura) — usa tu propio Claude",
-            "WhatsApp — 100 mensajes/mes incluidos",
             "Google Tasks + Calendar sync",
             "Sleeping alerts y digest diario",
-            "Export CSV/JSON",
             "Soporte por email en 48h"
           ],
           "cta": "Probar Pro 14 días gratis"
@@ -1937,11 +1935,8 @@
           "perks": [
             "Proyectos, tareas y rutinas ilimitadas",
             "Loop en conversación — crea y organiza tu trabajo por ti",
-            "Conector de Claude con escritura + ⌘↵ interpreta con IA",
-            "WhatsApp — 500 mensajes/mes + tu asistente vía WhatsApp (próximamente)",
-            "All-time analytics",
-            "Webhooks salientes y API key personal",
-            "Reglas personalizadas de notificación",
+            "Conector de Claude con escritura",
+            "Captura rápida interpretada con IA",
             "Onboarding 1:1 y early access a features",
             "Soporte prioritario en menos de 24h"
           ],
