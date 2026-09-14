@@ -3,12 +3,14 @@
 import { ApolloProvider } from "@apollo/client";
 import { apolloClient } from "@/lib/apollo";
 import { Toaster } from "@/components/ui/Toaster";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ApolloProvider client={apolloClient}>
       {children}
       <Toaster />
+      <ConfirmDialog />
     </ApolloProvider>
   );
 }

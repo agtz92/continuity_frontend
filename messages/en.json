@@ -1441,6 +1441,8 @@
     "project": {
       "newTitle": "New Project",
       "editTitle": "Edit Project",
+      "deleteConfirm": "Delete this project?",
+      "deleteConfirmBody": "Its tasks and notes go with it. This can't be undone.",
       "name": "Name *",
       "why": "Why does this matter?",
       "whyPlaceholder": "Your motivation — comes back when stalled.",

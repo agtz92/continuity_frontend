@@ -1441,6 +1441,8 @@
     "project": {
       "newTitle": "Nuevo proyecto",
       "editTitle": "Editar proyecto",
+      "deleteConfirm": "¿Eliminar este proyecto?",
+      "deleteConfirmBody": "Se borran también sus tareas y notas. Esta acción no se puede deshacer.",
       "name": "Nombre *",
       "why": "¿Por qué importa?",
       "whyPlaceholder": "Tu motivación — vuelve a salvarte cuando se estanque.",

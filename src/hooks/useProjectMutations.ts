@@ -10,6 +10,7 @@ import {
   RESTORE_PARKED_DUE_DATES,
   UPDATE_PROJECT,
 } from "@/lib/graphql";
+import { confirmDialog } from "@/lib/confirm";
 import type { Priority } from "@/lib/types";
 
 const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
@@ -74,7 +75,11 @@ export function useProjectMutations() {
 
   /** Delete with confirm prompt. Returns true if user confirmed and call succeeded. */
   const deleteProjectWithConfirm = async (id: string): Promise<boolean> => {
-    if (!confirm("Delete this project and all its tasks?")) return false;
+    const ok = await confirmDialog({
+      titleKey: "modals.project.deleteConfirm",
+      bodyKey: "modals.project.deleteConfirmBody",
+    });
+    if (!ok) return false;
     try {
       await deleteProject({ variables: { id } });
       return true;

@@ -2,6 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { __resetToastsForTests } from "@/lib/toast";
+import { __resetConfirmForTests } from "@/lib/confirm";
 
 // jsdom doesn't implement matchMedia. Components that branch on viewport
 // (e.g. useIsMobile) call it during render — stub it to default to desktop.
@@ -106,11 +107,14 @@ vi.mock("@/i18n/actions", () => ({
   setLocale: vi.fn().mockResolvedValue(undefined),
 }));
 
-// `confirm()` is used by the Dashboard for destructive actions. jsdom
-// doesn't implement it; default to "yes" so tests don't hang.
+// `confirm()` is still used by a few destructive actions. jsdom doesn't
+// implement it; default to "yes" so tests don't hang. Deleting a project goes
+// through the in-app `<ConfirmDialog />` instead — its queue is drained here so
+// a pending question never leaks into the next test.
 beforeEach(() => {
   vi.spyOn(window, "confirm").mockReturnValue(true);
   __resetToastsForTests();
+  __resetConfirmForTests();
 });
 
 afterEach(() => {
