@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { DateTimeField } from "@/components/ui/DateTimeField";
 
 export type FormState = {
   title: string;
@@ -41,6 +42,11 @@ export function AnnouncementForm({
   submitLabel: string;
 }) {
   const [state, setState] = useState<FormState>(initial);
+
+  // Una ventana al revés no da error en el backend: simplemente deja el
+  // anuncio invisible para siempre, que es peor. Se ataja aquí.
+  const windowInverted =
+    !!state.startsAt && !!state.endsAt && state.endsAt <= state.startsAt;
 
   const togglePlan = (plan: string) => {
     setState((s) => ({
@@ -166,22 +172,28 @@ export function AnnouncementForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="Activo desde (opcional)">
-          <input
-            type="datetime-local"
+          <DateTimeField
             value={state.startsAt}
-            onChange={(e) => setState({ ...state, startsAt: e.target.value })}
-            className="w-full rounded border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-accent"
+            onChange={(startsAt) => setState({ ...state, startsAt })}
+            defaultTime="09:00"
+            placeholder="Desde que se publique"
           />
         </Field>
         <Field label="Activo hasta (opcional)">
-          <input
-            type="datetime-local"
+          <DateTimeField
             value={state.endsAt}
-            onChange={(e) => setState({ ...state, endsAt: e.target.value })}
-            className="w-full rounded border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-accent"
+            onChange={(endsAt) => setState({ ...state, endsAt })}
+            defaultTime="23:59"
+            placeholder="Hasta que se archive"
           />
         </Field>
       </div>
+      {windowInverted && (
+        <p className="text-xs text-signal">
+          La fecha de fin queda antes de la de inicio: así el anuncio no se
+          mostraría nunca.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="CTA — texto del botón">
@@ -213,7 +225,7 @@ export function AnnouncementForm({
         </Link>
         <button
           type="submit"
-          disabled={loading || !state.title.trim()}
+          disabled={loading || !state.title.trim() || windowInverted}
           className="px-4 py-2 text-sm rounded bg-accent text-white font-medium hover:opacity-90 disabled:opacity-50"
         >
           {submitLabel}
