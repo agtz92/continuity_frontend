@@ -50,6 +50,22 @@ export function NotificationStack() {
     setDismissed(loadDismissed());
   }, []);
 
+  // El id de un anuncio lleva revisión de contenido (`ann.<uuid>.<rev>`), así
+  // que cada edición deja un id muerto en localStorage. Se tira lo que el
+  // servidor ya no manda; un anuncio descartado pero vigente sigue viniendo en
+  // la respuesta, así que esto no resucita banners cerrados.
+  useEffect(() => {
+    const live = data?.notifications;
+    if (!live) return;
+    const liveIds = new Set(live.map((n) => n.id));
+    setDismissed((prev) => {
+      const kept = new Set(Array.from(prev).filter((id) => liveIds.has(id)));
+      if (kept.size === prev.size) return prev;
+      saveDismissed(kept);
+      return kept;
+    });
+  }, [data]);
+
   const dismiss = (id: string) => {
     const next = new Set(dismissed);
     next.add(id);
