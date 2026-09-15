@@ -4,14 +4,16 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
-export function Step1Name({
+export function StepName({
   initialName,
   isPrefillFromOAuth,
+  onBack,
   onNext,
   busy,
 }: {
   initialName: string;
   isPrefillFromOAuth: boolean;
+  onBack: () => void;
   onNext: (name: string) => Promise<void> | void;
   busy: boolean;
 }) {
@@ -24,11 +26,11 @@ export function Step1Name({
     if (busy) return;
     const trimmed = value.trim();
     if (!trimmed) {
-      setError(t("step1.errorEmpty"));
+      setError(t("name.errorEmpty"));
       return;
     }
     if (trimmed.length > 50) {
-      setError(t("step1.errorTooLong"));
+      setError(t("name.errorTooLong"));
       return;
     }
     setError(null);
@@ -39,9 +41,9 @@ export function Step1Name({
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div>
         <h1 className="font-display-app text-3xl sm:text-4xl text-text">
-          {t("step1.heading")}
+          {t("name.heading")}
         </h1>
-        <p className="text-text-muted text-sm mt-2">{t("step1.sub")}</p>
+        <p className="text-text-muted text-sm mt-2">{t("name.sub")}</p>
       </div>
 
       <div>
@@ -49,7 +51,7 @@ export function Step1Name({
           htmlFor="onboarding-first-name"
           className="block text-xs text-text-muted mb-1.5"
         >
-          {t("step1.label")}
+          {t("name.label")}
         </label>
         <input
           id="onboarding-first-name"
@@ -62,14 +64,14 @@ export function Step1Name({
           maxLength={50}
           autoFocus
           autoComplete="given-name"
-          placeholder={t("step1.placeholder")}
+          placeholder={t("name.placeholder")}
           className="w-full px-4 py-3 bg-surface border border-border rounded-lg text-text placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
           aria-invalid={!!error}
           aria-describedby={error ? "onboarding-first-name-error" : undefined}
         />
         {isPrefillFromOAuth && !error && (
           <p className="text-xs text-text-muted mt-1.5">
-            {t("step1.helperPrefilled")}
+            {t("name.helperPrefilled")}
           </p>
         )}
         {error && (
@@ -82,7 +84,15 @@ export function Step1Name({
         )}
       </div>
 
-      <div className="flex justify-end mt-auto pt-4">
+      <div className="flex items-center justify-between mt-auto pt-4">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={busy}
+          className="text-sm text-text-muted hover:text-text disabled:opacity-50"
+        >
+          {t("back")}
+        </button>
         <button
           type="submit"
           disabled={busy}

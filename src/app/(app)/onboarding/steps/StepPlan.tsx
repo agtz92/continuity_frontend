@@ -18,7 +18,7 @@ function planLabelKey(plan: string): string {
   return slug;
 }
 
-export function Step4Plan({
+export function StepPlan({
   name,
   plan,
   isBillingExempt,
@@ -58,13 +58,13 @@ export function Step4Plan({
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="font-display-app text-3xl sm:text-4xl text-text">
-            {t("step4Beta.heading", { name })}
+            {t("planBeta.heading", { name })}
           </h1>
         </div>
         <div className="space-y-4 text-text">
-          <p>{t("step4Beta.body", { plan: planLabel })}</p>
-          <p>{t("step4Beta.body2")}</p>
-          <p className="text-text-muted italic">{t("step4Beta.signoff")}</p>
+          <p>{t("planBeta.body", { plan: planLabel })}</p>
+          <p>{t("planBeta.body2")}</p>
+          <p className="text-text-muted italic">{t("planBeta.signoff")}</p>
         </div>
         <div className="flex items-center justify-between mt-auto pt-4">
           {!replay ? (
@@ -168,9 +168,9 @@ export function Step4Plan({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display-app text-3xl sm:text-4xl text-text">
-          {t("step4Plan.heading")}
+          {t("plan.heading")}
         </h1>
-        <p className="text-text-muted text-sm mt-2">{t("step4Plan.sub")}</p>
+        <p className="text-text-muted text-sm mt-2">{t("plan.sub")}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -203,7 +203,7 @@ export function Step4Plan({
                 </span>
               </div>
               <div className="text-xs text-text-muted mt-1">
-                {t(`step4Plan.cards.${p}`)}
+                {t(`plan.cards.${p}`)}
               </div>
               {isPaid && (
                 <div className="text-[11px] text-text-muted mt-3">
@@ -246,7 +246,7 @@ export function Step4Plan({
             disabled={total}
             className="text-sm text-text-muted hover:text-text disabled:opacity-50"
           >
-            {t("step4Plan.decideLater")}
+            {t("plan.decideLater")}
           </button>
           <button
             type="button"
@@ -255,7 +255,7 @@ export function Step4Plan({
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-bg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {total && <Loader2 size={14} className="animate-spin" />}
-            {t("step4Plan.primary")}
+            {t("plan.primary")}
           </button>
         </div>
       </div>

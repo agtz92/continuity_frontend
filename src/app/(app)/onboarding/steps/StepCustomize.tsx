@@ -17,7 +17,7 @@ import { Loader2, Settings2 } from "lucide-react";
  * The actual completion + navigation lives in OnboardingFlow.handleFinish;
  * this component only signals intent via the `onFinish` options.
  */
-export function Step5Customize({
+export function StepCustomize({
   replay,
   busy,
   onBack,
@@ -38,16 +38,16 @@ export function Step5Customize({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display-app text-3xl sm:text-4xl text-text">
-          {t("step5.heading")}
+          {t("customize.heading")}
         </h1>
-        <p className="text-text-muted text-sm mt-2">{t("step5.sub")}</p>
+        <p className="text-text-muted text-sm mt-2">{t("customize.sub")}</p>
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5 flex items-center gap-4">
         <div className="shrink-0 h-10 w-10 rounded-lg border border-border bg-bg grid place-items-center text-text-muted">
           <Settings2 size={18} aria-hidden />
         </div>
-        <p className="text-sm text-text-muted">{t("step5.hint")}</p>
+        <p className="text-sm text-text-muted">{t("customize.hint")}</p>
       </div>
 
       <div className="flex items-center justify-between mt-auto pt-4">
@@ -76,7 +76,7 @@ export function Step5Customize({
             disabled={busy}
             className="text-sm text-text-muted hover:text-text disabled:opacity-50"
           >
-            {replay ? t("replay.finishButton") : t("step5.later")}
+            {replay ? t("replay.finishButton") : t("customize.later")}
           </button>
           <button
             type="button"
@@ -85,7 +85,7 @@ export function Step5Customize({
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-bg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {busy && <Loader2 size={14} className="animate-spin" />}
-            {t("step5.primary")}
+            {t("customize.primary")}
           </button>
         </div>
       </div>

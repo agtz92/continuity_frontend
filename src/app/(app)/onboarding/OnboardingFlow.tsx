@@ -19,11 +19,11 @@ import { THEME_COOKIE } from "@/theme/config";
 import { PALETTE_COOKIE } from "@/palette/config";
 import { setTheme as setThemeAction } from "@/theme/actions";
 import { setPalette as setPaletteAction } from "@/palette/actions";
-import { Step1Name } from "./steps/Step1Name";
-import { Step2Theme } from "./steps/Step2Theme";
-import { Step3Avatar } from "./steps/Step3Avatar";
-import { Step4Plan } from "./steps/Step4Plan";
-import { Step5Customize } from "./steps/Step5Customize";
+import { StepTheme } from "./steps/StepTheme";
+import { StepName } from "./steps/StepName";
+import { StepAvatar } from "./steps/StepAvatar";
+import { StepPlan } from "./steps/StepPlan";
+import { StepCustomize } from "./steps/StepCustomize";
 
 const TOTAL_STEPS = 5;
 
@@ -302,21 +302,7 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
 
       <div className="flex-1 flex flex-col">
         {step === 1 && (
-          <Step1Name
-            initialName={prefillName}
-            isPrefillFromOAuth={!initialFirstName && !!oauthName}
-            onNext={async (name) => {
-              await updateProfile({
-                variables: { firstName: name },
-              });
-              await goToStep(2);
-            }}
-            busy={busy}
-          />
-        )}
-        {step === 2 && (
-          <Step2Theme
-            onBack={() => goToStep(1)}
+          <StepTheme
             onNext={async ({ theme, palette }) => {
               await updateSettings({
                 variables: { data: { theme, palette } },
@@ -336,13 +322,27 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
                 setThemeAction(theme),
                 setPaletteAction(palette),
               ]).catch(() => undefined);
+              await goToStep(2);
+            }}
+            busy={busy}
+          />
+        )}
+        {step === 2 && (
+          <StepName
+            initialName={prefillName}
+            isPrefillFromOAuth={!initialFirstName && !!oauthName}
+            onBack={() => goToStep(1)}
+            onNext={async (name) => {
+              await updateProfile({
+                variables: { firstName: name },
+              });
               await goToStep(3);
             }}
             busy={busy}
           />
         )}
         {step === 3 && (
-          <Step3Avatar
+          <StepAvatar
             name={state.firstName || prefillName}
             onBack={() => goToStep(2)}
             onNext={async (avatarId) => {
@@ -355,7 +355,7 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
           />
         )}
         {step === 4 && (
-          <Step4Plan
+          <StepPlan
             name={state.firstName || prefillName}
             plan={state.plan}
             isBillingExempt={state.isBillingExempt}
@@ -366,7 +366,7 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
           />
         )}
         {step === 5 && (
-          <Step5Customize
+          <StepCustomize
             replay={replay}
             onBack={() => goToStep(4)}
             onFinish={handleFinish}

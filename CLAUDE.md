@@ -74,9 +74,13 @@ entradas), el paso cae a pantalla completa solo: el texto es lo que importa.
 
 ## Onboarding (5 pasos) + paso "Personalizar Today"
 
-El onboarding tiene 5 pasos: nombre · tema · avatar · plan · **personalizar
-Today**. El paso 4 ya **no** completa el flujo (su botón avanza al 5 vía
-`onContinue`); el paso 5 (`steps/Step5Customize.tsx`) sí completa y, en su CTA
+El onboarding tiene 5 pasos: **tema+paleta · nombre** · avatar · plan ·
+**personalizar Today**. El tema va primero desde 2026-09-14 y lleva la
+bienvenida en su encabezado: se elige cómo se ve antes de dar ningún dato. Los
+componentes y las claves i18n **ya no llevan número** (`StepTheme`,
+`onboarding.theme.*`), justamente para que reordenar no obligue a renombrar
+nada. El paso 4 ya **no** completa el flujo (su botón avanza al 5 vía
+`onContinue`); el paso 5 (`steps/StepCustomize.tsx`) sí completa y, en su CTA
 primario, navega a `/dashboard?customize=1`. `TodayView.tsx` lee ese param una
 vez y abre el editor de layout. Mantener en sync con el repo móvil. Detalle:
 `docs/onboarding-paso5-personalizar-today.md`.

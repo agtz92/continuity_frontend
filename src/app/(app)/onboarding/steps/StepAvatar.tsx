@@ -10,7 +10,7 @@ import {
   type AvatarStyle,
 } from "@/lib/avatars";
 
-export function Step3Avatar({
+export function StepAvatar({
   name,
   onBack,
   onNext,
@@ -35,9 +35,9 @@ export function Step3Avatar({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display-app text-3xl sm:text-4xl text-text">
-          {t("step3.heading", { name })}
+          {t("avatar.heading", { name })}
         </h1>
-        <p className="text-text-muted text-sm mt-2">{t("step3.sub")}</p>
+        <p className="text-text-muted text-sm mt-2">{t("avatar.sub")}</p>
       </div>
 
       <div className="flex-1 space-y-6 max-h-[55vh] overflow-y-auto pr-1">

@@ -41,12 +41,10 @@ function detectEffectiveTheme(theme: Theme): "dark" | "light" {
   return effectiveSwatchMode(theme);
 }
 
-export function Step2Theme({
-  onBack,
+export function StepTheme({
   onNext,
   busy,
 }: {
-  onBack: () => void;
   onNext: (v: { theme: Theme; palette: Palette }) => Promise<void> | void;
   busy: boolean;
 }) {
@@ -101,14 +99,14 @@ export function Step2Theme({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display-app text-3xl sm:text-4xl text-text">
-          {t("step2.heading")}
+          {t("theme.heading")}
         </h1>
-        <p className="text-text-muted text-sm mt-2">{t("step2.sub")}</p>
+        <p className="text-text-muted text-sm mt-2">{t("theme.sub")}</p>
       </div>
 
       {/* Mode */}
       <div>
-        <div className="text-xs text-text-muted mb-2">{t("step2.mode")}</div>
+        <div className="text-xs text-text-muted mb-2">{t("theme.mode")}</div>
         {/* Mismo preview que en Ajustes: elegir tema a ciegas en el onboarding,
             cuando aún no has visto el producto, era pedir demasiado. */}
         <div className="flex flex-wrap gap-2">
@@ -140,7 +138,7 @@ export function Step2Theme({
 
       {/* Palette */}
       <div>
-        <div className="text-xs text-text-muted mb-2">{t("step2.palette")}</div>
+        <div className="text-xs text-text-muted mb-2">{t("theme.palette")}</div>
         <div className="inline-flex flex-wrap gap-1 bg-bg p-1 rounded-lg border border-border">
           {SUPPORTED_PALETTES.map((p) => {
             const [a, b] = PALETTE_SWATCHES[p][effectiveTheme];
@@ -174,15 +172,9 @@ export function Step2Theme({
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-auto pt-4">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={busy}
-          className="text-sm text-text-muted hover:text-text disabled:opacity-50"
-        >
-          {t("back")}
-        </button>
+      {/* Es el primer paso: no hay "Atrás". El botón se alinea a la derecha
+          solo, sin un hueco donde estaba el que ya no existe. */}
+      <div className="flex items-center justify-end mt-auto pt-4">
         <button
           type="button"
           onClick={handleNext}
