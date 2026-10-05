@@ -43,6 +43,17 @@ body {
   color: var(--text);
 }
 
+/* Controles nativos (lista desplegable de <select>, scrollbars, date pickers).
+   Sin esto el navegador los pinta en claro: en los temas oscuros las <option>
+   heredaban el texto claro del tema sobre el fondo blanco del popup y quedaban
+   ilegibles. `light` es el único tema claro. */
+:root {
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  color-scheme: light;
+}
+
 /* Tipografía. `font-sans` de Tailwind apunta a --font-ui (Schibsted Grotesk),
    la grotesca del rediseño. Marketing y admin quedan fuera del rediseño, así
    que se les devuelve Inter: sin esto, cambiar la familia del tool repintaría
