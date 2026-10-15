@@ -34,6 +34,8 @@ export function AssistantPanel({
     messages,
     streaming,
     error,
+    connectionCut,
+    pendingTool,
     plan,
     mode,
     actions,
@@ -197,7 +199,21 @@ export function AssistantPanel({
             </div>
           </div>
         ) : (
-          <MessageList messages={messages} streaming={streaming} />
+          <MessageList
+            messages={messages}
+            streaming={streaming}
+            pendingTool={pendingTool}
+          />
+        )}
+
+        {connectionCut && !isLocked && (
+          <div
+            className="mx-3 mb-2 flex items-start gap-2 px-3 py-2 rounded-md border border-signal-a50 bg-signal-a12 text-signal text-xs"
+            role="status"
+          >
+            <AlertCircle size={12} className="mt-0.5 shrink-0" />
+            <span>{t("message.connectionCut")}</span>
+          </div>
         )}
 
         {error && !isLocked && (

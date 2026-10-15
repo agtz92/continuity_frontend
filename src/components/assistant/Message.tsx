@@ -9,10 +9,13 @@ import { Markdown } from "@/components/markdown/Markdown";
 export function Message({
   message,
   streaming = false,
+  pendingLabel = null,
 }: {
   message: ChatMessage;
   /** El turno sigue llegando: el último bloque puede estar a medias. */
   streaming?: boolean;
+  /** "Escribiendo …" mientras llega el input de una tool, en vez de "Pensando…". */
+  pendingLabel?: string | null;
 }) {
   const t = useTranslations("assistant.message");
 
@@ -36,7 +39,7 @@ export function Message({
       <div className="flex-1 min-w-0">
         {isEmpty ? (
           <div className="text-xs text-text-muted italic animate-pulse">
-            {t("thinking")}
+            {pendingLabel ?? t("thinking")}
           </div>
         ) : (
           message.blocks.map((block, i) => {

@@ -4,13 +4,17 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { ChatMessage } from "@/hooks/useAssistant";
 import { Message } from "./Message";
+import { toolLabel } from "./ToolCallCard";
 
 export function MessageList({
   messages,
   streaming,
+  pendingTool = null,
 }: {
   messages: ChatMessage[];
   streaming: boolean;
+  /** Tool the model is writing (`tool_use_pending`), if any. */
+  pendingTool?: string | null;
 }) {
   const t = useTranslations("assistant.message");
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -26,6 +30,12 @@ export function MessageList({
   // while the model decides its next step) so the user always has a sign
   // that Claude is still busy.
   const showWorking = streaming && lastBlocks.length > 0 && !toolRunning;
+  // A long tool input (note bodies, prompts) can take a minute to write.
+  // Naming it beats a generic "working" that looks frozen.
+  const pendingLabel =
+    streaming && pendingTool
+      ? t("writing", { tool: toolLabel(pendingTool) })
+      : null;
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -41,6 +51,7 @@ export function MessageList({
           // `streaming` a los anteriores dejaría sus tablas en "escribiendo…"
           // para siempre.
           streaming={streaming && i === messages.length - 1}
+          pendingLabel={i === messages.length - 1 ? pendingLabel : null}
         />
       ))}
       {showWorking && (
@@ -63,7 +74,7 @@ export function MessageList({
               style={{ animationDelay: "300ms" }}
             />
           </span>
-          <span>{t("working")}</span>
+          <span>{pendingLabel ?? t("working")}</span>
         </div>
       )}
       <div ref={endRef} />

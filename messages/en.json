@@ -45,7 +45,9 @@
     },
     "message": {
       "thinking": "Thinking…",
-      "working": "Loop is working…"
+      "working": "Loop is working…",
+      "writing": "Writing {tool}…",
+      "connectionCut": "The connection dropped. Here's what Loop managed to do."
     },
     "tools": {
       "running": "Running",

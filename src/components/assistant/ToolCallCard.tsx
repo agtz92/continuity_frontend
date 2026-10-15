@@ -5,6 +5,11 @@ import { ChevronDown, ChevronRight, Wrench } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { AssistantToolUseBlock } from "@/hooks/useAssistant";
 
+/** Human name of a tool, for the card and the "writing…" line. */
+export function toolLabel(name: string): string {
+  return READABLE_NAME[name] || name;
+}
+
 const READABLE_NAME: Record<string, string> = {
   get_dashboard_summary: "Dashboard summary",
   list_projects: "List projects",
