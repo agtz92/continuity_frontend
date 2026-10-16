@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { DateTimeField } from "@/components/ui/DateTimeField";
+import { DateTimeField } from "@/components/admin/DateTimeField";
 
 export type FormState = {
   title: string;

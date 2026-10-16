@@ -7,22 +7,27 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
+import { MockedProvider } from "@apollo/client/testing";
 import { TodayFocusSection } from "./TodayFocusSection";
 import { DoneTodaySection } from "./DoneTodaySection";
 
 describe("TodayFocusSection", () => {
   it("mounts and renders its empty state without throwing", () => {
+    // It reschedules overdue tasks in place (useTaskMutations), so it needs
+    // an Apollo client in context like any other writer.
     const { container } = render(
-      <TodayFocusSection
-        todayFocus={{ items: [], total: 0 }}
-        todayTaskCounts={{ total: 0, dueToday: 0, overdue: 0 }}
-        todayEffortHours={0}
-        projects={[]}
-        onToggleTask={vi.fn()}
-        onEditTask={vi.fn()}
-        onJumpToProject={vi.fn()}
-        onJumpToTasks={vi.fn()}
-      />
+      <MockedProvider mocks={[]} addTypename={false}>
+        <TodayFocusSection
+          todayFocus={{ items: [], total: 0 }}
+          todayTaskCounts={{ total: 0, dueToday: 0, overdue: 0 }}
+          todayEffortHours={0}
+          projects={[]}
+          onToggleTask={vi.fn()}
+          onEditTask={vi.fn()}
+          onJumpToProject={vi.fn()}
+          onJumpToTasks={vi.fn()}
+        />
+      </MockedProvider>
     );
     expect(container.textContent ?? "").not.toBe("");
   });
