@@ -448,8 +448,10 @@ export default function Dashboard() {
             hasData={hasData}
             productivityStats={productivityStats}
             onJumpToProject={(p) => {
+              // Abrir el proyecto mismo, no la lista: aterrizar en Projects y
+              // tener que buscarlo otra vez era el salto que nadie quería.
               setSelectedProject(p);
-              goTo("projects");
+              openProject(p);
             }}
             onJumpToTasks={() => goTo("tasks")}
             onJumpToIdeas={() => goTo("ideas")}
