@@ -38,6 +38,7 @@ import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectSection } from "@/components/projects/ProjectSection";
 import { ShowMoreList } from "@/components/ui/ShowMoreList";
 import { ProjectTaskRow } from "../projects/ProjectTaskRow";
+import { byManualOrder } from "@/lib/taskOrder";
 
 interface ProjectRowProps {
   project: Project;
@@ -357,10 +358,12 @@ export function ProjectRow({
                 {tCard("noTasks")}
               </div>
             ) : (() => {
-              // Pendientes en su orden natural; hechas al final,
+              // Pendientes en su orden manual (el del detalle); hechas al final,
               // más recientes primero (por completedAt) y plegadas
               // tras las primeras 5 vía ShowMoreList.
-              const pendingTasks = projectTasks.filter((tk) => !tk.done);
+              const pendingTasks = projectTasks
+                .filter((tk) => !tk.done)
+                .sort(byManualOrder);
               const doneTasks = projectTasks
                 .filter((tk) => tk.done)
                 .sort((a, b) =>

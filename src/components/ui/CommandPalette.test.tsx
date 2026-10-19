@@ -199,6 +199,7 @@ describe("lo que se guarda es lo que se ve", () => {
               parkedDueTime: null,
               blockedSince: "2026-03-10T10:00:00Z",
               blockedReason: "falta el poder",
+              position: 0,
               blockers: [],
             },
           },

@@ -1139,7 +1139,13 @@
         "logUpdate": "Log update",
         "noUpdates": "No updates logged",
         "editTaskAria": "Edit task",
-        "deleteTaskAria": "Delete task"
+        "deleteTaskAria": "Delete task",
+        "dragTask": "Drag to reorder",
+        "dateAutoSet": "Due date set: {date}",
+        "moveDateTitle": "Change the due date of “{title}”?",
+        "moveDateBody": "It moved to a new spot in the list. It would go from {from} to {to}.",
+        "moveDateConfirm": "Change date",
+        "moveDateKeep": "Keep date"
       }
     },
     "ideas": {

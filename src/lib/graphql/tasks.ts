@@ -23,6 +23,7 @@ export const CREATE_TASK = gql`
       # es justo la espera que queríamos quitar.
       blockedSince
       blockedReason
+      position
       blockers {
         ${TASK_BLOCKER_FIELDS}
       }
@@ -46,6 +47,8 @@ export const UPDATE_TASK = gql`
       durationMinutes
       parkedDueDate
       parkedDueTime
+      # Cambiar de proyecto la manda al final del orden manual del nuevo.
+      position
       blockers {
         ${TASK_BLOCKER_FIELDS}
       }
@@ -116,3 +119,14 @@ export const DELETE_TASK = gql`
 `;
 
 // ===== Ideas =====
+
+
+/** Orden manual de las tareas de un proyecto (drag & drop del detalle). */
+export const REORDER_PROJECT_TASKS = gql`
+  mutation ReorderProjectTasks($projectId: ID!, $orderedIds: [ID!]!) {
+    reorderProjectTasks(projectId: $projectId, orderedIds: $orderedIds) {
+      id
+      position
+    }
+  }
+`;

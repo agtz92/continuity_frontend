@@ -5,6 +5,7 @@ import {
   CREATE_TASK,
   DASHBOARD_QUERY,
   DELETE_TASK,
+  REORDER_PROJECT_TASKS,
   TOGGLE_TASK,
   UPDATE_TASK,
 } from "@/lib/graphql";
@@ -17,6 +18,8 @@ export function useTaskMutations() {
   const [updateTask] = useMutation(UPDATE_TASK, refetchAfter);
   const [toggleTaskM] = useMutation(TOGGLE_TASK, refetchAfter);
   const [deleteTaskM] = useMutation(DELETE_TASK, refetchAfter);
+  // Sin refetch: la respuesta trae id+position y Apollo la funde en la caché.
+  const [reorderProjectTasksM] = useMutation(REORDER_PROJECT_TASKS);
 
   const saveTask = async (t: {
     id?: string;
@@ -57,6 +60,30 @@ export function useTaskMutations() {
     }
   };
 
+  /** Persiste el orden manual de las tareas de un proyecto. `orderedIds` son
+   * las pendientes en su nuevo orden; la respuesta optimista fija `position`
+   * para que el arrastre se quede quieto al soltar. */
+  const reorderProjectTasks = async (
+    projectId: string,
+    orderedIds: string[]
+  ): Promise<boolean> => {
+    try {
+      await reorderProjectTasksM({
+        variables: { projectId, orderedIds },
+        optimisticResponse: {
+          reorderProjectTasks: orderedIds.map((id, idx) => ({
+            __typename: "Task",
+            id,
+            position: idx,
+          })),
+        },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const deleteTask = async (id: string): Promise<void> => {
     try {
       await deleteTaskM({ variables: { id } });
@@ -69,6 +96,7 @@ export function useTaskMutations() {
     saveTask,
     toggleTask,
     deleteTask,
+    reorderProjectTasks,
     raw: { createTask, deleteTask: deleteTaskM },
   };
 }

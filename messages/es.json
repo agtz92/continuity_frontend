@@ -1139,7 +1139,13 @@
         "logUpdate": "Registrar update",
         "noUpdates": "Sin updates registrados",
         "editTaskAria": "Editar tarea",
-        "deleteTaskAria": "Eliminar tarea"
+        "deleteTaskAria": "Eliminar tarea",
+        "dragTask": "Arrastrar para reordenar",
+        "dateAutoSet": "Fecha asignada: {date}",
+        "moveDateTitle": "¿Cambiar la fecha de «{title}»?",
+        "moveDateBody": "Quedó en otro lugar de la lista. Pasaría del {from} al {to}.",
+        "moveDateConfirm": "Cambiar fecha",
+        "moveDateKeep": "Mantener fecha"
       }
     },
     "ideas": {

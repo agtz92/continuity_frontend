@@ -18,6 +18,8 @@ import { projectIsBlocked } from "@/lib/cooling";
 import { NotesSection } from "@/components/projects/notes/NotesSection";
 import { ProjectClosureNotes } from "@/components/projects/ProjectClosureNotes";
 import { ProjectTaskRow } from "@/components/projects/ProjectTaskRow";
+import { SortableProjectTasks } from "@/components/projects/SortableProjectTasks";
+import { byManualOrder } from "@/lib/taskOrder";
 import { ShowMoreList } from "@/components/ui/ShowMoreList";
 import { InlineText, InlineTextarea } from "@/components/projects/InlineEdit";
 import { Spine, spineStrikesTitle } from "@/components/ui/Spine";
@@ -104,7 +106,7 @@ export function ProjectDetailPanel({
   const projectUpdates = activities.filter(
     (a) => a.kind === "note" && a.projectId === p.id
   );
-  const pendingTasks = projectTasks.filter((t) => !t.done);
+  const pendingTasks = projectTasks.filter((t) => !t.done).sort(byManualOrder);
   const doneTasks = projectTasks
     .filter((t) => t.done)
     .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""));
@@ -273,15 +275,16 @@ export function ProjectDetailPanel({
                   <Meta tone="faint">{tCard("noTasks")}</Meta>
                 ) : (
                   <>
-                    {pendingTasks.map((task) => (
-                      <ProjectTaskRow
-                        key={task.id}
-                        task={task}
-                        onToggleTask={onToggleTask}
-                        onEditTask={onEditTask}
-                        onDeleteTask={onDeleteTask}
-                      />
-                    ))}
+                    <SortableProjectTasks
+                      projectId={p.id}
+                      tasks={pendingTasks}
+                      onToggleTask={onToggleTask}
+                      onEditTask={onEditTask}
+                      onDeleteTask={onDeleteTask}
+                    />
+                    {/* Sangría = ancho del handle ⠿, para que los toggles de
+                        las completadas queden alineados con los de arriba. */}
+                    <div className="pl-[18px] space-y-1">
                     <ShowMoreList
                       items={doneTasks}
                       initialCount={5}
@@ -296,6 +299,7 @@ export function ProjectDetailPanel({
                       )}
                       itemKey={(task) => task.id}
                     />
+                    </div>
                   </>
                 )}
               </div>

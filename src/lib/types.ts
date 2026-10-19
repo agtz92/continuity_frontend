@@ -102,6 +102,8 @@ export interface Task {
   /** Derivados de `blockers` en el servidor: desde cuándo y por qué. */
   blockedSince?: string | null;
   blockedReason?: string;
+  /** Orden manual dentro del proyecto (drag & drop del detalle). */
+  position?: number;
 }
 
 export interface Idea {
