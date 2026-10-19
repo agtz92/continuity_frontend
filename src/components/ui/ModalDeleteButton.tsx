@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 /**
  * Two-step inline delete for edit modals. The first click arms it (the button
- * turns into a solid red "confirm?"), the second deletes. Keeps the destructive
+ * turns into a red-tinted "confirm?"), the second deletes. Keeps the destructive
  * action off the list row — where it sat one mis-tap from the completion
  * toggle — and behind a deliberate confirm, without a modal-over-modal dialog.
  * Sits at the left of the modal footer (mr-auto) so it reads as separate from
@@ -42,7 +42,7 @@ export function ModalDeleteButton({
       <button
         type="button"
         onClick={() => void onDelete()}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-signal-a12 text-white hover:bg-signal-a16 transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-signal-a12 text-signal border border-signal-a50 hover:bg-signal-a16 transition-colors"
       >
         <Trash2 size={15} />
         {confirmLabel}
