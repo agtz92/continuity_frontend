@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { QUICK_NOTES_QUERY } from "@/lib/graphql";
+import { skipWhenHidden, useRefetchOnFocus } from "./useRefetchOnFocus";
 import type { QuickNote } from "@/lib/types";
 
 /**
@@ -11,8 +12,14 @@ import type { QuickNote } from "@/lib/types";
 export function useQuickNotes() {
   const { data, loading, error, refetch } = useQuery<{ quickNotes: QuickNote[] }>(
     QUICK_NOTES_QUERY,
-    { fetchPolicy: "cache-and-network" }
+    {
+      fetchPolicy: "cache-and-network",
+      pollInterval: 60_000,
+      skipPollAttempt: skipWhenHidden,
+    }
   );
+
+  useRefetchOnFocus(refetch);
 
   return {
     quickNotes: data?.quickNotes ?? [],

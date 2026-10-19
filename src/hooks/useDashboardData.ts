@@ -3,13 +3,23 @@
 import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { DASHBOARD_QUERY } from "@/lib/graphql";
+import { skipWhenHidden, useRefetchOnFocus } from "./useRefetchOnFocus";
 import type { Activity, Category, DashboardData, ProjectNote } from "@/lib/types";
 
-export function useDashboardData() {
+/** Polling de respaldo: cada minuto sin señales en vivo, cada 5 con ellas. */
+const POLL_MS = 60_000;
+const POLL_MS_WITH_LIVE = 300_000;
+
+export function useDashboardData({ live = false }: { live?: boolean } = {}) {
   const { data, loading, error, refetch } = useQuery<{ dashboard: DashboardData }>(
     DASHBOARD_QUERY,
-    { fetchPolicy: "cache-and-network" }
+    {
+      fetchPolicy: "cache-and-network",
+      pollInterval: live ? POLL_MS_WITH_LIVE : POLL_MS,
+      skipPollAttempt: skipWhenHidden,
+    }
   );
+  useRefetchOnFocus(refetch);
 
   const projects = data?.dashboard.projects ?? [];
   const tasks = data?.dashboard.tasks ?? [];

@@ -131,6 +131,29 @@ Con colores de la paleta de Tailwind (`bg-red-500/20`), que no pasan por variabl
 
 `bg-accent-a-22` (con guion de más) o `bg-canvas/70` no fallan el build: simplemente no pintan. Si un fondo "no se ve", comprueba primero que la clase exista en el CSS generado.
 
+## Frescura de datos (sin recargar)
+
+Una pestaña abierta no se entera sola de lo que escriben el móvil, Claude por MCP, los
+syncs o los jobs. Tres capas, de la más simple a la más fina:
+
+- **Refetch al volver a la pestaña** — `src/hooks/useRefetchOnFocus.ts`
+  (`visibilitychange`/`focus`/`online`, mínimo 15 s entre llamadas). Lo usan
+  `useDashboardData`, `useQuickNotes`, `useAnalyticsData` y `AdminShell` (que refresca
+  todas las queries activas del admin, **salvo en los editores del CMS**: un refetch les
+  pisaría lo que se está escribiendo).
+- **Polling solo con la pestaña visible** — `pollInterval` + `skipPollAttempt:
+  skipWhenHidden`. Dashboard: 60 s, o 5 min cuando hay señales en vivo.
+- **Señales en vivo** — `src/hooks/useLiveInvalidation.ts`. El trigger
+  `notify_user_change` (migración `backend/core/migrations/0036_live_change_signals.py`)
+  manda un broadcast al canal privado `user:<uuid>`; el hook escucha y relanza las
+  queries activas (debounce 400 ms). Se enciende con **`NEXT_PUBLIC_LIVE_UPDATES`**:
+  `off` · `admin` (default) · `all`. Para apagarlo en producción basta cambiar la variable
+  en Vercel y redeploy; el polling sigue cubriendo.
+
+**Medianoche:** `useDayKey()` cambia al pasar el día y `Dashboard` lo usa como `key` de las
+vistas, porque varias calculan "hoy" dentro de `useMemo`. Si una vista nueva calcula
+fechas relativas a hoy, ya queda cubierta por estar bajo ese `Fragment`.
+
 ## Package manager
 
 Usa `pnpm`, no `npm`. `npm install` rompe por el workspace protocol.

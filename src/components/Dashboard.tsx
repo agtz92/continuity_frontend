@@ -8,12 +8,15 @@
  * backend marca al cargar).
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
+import { useApolloClient } from "@apollo/client";
 
 import type { Project } from "@/lib/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDayKey } from "@/hooks/useDayKey";
+import { useLiveInvalidation, useLiveUpdatesTarget } from "@/hooks/useLiveInvalidation";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
 import { useThemeSync } from "@/hooks/useThemeSync";
 import { usePaletteSync } from "@/hooks/usePaletteSync";
@@ -79,6 +82,9 @@ export default function Dashboard() {
   useLocaleSync();
   useThemeSync();
   usePaletteSync();
+  // A quién se le encienden las señales en vivo (bandera NEXT_PUBLIC_LIVE_UPDATES).
+  // Con ellas activas, el polling del dashboard baja a respaldo de 5 min.
+  const liveUserId = useLiveUpdatesTarget();
   const {
     projects,
     tasks,
@@ -93,7 +99,23 @@ export default function Dashboard() {
     initialLoading,
     error,
     refetch,
-  } = useDashboardData();
+  } = useDashboardData({ live: liveUserId != null });
+  // Todas las queries montadas, no solo el dashboard: Quick Notes, analytics y
+  // el cementerio tienen las suyas y también cambian por avisos del trigger.
+  const apollo = useApolloClient();
+  const refetchActive = useCallback(
+    () => apollo.refetchQueries({ include: "active" }),
+    [apollo]
+  );
+  useLiveInvalidation(liveUserId, refetchActive);
+
+  // Al pasar la medianoche: datos nuevos (rutinas del día) y vistas remontadas
+  // (ver `key={dayKey}` abajo), porque "hoy" se calcula en el render.
+  const dayKey = useDayKey();
+  const firstDayKey = useRef(dayKey);
+  useEffect(() => {
+    if (dayKey !== firstDayKey.current) void refetch();
+  }, [dayKey, refetch]);
 
   const {
     saveProject,
@@ -453,6 +475,9 @@ export default function Dashboard() {
         </div>
 
         {/* --- Ruteo de vista: una sola pestaña activa según `view` --- */}
+        {/* `key={dayKey}` remonta la vista al cambiar el día: varias calculan
+            "hoy" dentro de useMemo y no se enterarían solas. */}
+        <Fragment key={dayKey}>
 
         {/* TODAY */}
         {view === "today" && (
@@ -624,6 +649,7 @@ export default function Dashboard() {
             onOpenAssistant={openAssistant}
           />
         )}
+        </Fragment>
       </div>
       </div>
 

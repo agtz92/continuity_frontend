@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useQuery } from "@apollo/client";
+import { useApolloClient, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ME_QUERY, ADMIN_BUG_REPORTS_UNREAD_COUNT } from "@/lib/graphql";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { AdminThemeToggle } from "./AdminThemeToggle";
 
 type MeData = {
@@ -102,6 +103,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     }
   );
   const unreadFeedback = unreadData?.adminBugReportsUnreadCount ?? 0;
+
+  // Cada página de admin tiene sus propias queries; en vez de tocarlas una por
+  // una, el shell refresca todas las que estén montadas al volver a la pestaña
+  // y cada minuto mientras está visible. Los editores del CMS quedan fuera:
+  // copian el documento a estado local al cargarlo, y un refetch con cambios
+  // de otra persona les pisaría lo que se está escribiendo.
+  const client = useApolloClient();
+  const inEditor = /\/content\/(posts|pages|resources)\/[^/]+/.test(pathname ?? "");
+  useRefetchOnFocus(() => client.refetchQueries({ include: "active" }), {
+    pollMs: 60_000,
+    enabled: !inEditor,
+  });
 
   if (checkingSession || (!data && loading)) {
     return (
