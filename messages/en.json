@@ -56,7 +56,7 @@
     },
     "quickActions": {
       "priorities": "Priorities for this week",
-      "sleeping": "Summarize sleeping projects",
+      "sleeping": "Summarize stalled projects",
       "lastWeek": "What did I work on last week?",
       "staleIdeas": "Show stale ideas"
     },
@@ -420,7 +420,7 @@
     },
     "customize": {
       "heading": "Make Today yours.",
-      "sub": "Counters, focus, routines, sleeping projects — Today holds a lot. Keep what matters, hide the rest, drag to reorder.",
+      "sub": "Counters, focus, routines, stalled projects — Today holds a lot. Keep what matters, hide the rest, drag to reorder.",
       "hint": "It's the gear at the top of Today. Change your mind whenever.",
       "primary": "Personalize Today",
       "later": "Maybe later"
@@ -467,7 +467,7 @@
       "languageHint": "Affects the app interface and any digests/notifications you receive.",
       "theme": "Theme",
       "themeHint": "Choose your preferred appearance. \"System\" follows your device setting.",
-      "themeLight": "Light",
+      "themeLight": "Paper",
       "themeSystem": "System",
       "palette": "Color palette",
       "paletteHint": "Changes the accent colors only. Theme controls light/dark; palette swaps the highlights."
@@ -636,7 +636,7 @@
       "dailyDigestToggle": "Send me today's pending tasks",
       "dailyDigestHint": "Delivered every day at the hour you pick, with overdue tasks and tasks due today.",
       "otherNotifications": "Other notifications",
-      "sleepingAlertsToggle": "Sleeping project alerts (≥7, 14, 30 days idle)",
+      "sleepingAlertsToggle": "Stalled project alerts (≥7, 14, 30 days idle)",
       "dueRemindersToggle": "End-of-day pending warning",
       "dueReminderHour": "Warning hour (local)",
       "dueRemindersHint": "At the chosen hour, if there are still open tasks or routines for today, we'll ping you. If everything's closed, nothing is sent.",
@@ -676,7 +676,7 @@
       "backlog": "Backlog",
       "weekday": "Days",
       "topProjects": "Top",
-      "sleeping": "Sleeping",
+      "sleeping": "Stalled",
       "funnel": "Funnel",
       "effort": "Effort"
     },
@@ -747,9 +747,9 @@
       "almostThereHint": "≥80% complete"
     },
     "sleeping": {
-      "title": "Sleeping",
+      "title": "Stalled",
       "subtitle": "Projects with no recent activity (≥7 days)",
-      "empty": "Nothing sleeping. Good pace."
+      "empty": "Nothing stalled. Good pace."
     },
     "stale": {
       "title": "Stale ideas",
@@ -874,7 +874,7 @@
         "routinesToday": "Routines for today",
         "doneToday": "Done today",
         "closeable": "Closeable projects",
-        "sleeping": "Sleeping projects",
+        "sleeping": "Stalled projects",
         "staleIdeas": "Stale ideas",
         "activeProjects": "Active projects",
         "launchedWithTasks": "Launched with open tasks"
@@ -938,7 +938,7 @@
         "tasksAway": "Only {count, plural, one {# task} other {# tasks}} away from finishing."
       },
       "sleeping": {
-        "title": "Sleeping projects",
+        "title": "Stalled projects",
         "daysIdle": "{count}d idle",
         "resume": "Resume"
       },
@@ -1071,7 +1071,7 @@
         "blocked": "Stopped",
         "active": "In motion",
         "cooling": "Cooling off",
-        "sleeping": "Sleeping",
+        "sleeping": "Stalled",
         "launched": "Launched"
       },
       "sectionBlurbs": {
@@ -2221,7 +2221,7 @@
     "blocksTasks": "{count, plural, one {blocks # task} other {blocks # tasks}}"
   },
   "category": {
-    "none": "loose"
+    "none": "uncategorized"
   },
   "blockedTaskDialog": {
     "title": "This task is still blocked",

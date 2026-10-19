@@ -121,7 +121,7 @@ export default function JobsPage() {
             <option value="">Cualquier tipo</option>
             <option value="weekly_digest">Weekly digest</option>
             <option value="daily_digest">Daily digest</option>
-            <option value="sleeping_alert">Sleeping alert</option>
+            <option value="sleeping_alert">Stalled alert</option>
             <option value="due_reminder">Due reminder</option>
             <option value="manual">Manual</option>
           </select>

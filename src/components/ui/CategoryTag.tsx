@@ -30,7 +30,7 @@ export function CategoryTag({
   name,
   color,
   code,
-  /** Sin categoría: el diseño lo marca "·· suelta", no lo esconde. */
+  /** Sin categoría: el diseño lo marca "·· sin categoría", no lo esconde. */
   loose = false,
   className = "",
 }: {

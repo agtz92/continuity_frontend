@@ -56,7 +56,7 @@
     },
     "quickActions": {
       "priorities": "Prioridades de esta semana",
-      "sleeping": "Resumen de proyectos dormidos",
+      "sleeping": "Resumen de proyectos estancados",
       "lastWeek": "¿En qué trabajé la semana pasada?",
       "staleIdeas": "Mostrar ideas estancadas"
     },
@@ -420,7 +420,7 @@
     },
     "customize": {
       "heading": "Haz tuyo el Today.",
-      "sub": "Contadores, foco, rutinas, proyectos dormidos — el Today muestra mucho. Deja lo que importa, oculta el resto, arrastra para reordenar.",
+      "sub": "Contadores, foco, rutinas, proyectos estancados — el Today muestra mucho. Deja lo que importa, oculta el resto, arrastra para reordenar.",
       "hint": "Es el engrane arriba del Today. Cambia de opinión cuando quieras.",
       "primary": "Personalizar Today",
       "later": "Quizás después"
@@ -467,7 +467,7 @@
       "languageHint": "Afecta la interfaz y los digests/notificaciones que recibas.",
       "theme": "Tema",
       "themeHint": "Elige tu apariencia preferida. \"Sistema\" sigue la configuración de tu dispositivo.",
-      "themeLight": "Claro",
+      "themeLight": "Papel",
       "themeSystem": "Sistema",
       "palette": "Paleta de colores",
       "paletteHint": "Cambia solo los colores de acento. El tema controla claro/oscuro; la paleta cambia los resaltes."
@@ -636,7 +636,7 @@
       "dailyDigestToggle": "Enviarme los pendientes de hoy",
       "dailyDigestHint": "Llega cada día a la hora que elijas con tus tareas vencidas y las que vencen hoy.",
       "otherNotifications": "Otras notificaciones",
-      "sleepingAlertsToggle": "Alertas de proyectos durmientes (≥7, 14, 30 días)",
+      "sleepingAlertsToggle": "Alertas de proyectos estancados (≥7, 14, 30 días)",
       "dueRemindersToggle": "Aviso de pendientes a fin de día",
       "dueReminderHour": "Hora del aviso (local)",
       "dueRemindersHint": "A la hora elegida, si aún quedan tareas o rutinas abiertas hoy, te llega un recordatorio. Si todo está cerrado, no se envía nada.",
@@ -679,7 +679,7 @@
       "backlog": "Backlog",
       "weekday": "Días",
       "topProjects": "Top",
-      "sleeping": "Durmiendo",
+      "sleeping": "Estancados",
       "funnel": "Embudo",
       "effort": "Esfuerzo"
     },
@@ -747,9 +747,9 @@
       "almostThereHint": "≥80% completado"
     },
     "sleeping": {
-      "title": "Durmiendo",
+      "title": "Estancados",
       "subtitle": "Proyectos sin actividad reciente (≥7 días)",
-      "empty": "Nada durmiendo. Buen ritmo."
+      "empty": "Nada estancado. Buen ritmo."
     },
     "stale": {
       "title": "Ideas estancadas",
@@ -874,7 +874,7 @@
         "routinesToday": "Rutinas para hoy",
         "doneToday": "Hecho hoy",
         "closeable": "Proyectos por cerrar",
-        "sleeping": "Proyectos durmiendo",
+        "sleeping": "Proyectos estancados",
         "staleIdeas": "Ideas estancadas",
         "activeProjects": "Proyectos activos",
         "launchedWithTasks": "Lanzados con tareas abiertas"
@@ -938,7 +938,7 @@
         "tasksAway": "Solo {count, plural, one {# tarea} other {# tareas}} para terminar."
       },
       "sleeping": {
-        "title": "Proyectos durmiendo",
+        "title": "Proyectos estancados",
         "daysIdle": "{count}d sin actividad",
         "resume": "Retomar"
       },
@@ -1071,7 +1071,7 @@
         "blocked": "Detenidos",
         "active": "En marcha",
         "cooling": "Enfriándose",
-        "sleeping": "Durmiendo",
+        "sleeping": "Estancados",
         "launched": "Lanzados"
       },
       "sectionBlurbs": {
@@ -2221,7 +2221,7 @@
     "blocksTasks": "{count, plural, one {bloquea # tarea} other {bloquea # tareas}}"
   },
   "category": {
-    "none": "suelta"
+    "none": "sin categoría"
   },
   "blockedTaskDialog": {
     "title": "Esta tarea sigue bloqueada",
