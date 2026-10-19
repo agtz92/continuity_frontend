@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useApolloClient } from "@apollo/client";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
@@ -18,6 +19,10 @@ import { supabase } from "@/lib/supabase";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
 import { useThemeSync } from "@/hooks/useThemeSync";
 import { usePaletteSync } from "@/hooks/usePaletteSync";
+import {
+  useLiveInvalidation,
+  useLiveUpdatesTarget,
+} from "@/hooks/useLiveInvalidation";
 import { TopNav } from "@/components/layout/TopNav";
 
 type NavItem = {
@@ -47,6 +52,14 @@ export function SettingsShell({
   useLocaleSync();
   useThemeSync();
   usePaletteSync();
+  // Señales en vivo también aquí: un tema, paleta o idioma cambiado en otra
+  // pestaña o en el móvil se pinta en settings sin recargar.
+  const apollo = useApolloClient();
+  const refetchActive = useCallback(
+    () => apollo.refetchQueries({ include: "active" }),
+    [apollo]
+  );
+  useLiveInvalidation(useLiveUpdatesTarget(), refetchActive);
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("settings.nav");

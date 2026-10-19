@@ -9,31 +9,30 @@ import { setLocale as setLocaleAction } from "@/i18n/actions";
 import { LOCALE_COOKIE, isLocale } from "@/i18n/config";
 
 /**
- * Once per session, after auth, read the user's persisted locale from
- * NotificationSettings and sync it to the NEXT_LOCALE cookie if it differs.
+ * Read the user's persisted locale from NotificationSettings and sync it to
+ * the NEXT_LOCALE cookie if it differs — on load and on every change of the
+ * query (the live signal refetches it when another tab or device switches
+ * language).
  *
  * Runs the auth-required query, so callers must be inside an authenticated
  * page. The hook is a no-op if the user has no saved preference or the
- * preference already matches the active locale.
+ * preference already matches the active locale. `lastHandled` keeps it from
+ * firing a second refresh for the same value while the first is in flight.
  */
 export function useLocaleSync() {
   const router = useRouter();
   const activeLocale = useLocale();
-  const synced = useRef(false);
+  const lastHandled = useRef<string | null>(null);
 
   const { data } = useQuery(NOTIFICATION_SETTINGS_QUERY, {
     fetchPolicy: "cache-first",
   });
 
   useEffect(() => {
-    if (synced.current) return;
     const saved = data?.notificationSettings?.locale as string | undefined;
-    if (!isLocale(saved)) return;
-    if (saved === activeLocale) {
-      synced.current = true;
-      return;
-    }
-    synced.current = true;
+    if (!isLocale(saved) || saved === lastHandled.current) return;
+    lastHandled.current = saved;
+    if (saved === activeLocale) return;
     // Update cookie + force a server re-render so messages reload
     setLocaleAction(saved).then(() => {
       // Explicit refresh to ensure the layout re-runs with the new locale

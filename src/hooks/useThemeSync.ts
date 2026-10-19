@@ -23,8 +23,11 @@ function applyThemeAttribute(theme: Theme) {
 }
 
 /**
- * Once per session, after auth, read the user's persisted theme from
- * NotificationSettings and reconcile it client-side with the cookie + DOM.
+ * Read the user's persisted theme from NotificationSettings and reconcile it
+ * client-side with the cookie + DOM — on load AND every time the query
+ * changes. The settings query is refetched by the live signal
+ * (`notifications_notificationsettings_live` trigger → `useLiveInvalidation`),
+ * so a theme picked in another tab or on mobile lands here without a reload.
  *
  * Pure client-side reconcile: writes the cookie and flips the `<html>`
  * data-theme attribute. No router.refresh / no server action — the cookie
@@ -32,21 +35,22 @@ function applyThemeAttribute(theme: Theme) {
  * attribute keeps the current page visually consistent.
  */
 export function useThemeSync() {
-  const synced = useRef(false);
+  const lastApplied = useRef<Theme | null>(null);
 
   const { data } = useQuery(NOTIFICATION_SETTINGS_QUERY, {
     fetchPolicy: "cache-first",
   });
 
   useEffect(() => {
-    if (synced.current) return;
     // Normalizar, no validar: un perfil sin migrar trae `continuuit` o `dark`.
     const saved = normalizeTheme(data?.notificationSettings?.theme);
-    if (!saved) return;
-    synced.current = true;
-    const current = readCookie(THEME_COOKIE);
-    if (saved === current) return;
-    document.cookie = `${THEME_COOKIE}=${saved}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    if (!saved || saved === lastApplied.current) return;
+    lastApplied.current = saved;
+    // La cookie es compartida entre pestañas: si otra pestaña ya la escribió,
+    // aquí coincide pero el DOM sigue con el tema viejo. Se pinta siempre.
+    if (readCookie(THEME_COOKIE) !== saved) {
+      document.cookie = `${THEME_COOKIE}=${saved}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    }
     applyThemeAttribute(saved);
   }, [data]);
 }

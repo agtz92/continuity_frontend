@@ -93,6 +93,9 @@ export function PaletteSelector() {
         await setPaletteAction(next);
         router.refresh();
         toast.success(tCommon("saved"));
+        // El caché ya trae el valor nuevo; soltar el optimista deja que un cambio
+        // hecho después en otra pestaña o en el móvil se refleje aquí.
+        setSavingValue(null);
       } catch {
         setSavingValue(null);
       }
