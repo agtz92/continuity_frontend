@@ -258,6 +258,26 @@ export default function Dashboard() {
     dueDate: p.dueDate,
   });
 
+  /**
+   * Delete asks "Delete or Kill?". Kill opens the closure ritual instead of
+   * deleting, so the reason lands in the graveyard stats. An already-killed
+   * project only gets the plain delete confirm.
+   */
+  const handleDeleteProject = async (id: string) => {
+    const p = projects.find((x) => x.id === id);
+    const canKill = !!p && p.status !== "killed";
+    await deleteProjectAction(id, {
+      onKill: canKill
+        ? () =>
+            setClosure({
+              mode: "kill",
+              projectName: p.name,
+              base: projectToSaveArgs(p, "killed"),
+            })
+        : undefined,
+    });
+  };
+
   const activeCount = projects.filter((p) => p.status === "active").length;
   const launchedCount = projects.filter((p) => p.status === "launched").length;
   const stalledCount = projects.filter((p) => p.status === "stalled").length;
@@ -484,9 +504,7 @@ export default function Dashboard() {
             onSelectProject={setSelectedProject}
             onNewProject={m.newProject}
             onEditProject={m.editProject}
-            onDeleteProject={async (id) => {
-              await deleteProjectAction(id);
-            }}
+            onDeleteProject={handleDeleteProject}
             onReorderProjects={reorderProjects}
             onOpenProject={openProject}
             onAddTaskToProject={m.addTaskToProject}
@@ -713,9 +731,7 @@ export default function Dashboard() {
               viewingProject.status
             );
           }}
-          onDeleteProject={async (id) => {
-            await deleteProjectAction(id);
-          }}
+          onDeleteProject={handleDeleteProject}
           onAddTaskToProject={m.addTaskToProject}
           onToggleTask={toggleTask}
           onEditTask={m.editTask}

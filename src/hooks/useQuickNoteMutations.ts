@@ -12,6 +12,7 @@ import {
   UPDATE_NOTE_SECTION,
   UPDATE_QUICK_NOTE,
 } from "@/lib/graphql";
+import { confirmDialog } from "@/lib/confirm";
 import type { NoteSection, QuickNote } from "@/lib/types";
 
 const refetchAfter = { refetchQueries: [{ query: QUICK_NOTES_QUERY }] };
@@ -82,11 +83,29 @@ export function useQuickNoteMutations() {
     }
   };
 
-  const deleteNote = async (id: string): Promise<void> => {
+  /**
+   * Pregunta antes de borrar: nombra la nota y cuántas secciones se llevan,
+   * para que nadie confirme a ciegas. Devuelve `true` solo si se borró.
+   */
+  const deleteNote = async (
+    note: Pick<QuickNote, "id" | "title" | "sections">
+  ): Promise<boolean> => {
+    const title = note.title.trim();
+    const ok = await confirmDialog({
+      titleKey: title
+        ? "views.quickNotes.deleteNoteConfirm"
+        : "views.quickNotes.deleteNoteConfirmUntitled",
+      bodyKey: "views.quickNotes.deleteNoteConfirmBody",
+      values: { title, sections: note.sections.length },
+      confirmKey: "views.quickNotes.deleteNoteConfirmCta",
+    });
+    if (!ok) return false;
     try {
-      await deleteM({ variables: { id } });
+      await deleteM({ variables: { id: note.id } });
+      return true;
     } catch {
       /* errorLink toasted */
+      return false;
     }
   };
 
@@ -124,7 +143,27 @@ export function useQuickNoteMutations() {
     }
   };
 
-  const deleteSection = async (id: string): Promise<void> => {
+  /**
+   * Una sección vacía se borra al momento (preguntar por nada es fricción);
+   * con contenido, se confirma. `draft` es lo que hay en pantalla, que puede ir
+   * por delante de lo guardado.
+   */
+  const deleteSection = async (
+    id: string,
+    draft: { heading: string; body: string }
+  ): Promise<void> => {
+    const heading = draft.heading.trim();
+    if (heading || draft.body.trim()) {
+      const ok = await confirmDialog({
+        titleKey: heading
+          ? "views.quickNotes.deleteSectionConfirm"
+          : "views.quickNotes.deleteSectionConfirmUntitled",
+        bodyKey: "views.quickNotes.deleteSectionConfirmBody",
+        values: { heading },
+        confirmKey: "views.quickNotes.deleteSectionConfirmCta",
+      });
+      if (!ok) return;
+    }
     try {
       await deleteSectionM({ variables: { id } });
     } catch {

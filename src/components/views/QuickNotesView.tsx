@@ -97,9 +97,9 @@ export function QuickNotesView({
     if (note) setSelectedId(note.id);
   };
 
-  const handleDelete = async (id: string) => {
-    await m.deleteNote(id);
-    if (selectedId === id) setSelectedId(null);
+  const handleDelete = async (note: QuickNote) => {
+    const deleted = await m.deleteNote(note);
+    if (deleted && selectedId === note.id) setSelectedId(null);
   };
 
   /** Abrir una nota desde un resultado y aterrizar en la sección que casó. */
@@ -216,7 +216,7 @@ export function QuickNotesView({
               focusSectionId={focusSectionId}
               onFocused={() => setFocusSectionId(null)}
               onBack={() => setSelectedId(null)}
-              onDelete={() => handleDelete(selected.id)}
+              onDelete={() => handleDelete(selected)}
             />
           </div>
         ) : (
@@ -429,7 +429,7 @@ function NoteEditor({
                 section={s}
                 highlight={s.id === focusSectionId}
                 onSave={(data) => m.updateSection(s.id, data)}
-                onDelete={() => m.deleteSection(s.id)}
+                onDelete={(draft) => m.deleteSection(s.id, draft)}
               />
             ))}
           </div>

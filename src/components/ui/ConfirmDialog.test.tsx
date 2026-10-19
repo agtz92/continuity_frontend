@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ConfirmDialog } from "./ConfirmDialog";
-import { confirmDialog } from "@/lib/confirm";
+import { choiceDialog, confirmDialog, type ConfirmAnswer } from "@/lib/confirm";
 import enMessages from "../../../messages/en.json";
 
 // `next-intl` is stubbed globally in vitest.setup.ts: `useTranslations()`
@@ -61,5 +61,25 @@ describe("<ConfirmDialog />", () => {
     await screen.findByRole("heading", { name: project.deleteConfirm });
     await userEvent.keyboard("{Escape}");
     await expect(answer!).resolves.toBe(false);
+  });
+
+  it("offers Kill as an alternative to Delete, with its note", async () => {
+    render(<ConfirmDialog />);
+    let answer: Promise<ConfirmAnswer>;
+    act(() => {
+      answer = choiceDialog({
+        titleKey: "modals.project.deleteConfirm",
+        altKey: "modals.project.killInstead",
+        noteKey: "modals.project.killInsteadNote",
+      });
+    });
+    expect(await screen.findByText(project.killInsteadNote)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: enMessages.common.delete })
+    ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: project.killInstead })
+    );
+    await expect(answer!).resolves.toBe("alt");
   });
 });

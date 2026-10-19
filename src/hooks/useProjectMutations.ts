@@ -10,7 +10,7 @@ import {
   RESTORE_PARKED_DUE_DATES,
   UPDATE_PROJECT,
 } from "@/lib/graphql";
-import { confirmDialog } from "@/lib/confirm";
+import { choiceDialog, confirmDialog } from "@/lib/confirm";
 import type { Priority } from "@/lib/types";
 
 const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
@@ -73,13 +73,34 @@ export function useProjectMutations() {
     }
   };
 
-  /** Delete with confirm prompt. Returns true if user confirmed and call succeeded. */
-  const deleteProjectWithConfirm = async (id: string): Promise<boolean> => {
-    const ok = await confirmDialog({
+  /**
+   * Delete with confirm prompt. With `onKill`, the prompt also offers "Kill"
+   * (the closure ritual, which feeds the graveyard stats) as the suggested
+   * alternative; picking it calls `onKill` and deletes nothing.
+   * Returns true only if the project was actually deleted.
+   */
+  const deleteProjectWithConfirm = async (
+    id: string,
+    opts?: { onKill?: () => void }
+  ): Promise<boolean> => {
+    const options = {
       titleKey: "modals.project.deleteConfirm",
       bodyKey: "modals.project.deleteConfirmBody",
-    });
-    if (!ok) return false;
+    };
+    if (opts?.onKill) {
+      const answer = await choiceDialog({
+        ...options,
+        altKey: "modals.project.killInstead",
+        noteKey: "modals.project.killInsteadNote",
+      });
+      if (answer === "alt") {
+        opts.onKill();
+        return false;
+      }
+      if (answer !== "confirm") return false;
+    } else if (!(await confirmDialog(options))) {
+      return false;
+    }
     try {
       await deleteProject({ variables: { id } });
       return true;

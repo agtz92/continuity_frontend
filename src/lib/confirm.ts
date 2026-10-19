@@ -29,6 +29,20 @@ export type ConfirmOptions = {
   tone?: ConfirmTone;
 };
 
+/**
+ * Opciones de `choiceDialog`: además de confirmar, una salida alternativa
+ * (p. ej. "Matar" en vez de "Eliminar") y una nota que la explica.
+ */
+export type ChoiceOptions = ConfirmOptions & {
+  /** Rótulo del botón alternativo. Se pinta con el acento y recibe el foco. */
+  altKey: string;
+  /** Clave i18n de una nota al pie que justifica la alternativa. Opcional. */
+  noteKey?: string;
+};
+
+/** Respuesta del diálogo: confirmar, la alternativa, o nada (cancelar/Escape). */
+export type ConfirmAnswer = "confirm" | "alt" | null;
+
 export type ConfirmRequest = {
   id: number;
   titleKey: string;
@@ -37,9 +51,11 @@ export type ConfirmRequest = {
   confirmKey: string;
   cancelKey: string;
   tone: ConfirmTone;
+  altKey?: string;
+  noteKey?: string;
 };
 
-type Entry = { request: ConfirmRequest; resolve: (answer: boolean) => void };
+type Entry = { request: ConfirmRequest; resolve: (answer: ConfirmAnswer) => void };
 type Listener = (request: ConfirmRequest | null) => void;
 
 const listeners = new Set<Listener>();
@@ -53,16 +69,10 @@ const emit = () => {
   for (const l of listeners) l(current);
 };
 
-/**
- * Pregunta y espera. Resuelve `true` si el usuario confirma y `false` si
- * cancela, cierra o pulsa Escape — así el callsite lee igual que el viejo
- * `if (!confirm(...)) return;`, solo que con `await`.
- *
- * Si ya hay una pregunta abierta la nueva se encola: dos diálogos apilados
- * dejarían al usuario sin saber a qué está respondiendo.
- */
-export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
-  return new Promise((resolve) => {
+const enqueue = (
+  options: ConfirmOptions & Partial<Pick<ChoiceOptions, "altKey" | "noteKey">>
+): Promise<ConfirmAnswer> =>
+  new Promise((resolve) => {
     const request: ConfirmRequest = {
       id: ++nextId,
       titleKey: options.titleKey,
@@ -71,18 +81,42 @@ export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
       confirmKey: options.confirmKey ?? "common.delete",
       cancelKey: options.cancelKey ?? "common.cancel",
       tone: options.tone ?? "danger",
+      altKey: options.altKey,
+      noteKey: options.noteKey,
     };
     queue = [...queue, { request, resolve }];
     emit();
   });
+
+/**
+ * Pregunta y espera. Resuelve `true` si el usuario confirma y `false` si
+ * cancela, cierra o pulsa Escape — así el callsite lee igual que el viejo
+ * `if (!confirm(...)) return;`, solo que con `await`.
+ *
+ * Si ya hay una pregunta abierta la nueva se encola: dos diálogos apilados
+ * dejarían al usuario sin saber a qué está respondiendo.
+ */
+export async function confirmDialog(options: ConfirmOptions): Promise<boolean> {
+  return (await enqueue(options)) === "confirm";
 }
 
-/** La responde el host. Ignora ids que ya no están en la cola (doble clic). */
-export const resolveConfirm = (id: number, answer: boolean) => {
+/**
+ * Como `confirmDialog`, pero con un segundo camino. Resuelve `"confirm"`,
+ * `"alt"` o `null` si el usuario cancela, cierra o pulsa Escape.
+ */
+export function choiceDialog(options: ChoiceOptions): Promise<ConfirmAnswer> {
+  return enqueue(options);
+}
+
+/**
+ * La responde el host. Ignora ids que ya no están en la cola (doble clic).
+ * Acepta booleano por compatibilidad: `true` = confirmar, `false` = cancelar.
+ */
+export const resolveConfirm = (id: number, answer: ConfirmAnswer | boolean) => {
   const entry = queue.find((e) => e.request.id === id);
   if (!entry) return;
   queue = queue.filter((e) => e.request.id !== id);
-  entry.resolve(answer);
+  entry.resolve(answer === true ? "confirm" : answer === false ? null : answer);
   emit();
 };
 
@@ -102,6 +136,6 @@ export const __resetConfirmForTests = () => {
   const pending = queue;
   queue = [];
   nextId = 0;
-  for (const e of pending) e.resolve(false);
+  for (const e of pending) e.resolve(null);
   emit();
 };

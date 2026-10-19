@@ -33,7 +33,8 @@ export function NoteSectionBlock({
 }: {
   section: NoteSection;
   onSave: (data: { heading: string; body: string; collapsed: boolean }) => void;
-  onDelete: () => void;
+  /** Recibe el borrador en pantalla para decidir si hace falta confirmar. */
+  onDelete: (draft: { heading: string; body: string }) => void;
   /** Es la sección a la que llevó un resultado de búsqueda: se marca para que
    *  el ojo la encuentre después del salto. */
   highlight?: boolean;
@@ -124,7 +125,7 @@ export function NoteSectionBlock({
             <GripVertical size={14} />
           </button>
           <button
-            onClick={onDelete}
+            onClick={() => onDelete({ heading, body })}
             aria-label={t("deleteSection")}
             className="p-1 hover:text-signal"
           >

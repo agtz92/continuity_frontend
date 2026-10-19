@@ -23,12 +23,21 @@ export function ConfirmDialog() {
   const t = useTranslations();
   const [request, setRequest] = useState<ConfirmRequest | null>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const altRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => subscribeConfirm(setRequest), []);
 
   useEffect(() => {
     if (!request) return;
-    confirmRef.current?.focus();
+    // Con alternativa, el foco va a ella: es el camino que se quiere sugerir
+    // (p. ej. "Matar" frente a "Eliminar"), y Enter no destruye nada.
+    // Sin alternativa y si la acción destruye, el foco arranca en Cancelar: un
+    // Enter por reflejo no debe borrar nada.
+    (
+      altRef.current ??
+      (request.tone === "danger" ? cancelRef.current : confirmRef.current)
+    )?.focus();
     // En captura y cortando la propagación: si no, el Escape también cierra el
     // modal de detalle que hay debajo y se pierde el contexto de la pregunta.
     const onKey = (e: KeyboardEvent) => {
@@ -49,6 +58,8 @@ export function ConfirmDialog() {
     : null;
   const confirmLabel = t(request.confirmKey as any);
   const cancelLabel = t(request.cancelKey as any);
+  const altLabel = request.altKey ? t(request.altKey as any) : null;
+  const note = request.noteKey ? t(request.noteKey as any) : null;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const cancel = () => resolveConfirm(request.id, false);
@@ -67,6 +78,7 @@ export function ConfirmDialog() {
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
           <button
             type="button"
+            ref={cancelRef}
             onClick={cancel}
             className="px-4 py-2 rounded-md border border-border text-text-3 text-sm transition-colors duration-150 ease-out hover:text-text"
           >
@@ -80,11 +92,26 @@ export function ConfirmDialog() {
           >
             {confirmLabel}
           </button>
+          {altLabel && (
+            <button
+              type="button"
+              ref={altRef}
+              onClick={() => resolveConfirm(request.id, "alt")}
+              className="px-4 py-2 rounded-md font-medium text-sm transition-colors duration-150 ease-out bg-accent text-bg hover:bg-accent-hi"
+            >
+              {altLabel}
+            </button>
+          )}
         </div>
       }
     >
       {body && (
         <p className="text-[15px] leading-[1.6] text-text-2">{body}</p>
+      )}
+      {note && (
+        <p className="mt-3 rounded-md border border-accent-a35 bg-accent-a12 px-3 py-2 text-[13px] leading-[1.5] text-text-2">
+          {note}
+        </p>
       )}
     </Modal>
   );
