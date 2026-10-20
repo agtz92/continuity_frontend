@@ -6,6 +6,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import type { DashboardView } from "@/lib/dashboardViews";
 import { Meta } from "@/components/ui/Meta";
+import { FreshnessIndicator } from "./FreshnessIndicator";
 
 /**
  * La barra lateral del rediseño (S13).
@@ -246,6 +247,8 @@ export function Sidebar({
           </div>
         ))}
       </div>
+
+      <FreshnessIndicator collapsed={collapsed} />
 
       <button
         type="button"

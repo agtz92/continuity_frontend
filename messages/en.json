@@ -2228,5 +2228,13 @@
     "hint": "Closing it with an open blocker would leave the project count wrong.",
     "resolve": "The blocker is gone — complete it",
     "delete": "Delete the task"
+  },
+  "freshness": {
+    "live": "Live",
+    "reconnecting": "Reconnecting…",
+    "updated": "Updated {ago}",
+    "justNow": "just now",
+    "minutesAgo": "{minutes, plural, one {# min ago} other {# min ago}}",
+    "tooltip": "Last data received at {time}"
   }
 }

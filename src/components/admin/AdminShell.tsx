@@ -9,6 +9,7 @@ import { Menu, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ME_QUERY, ADMIN_BUG_REPORTS_UNREAD_COUNT } from "@/lib/graphql";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
+import { liveAdminEnabled, useLiveChannel } from "@/hooks/useLiveInvalidation";
 import { AdminThemeToggle } from "./AdminThemeToggle";
 
 type MeData = {
@@ -111,10 +112,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // de otra persona les pisaría lo que se está escribiendo.
   const client = useApolloClient();
   const inEditor = /\/content\/(posts|pages|resources)\/[^/]+/.test(pathname ?? "");
+  const isAdminUser = data?.me?.isAdmin === true;
+  // Con el canal `admin` en vivo (trigger `notify_admin_change`, migración
+  // core 0037) el polling queda como respaldo de 5 min.
+  const adminLive = isAdminUser && liveAdminEnabled();
   useRefetchOnFocus(() => client.refetchQueries({ include: "active" }), {
-    pollMs: 60_000,
+    pollMs: adminLive ? 300_000 : 60_000,
     enabled: !inEditor,
   });
+  useLiveChannel(adminLive && !inEditor ? "admin" : null, () =>
+    client.refetchQueries({ include: "active" })
+  );
 
   if (checkingSession || (!data && loading)) {
     return (

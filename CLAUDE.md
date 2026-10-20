@@ -154,6 +154,24 @@ syncs o los jobs. Tres capas, de la más simple a la más fina:
 vistas, porque varias calculan "hoy" dentro de `useMemo`. Si una vista nueva calcula
 fechas relativas a hoy, ya queda cubierta por estar bajo ese `Fragment`.
 
+**Refresco selectivo (Fase 2):** el aviso trae la tabla, y `queriesForTables`
+(`src/lib/liveTables.ts`) decide qué relanzar: Quick Notes y preferencias tienen su query
+propia; cualquier otra tabla, una reconexión o una tabla desconocida relanzan todo lo montado.
+Si una vista nueva lee una tabla mapeada a una query concreta, actualiza el mapa (tiene tests).
+El **eco** de una mutación de esta pestaña se ignora durante 1,5 s (`isOwnEcho` +
+`getLastLocalWrite` de `lib/apollo.ts`): su `refetchQueries` ya pidió el dashboard.
+
+**Indicador:** `src/components/layout/FreshnessIndicator.tsx`, al pie de la barra lateral
+("En vivo" / "Actualizado hace N min", i18n `freshness.*`). Lee `useLiveStatus()` y la hora del
+último `DASHBOARD_QUERY` bueno (`getLastDashboardFetch`).
+
+**Admin en vivo:** `AdminShell` escucha el canal privado `admin` (`useLiveChannel`, trigger
+`notify_admin_change` de la migración backend `core/0037`) y relanza las queries activas, salvo
+en los editores del CMS. Con el canal activo, el polling del admin baja a 5 min.
+
+**Optimistas:** completar una tarea (`toggleTask` en `useTaskMutations`) responde al instante
+con `optimisticResponse`; el `refetchQueries` sigue corriendo detrás.
+
 ## Package manager
 
 Usa `pnpm`, no `npm`. `npm install` rompe por el workspace protocol.

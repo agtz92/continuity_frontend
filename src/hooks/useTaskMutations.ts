@@ -54,7 +54,30 @@ export function useTaskMutations() {
 
   const toggleTask = async (t: Task): Promise<void> => {
     try {
-      await toggleTaskM({ variables: { id: t.id } });
+      // Optimista: la palomita aparece al tocar, sin esperar al backend (Render
+      // free tarda). Si falla, Apollo descarta la capa optimista y vuelve.
+      const done = !t.done;
+      await toggleTaskM({
+        variables: { id: t.id },
+        optimisticResponse: {
+          toggleTask: {
+            __typename: "Task",
+            id: t.id,
+            title: t.title,
+            projectId: t.projectId,
+            dueDate: t.dueDate,
+            done,
+            completedAt: done ? new Date().toISOString() : null,
+            created: t.created,
+            effortHours: t.effortHours,
+            dueTime: t.dueTime,
+            durationMinutes: t.durationMinutes,
+            parkedDueDate: t.parkedDueDate,
+            parkedDueTime: t.parkedDueTime,
+            blockers: t.blockers,
+          },
+        },
+      });
     } catch {
       /* errorLink already toasted */
     }

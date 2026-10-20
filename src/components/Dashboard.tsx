@@ -17,6 +17,8 @@ import type { Project } from "@/lib/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDayKey } from "@/hooks/useDayKey";
 import { useLiveInvalidation, useLiveUpdatesTarget } from "@/hooks/useLiveInvalidation";
+import { isOwnEcho, queriesForTables } from "@/lib/liveTables";
+import { getLastLocalWrite } from "@/lib/apollo";
 import { useLocaleSync } from "@/hooks/useLocaleSync";
 import { useThemeSync } from "@/hooks/useThemeSync";
 import { usePaletteSync } from "@/hooks/usePaletteSync";
@@ -100,14 +102,20 @@ export default function Dashboard() {
     error,
     refetch,
   } = useDashboardData({ live: liveUserId != null });
-  // Todas las queries montadas, no solo el dashboard: Quick Notes, analytics y
-  // el cementerio tienen las suyas y también cambian por avisos del trigger.
+  // Qué se relanza depende de las tablas del aviso (`queriesForTables`): una
+  // nota rápida no vuelve a pedir el dashboard entero. Lo demás relanza todas
+  // las queries montadas (Quick Notes, analytics y el cementerio tienen las
+  // suyas). El eco de una escritura de esta misma pestaña se ignora: su
+  // mutación ya relanzó el dashboard.
   const apollo = useApolloClient();
-  const refetchActive = useCallback(
-    () => apollo.refetchQueries({ include: "active" }),
+  const onLiveChange = useCallback(
+    (tables: Set<string>) => {
+      if (isOwnEcho(tables, getLastLocalWrite())) return;
+      return apollo.refetchQueries({ include: queriesForTables(tables) });
+    },
     [apollo]
   );
-  useLiveInvalidation(liveUserId, refetchActive);
+  useLiveInvalidation(liveUserId, onLiveChange);
 
   // Al pasar la medianoche: datos nuevos (rutinas del día) y vistas remontadas
   // (ver `key={dayKey}` abajo), porque "hoy" se calcula en el render.

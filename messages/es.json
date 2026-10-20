@@ -2228,5 +2228,13 @@
     "hint": "Cerrarla con el bloqueo abierto dejaría descuadrado el contador del proyecto.",
     "resolve": "El bloqueo se resolvió — completarla",
     "delete": "Eliminar la tarea"
+  },
+  "freshness": {
+    "live": "En vivo",
+    "reconnecting": "Reconectando…",
+    "updated": "Actualizado {ago}",
+    "justNow": "hace un momento",
+    "minutesAgo": "{minutes, plural, one {hace # min} other {hace # min}}",
+    "tooltip": "Último dato recibido a las {time}"
   }
 }

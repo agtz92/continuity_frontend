@@ -2,11 +2,12 @@
 
 import {
   ApolloClient,
+  ApolloLink,
   HttpLink,
   InMemoryCache,
   from,
-  type ApolloLink,
 } from "@apollo/client";
+import { getMainDefinition } from "@apollo/client/utilities";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { supabase } from "./supabase";
@@ -98,6 +99,43 @@ export const createErrorLink = (deps: {
     }
   });
 
+/**
+ * Momento de la última mutación que terminó en esta pestaña. Las señales en
+ * vivo lo usan para ignorar su propio eco (`isOwnEcho` en `lib/liveTables.ts`):
+ * la mutación ya relanzó el dashboard con `refetchQueries`.
+ */
+let lastLocalWrite = 0;
+export const getLastLocalWrite = () => lastLocalWrite;
+
+/**
+ * Momento de la última respuesta buena de `DASHBOARD_QUERY`, para el
+ * indicador "actualizado hace X" de la barra lateral (`FreshnessIndicator`).
+ */
+let lastDashboardFetch = 0;
+const fetchListeners = new Set<() => void>();
+export const getLastDashboardFetch = () => lastDashboardFetch;
+export function subscribeDashboardFetch(fn: () => void) {
+  fetchListeners.add(fn);
+  return () => {
+    fetchListeners.delete(fn);
+  };
+}
+
+const writeTrackerLink = new ApolloLink((operation, forward) => {
+  const def = getMainDefinition(operation.query) as { operation?: string };
+  const isMutation = def.operation === "mutation";
+  const isDashboard = operation.operationName === "Dashboard";
+  if (!isMutation && !isDashboard) return forward(operation);
+  return forward(operation).map((result) => {
+    if (isMutation) lastLocalWrite = Date.now();
+    if (isDashboard && !result.errors?.length && result.data) {
+      lastDashboardFetch = Date.now();
+      fetchListeners.forEach((fn) => fn());
+    }
+    return result;
+  });
+});
+
 const errorLink = createErrorLink({
   onAuthFailure: () => {
     supabase.auth.signOut().catch(() => {});
@@ -105,7 +143,7 @@ const errorLink = createErrorLink({
 });
 
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([errorLink, writeTrackerLink, authLink, httpLink]),
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: { errorPolicy: "all" },
