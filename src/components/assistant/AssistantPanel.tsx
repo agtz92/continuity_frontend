@@ -42,6 +42,7 @@ export function AssistantPanel({
     usage,
     send,
     runCanned,
+    dismissHints,
     stop,
     newConversation,
   } = useAssistant();
@@ -203,6 +204,7 @@ export function AssistantPanel({
             messages={messages}
             streaming={streaming}
             pendingTool={pendingTool}
+            onDismissHints={isCanned ? dismissHints : undefined}
           />
         )}
 

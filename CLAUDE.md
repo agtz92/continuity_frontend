@@ -17,6 +17,10 @@ backend en `GET /usage/` como `assistant_mode` (la regla vive en
   hay modelo, no hay cupo — por eso `<UsageMeter/>` no se pinta aquí.
   Las etiquetas llegan del backend con el catálogo: **una consulta nueva no necesita
   release de frontend.**
+  **Aviso de Studio:** la respuesta puede traer `studio_hint` (frase del backend,
+  `canned.HINTED_ACTIONS`) y se pinta con `<StudioHint/>` bajo el mensaje: una por consulta
+  y conversación, "Ocultar" las apaga hasta la siguiente conversación. **No se persiste**:
+  vive solo en el estado del hook. Además `ActionMenu` lleva la línea fija `actions.studioLine`.
 - **`llm`** (studio/admin) — el chat de siempre: `streamChat`, `QuickActionChips`, medidor
   de cupo y compositor.
 

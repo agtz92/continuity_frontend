@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
+import Link from "next/link";
+import { MessageSquare, Search } from "lucide-react";
 import type { CannedGroup } from "@/lib/assistantApi";
 
 /**
@@ -63,6 +64,27 @@ export function ActionMenu({
               </div>
             </div>
           ))}
+
+        {/*
+          Why there's no free-text box, said once and quietly. The per-answer
+          hint (StudioHint) is the specific pitch; this is the general one.
+        */}
+        <p className="flex items-start gap-1.5 text-[11px] leading-snug text-text-muted">
+          <MessageSquare
+            size={11}
+            className="mt-[3px] shrink-0 text-text-3"
+            aria-hidden
+          />
+          <span>
+            {t("studioLine")}{" "}
+            <Link
+              href="/settings/billing"
+              className="text-accent hover:underline"
+            >
+              {t("studioCta")}
+            </Link>
+          </span>
+        </p>
       </div>
 
       {searchAction && (

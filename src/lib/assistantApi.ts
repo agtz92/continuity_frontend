@@ -158,12 +158,21 @@ export type CannedGroup = {
   actions: CannedAction[];
 };
 
+/**
+ * What Studio would do with this answer, phrased as something the user
+ * would say. Server-rendered in the user's locale, and only for answers
+ * with an obvious next step — `null` otherwise, including empty answers.
+ */
+export type StudioHint = { label: string; text: string };
+
 export type CannedAnswer = {
   conversation_id: string;
   message_id: string;
   action_id: string;
   label: string;
   content: { type: "text"; text: string }[];
+  /** Absent from an older backend; treat like `null`. Never persisted. */
+  studio_hint?: StudioHint | null;
 };
 
 /**

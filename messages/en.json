@@ -82,7 +82,13 @@
       "footnote": "Your quick capture, notes and calendar keep working exactly the same."
     },
     "actions": {
-      "hint": "Pick a question"
+      "hint": "Pick a question",
+      "studioLine": "On Studio you tell Loop what you need, and it does it.",
+      "studioCta": "See Studio"
+    },
+    "hint": {
+      "cta": "See Studio",
+      "dismiss": "Hide"
     }
   },
   "notifications": {
