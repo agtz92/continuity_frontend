@@ -2036,74 +2036,121 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "lastUpdated": "Last updated: May 28, 2026",
-      "intro": "At continuu.it we take your privacy seriously. This policy explains what data we collect, why we collect it, how we use it, and the control you have over it when you use our app and website.",
+      "lastUpdated": "Last updated: October 26, 2026",
+      "intro": "This policy explains what data continuu.it collects when you use our website, the web app, the iOS and Android apps and the connector for AI clients; why we collect it; who we share it with; and what control you have over it.",
       "sections": [
         {
-          "heading": "Information we collect",
+          "heading": "Information you give us",
           "body": [
-            "Account data: your name, email address, and the password you authenticate with. If you sign up with a third-party provider, we receive the basic identifying details that provider shares with us.",
-            "Content you create: the projects, tasks, ideas, routines, and notes you add to the app, along with the messages you exchange with the AI assistant.",
-            "Usage and technical data: information about how you interact with the product, as well as device and browser details (type, language, approximate IP address) collected automatically to keep the service secure and functional."
+            "Account: your email address and password. Sign-in is handled by our authentication provider (Supabase); we never see or store your password in plain text. If you sign in with Google, we receive your email and the name on your Google account, which we only use to suggest your first name during onboarding.",
+            "Profile: the first name you choose and the avatar you pick from our catalog of illustrations. We do not ask you to upload photos.",
+            "Your content: the projects, tasks, ideas, routines, categories, project notes, Quick Notes, blockers, closure notes (such as why you paused or ended a project and what you learned) and the activity history the app generates when you work on them.",
+            "Preferences: language, theme, color palette, time zone, your Today layout, your onboarding progress and your notification settings (which digests and reminders you want and at what time).",
+            "Messages to the AI assistant and the bug reports or feedback you send us (topic, text and whether you sent it from the web or the app)."
+          ]
+        },
+        {
+          "heading": "Information we collect automatically",
+          "body": [
+            "Website and web app analytics: we use Google Analytics on continuu.it, including inside the web app. It records the pages you visit (their address), how long you stay, your browser and device type, and an approximate location that Google derives from your IP address. It uses cookies (see \"Cookies and local storage\"). The mobile apps do not include analytics or crash-reporting tools.",
+            "Activity counts: for each day we record how many actions you performed and whether they came from the web, the mobile app or a connected AI client. We store only the count, not what you did.",
+            "AI assistant usage: number of messages, tokens processed and estimated cost per day, used to apply your plan's limits.",
+            "Technical data: your IP address is used momentarily to limit abusive requests and is not stored in our database. Our servers keep operational logs that may include your account identifier. The mobile app registers a notification token and a random identifier for your installation so we can send you push notifications.",
+            "App updates: the mobile app checks Expo's update service for new versions; that request includes technical data such as your platform and app version."
           ]
         },
         {
           "heading": "How we use your information",
           "body": [
-            "We use your data to provide the service: authenticate your account, store and sync your content, and deliver the features that match your plan.",
-            "We also use it to improve the product, prevent fraud and abuse, provide support, and communicate with you about relevant changes to the service.",
-            "We do not sell your personal data, and we do not share it with third parties for advertising purposes."
+            "To provide the service: authenticate you, store and sync your content across devices, send the notifications you turn on, and enable the features of your plan.",
+            "To run the AI assistant and the features that depend on it (described below).",
+            "To support you, answer your reports, prevent fraud and abuse, and keep the service secure.",
+            "To understand how the product is used and improve it, mostly with aggregated data.",
+            "To send you service emails: account confirmation and password reset, welcome messages, notices about your account or beta access, and occasional messages if you stop using the app.",
+            "We do not sell your personal data, we do not share it with third parties for advertising and we do not use it to build advertising profiles."
           ]
         },
         {
-          "heading": "The AI assistant",
+          "heading": "The AI assistant (Loop)",
           "body": [
-            "When you use the AI assistant, the relevant content from your projects and the messages you send are processed by language-model providers to generate responses.",
-            "Only the information needed to answer your request is sent. We do not use your private content to train third-party AI models."
+            "Loop's conversations, the AI interpretation of quick capture and the reflections on ended projects are processed by Anthropic, the provider of the Claude models. Pre-built queries in the Pro plan run on our servers without involving any AI provider.",
+            "When you chat with Loop we send Anthropic your message, the recent turns of the conversation, a summary of your account (date, language, time zone, plan, the names and status of your projects, your categories and routines) and the content Loop reads to answer you, such as tasks, notes or statistics. We also send a pseudonymous identifier of your account, which Anthropic uses only to prevent abuse.",
+            "We store your conversations so you can come back to them; they are deleted when you delete your account. Text you ask us to interpret with AI in quick capture is not stored. The reflection Loop writes when you end a project is saved with that project.",
+            "Under Anthropic's commercial terms, data sent through its API is not used to train its models. Neither do we use your content to train AI models."
           ]
         },
         {
-          "heading": "Sharing with third parties",
+          "heading": "Connecting AI clients (connector)",
           "body": [
-            "We work with providers that help us operate the service: hosting and infrastructure, payment processing (Stripe), transactional email delivery, and AI model providers.",
-            "These providers only access the data needed to perform their function and are required to protect it. We may also disclose information when required by law."
+            "You can connect continuu.it to an AI client, such as Claude, through our connector. When you authorize it, that client can read your data (and, on plans that allow it, create or edit it) on your behalf. What the client does with the data it receives is governed by that service's privacy policy.",
+            "We store the client's name, the date of the connection and its access tokens in hashed form. You can see and revoke your connections at any time in Settings → Plugins."
+          ]
+        },
+        {
+          "heading": "Integrations you turn on",
+          "body": [
+            "Google Tasks and Google Calendar: if you connect them, we access your Google task lists (read only) to import them, and, if you turn on sync, we create and update events in your calendar with the title, date, time and duration of your tasks and routines. We store your Google account email and encrypted access tokens. You can disconnect at any time.",
+            "Telegram: if you link Telegram, we store your chat identifier and send your digests and reminders there, which include the names of your projects and tasks. Telegram processes those messages under its own policy.",
+            "Calendar feed: if you use the private iCal link, anyone who has that link, and the calendar service where you subscribe it, can see the tasks and routines it includes. You can choose what it includes and regenerate the link to invalidate the old one."
+          ]
+        },
+        {
+          "heading": "Notifications and email",
+          "body": [
+            "Push notifications are delivered through Expo's service and the Apple and Google notification systems. They may show the names of your tasks or projects on your device's screen.",
+            "We send account emails (confirmation, password reset) through Supabase, and the rest of our emails through Resend. You can turn digests and reminders on or off in your notification settings. If you do not want to receive non-essential emails, write to us and we will stop sending them."
           ]
         },
         {
           "heading": "Payments",
           "body": [
-            "Payments are processed through Stripe. We do not store your full card details on our servers; Stripe handles that information under its own security standards."
+            "Subscriptions are managed by RevenueCat. On the web, payment is processed through RevenueCat Web Billing (cards are processed by Stripe); in the apps, through the App Store or Google Play. We link your purchase to your account using your user identifier.",
+            "We never receive or store your full card details. We do receive and keep information about your subscription: plan, product, store, transaction identifiers, renewal dates and the purchase details that RevenueCat reports to us (which may include price, currency and country)."
           ]
         },
         {
-          "heading": "Cookies and similar technologies",
+          "heading": "Who we share data with",
           "body": [
-            "We use cookies and local storage to keep you signed in, remember your preferences (such as language and theme), and understand in aggregate how the product is used.",
-            "You can control cookies through your browser settings, though disabling them may affect how the service works."
+            "We work with providers that process data on our behalf and only for their function: Supabase (database, authentication, file storage and real-time updates), Render (backend servers), Vercel (website hosting), Anthropic (AI), RevenueCat, Stripe, Apple and Google (payments), Resend (email), Expo (push notifications and app updates) and Google (sign-in, Analytics and the integrations you connect).",
+            "Some blog posts embed YouTube or Vimeo videos; when you view them, those services may set their own cookies.",
+            "We may also disclose information when required by law, to protect the rights and safety of our users or of continuu.it, or as part of a merger or sale of the business, in which case this policy will continue to protect your data.",
+            "Within continuu.it, only people who need access to provide support, resolve billing issues or prevent abuse can see account data, and administrative actions are recorded in an audit log."
+          ]
+        },
+        {
+          "heading": "Cookies and local storage",
+          "body": [
+            "Essential: cookies that keep your session open and remember your language, theme and palette. Without them the web app cannot work.",
+            "Analytics: Google Analytics cookies (_ga and similar), which distinguish visits and can last up to two years. You can block them in your browser settings or with Google's opt-out add-on, and the service will keep working.",
+            "Local storage: the web app keeps on your browser your quick-capture drafts and captures that have not yet been sent (so you don't lose them if you lose your connection), as well as display preferences. The mobile app keeps your session, your language and theme preferences, and the installation identifier on your device. That data can remain on the device after you sign out; you can clear it by clearing your browser data or uninstalling the app."
           ]
         },
         {
           "heading": "Data security",
           "body": [
-            "We apply reasonable technical and organizational measures to protect your information, including encryption in transit. No system is completely foolproof, but we work to keep your data safe."
+            "We encrypt connections in transit, store the access tokens of your integrations encrypted and the connector's tokens hashed, and limit internal access to the people who need it. No system is infallible, but we work to keep your data safe and will notify you if an incident affects you, as required by law."
           ]
         },
         {
           "heading": "Data retention",
           "body": [
-            "We keep your data while you maintain an active account. If you delete your account, we delete or anonymize your personal information, except for what we must retain for legal or billing obligations."
+            "We keep your data while your account is active. Content you delete in the app is deleted from our database.",
+            "When you delete your account, we delete your content, your conversations with the assistant, your settings, integrations and notification tokens, and your login account. We keep only what the law or our billing obligations require (for example, payment records), and aggregated statistics that do not identify you.",
+            "Deleting your account does not cancel a subscription purchased in the App Store or Google Play; you must cancel it there. Our providers' logs and backups are deleted on their own retention cycles."
           ]
         },
         {
-          "heading": "Your rights",
+          "heading": "Your rights and choices",
           "body": [
-            "You can access, correct, export, or request deletion of your data. To exercise any of these rights, write to us at hello@continuu.it and we will handle your request."
+            "Depending on where you live, you have the right to access, correct, delete or export your data, and to object to or restrict certain uses.",
+            "You can do much of this from the product: change your avatar, edit your name (in the mobile app), download a copy of your data (JSON export from the web app), delete your account (in the mobile app, Profile → Danger zone), turn notifications on or off, disconnect integrations and revoke connected AI clients.",
+            "For anything else, write to hello@continuu.it. We will answer within the time the law requires. You also have the right to file a complaint with your country's data protection authority."
           ]
         },
         {
           "heading": "International transfers",
           "body": [
-            "Your data may be processed on servers located outside your country. When this happens, we apply appropriate safeguards to protect your information in line with applicable law."
+            "Our providers process data on servers located outside your country, including in the United States. When that happens we rely on contracts and the safeguards provided for by applicable law to protect your information."
           ]
         },
         {
@@ -2115,7 +2162,7 @@
         {
           "heading": "Changes to this policy",
           "body": [
-            "We may update this policy from time to time. When we make significant changes, we will update the \"last updated\" date and, where appropriate, notify you within the product."
+            "We may update this policy as the product changes. When we make significant changes, we will update the \"last updated\" date and notify you within the product or by email."
           ]
         },
         {

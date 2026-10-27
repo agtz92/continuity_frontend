@@ -2036,74 +2036,121 @@
     },
     "privacy": {
       "title": "Política de privacidad",
-      "lastUpdated": "Última actualización: 28 de mayo de 2026",
-      "intro": "En continuu.it nos tomamos tu privacidad en serio. Esta política explica qué datos recopilamos, por qué los recopilamos, cómo los usamos y qué control tienes sobre ellos cuando usas nuestra aplicación y sitio web.",
+      "lastUpdated": "Última actualización: 26 de octubre de 2026",
+      "intro": "Esta política explica qué datos recopila continuu.it cuando usas nuestro sitio web, la aplicación web, las apps para iOS y Android y el conector para clientes de IA; para qué los usamos; con quién los compartimos, y qué control tienes sobre ellos.",
       "sections": [
         {
-          "heading": "Información que recopilamos",
+          "heading": "Información que nos das",
           "body": [
-            "Datos de cuenta: tu nombre, dirección de correo electrónico y la contraseña con la que te autenticas. Si te registras con un proveedor externo, recibimos los datos básicos de identificación que ese proveedor comparte con nosotros.",
-            "Contenido que creas: los proyectos, tareas, ideas, rutinas y notas que añades a la aplicación, junto con los mensajes que intercambias con el asistente de IA.",
-            "Datos de uso y técnicos: información sobre cómo interactúas con el producto, así como datos del dispositivo y del navegador (tipo, idioma, dirección IP aproximada) recopilados de forma automática para mantener el servicio seguro y funcional."
+            "Cuenta: tu correo electrónico y tu contraseña. El inicio de sesión lo gestiona nuestro proveedor de autenticación (Supabase); nunca vemos ni guardamos tu contraseña en texto plano. Si entras con Google, recibimos tu correo y el nombre de tu cuenta de Google, que solo usamos para sugerirte tu nombre durante el onboarding.",
+            "Perfil: el nombre que eliges y el avatar que escoges de nuestro catálogo de ilustraciones. No te pedimos subir fotos.",
+            "Tu contenido: los proyectos, tareas, ideas, rutinas, categorías, notas de proyecto, Quick Notes, bloqueos, notas de cierre (por ejemplo, por qué pausaste o terminaste un proyecto y qué aprendiste) y el historial de actividad que genera la app al trabajar con ellos.",
+            "Preferencias: idioma, tema, paleta de color, zona horaria, la disposición de tu vista Today, tu avance en el onboarding y tu configuración de notificaciones (qué resúmenes y recordatorios quieres y a qué hora).",
+            "Mensajes al asistente de IA y los reportes de errores o comentarios que nos envías (tema, texto y si lo enviaste desde la web o la app)."
+          ]
+        },
+        {
+          "heading": "Información que recopilamos automáticamente",
+          "body": [
+            "Analítica del sitio y de la app web: usamos Google Analytics en continuu.it, también dentro de la aplicación web. Registra las páginas que visitas (su dirección), cuánto tiempo pasas, tu tipo de navegador y dispositivo, y una ubicación aproximada que Google deduce de tu dirección IP. Usa cookies (ver «Cookies y almacenamiento local»). Las apps móviles no incluyen herramientas de analítica ni de reporte de fallos.",
+            "Conteo de actividad: por cada día registramos cuántas acciones realizaste y si vinieron de la web, de la app móvil o de un cliente de IA conectado. Guardamos solo el número, no lo que hiciste.",
+            "Uso del asistente de IA: número de mensajes, tokens procesados y costo estimado por día, para aplicar los límites de tu plan.",
+            "Datos técnicos: tu dirección IP se usa momentáneamente para limitar solicitudes abusivas y no se guarda en nuestra base de datos. Nuestros servidores conservan registros operativos que pueden incluir tu identificador de cuenta. La app móvil registra un token de notificaciones y un identificador aleatorio de tu instalación para poder enviarte notificaciones push.",
+            "Actualizaciones de la app: la app móvil consulta el servicio de actualizaciones de Expo para recibir nuevas versiones; esa consulta incluye datos técnicos como tu plataforma y versión de la app."
           ]
         },
         {
           "heading": "Cómo usamos tu información",
           "body": [
-            "Usamos tus datos para prestarte el servicio: autenticar tu cuenta, guardar y sincronizar tu contenido, y ofrecerte las funciones que correspondan a tu plan.",
-            "También los usamos para mejorar el producto, prevenir fraude y abuso, prestar soporte y comunicarnos contigo sobre cambios relevantes en el servicio.",
-            "No vendemos tus datos personales ni los compartimos con terceros con fines publicitarios."
+            "Para prestarte el servicio: autenticarte, guardar y sincronizar tu contenido entre dispositivos, enviarte las notificaciones que actives y habilitar las funciones de tu plan.",
+            "Para operar el asistente de IA y las funciones que dependen de él (descritas más abajo).",
+            "Para darte soporte, atender tus reportes, prevenir fraude y abuso, y mantener el servicio seguro.",
+            "Para entender cómo se usa el producto y mejorarlo, principalmente con datos agregados.",
+            "Para enviarte correos del servicio: confirmación de cuenta y restablecimiento de contraseña, bienvenida, avisos sobre tu cuenta o tu acceso beta, y mensajes ocasionales si dejas de usar la app.",
+            "No vendemos tus datos personales, no los compartimos con terceros con fines publicitarios y no los usamos para crear perfiles de publicidad."
           ]
         },
         {
-          "heading": "El asistente de IA",
+          "heading": "El asistente de IA (Loop)",
           "body": [
-            "Cuando usas el asistente de IA, el contenido relevante de tus proyectos y los mensajes que envías se procesan con proveedores de modelos de lenguaje para generar respuestas.",
-            "Solo se envía la información necesaria para responder a tu solicitud. No usamos tu contenido privado para entrenar modelos de IA de terceros."
+            "Las conversaciones con Loop, la interpretación con IA de la captura rápida y las reflexiones sobre proyectos terminados se procesan con Anthropic, proveedor de los modelos Claude. Las consultas predefinidas del plan Pro se resuelven en nuestros servidores sin intervención de ningún proveedor de IA.",
+            "Cuando conversas con Loop, enviamos a Anthropic tu mensaje, los turnos recientes de la conversación, un resumen de tu cuenta (fecha, idioma, zona horaria, plan, los nombres y estado de tus proyectos, tus categorías y rutinas) y el contenido que Loop consulta para responderte, como tareas, notas o estadísticas. También enviamos un identificador seudónimo de tu cuenta, que Anthropic usa solo para prevenir abusos.",
+            "Guardamos tus conversaciones para que puedas retomarlas; se borran al eliminar tu cuenta. El texto que nos pides interpretar con IA en la captura rápida no se guarda. La reflexión que Loop escribe al terminar un proyecto se guarda junto a ese proyecto.",
+            "Según los términos comerciales de Anthropic, los datos enviados a través de su API no se usan para entrenar sus modelos. Nosotros tampoco usamos tu contenido para entrenar modelos de IA."
           ]
         },
         {
-          "heading": "Compartir con terceros",
+          "heading": "Conexión con clientes de IA (conector)",
           "body": [
-            "Trabajamos con proveedores que nos ayudan a operar el servicio: alojamiento e infraestructura, procesamiento de pagos (Stripe), envío de correos transaccionales y proveedores de modelos de IA.",
-            "Estos proveedores solo acceden a los datos necesarios para prestar su función y están obligados a protegerlos. También podemos divulgar información cuando lo exija la ley."
+            "Puedes conectar continuu.it a un cliente de IA, como Claude, mediante nuestro conector. Al autorizarlo, ese cliente puede leer tus datos (y, en los planes que lo permiten, crearlos o editarlos) en tu nombre. Lo que el cliente haga con los datos que recibe se rige por la política de privacidad de ese servicio.",
+            "Guardamos el nombre del cliente, la fecha de la conexión y sus tokens de acceso en forma cifrada (hash). Puedes ver y revocar tus conexiones en cualquier momento desde Configuración → Plugins."
+          ]
+        },
+        {
+          "heading": "Integraciones que actives",
+          "body": [
+            "Google Tasks y Google Calendar: si los conectas, accedemos a tus listas de Google Tasks (solo lectura) para importarlas y, si activas la sincronización, creamos y actualizamos eventos en tu calendario con el título, fecha, hora y duración de tus tareas y rutinas. Guardamos el correo de tu cuenta de Google y tokens de acceso cifrados. Puedes desconectarlos cuando quieras.",
+            "Telegram: si vinculas Telegram, guardamos tu identificador de chat y te enviamos ahí tus resúmenes y recordatorios, que incluyen nombres de proyectos y tareas. Telegram trata esos mensajes según su propia política.",
+            "Feed de calendario: si usas el enlace iCal privado, cualquiera que tenga ese enlace, y el servicio de calendario donde lo suscribas, puede ver las tareas y rutinas que incluye. Puedes elegir qué incluye y regenerar el enlace para invalidar el anterior."
+          ]
+        },
+        {
+          "heading": "Notificaciones y correo",
+          "body": [
+            "Las notificaciones push se entregan a través del servicio de Expo y de los sistemas de notificaciones de Apple y Google. Pueden mostrar nombres de tus tareas o proyectos en la pantalla de tu dispositivo.",
+            "Los correos de la cuenta (confirmación, restablecer contraseña) los envía Supabase, y el resto de nuestros correos, Resend. Puedes activar o desactivar los resúmenes y recordatorios en tu configuración de notificaciones. Si no quieres recibir correos que no sean esenciales, escríbenos y dejaremos de enviártelos."
           ]
         },
         {
           "heading": "Pagos",
           "body": [
-            "Los pagos se procesan a través de Stripe. No almacenamos los datos completos de tu tarjeta en nuestros servidores; Stripe gestiona esa información conforme a sus propios estándares de seguridad."
+            "Las suscripciones las gestiona RevenueCat. En la web, el cobro se hace mediante RevenueCat Web Billing (las tarjetas las procesa Stripe); en las apps, mediante el App Store o Google Play. Vinculamos tu compra a tu cuenta con tu identificador de usuario.",
+            "Nunca recibimos ni guardamos los datos completos de tu tarjeta. Sí recibimos y conservamos información de tu suscripción: plan, producto, tienda, identificadores de transacción, fechas de renovación y los datos de la compra que nos reporta RevenueCat (que pueden incluir precio, moneda y país)."
           ]
         },
         {
-          "heading": "Cookies y tecnologías similares",
+          "heading": "Con quién compartimos datos",
           "body": [
-            "Usamos cookies y almacenamiento local para mantener tu sesión iniciada, recordar tus preferencias (como el idioma y el tema) y entender de forma agregada cómo se usa el producto.",
-            "Puedes controlar las cookies desde la configuración de tu navegador, aunque deshabilitarlas puede afectar al funcionamiento del servicio."
+            "Trabajamos con proveedores que tratan datos por nuestra cuenta y solo para su función: Supabase (base de datos, autenticación, almacenamiento de archivos y actualizaciones en tiempo real), Render (servidores del backend), Vercel (alojamiento del sitio web), Anthropic (IA), RevenueCat, Stripe, Apple y Google (pagos), Resend (correo), Expo (notificaciones push y actualizaciones de la app) y Google (inicio de sesión, Analytics y las integraciones que conectes).",
+            "Algunas entradas del blog incluyen videos de YouTube o Vimeo; al verlos, esos servicios pueden instalar sus propias cookies.",
+            "También podemos divulgar información cuando lo exija la ley, para proteger los derechos y la seguridad de nuestros usuarios o de continuu.it, o como parte de una fusión o venta del negocio, en cuyo caso esta política seguirá protegiendo tus datos.",
+            "Dentro de continuu.it, solo las personas que lo necesitan para dar soporte, resolver temas de facturación o prevenir abusos pueden ver datos de cuentas, y las acciones administrativas quedan registradas en un historial de auditoría."
+          ]
+        },
+        {
+          "heading": "Cookies y almacenamiento local",
+          "body": [
+            "Esenciales: cookies que mantienen tu sesión abierta y recuerdan tu idioma, tema y paleta. Sin ellas la app web no puede funcionar.",
+            "Analítica: cookies de Google Analytics (_ga y similares), que distinguen visitas y pueden durar hasta dos años. Puedes bloquearlas desde la configuración de tu navegador o con el complemento de inhabilitación de Google, y el servicio seguirá funcionando.",
+            "Almacenamiento local: la app web guarda en tu navegador los borradores de la captura rápida y las capturas que aún no se han enviado (para que no se pierdan si te quedas sin conexión), además de preferencias de visualización. La app móvil guarda en tu dispositivo tu sesión, tus preferencias de idioma y tema, y el identificador de instalación. Esos datos pueden permanecer en el dispositivo después de cerrar sesión; puedes borrarlos limpiando los datos del navegador o desinstalando la app."
           ]
         },
         {
           "heading": "Seguridad de los datos",
           "body": [
-            "Aplicamos medidas técnicas y organizativas razonables para proteger tu información, incluido el cifrado en tránsito. Ningún sistema es completamente infalible, pero trabajamos para mantener tus datos seguros."
+            "Ciframos las conexiones en tránsito, guardamos cifrados los tokens de acceso de tus integraciones y en forma de hash los del conector, y limitamos el acceso interno a quien lo necesita. Ningún sistema es infalible, pero trabajamos para mantener tus datos seguros y te avisaremos si un incidente te afecta, conforme a la ley."
           ]
         },
         {
           "heading": "Conservación de los datos",
           "body": [
-            "Conservamos tus datos mientras mantengas una cuenta activa. Si eliminas tu cuenta, borramos o anonimizamos tu información personal, salvo lo que debamos conservar por obligaciones legales o de facturación."
+            "Conservamos tus datos mientras tu cuenta esté activa. El contenido que borras en la app se elimina de nuestra base de datos.",
+            "Cuando eliminas tu cuenta, borramos tu contenido, tus conversaciones con el asistente, tu configuración, tus integraciones y tokens de notificaciones, y tu cuenta de acceso. Solo conservamos lo que nos obliguen la ley o nuestras obligaciones de facturación (por ejemplo, registros de pagos) y estadísticas agregadas que no te identifican.",
+            "Eliminar tu cuenta no cancela una suscripción comprada en el App Store o Google Play; debes cancelarla ahí. Los registros y copias de seguridad de nuestros proveedores se eliminan según sus propios ciclos de retención."
           ]
         },
         {
-          "heading": "Tus derechos",
+          "heading": "Tus derechos y opciones",
           "body": [
-            "Puedes acceder a tus datos, corregirlos, exportarlos o solicitar su eliminación. Para ejercer cualquiera de estos derechos, escríbenos a hello@continuu.it y atenderemos tu solicitud."
+            "Según dónde vivas, tienes derecho a acceder a tus datos, rectificarlos, cancelarlos (eliminarlos), oponerte a ciertos usos (derechos ARCO) y a solicitar su portabilidad o la limitación de su tratamiento.",
+            "Puedes hacer buena parte de esto desde el producto: cambiar tu avatar, editar tu nombre (en la app móvil), descargar una copia de tus datos (exportación JSON desde la app web), eliminar tu cuenta (en la app móvil, Perfil → Zona de peligro), activar o desactivar notificaciones, desconectar integraciones y revocar clientes de IA conectados.",
+            "Para cualquier otra solicitud, escríbenos a hello@continuu.it. Te responderemos en el plazo que marque la ley. También tienes derecho a presentar una queja ante la autoridad de protección de datos de tu país."
           ]
         },
         {
           "heading": "Transferencias internacionales",
           "body": [
-            "Tus datos pueden procesarse en servidores ubicados fuera de tu país. Cuando esto ocurre, aplicamos salvaguardas adecuadas para proteger tu información conforme a la legislación aplicable."
+            "Nuestros proveedores tratan datos en servidores ubicados fuera de tu país, incluido Estados Unidos. Cuando esto ocurre, nos apoyamos en contratos y en las salvaguardas que prevé la legislación aplicable para proteger tu información."
           ]
         },
         {
@@ -2115,7 +2162,7 @@
         {
           "heading": "Cambios en esta política",
           "body": [
-            "Podemos actualizar esta política de vez en cuando. Cuando hagamos cambios significativos, actualizaremos la fecha de \"última actualización\" y, si corresponde, te lo notificaremos dentro del producto."
+            "Podemos actualizar esta política a medida que cambie el producto. Cuando hagamos cambios significativos, actualizaremos la fecha de «Última actualización» y te lo notificaremos dentro del producto o por correo."
           ]
         },
         {
