@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { marketingHref } from "@/i18n/marketingHref";
 import type { Locale } from "@/i18n/config";
+import { reopenConsent } from "@/lib/analyticsConsent";
 
 export default function MarketingFooter() {
   const t = useTranslations("landing.footer");
@@ -111,6 +112,15 @@ export default function MarketingFooter() {
                 >
                   {t("companyLinks.terms")}
                 </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={reopenConsent}
+                  className="text-ls-text-primary hover:text-ls-ochre transition-colors"
+                >
+                  {t("companyLinks.cookies")}
+                </button>
               </li>
             </ul>
           </div>

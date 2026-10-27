@@ -1,5 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessagesFor } from "@/i18n/static";
+import { Analytics } from "@/app/analytics";
+import ConsentBanner from "@/components/landing/ConsentBanner";
 
 // Marketing carries a fixed locale from the URL and never reads cookies, so opt
 // the whole subtree into static rendering. next-intl otherwise defaults these
@@ -23,6 +25,8 @@ export default function MarketingEnLayout({
   return (
     <NextIntlClientProvider locale="en" messages={getMessagesFor("en")}>
       {children}
+      <ConsentBanner />
+      <Analytics />
     </NextIntlClientProvider>
   );
 }

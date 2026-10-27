@@ -459,6 +459,18 @@
       "googleConnecting": "Conectando…",
       "googleLinkError": "No se pudo conectar Google. Inténtalo de nuevo."
     },
+    "deleteAccount": {
+      "title": "Eliminar cuenta",
+      "body": "Elimina permanentemente tu cuenta y todo lo que contiene — proyectos, tareas, ideas, rutinas, notas y conversaciones con Loop. No se puede deshacer.",
+      "subscriptionWarningWeb": "Eliminar tu cuenta NO cancela tu suscripción. Si tienes un plan activo, cancélalo primero.",
+      "manageSubscription": "Administrar suscripción",
+      "button": "Eliminar mi cuenta",
+      "typeEmail": "Para confirmar, escribe el correo de tu cuenta ({email}).",
+      "deleting": "Eliminando…",
+      "confirm2Cta": "Eliminar para siempre",
+      "cancel": "Cancelar",
+      "error": "No se pudo eliminar tu cuenta. Inténtalo de nuevo."
+    },
     "appearance": {
       "paletteCiruela": "Ciruela",
       "paletteHielo": "Hielo",
@@ -637,7 +649,10 @@
       "dueRemindersToggle": "Aviso de pendientes a fin de día",
       "dueReminderHour": "Hora del aviso (local)",
       "dueRemindersHint": "A la hora elegida, si aún quedan tareas o rutinas abiertas hoy, te llega un recordatorio. Si todo está cerrado, no se envía nada.",
-      "manualToggle": "Recibir avisos manuales / del admin"
+      "manualToggle": "Recibir avisos manuales / del admin",
+      "emailSection": "Correo",
+      "lifecycleEmailsToggle": "Correos sobre mi actividad (bienvenida, avisos cuando llevo tiempo sin entrar)",
+      "lifecycleEmailsHint": "Cada uno de estos correos trae un enlace para darte de baja. Los avisos sobre tu cuenta, como perder tu lugar en la beta, siempre se envían."
     }
   },
   "analytics": {
@@ -1997,9 +2012,17 @@
         "about": "Sobre nosotros",
         "contact": "hello@continuu.it",
         "privacy": "Privacidad",
-        "terms": "Términos del servicio"
+        "terms": "Términos del servicio",
+        "cookies": "Preferencias de cookies"
       },
       "copyright": "© {year} continuu.it"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "message": "Queremos usar Google Analytics para ver qué páginas del sitio se visitan. Pone cookies y solo se carga si lo permites. La app funciona igual en ambos casos.",
+      "policy": "Política de privacidad",
+      "accept": "Permitir analítica",
+      "reject": "No, gracias"
     },
     "langSwitcher": {
       "ariaLabel": "Cambiar idioma",
@@ -2032,7 +2055,7 @@
         {
           "heading": "Información que recopilamos automáticamente",
           "body": [
-            "Analítica del sitio y de la app web: usamos Google Analytics en continuu.it, también dentro de la aplicación web. Registra las páginas que visitas (su dirección), cuánto tiempo pasas, tu tipo de navegador y dispositivo, y una ubicación aproximada que Google deduce de tu dirección IP. Usa cookies (ver «Cookies y almacenamiento local»). Las apps móviles no incluyen herramientas de analítica ni de reporte de fallos.",
+            "Analítica del sitio: usamos Google Analytics en las páginas públicas de continuu.it (inicio, blog, ayuda, legales) solo si lo permites en el aviso de cookies; nunca se carga dentro de la aplicación web. Registra las páginas que visitas (su dirección), cuánto tiempo pasas, tu tipo de navegador y dispositivo, y una ubicación aproximada que Google deduce de tu dirección IP. Usa cookies (ver «Cookies y almacenamiento local»). Las apps móviles no incluyen herramientas de analítica ni de reporte de fallos.",
             "Conteo de actividad: por cada día registramos cuántas acciones realizaste y si vinieron de la web, de la app móvil o de un cliente de IA conectado. Guardamos solo el número, no lo que hiciste.",
             "Uso del asistente de IA: número de mensajes, tokens procesados y costo estimado por día, para aplicar los límites de tu plan.",
             "Datos técnicos: tu dirección IP se usa momentáneamente para limitar solicitudes abusivas y no se guarda en nuestra base de datos. Nuestros servidores conservan registros operativos que pueden incluir tu identificador de cuenta. La app móvil registra un token de notificaciones y un identificador aleatorio de tu instalación para poder enviarte notificaciones push.",
@@ -2046,7 +2069,7 @@
             "Para operar el asistente de IA y las funciones que dependen de él (descritas más abajo).",
             "Para darte soporte, atender tus reportes, prevenir fraude y abuso, y mantener el servicio seguro.",
             "Para entender cómo se usa el producto y mejorarlo, principalmente con datos agregados.",
-            "Para enviarte correos del servicio: confirmación de cuenta y restablecimiento de contraseña, bienvenida, avisos sobre tu cuenta o tu acceso beta, y mensajes ocasionales si dejas de usar la app.",
+            "Para enviarte correos del servicio: confirmación de cuenta y restablecimiento de contraseña, bienvenida, avisos sobre tu cuenta o tu acceso beta, y mensajes ocasionales si dejas de usar la app. Puedes dejar de recibir los de bienvenida e inactividad con el enlace para darte de baja que trae cada uno o en Ajustes → Notificaciones; los avisos sobre tu cuenta siempre se envían.",
             "No vendemos tus datos personales, no los compartimos con terceros con fines publicitarios y no los usamos para crear perfiles de publicidad."
           ]
         },
@@ -2100,7 +2123,7 @@
           "heading": "Cookies y almacenamiento local",
           "body": [
             "Esenciales: cookies que mantienen tu sesión abierta y recuerdan tu idioma, tema y paleta. Sin ellas la app web no puede funcionar.",
-            "Analítica: cookies de Google Analytics (_ga y similares), que distinguen visitas y pueden durar hasta dos años. Puedes bloquearlas desde la configuración de tu navegador o con el complemento de inhabilitación de Google, y el servicio seguirá funcionando.",
+            "Analítica: cookies de Google Analytics (_ga y similares), que distinguen visitas y pueden durar hasta dos años. Solo se instalan si las aceptas en el aviso de cookies, y puedes retirar ese permiso cuando quieras desde «Preferencias de cookies» al pie del sitio; el servicio funciona igual sin ellas.",
             "Almacenamiento local: la app web guarda en tu navegador los borradores de la captura rápida y las capturas que aún no se han enviado (para que no se pierdan si te quedas sin conexión), además de preferencias de visualización. La app móvil guarda en tu dispositivo tu sesión, tus preferencias de idioma y tema, y el identificador de instalación. Esos datos pueden permanecer en el dispositivo después de cerrar sesión; puedes borrarlos limpiando los datos del navegador o desinstalando la app."
           ]
         },
@@ -2115,7 +2138,7 @@
           "body": [
             "Conservamos tus datos mientras tu cuenta esté activa. El contenido que borras en la app se elimina de nuestra base de datos.",
             "Cuando eliminas tu cuenta, borramos tu contenido, tus conversaciones con el asistente, tu configuración, tus integraciones y tokens de notificaciones, y tu cuenta de acceso. Solo conservamos lo que nos obliguen la ley o nuestras obligaciones de facturación (por ejemplo, registros de pagos) y estadísticas agregadas que no te identifican.",
-            "Eliminar tu cuenta no cancela una suscripción comprada en el App Store o Google Play; debes cancelarla ahí. Los registros y copias de seguridad de nuestros proveedores se eliminan según sus propios ciclos de retención."
+            "Eliminar tu cuenta no cancela una suscripción comprada en el App Store o Google Play; debes cancelarla ahí. Los registros y copias de seguridad de nuestros proveedores se eliminan según sus propios ciclos de retención. Algunos registros operativos pierden sus datos personales en plazos fijos aunque tu cuenta siga activa: el texto de las notificaciones push a los 90 días, los detalles de entrega de correos a los 180 días, los reportes de errores que archivamos al año, el registro de autorizaciones del conector al año, y los datos completos de los avisos de pago de las tiendas a los 400 días (el registro del pago en sí se conserva)."
           ]
         },
         {

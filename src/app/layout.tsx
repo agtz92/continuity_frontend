@@ -7,7 +7,6 @@ import {
   Schibsted_Grotesk,
 } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "./analytics";
 import { NO_FLASH_SCRIPT } from "@/theme/no-flash";
 import { resolveSiteUrl } from "@/lib/siteUrl";
 
@@ -126,7 +125,6 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH_SCRIPT }} />
       </head>
       <body>
-        <Analytics />
         {children}
       </body>
     </html>

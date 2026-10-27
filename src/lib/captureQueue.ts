@@ -156,6 +156,13 @@ export function subscribeQueue(listener: Listener): () => void {
   };
 }
 
+/** Al borrar la cuenta: no dejar en este navegador texto de una cuenta que ya no existe. */
+export function clearCaptureStorage(): void {
+  remove(DRAFT_KEY);
+  remove(QUEUE_KEY);
+  emit([]);
+}
+
 /** Solo para tests: deja el almacenamiento como estaba al empezar. */
 export const __resetCaptureStorageForTests = () => {
   remove(DRAFT_KEY);

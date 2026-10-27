@@ -1,5 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessagesFor } from "@/i18n/static";
+import { Analytics } from "@/app/analytics";
+import ConsentBanner from "@/components/landing/ConsentBanner";
 import SetHtmlLang from "@/components/landing/SetHtmlLang";
 
 // See the English marketing layout: fixed locale from the URL, no cookies →
@@ -23,6 +25,8 @@ export default function MarketingEsLayout({
     <NextIntlClientProvider locale="es" messages={getMessagesFor("es")}>
       <SetHtmlLang lang="es" />
       {children}
+      <ConsentBanner />
+      <Analytics />
     </NextIntlClientProvider>
   );
 }

@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { UserAvatar } from "@/components/account/UserAvatar";
 import { AvatarPickerModal } from "@/components/settings/AvatarPickerModal";
+import { DeleteAccountSection } from "@/components/settings/DeleteAccountSection";
 
 export default function ProfileSettingsPage() {
   const t = useTranslations("settings.profile");
@@ -113,6 +114,7 @@ export default function ProfileSettingsPage() {
           </div>
         )}
       </section>
+      <DeleteAccountSection email={email} />
       {pickerOpen && (
         <AvatarPickerModal onClose={() => setPickerOpen(false)} />
       )}

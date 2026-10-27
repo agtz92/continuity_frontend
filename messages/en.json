@@ -459,6 +459,18 @@
       "googleConnecting": "Connecting…",
       "googleLinkError": "Couldn't connect Google. Please try again."
     },
+    "deleteAccount": {
+      "title": "Delete account",
+      "body": "Permanently deletes your account and everything in it — projects, tasks, ideas, routines, notes and conversations with Loop. This can't be undone.",
+      "subscriptionWarningWeb": "Deleting your account does NOT cancel your subscription. If you have an active plan, cancel it first.",
+      "manageSubscription": "Manage subscription",
+      "button": "Delete my account",
+      "typeEmail": "To confirm, type your account email ({email}).",
+      "deleting": "Deleting…",
+      "confirm2Cta": "Delete forever",
+      "cancel": "Cancel",
+      "error": "Couldn't delete your account. Please try again."
+    },
     "appearance": {
       "paletteCiruela": "Plum",
       "paletteHielo": "Ice",
@@ -637,7 +649,10 @@
       "dueRemindersToggle": "End-of-day pending warning",
       "dueReminderHour": "Warning hour (local)",
       "dueRemindersHint": "At the chosen hour, if there are still open tasks or routines for today, we'll ping you. If everything's closed, nothing is sent.",
-      "manualToggle": "Receive admin / manual announcements"
+      "manualToggle": "Receive admin / manual announcements",
+      "emailSection": "Email",
+      "lifecycleEmailsToggle": "Emails about my activity (welcome, reminders when I've been away)",
+      "lifecycleEmailsHint": "Every one of these emails has an unsubscribe link. Notices about your account, such as losing a beta spot, are always sent."
     }
   },
   "analytics": {
@@ -1997,9 +2012,17 @@
         "about": "About",
         "contact": "hello@continuu.it",
         "privacy": "Privacy",
-        "terms": "Terms of service"
+        "terms": "Terms of service",
+        "cookies": "Cookie preferences"
       },
       "copyright": "© {year} continuu.it"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "message": "We'd like to use Google Analytics to see which pages of the site people visit. It sets cookies and only loads if you allow it. The app works the same either way.",
+      "policy": "Privacy policy",
+      "accept": "Allow analytics",
+      "reject": "No, thanks"
     },
     "langSwitcher": {
       "ariaLabel": "Change language",
@@ -2032,7 +2055,7 @@
         {
           "heading": "Information we collect automatically",
           "body": [
-            "Website and web app analytics: we use Google Analytics on continuu.it, including inside the web app. It records the pages you visit (their address), how long you stay, your browser and device type, and an approximate location that Google derives from your IP address. It uses cookies (see \"Cookies and local storage\"). The mobile apps do not include analytics or crash-reporting tools.",
+            "Website analytics: we use Google Analytics on the public pages of continuu.it (home, blog, help, legal) only if you allow it in the cookie banner; it is never loaded inside the web app. It records the pages you visit (their address), how long you stay, your browser and device type, and an approximate location that Google derives from your IP address. It uses cookies (see \"Cookies and local storage\"). The mobile apps do not include analytics or crash-reporting tools.",
             "Activity counts: for each day we record how many actions you performed and whether they came from the web, the mobile app or a connected AI client. We store only the count, not what you did.",
             "AI assistant usage: number of messages, tokens processed and estimated cost per day, used to apply your plan's limits.",
             "Technical data: your IP address is used momentarily to limit abusive requests and is not stored in our database. Our servers keep operational logs that may include your account identifier. The mobile app registers a notification token and a random identifier for your installation so we can send you push notifications.",
@@ -2046,7 +2069,7 @@
             "To run the AI assistant and the features that depend on it (described below).",
             "To support you, answer your reports, prevent fraud and abuse, and keep the service secure.",
             "To understand how the product is used and improve it, mostly with aggregated data.",
-            "To send you service emails: account confirmation and password reset, welcome messages, notices about your account or beta access, and occasional messages if you stop using the app.",
+            "To send you service emails: account confirmation and password reset, welcome messages, notices about your account or beta access, and occasional messages if you stop using the app. You can stop the welcome and inactivity messages with the unsubscribe link in each one or in Settings → Notifications; account notices are always sent.",
             "We do not sell your personal data, we do not share it with third parties for advertising and we do not use it to build advertising profiles."
           ]
         },
@@ -2100,7 +2123,7 @@
           "heading": "Cookies and local storage",
           "body": [
             "Essential: cookies that keep your session open and remember your language, theme and palette. Without them the web app cannot work.",
-            "Analytics: Google Analytics cookies (_ga and similar), which distinguish visits and can last up to two years. You can block them in your browser settings or with Google's opt-out add-on, and the service will keep working.",
+            "Analytics: Google Analytics cookies (_ga and similar), which distinguish visits and can last up to two years. They are only set if you accept them in the cookie banner, and you can withdraw that at any time from \"Cookie preferences\" at the bottom of the site; the service works the same without them.",
             "Local storage: the web app keeps on your browser your quick-capture drafts and captures that have not yet been sent (so you don't lose them if you lose your connection), as well as display preferences. The mobile app keeps your session, your language and theme preferences, and the installation identifier on your device. That data can remain on the device after you sign out; you can clear it by clearing your browser data or uninstalling the app."
           ]
         },
@@ -2115,7 +2138,7 @@
           "body": [
             "We keep your data while your account is active. Content you delete in the app is deleted from our database.",
             "When you delete your account, we delete your content, your conversations with the assistant, your settings, integrations and notification tokens, and your login account. We keep only what the law or our billing obligations require (for example, payment records), and aggregated statistics that do not identify you.",
-            "Deleting your account does not cancel a subscription purchased in the App Store or Google Play; you must cancel it there. Our providers' logs and backups are deleted on their own retention cycles."
+            "Deleting your account does not cancel a subscription purchased in the App Store or Google Play; you must cancel it there. Our providers' logs and backups are deleted on their own retention cycles. Some operational records lose their personal data on a fixed schedule even while your account is active: the text of push notifications after 90 days, email delivery details after 180 days, bug reports we have archived after one year, the log of connector authorizations after one year, and the raw data of store payment notifications after 400 days (the record of the payment itself remains)."
           ]
         },
         {

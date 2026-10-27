@@ -23,6 +23,7 @@ type Settings = {
   dueRemindersEnabled: boolean;
   dueReminderHour: number;
   manualEnabled: boolean;
+  lifecycleEmailsEnabled: boolean;
   isAdmin: boolean;
 };
 
@@ -197,6 +198,16 @@ export function NotificationSettings() {
           onChange={(v) => onSave({ manualEnabled: v })}
           disabled={saving}
         />
+      </Section>
+
+      <Section title={t("emailSection")}>
+        <ToggleRow
+          label={t("lifecycleEmailsToggle")}
+          checked={settings.lifecycleEmailsEnabled}
+          onChange={(v) => onSave({ lifecycleEmailsEnabled: v })}
+          disabled={saving}
+        />
+        <p className="text-xs text-text-muted mt-1">{t("lifecycleEmailsHint")}</p>
       </Section>
     </div>
   );

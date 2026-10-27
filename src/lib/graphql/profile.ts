@@ -10,6 +10,14 @@ export const PROFILE_QUERY = gql`
   }
 `;
 
+// Borra la cuenta y todos sus datos para siempre (backend `core/account_deletion.py`).
+// No cancela la suscripción: la pantalla avisa antes.
+export const DELETE_ACCOUNT = gql`
+  mutation DeleteAccount {
+    deleteAccount
+  }
+`;
+
 // NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
 // Estado del flujo de onboarding (paso actual, tour, plan); reutilizado por la query y
 // todas las mutations que avanzan/cierran el onboarding.
