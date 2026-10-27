@@ -281,7 +281,7 @@
     "stalled": "Estancado",
     "paused": "Pausado",
     "launched": "Lanzado",
-    "killed": "Cancelado",
+    "killed": "Muerto",
     "archived": "Archivado",
     "all": "Todos",
     "allStatuses": "Todos los estados"
@@ -1319,7 +1319,7 @@
       "kill": {
         "title": "Matando \"{name}\"",
         "intro": "Matar es una forma de terminar. Merece un ritual de cierre.",
-        "reasonLabel": "¿Por qué lo estás matando?",
+        "reasonLabel": "¿Por qué lo matas?",
         "reasonPlaceholder": "ej. \"El alcance no paraba de crecer y nunca validé la suposición central.\"",
         "learningsLabel": "¿Qué aprendiste de él?",
         "learningsPlaceholder": "ej. \"Debí lanzar un MVP de 1 semana antes de construir 5 meses de infraestructura.\"",
@@ -1328,14 +1328,14 @@
         "footer": "Guardamos esto en tu Cementerio de proyectos. No es una lápida, es una biblioteca de lo que no funcionó para que no lo repitas.",
         "submit": "Matar con intención",
         "cancel": "Cancelar",
-        "toast": "Matado con intención. Lección guardada."
+        "toast": "Lo mataste con intención. Lección guardada."
       },
       "stalled": {
         "title": "No has tocado \"{name}\" en {days} días.",
         "question": "¿Qué quieres hacer con él?",
         "keepActive": "Sigo trabajando en él (mantener Activo)",
         "pause": "Necesito pausarlo",
-        "kill": "Está muerto. Mátalo.",
+        "kill": "Es un proyecto muerto. Mátalo.",
         "footer": "Sin dejarlo a la deriva. Toma la decisión.",
         "submit": "Toma la decisión"
       },
@@ -1364,7 +1364,7 @@
         "pausedWhereStopped": "Dónde lo dejaste",
         "pausedNextAction": "Tu siguiente acción era",
         "pausedBlocker": "Qué te estaba bloqueando",
-        "killedReason": "Por qué se mató",
+        "killedReason": "Por qué lo mataste",
         "killedLearnings": "Qué enseñó",
         "killedWouldRestart": "Reiniciarías",
         "aiLabel": "IA"
@@ -1709,7 +1709,7 @@
       "eyebrow": "Te presentamos continuu.it",
       "headline": "El gestor de proyectos que cierra el bucle.",
       "p1": "continuu.it es la primera herramienta diseñada en torno a un solo principio: cada proyecto que empiezas tiene que llegar a una decisión.",
-      "p2": "Terminado. Cancelado. Pausado a propósito.",
+      "p2": "Terminado. Muerto. Pausado a propósito.",
       "p3": "Nunca abandonado. Nunca a la deriva. Nunca perdido en el cementerio del 'algún día le entro'.",
       "p4": "Porque el costo del trabajo a medias no es tiempo. Es posición competitiva. Es confianza. Es la erosión lenta de tu relación con tus propias ideas.",
       "p5": "Construimos continuu.it para devolverte eso.",
@@ -1724,14 +1724,14 @@
       "forcedClosure": {
         "label": "Cierre forzado",
         "headline": "Ningún proyecto a la deriva. Nunca.",
-        "body": "Cada proyecto vive en uno de cuatro estados: Activo, Pausado, Cancelado o Terminado. Después de 14 días en silencio, continuu.it te pregunta cuál es. La deriva es lo que mata a quien construye. Nosotros no la dejamos pasar.",
+        "body": "Cada proyecto vive en uno de cuatro estados: Activo, Pausado, Muerto o Terminado. Después de 14 días en silencio, continuu.it te pregunta cuál es. La deriva es lo que mata a quien construye. Nosotros no la dejamos pasar.",
         "demo": {
           "projectTitle": "Rediseño de landing page",
           "daysSilent": "14 días sin tocarlo",
           "prompt": "Llevas 14 días sin tocar esto. ¿Listo para enviarlo? ¿Necesitas ayuda? ¿O este proyecto ya terminó?",
           "ship": "Enviarlo",
           "help": "Necesito ayuda",
-          "kill": "Cancelar"
+          "kill": "Matarlo"
         }
       },
       "aiChat": {
