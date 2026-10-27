@@ -156,7 +156,7 @@ export function subscribeQueue(listener: Listener): () => void {
   };
 }
 
-/** Al borrar la cuenta: no dejar en este navegador texto de una cuenta que ya no existe. */
+/** Al cerrar sesión o borrar la cuenta: no dejar en este navegador texto de esa cuenta. */
 export function clearCaptureStorage(): void {
   remove(DRAFT_KEY);
   remove(QUEUE_KEY);
