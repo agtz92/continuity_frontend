@@ -451,13 +451,32 @@
       "changeAvatar": "Change avatar",
       "clearAvatar": "Remove avatar",
       "pickerTitle": "Choose your avatar",
-      "moreSoon": "Editable profile fields are coming soon.",
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "saveName": "Save",
+      "nameSaved": "Name saved",
+      "nameError": "Couldn't save your name.",
       "connectedAccounts": "Connected accounts",
       "googleConnect": "Connect Google account",
       "googleConnectDescription": "Link your Google account to sign in with one tap.",
       "googleConnected": "Google connected",
       "googleConnecting": "Connecting…",
       "googleLinkError": "Couldn't connect Google. Please try again."
+    },
+    "yourData": {
+      "title": "Your data",
+      "exportBody": "Download everything we hold about you as a JSON file: projects, tasks, routines, ideas, notes, Quick Notes, categories, blockers, conversations with Loop and settings.",
+      "export": "Download my data",
+      "exporting": "Preparing…",
+      "exportError": "Couldn't build the file. Try again.",
+      "conversationsTitle": "Conversations with Loop",
+      "noConversations": "No saved conversations.",
+      "untitled": "Untitled",
+      "delete": "Delete conversation",
+      "confirmDelete": "Delete",
+      "cancel": "Cancel",
+      "conversationDeleted": "Conversation deleted",
+      "deleteError": "Couldn't delete the conversation."
     },
     "deleteAccount": {
       "title": "Delete account",
@@ -2039,7 +2058,7 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "lastUpdated": "Last updated: October 26, 2026",
+      "lastUpdated": "Last updated: October 27, 2026",
       "intro": "This policy explains what data continuu.it collects when you use our website, the web app, the iOS and Android apps and the connector for AI clients; why we collect it; who we share it with; and what control you have over it.",
       "sections": [
         {
@@ -2078,7 +2097,7 @@
           "body": [
             "Loop's conversations, the AI interpretation of quick capture and the reflections on ended projects are processed by Anthropic, the provider of the Claude models. Pre-built queries in the Pro plan run on our servers without involving any AI provider.",
             "When you chat with Loop we send Anthropic your message, the recent turns of the conversation, a summary of your account (date, language, time zone, plan, the names and status of your projects, your categories and routines) and the content Loop reads to answer you, such as tasks, notes or statistics. We also send a pseudonymous identifier of your account, which Anthropic uses only to prevent abuse.",
-            "We store your conversations so you can come back to them; they are deleted when you delete your account. Text you ask us to interpret with AI in quick capture is not stored. The reflection Loop writes when you end a project is saved with that project.",
+            "We store your conversations so you can come back to them. You can delete them one by one in Profile → Your data, and they are all deleted when you delete your account. Text you ask us to interpret with AI in quick capture is not stored. The reflection Loop writes when you end a project is saved with that project.",
             "Under Anthropic's commercial terms, data sent through its API is not used to train its models. Neither do we use your content to train AI models."
           ]
         },
@@ -2145,7 +2164,7 @@
           "heading": "Your rights and choices",
           "body": [
             "Depending on where you live, you have the right to access, correct, delete or export your data, and to object to or restrict certain uses.",
-            "You can do much of this from the product: change your avatar, edit your name (in the mobile app), download a copy of your data (JSON export from the web app), delete your account (in the mobile app, Profile → Danger zone), turn notifications on or off, disconnect integrations and revoke connected AI clients.",
+            "You can do much of this from the product, on the web and in the mobile app: change your avatar and your name (Profile), download all your data as a JSON file and delete conversations with Loop (Profile → Your data), delete your account (Profile), turn notifications on or off, disconnect integrations and revoke connected AI clients.",
             "For anything else, write to hello@continuu.it. We will answer within the time the law requires. You also have the right to file a complaint with your country's data protection authority."
           ]
         },
@@ -2177,7 +2196,7 @@
     },
     "terms": {
       "title": "Terms of service",
-      "lastUpdated": "Last updated: May 28, 2026",
+      "lastUpdated": "Last updated: October 27, 2026",
       "intro": "These terms govern your use of continuu.it. By creating an account or using the service, you agree to them. Please read them carefully.",
       "sections": [
         {
@@ -2204,7 +2223,8 @@
           "heading": "Plans, payments, and renewals",
           "body": [
             "Some features require a paid plan. Prices and the features of each plan are shown on the site and may change with reasonable notice.",
-            "Subscriptions renew automatically at the end of each period unless you cancel beforehand. Payments are processed through Stripe.",
+            "Subscriptions renew automatically at the end of each period unless you cancel beforehand. On the web, payment is processed through RevenueCat Web Billing (cards are processed by Stripe); in the apps, through the App Store or Google Play.",
+            "If you subscribe from an app, the purchase is also governed by Apple's or Google's terms, and you cancel it or request a refund from your store's subscription settings. Deleting your account does not cancel your subscription: cancel it first in the store or in Settings → Billing.",
             "Unless required by law, amounts paid are non-refundable for periods that have already started."
           ]
         },

@@ -18,6 +18,14 @@ export const DELETE_ACCOUNT = gql`
   }
 `;
 
+// Todo lo que guardamos del usuario, como JSON en un string (portabilidad).
+// Backend `core/services/data_export.py`.
+export const MY_DATA_EXPORT = gql`
+  query MyDataExport {
+    myDataExport
+  }
+`;
+
 // NOTE: es un string de campos, no un fragment gql — candidato a convertir en fragment.
 // Estado del flujo de onboarding (paso actual, tour, plan); reutilizado por la query y
 // todas las mutations que avanzan/cierran el onboarding.

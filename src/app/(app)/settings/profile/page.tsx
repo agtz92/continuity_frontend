@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, User } from "lucide-react";
+import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { PROFILE_QUERY, UPDATE_PROFILE } from "@/lib/graphql";
+import { toast } from "@/lib/toast";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { UserAvatar } from "@/components/account/UserAvatar";
 import { AvatarPickerModal } from "@/components/settings/AvatarPickerModal";
 import { DeleteAccountSection } from "@/components/settings/DeleteAccountSection";
+import { YourDataSection } from "@/components/settings/YourDataSection";
 
 export default function ProfileSettingsPage() {
   const t = useTranslations("settings.profile");
@@ -78,11 +82,9 @@ export default function ProfileSettingsPage() {
             </div>
           </div>
         </div>
+        <NameField />
         <Field label={t("email")} value={email} />
         {createdAt && <Field label={t("memberSince")} value={createdAt} />}
-        <div className="pt-2 flex items-center gap-2 text-xs text-text-muted">
-          <User size={14} /> {t("moreSoon")}
-        </div>
       </section>
 
       <section className="bg-surface border border-border rounded-lg p-5 space-y-4">
@@ -114,6 +116,7 @@ export default function ProfileSettingsPage() {
           </div>
         )}
       </section>
+      <YourDataSection />
       <DeleteAccountSection email={email} />
       {pickerOpen && (
         <AvatarPickerModal onClose={() => setPickerOpen(false)} />
@@ -142,6 +145,62 @@ function GoogleIcon() {
         d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58Z"
       />
     </svg>
+  );
+}
+
+/** Nombre de pila (el mismo del onboarding): el usuario puede corregirlo aquí. */
+function NameField() {
+  const t = useTranslations("settings.profile");
+  const { data } = useQuery<{ profile: { firstName: string } | null }>(PROFILE_QUERY);
+  const saved = data?.profile?.firstName ?? "";
+  const [draft, setDraft] = useState<string | null>(null);
+  // Por nombre: solo relanza las que estén montadas (el saludo lee OnboardingState).
+  const [updateProfile, { loading }] = useMutation(UPDATE_PROFILE, {
+    refetchQueries: ["Profile", "OnboardingState"],
+  });
+
+  const value = draft ?? saved;
+  const trimmed = value.trim();
+  const dirty = draft !== null && trimmed !== saved;
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dirty || !trimmed) return;
+    try {
+      await updateProfile({ variables: { firstName: trimmed } });
+      setDraft(null);
+      toast.success(t("nameSaved"));
+    } catch {
+      toast.error(t("nameError"));
+    }
+  };
+
+  return (
+    <form onSubmit={save}>
+      <label htmlFor="profile-name" className="block text-xs text-text-muted mb-1">
+        {t("name")}
+      </label>
+      <div className="flex items-center gap-2">
+        <input
+          id="profile-name"
+          value={value}
+          onChange={(e) => setDraft(e.target.value)}
+          maxLength={50}
+          autoComplete="given-name"
+          placeholder={t("namePlaceholder")}
+          className="w-full max-w-xs px-3 py-1.5 bg-bg border border-border rounded-lg text-sm text-text focus:outline-none focus:border-accent"
+        />
+        {dirty && (
+          <button
+            type="submit"
+            disabled={loading || !trimmed}
+            className="px-3 py-1.5 bg-border hover:opacity-80 rounded-lg text-sm text-text transition-opacity disabled:opacity-50"
+          >
+            {t("saveName")}
+          </button>
+        )}
+      </div>
+    </form>
   );
 }
 
