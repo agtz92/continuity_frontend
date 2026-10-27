@@ -1785,7 +1785,7 @@
           ],
           "decisionsLabel": "Decisions you'd already made:",
           "decisions": [
-            "Stripe over Lemon Squeezy",
+            "Charge per subscription, not per use",
             "Three pricing tiers, annual discount"
           ]
         },
@@ -2125,14 +2125,14 @@
         {
           "heading": "Payments",
           "body": [
-            "Subscriptions are managed by RevenueCat. On the web, payment is processed through RevenueCat Web Billing (cards are processed by Stripe); in the apps, through the App Store or Google Play. We link your purchase to your account using your user identifier.",
+            "Subscriptions are managed by RevenueCat. On the web, payment is processed through RevenueCat Web Billing; in the apps, through the App Store or Google Play. We link your purchase to your account using your user identifier.",
             "We never receive or store your full card details. We do receive and keep information about your subscription: plan, product, store, transaction identifiers, renewal dates and the purchase details that RevenueCat reports to us (which may include price, currency and country)."
           ]
         },
         {
           "heading": "Who we share data with",
           "body": [
-            "We work with providers that process data on our behalf and only for their function: Supabase (database, authentication, file storage and real-time updates), Render (backend servers), Vercel (website hosting), Anthropic (AI), RevenueCat, Stripe, Apple and Google (payments), Resend (email), Expo (push notifications and app updates) and Google (sign-in, Analytics and the integrations you connect).",
+            "We work with providers that process data on our behalf and only for their function: Supabase (database, authentication, file storage and real-time updates), Render (backend servers), Vercel (website hosting), Anthropic (AI), RevenueCat and its card processor, Apple and Google (payments), Resend (email), Expo (push notifications and app updates) and Google (sign-in, Analytics and the integrations you connect).",
             "Some blog posts embed YouTube or Vimeo videos; when you view them, those services may set their own cookies.",
             "We may also disclose information when required by law, to protect the rights and safety of our users or of continuu.it, or as part of a merger or sale of the business, in which case this policy will continue to protect your data.",
             "Within continuu.it, only people who need access to provide support, resolve billing issues or prevent abuse can see account data, and administrative actions are recorded in an audit log."
@@ -2223,7 +2223,7 @@
           "heading": "Plans, payments, and renewals",
           "body": [
             "Some features require a paid plan. Prices and the features of each plan are shown on the site and may change with reasonable notice.",
-            "Subscriptions renew automatically at the end of each period unless you cancel beforehand. On the web, payment is processed through RevenueCat Web Billing (cards are processed by Stripe); in the apps, through the App Store or Google Play.",
+            "Subscriptions renew automatically at the end of each period unless you cancel beforehand. On the web, payment is processed through RevenueCat Web Billing; in the apps, through the App Store or Google Play.",
             "If you subscribe from an app, the purchase is also governed by Apple's or Google's terms, and you cancel it or request a refund from your store's subscription settings. Deleting your account does not cancel your subscription: cancel it first in the store or in Settings → Billing.",
             "Unless required by law, amounts paid are non-refundable for periods that have already started."
           ]

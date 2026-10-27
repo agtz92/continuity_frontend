@@ -237,8 +237,8 @@ export default function AdminUserDetailPage() {
                 if (
                   !confirm(
                     next
-                      ? `Marcar a ${user.email} como exento de pago? Mantendrá su plan sin que Stripe le cobre.`
-                      : `Quitar la exención de pago de ${user.email}? Volverá al flujo normal de Stripe.`
+                      ? `Marcar a ${user.email} como exento de pago? Mantendrá su plan sin que se le cobre.`
+                      : `Quitar la exención de pago de ${user.email}? Volverá al flujo normal de cobro.`
                   )
                 ) {
                   e.target.checked = user.isBillingExempt;
@@ -256,7 +256,7 @@ export default function AdminUserDetailPage() {
             <span>
               {user.isBillingExempt
                 ? "Sí — cortesía del equipo"
-                : "No — Stripe cobra normal"}
+                : "No — se le cobra normal"}
             </span>
           </label>
         </DataCard>
@@ -278,7 +278,7 @@ export default function AdminUserDetailPage() {
           </dl>
         </DataCard>
 
-        <DataCard label="Stripe">
+        <DataCard label="Cobro">
           <dl className="space-y-1 text-sm">
             <Field
               label="Customer"

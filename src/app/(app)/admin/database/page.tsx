@@ -78,9 +78,9 @@ const CATALOG: {
   },
   {
     title: "Billing",
-    what: "Suscripciones de Stripe, planes activos e ingresos.",
+    what: "Suscripciones (web, App Store y Google Play), planes activos e ingresos.",
     review: "Resumen de suscriptores y estado de cobro.",
-    actions: "Revisar; los cambios de cobro se gestionan en Stripe.",
+    actions: "Revisar; los cambios de cobro se gestionan en RevenueCat o en la tienda.",
     href: "/admin/billing",
   },
   {

@@ -35,7 +35,7 @@ export function StepPlan({
   /**
    * Advance to step 5 (Personalize Today). The plan step no longer finishes
    * onboarding itself — completion happens on step 5 — except for the paid
-   * Stripe path below, which still completes + redirects out of the flow.
+   * checkout path below, which still completes + redirects out of the flow.
    */
   onContinue: () => void;
   busy: boolean;

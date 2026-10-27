@@ -160,7 +160,7 @@ export const ADMIN_SET_USER_IS_BILLING_EXEMPT = gql`
   }
 `;
 
-// ===== Billing (Stripe: checkout, portal, cancelación, downgrade) =====
+// ===== Billing (RevenueCat: checkout, portal, cancelación, downgrade) =====
 
 export const ADMIN_SYSTEM_STATS_QUERY = gql`
   query AdminSystemStats {

@@ -42,7 +42,7 @@ type SubscriberRow = {
   planRenewsAt: string | null;
   cancelAtPeriodEnd: boolean;
   isBillingExempt: boolean;
-  /** Who sold the plan: "stripe" | "web" | "apple" | "google". */
+  /** Who sold the plan: "web" | "apple" | "google". */
   billingSource: string;
   billingCustomerId: string;
   billingTransactionId: string;
@@ -84,25 +84,6 @@ function formatDate(iso: string | null) {
   } catch {
     return iso;
   }
-}
-
-/**
- * Deep link to the customer record at whoever sold the plan.
- *
- * Only the web channel has one we can build: its identifier is a customer id
- * at the card processor. An App Store or Google Play subscriber's identifier
- * is a transaction id or purchase token, and those consoles expose no
- * per-customer URL — so we return null and the UI shows the id as plain text
- * rather than a link that always 404s.
- */
-function customerUrl(
-  source: string,
-  customerId: string,
-  isTest: boolean
-): string | null {
-  if (!customerId || source !== "web") return null;
-  const base = "https://dashboard.stripe.com";
-  return `${base}/${isTest ? "test/" : ""}customers/${customerId}`;
 }
 
 export default function BillingPage() {
@@ -400,7 +381,6 @@ export default function BillingPage() {
                 </div>
               )}
               {subs.rows.map((r) => {
-                const url = customerUrl(r.billingSource, r.billingCustomerId, isTest);
                 return (
                   <div
                     key={r.userId}
@@ -413,20 +393,9 @@ export default function BillingPage() {
                       >
                         {r.email || r.userId}
                       </Link>
-                      {url ? (
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="shrink-0 text-sm text-accent hover:underline"
-                        >
-                          Abrir →
-                        </a>
-                      ) : (
-                        <span className="shrink-0 text-sm text-text-muted">
-                          —
-                        </span>
-                      )}
+                      <span className="shrink-0 truncate font-mono text-xs text-text-muted">
+                        {r.billingCustomerId || "—"}
+                      </span>
                     </div>
 
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -472,7 +441,7 @@ export default function BillingPage() {
                     <th className="px-4 py-2 text-right">$/mes</th>
                     <th className="px-4 py-2">Renueva</th>
                     <th className="px-4 py-2">Estado</th>
-                    <th className="px-4 py-2">Stripe</th>
+                    <th className="px-4 py-2">Cliente</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -487,8 +456,7 @@ export default function BillingPage() {
                     </tr>
                   )}
                   {subs.rows.map((r) => {
-                    const url = customerUrl(r.billingSource, r.billingCustomerId, isTest);
-                    return (
+                        return (
                       <tr key={r.userId} className="border-t border-border">
                         <td className="px-4 py-2">
                           <Link
@@ -532,18 +500,9 @@ export default function BillingPage() {
                           )}
                         </td>
                         <td className="px-4 py-2">
-                          {url ? (
-                            <a
-                              href={url}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              className="text-accent hover:underline"
-                            >
-                              Abrir →
-                            </a>
-                          ) : (
-                            <span className="text-text-muted">—</span>
-                          )}
+                          <span className="font-mono text-xs text-text-muted">
+                            {r.billingCustomerId || "—"}
+                          </span>
                         </td>
                       </tr>
                     );

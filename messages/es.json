@@ -1785,7 +1785,7 @@
           ],
           "decisionsLabel": "Decisiones que ya habías tomado:",
           "decisions": [
-            "Stripe en lugar de Lemon Squeezy",
+            "Cobrar por suscripción, no por uso",
             "Tres tiers, descuento anual"
           ]
         },
@@ -2125,14 +2125,14 @@
         {
           "heading": "Pagos",
           "body": [
-            "Las suscripciones las gestiona RevenueCat. En la web, el cobro se hace mediante RevenueCat Web Billing (las tarjetas las procesa Stripe); en las apps, mediante el App Store o Google Play. Vinculamos tu compra a tu cuenta con tu identificador de usuario.",
+            "Las suscripciones las gestiona RevenueCat. En la web, el cobro se hace mediante RevenueCat Web Billing; en las apps, mediante el App Store o Google Play. Vinculamos tu compra a tu cuenta con tu identificador de usuario.",
             "Nunca recibimos ni guardamos los datos completos de tu tarjeta. Sí recibimos y conservamos información de tu suscripción: plan, producto, tienda, identificadores de transacción, fechas de renovación y los datos de la compra que nos reporta RevenueCat (que pueden incluir precio, moneda y país)."
           ]
         },
         {
           "heading": "Con quién compartimos datos",
           "body": [
-            "Trabajamos con proveedores que tratan datos por nuestra cuenta y solo para su función: Supabase (base de datos, autenticación, almacenamiento de archivos y actualizaciones en tiempo real), Render (servidores del backend), Vercel (alojamiento del sitio web), Anthropic (IA), RevenueCat, Stripe, Apple y Google (pagos), Resend (correo), Expo (notificaciones push y actualizaciones de la app) y Google (inicio de sesión, Analytics y las integraciones que conectes).",
+            "Trabajamos con proveedores que tratan datos por nuestra cuenta y solo para su función: Supabase (base de datos, autenticación, almacenamiento de archivos y actualizaciones en tiempo real), Render (servidores del backend), Vercel (alojamiento del sitio web), Anthropic (IA), RevenueCat y su procesador de tarjetas, Apple y Google (pagos), Resend (correo), Expo (notificaciones push y actualizaciones de la app) y Google (inicio de sesión, Analytics y las integraciones que conectes).",
             "Algunas entradas del blog incluyen videos de YouTube o Vimeo; al verlos, esos servicios pueden instalar sus propias cookies.",
             "También podemos divulgar información cuando lo exija la ley, para proteger los derechos y la seguridad de nuestros usuarios o de continuu.it, o como parte de una fusión o venta del negocio, en cuyo caso esta política seguirá protegiendo tus datos.",
             "Dentro de continuu.it, solo las personas que lo necesitan para dar soporte, resolver temas de facturación o prevenir abusos pueden ver datos de cuentas, y las acciones administrativas quedan registradas en un historial de auditoría."
@@ -2223,7 +2223,7 @@
           "heading": "Planes, pagos y renovaciones",
           "body": [
             "Algunas funciones requieren un plan de pago. Los precios y las características de cada plan se muestran en el sitio y pueden cambiar con aviso razonable.",
-            "Las suscripciones se renuevan automáticamente al final de cada periodo salvo que las canceles antes. En la web, el cobro se hace mediante RevenueCat Web Billing (las tarjetas las procesa Stripe); en las apps, mediante el App Store o Google Play.",
+            "Las suscripciones se renuevan automáticamente al final de cada periodo salvo que las canceles antes. En la web, el cobro se hace mediante RevenueCat Web Billing; en las apps, mediante el App Store o Google Play.",
             "Si te suscribes desde una app, la compra también se rige por las condiciones de Apple o de Google, y la cancelas o pides un reembolso desde la configuración de suscripciones de tu tienda. Borrar tu cuenta no cancela la suscripción: cancélala antes en la tienda o en Ajustes → Facturación.",
             "Salvo que la ley exija lo contrario, los importes pagados no son reembolsables por periodos ya iniciados."
           ]
