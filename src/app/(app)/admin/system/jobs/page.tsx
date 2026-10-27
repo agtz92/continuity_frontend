@@ -52,7 +52,6 @@ function formatDate(value: string | null): string {
 export default function JobsPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
-  const [channel, setChannel] = useState("");
   const [kind, setKind] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -63,7 +62,6 @@ export default function JobsPage() {
         page,
         perPage: 50,
         status: status || null,
-        channel: channel || null,
         kind: kind || null,
       },
       fetchPolicy: "cache-and-network",
@@ -89,7 +87,7 @@ export default function JobsPage() {
         <div>
           <h1 className="text-2xl font-semibold text-text">Jobs de notificación</h1>
           <p className="mt-1 text-sm text-text-muted">
-            Outbox de Telegram/WhatsApp. Reintentar repone el job en pending para el próximo cron.
+            Outbox de notificaciones push. Reintentar repone el job en pending para el próximo cron.
           </p>
         </div>
         <div className="flex w-full flex-wrap gap-3 sm:w-auto">
@@ -103,15 +101,6 @@ export default function JobsPage() {
             <option value="sent">Sent</option>
             <option value="failed">Failed</option>
             <option value="skipped">Skipped</option>
-          </select>
-          <select
-            value={channel}
-            onChange={(e) => setChannel(e.target.value)}
-            className="w-full min-w-0 flex-1 rounded border border-border bg-bg px-3 py-1.5 text-sm text-text sm:w-auto sm:flex-none"
-          >
-            <option value="">Todos los canales</option>
-            <option value="telegram">Telegram</option>
-            <option value="whatsapp">WhatsApp</option>
           </select>
           <select
             value={kind}

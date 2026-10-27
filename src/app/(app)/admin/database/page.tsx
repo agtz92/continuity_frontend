@@ -85,7 +85,7 @@ const CATALOG: {
   },
   {
     title: "Jobs de notificaciones",
-    what: "Cola de envíos (Telegram/push): digests, recordatorios, anuncios.",
+    what: "Cola de envíos push: digests, recordatorios, anuncios.",
     review: "Estado por job (pendiente / enviado / error) y reintentos.",
     actions: "Reintentar un job fallido.",
     href: "/admin/system/jobs",

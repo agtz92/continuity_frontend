@@ -118,11 +118,6 @@ export const ADMIN_USER_QUERY = gql`
         dueRemindersEnabled
         sleepingAlertsEnabled
         isAdmin
-        links {
-          channel
-          verified
-          created
-        }
       }
     }
   }

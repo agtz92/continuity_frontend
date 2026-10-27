@@ -17,14 +17,13 @@ export default function NotificationsDemo() {
     const timers = [
       setTimeout(() => setStep(1), 400),
       setTimeout(() => setStep(2), 1400),
-      setTimeout(() => setStep(3), 2800),
     ];
     return () => timers.forEach(clearTimeout);
   }, [inView]);
 
   return (
     <div ref={ref}>
-      <DeviceFrame variant="phone" label="Telegram">
+      <DeviceFrame variant="phone" label="continuu.it">
         <div className="space-y-3 min-h-[420px]">
           {/* Time stamp */}
           <p className="text-center text-[10px] text-ls-text-secondary uppercase tracking-wider">
@@ -81,9 +80,6 @@ export default function NotificationsDemo() {
                         </motion.div>
                       ))}
                     </div>
-                    <p className="text-[11px] text-ls-text-secondary/80 mt-2 pt-2 border-t border-white/5">
-                      {t("footer")}
-                    </p>
                   </motion.div>
                 ) : (
                   <span className="inline-flex gap-1 mt-2">
@@ -108,19 +104,6 @@ export default function NotificationsDemo() {
             </motion.div>
           ) : null}
 
-          {/* User reply */}
-          {step >= 3 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="flex justify-end"
-            >
-              <div className="rounded-2xl rounded-tr-sm bg-ls-ochre/90 text-ls-navy px-3.5 py-2 text-sm font-mono">
-                {t("userReply")}
-              </div>
-            </motion.div>
-          ) : null}
         </div>
       </DeviceFrame>
     </div>

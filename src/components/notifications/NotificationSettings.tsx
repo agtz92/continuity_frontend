@@ -1,26 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Loader2, Send } from "lucide-react";
+import { Loader2, Smartphone } from "lucide-react";
 
 import {
-  DISCONNECT_CHANNEL,
   NOTIFICATION_SETTINGS_QUERY,
-  REQUEST_CHANNEL_LINK,
   UPDATE_NOTIFICATION_SETTINGS,
 } from "@/lib/graphql";
 import { toast } from "@/lib/toast";
 import { TimezoneSelect } from "./TimezoneSelect";
-
-type Channel = "telegram" | "whatsapp";
-
-type Link = {
-  channel: Channel;
-  connected: boolean;
-  verifiedAt: string | null;
-};
 
 type Settings = {
   locale: string;
@@ -35,7 +24,6 @@ type Settings = {
   dueReminderHour: number;
   manualEnabled: boolean;
   isAdmin: boolean;
-  links: Link[];
 };
 
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
@@ -45,7 +33,7 @@ export function NotificationSettings() {
   const tCommon = useTranslations("common");
   const tWeekday = useTranslations("analytics.weekday.labels");
 
-  const { data, loading, refetch } = useQuery<{ notificationSettings: Settings }>(
+  const { data, loading } = useQuery<{ notificationSettings: Settings }>(
     NOTIFICATION_SETTINGS_QUERY,
     { fetchPolicy: "cache-and-network" }
   );
@@ -65,32 +53,7 @@ export function NotificationSettings() {
       },
     }
   );
-  const [requestLink, { loading: linking }] = useMutation(REQUEST_CHANNEL_LINK);
-  const [disconnect] = useMutation(DISCONNECT_CHANNEL);
-
   const settings = data?.notificationSettings;
-  const telegramLink = useMemo<Link | undefined>(
-    () => settings?.links.find((l) => l.channel === "telegram"),
-    [settings]
-  );
-
-  const [pollingForLink, setPollingForLink] = useState(false);
-
-  useEffect(() => {
-    if (!pollingForLink) return;
-    const id = setInterval(() => {
-      refetch().catch(() => {});
-    }, 3000);
-    const timeout = setTimeout(() => setPollingForLink(false), 5 * 60 * 1000);
-    return () => {
-      clearInterval(id);
-      clearTimeout(timeout);
-    };
-  }, [pollingForLink, refetch]);
-
-  useEffect(() => {
-    if (telegramLink?.connected) setPollingForLink(false);
-  }, [telegramLink?.connected]);
 
   if (loading && !settings) {
     return (
@@ -111,47 +74,13 @@ export function NotificationSettings() {
     }
   };
 
-  const onConnectTelegram = async () => {
-    try {
-      const res = await requestLink({
-        variables: { channel: "TELEGRAM" },
-      });
-      const deepLink = res.data?.requestChannelLink?.deepLink;
-      if (deepLink) {
-        window.open(deepLink, "_blank", "noopener,noreferrer");
-        setPollingForLink(true);
-      }
-    } catch {
-      // error link toast
-    }
-  };
-
-  const onDisconnectTelegram = async () => {
-    if (!confirm(t("channel.disconnectConfirm"))) return;
-    await disconnect({ variables: { channel: "TELEGRAM" } });
-    await refetch();
-    toast.success(t("channel.disconnected"));
-  };
-
   return (
     <div>
       <Section title={t("channels")}>
-        <ChannelRow
-          name={t("telegram")}
-          connected={!!telegramLink?.connected}
-          waiting={pollingForLink}
-          onConnect={onConnectTelegram}
-          onDisconnect={onDisconnectTelegram}
-          connecting={linking}
-          labels={{
-            connected: t("channel.connected"),
-            waiting: t("channel.waiting"),
-            notConnected: t("channel.notConnected"),
-            connect: t("channel.connect"),
-            disconnect: t("channel.disconnect"),
-          }}
-        />
-        <p className="text-xs text-text-muted mt-3">{t("whatsappSoon")}</p>
+        <p className="flex items-start gap-2 text-sm text-text">
+          <Smartphone size={16} className="mt-0.5 shrink-0 text-text-muted" />
+          {t("pushOnly")}
+        </p>
       </Section>
 
       <Section title={t("weeklyDigest")}>
@@ -321,69 +250,5 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs text-text-muted block mb-1">{label}</span>
       {children}
     </label>
-  );
-}
-
-function ChannelRow({
-  name,
-  connected,
-  waiting,
-  onConnect,
-  onDisconnect,
-  connecting,
-  labels,
-}: {
-  name: string;
-  connected: boolean;
-  waiting: boolean;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  connecting: boolean;
-  labels: {
-    connected: string;
-    waiting: string;
-    notConnected: string;
-    connect: string;
-    disconnect: string;
-  };
-}) {
-  return (
-    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
-      <div>
-        <div className="text-text font-medium">{name}</div>
-        <div className="text-xs text-text-muted mt-0.5">
-          {connected
-            ? labels.connected
-            : waiting
-              ? labels.waiting
-              : labels.notConnected}
-        </div>
-      </div>
-      <div>
-        {connected ? (
-          <button
-            onClick={onDisconnect}
-            className="px-3 py-1.5 text-xs rounded-lg border border-border text-text-muted hover:bg-border"
-          >
-            {labels.disconnect}
-          </button>
-        ) : (
-          <button
-            onClick={onConnect}
-            disabled={connecting}
-            className="px-3 py-1.5 text-xs rounded-lg bg-accent hover:opacity-90 text-text flex items-center gap-1.5 disabled:opacity-60"
-          >
-            {connecting ? (
-              <Loader2 size={12} className="animate-spin" />
-            ) : waiting ? (
-              <CheckCircle2 size={12} />
-            ) : (
-              <Send size={12} />
-            )}
-            {labels.connect}
-          </button>
-        )}
-      </div>
-    </div>
   );
 }

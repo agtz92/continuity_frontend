@@ -33,19 +33,12 @@ type UsagePoint = {
   costUsdCents: number;
 };
 
-type NotificationLinkInfo = {
-  channel: string;
-  verified: boolean;
-  created: string;
-};
-
 type NotificationPrefs = {
   digestEnabled: boolean;
   dailyDigestEnabled: boolean;
   dueRemindersEnabled: boolean;
   sleepingAlertsEnabled: boolean;
   isAdmin: boolean;
-  links: NotificationLinkInfo[];
 };
 
 type AdminUserDetail = {
@@ -377,24 +370,6 @@ export default function AdminUserDetailPage() {
                 value={user.notifications.sleepingAlertsEnabled}
               />
             </div>
-            {user.notifications.links.length > 0 && (
-              <div className="mt-4 border-t border-border pt-3">
-                <div className="mb-2 text-xs uppercase text-text-muted">
-                  Canales conectados
-                </div>
-                <ul className="space-y-1">
-                  {user.notifications.links.map((l) => (
-                    <li key={`${l.channel}-${l.created}`} className="flex gap-2">
-                      <span className="capitalize text-text">{l.channel}</span>
-                      <span className="text-text-muted">
-                        {l.verified ? "verificado" : "pendiente"} · creado{" "}
-                        {formatDate(l.created)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         </section>
       )}

@@ -549,14 +549,6 @@
         "syncNow": "Sync now",
         "syncing": "Syncing…",
         "syncResult": "Synced — {created} created, {updated} updated, {deleted} removed.",
-        "icloudTitle": "iCloud (write directly)",
-        "icloudBody": "Advanced: write events straight into iCloud using your Apple ID and an app-specific password (appleid.apple.com → Sign-In and Security → App-Specific Passwords). Most people should use Subscribe above instead.",
-        "icloudAppleId": "Apple ID (email)",
-        "icloudAppPassword": "App-specific password",
-        "icloudConnectButton": "Connect iCloud",
-        "icloudConnectedAs": "Connected as {appleId}",
-        "icloudSyncNow": "Push to iCloud",
-        "icloudSyncResult": "Pushed {count} events to iCloud.",
         "disconnectButton": "Disconnect",
         "errorConnect": "Could not start sign-in: {error}",
         "errorGeneric": "Something went wrong: {error}",
@@ -627,10 +619,9 @@
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Get nudges on Telegram so a project doesn't quietly die.",
+      "description": "Get nudges on your phone so a project doesn't quietly die.",
       "channels": "Channels",
-      "telegram": "Telegram",
-      "whatsappSoon": "WhatsApp coming soon.",
+      "pushOnly": "Digests and reminders arrive as push notifications in the continuu.it mobile app. Install it and sign in to receive them.",
       "weeklyDigest": "Weekly digest",
       "weeklyDigestToggle": "Send a weekly summary of my analytics",
       "day": "Day",
@@ -646,16 +637,7 @@
       "dueRemindersToggle": "End-of-day pending warning",
       "dueReminderHour": "Warning hour (local)",
       "dueRemindersHint": "At the chosen hour, if there are still open tasks or routines for today, we'll ping you. If everything's closed, nothing is sent.",
-      "manualToggle": "Receive admin / manual announcements",
-      "channel": {
-        "connected": "Connected",
-        "waiting": "Waiting for you to press Start in Telegram…",
-        "notConnected": "Not connected",
-        "connect": "Connect",
-        "disconnect": "Disconnect",
-        "disconnectConfirm": "Disconnect Telegram? You can reconnect later.",
-        "disconnected": "Disconnected"
-      }
+      "manualToggle": "Receive admin / manual announcements"
     }
   },
   "analytics": {
@@ -1776,11 +1758,11 @@
         "closing": "The cost of returning drops to zero. Projects you wrote off start finishing themselves."
       },
       "notifications": {
-        "label": "Telegram",
+        "label": "Push",
         "headline": "Wake up to your day. Get reminded before you lose it.",
-        "body": "continuu.it meets you where you already are. Every morning, at the time you choose, it sends you a focused summary on Telegram or by email. You decide what reaches you, and when.",
+        "body": "continuu.it meets you where you already are. Every morning, at the time you choose, a focused summary lands on your phone. You decide what reaches you, and when.",
         "demo": {
-          "botName": "continuu.it bot",
+          "botName": "continuu.it",
           "greeting": "Good morning, Alfredo.",
           "todayLabel": "Today's pending work:",
           "topPriorityLabel": "Top priority",
@@ -1790,9 +1772,7 @@
           "secondary": [
             "Review GTM conversion tracking",
             "Reply to beta tester feedback"
-          ],
-          "footer": "Reply STATUS for full report.",
-          "userReply": "STATUS"
+          ]
         },
         "closing": "Notifications work best when they live where your attention already is."
       },
@@ -1886,7 +1866,7 @@
         },
         {
           "title": "Let the system meet you where you are.",
-          "body": "Get your morning briefing on Telegram. Set reminder times. Pick up paused projects with AI context. We close the loop on follow-up so you can stay in the flow of building."
+          "body": "Get your morning briefing as a push on your phone. Set reminder times. Pick up paused projects with AI context. We close the loop on follow-up so you can stay in the flow of building."
         },
         {
           "title": "Show up on Sundays. Make decisions.",
@@ -1936,7 +1916,7 @@
             "2 active routines",
             "No Loop — the assistant starts at Pro",
             "Claude connector (read) — use your own Claude",
-            "Email and Telegram notifications, on your rules",
+            "Push notifications on your phone, on your rules",
             "Full Today view, analytics, and activity log",
             "Up to 30 ideas"
           ],
@@ -2090,7 +2070,6 @@
           "heading": "Integrations you turn on",
           "body": [
             "Google Tasks and Google Calendar: if you connect them, we access your Google task lists (read only) to import them, and, if you turn on sync, we create and update events in your calendar with the title, date, time and duration of your tasks and routines. We store your Google account email and encrypted access tokens. You can disconnect at any time.",
-            "Telegram: if you link Telegram, we store your chat identifier and send your digests and reminders there, which include the names of your projects and tasks. Telegram processes those messages under its own policy.",
             "Calendar feed: if you use the private iCal link, anyone who has that link, and the calendar service where you subscribe it, can see the tasks and routines it includes. You can choose what it includes and regenerate the link to invalidate the old one."
           ]
         },

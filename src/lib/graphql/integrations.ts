@@ -45,7 +45,7 @@ export const DISCONNECT_GOOGLE_TASKS = gql`
   }
 `;
 
-// ===== Integración: Calendario (feed iCal + Google + iCloud) =====
+// ===== Integración: Calendario (feed iCal + Google) =====
 
 
 export const CALENDAR_INTEGRATION_QUERY = gql`
@@ -58,8 +58,6 @@ export const CALENDAR_INTEGRATION_QUERY = gql`
       googleConnected
       googleEmail
       googleCalendarId
-      icloudConnected
-      icloudAppleId
     }
   }
 `;
@@ -104,27 +102,6 @@ export const SYNC_GOOGLE_CALENDAR_NOW = gql`
       updated
       deleted
     }
-  }
-`;
-
-
-export const CONNECT_ICLOUD_CALENDAR = gql`
-  mutation ConnectICloudCalendar($appleId: String!, $appPassword: String!) {
-    connectIcloudCalendar(appleId: $appleId, appPassword: $appPassword)
-  }
-`;
-
-
-export const DISCONNECT_ICLOUD_CALENDAR = gql`
-  mutation DisconnectICloudCalendar {
-    disconnectIcloudCalendar
-  }
-`;
-
-
-export const SYNC_ICLOUD_CALENDAR_NOW = gql`
-  mutation SyncICloudCalendarNow {
-    syncIcloudCalendarNow
   }
 `;
 

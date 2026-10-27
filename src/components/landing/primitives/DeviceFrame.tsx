@@ -9,7 +9,7 @@ type Props = {
 
 /**
  * Lightweight chrome around a feature mockup. `phone` mimics a mobile chat
- * surface (used for the Telegram/WhatsApp demo); `card` is a window-style
+ * surface (used for the push notification demo); `card` is a window-style
  * surface for desktop-feeling mockups (project card, AI chat panel).
  */
 export default function DeviceFrame({
