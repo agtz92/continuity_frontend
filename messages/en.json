@@ -2058,7 +2058,7 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "lastUpdated": "Last updated: October 27, 2026",
+      "lastUpdated": "Last updated: October 28, 2026",
       "intro": "This policy explains what data continuu.it collects when you use our website, the web app, the iOS and Android apps and the connector for AI clients; why we collect it; who we share it with; and what control you have over it.",
       "sections": [
         {
@@ -2074,7 +2074,7 @@
         {
           "heading": "Information we collect automatically",
           "body": [
-            "Website analytics: we use Google Analytics on the public pages of continuu.it (home, blog, help, legal) only if you allow it in the cookie banner; it is never loaded inside the web app. It records the pages you visit (their address), how long you stay, your browser and device type, and an approximate location that Google derives from your IP address. It uses cookies (see \"Cookies and local storage\"). The mobile apps do not include analytics or crash-reporting tools.",
+            "Website analytics: we use Google Analytics on the public pages of continuu.it (home, blog, help, legal) and on the sign-in, sign-up and welcome screens, only if you allow it in the cookie banner; it is not loaded in the rest of the web app. There it only records that an account was created and whether by email or Google, so we know which channels sign-ups come from; never your email or name. It records the pages you visit (their address), how long you stay, your browser and device type, and an approximate location that Google derives from your IP address. It uses cookies (see \"Cookies and local storage\"). The mobile apps do not include analytics or crash-reporting tools.",
             "Activity counts: for each day we record how many actions you performed and whether they came from the web, the mobile app or a connected AI client. We store only the count, not what you did.",
             "AI assistant usage: number of messages, tokens processed and estimated cost per day, used to apply your plan's limits.",
             "Technical data: your IP address is used momentarily to limit abusive requests and is not stored in our database. Our servers keep operational logs that may include your account identifier. The mobile app registers a notification token and a random identifier for your installation so we can send you push notifications.",

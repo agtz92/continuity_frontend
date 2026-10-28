@@ -7,6 +7,9 @@ import { supabase } from "@/lib/supabase";
 import { detectBrowserTimezone } from "@/lib/timezones";
 import MarketingNav from "@/components/landing/MarketingNav";
 import CTAButton from "@/components/landing/primitives/CTAButton";
+import ConsentBanner from "@/components/landing/ConsentBanner";
+import { Analytics } from "@/app/analytics";
+import { trackEvent } from "@/lib/analyticsEvents";
 
 type Mode = "signin" | "signup" | "forgot";
 type View = "form" | "check_email_signup" | "check_email_reset";
@@ -36,6 +39,9 @@ function Shell({ children }: { children: React.ReactNode }) {
       <main className="flex min-h-screen items-center justify-center px-6 pb-16 pt-28 sm:pt-32">
         {children}
       </main>
+      {/* GA here (with consent) so the sign_up event keeps the visit's source. */}
+      <ConsentBanner />
+      <Analytics />
     </div>
   );
 }
@@ -84,7 +90,7 @@ export default function LoginPage() {
           setError("Passwords do not match");
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -94,6 +100,11 @@ export default function LoginPage() {
         if (error) {
           setError(error.message);
           return;
+        }
+        // Supabase answers an already-registered email with a user that has
+        // no identities (so it doesn't leak who has an account): not a signup.
+        if (data.user?.identities?.length) {
+          trackEvent("sign_up", { method: "email" });
         }
         try {
           localStorage.setItem(

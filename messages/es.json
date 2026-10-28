@@ -2058,7 +2058,7 @@
     },
     "privacy": {
       "title": "Política de privacidad",
-      "lastUpdated": "Última actualización: 27 de octubre de 2026",
+      "lastUpdated": "Última actualización: 28 de octubre de 2026",
       "intro": "Esta política explica qué datos recopila continuu.it cuando usas nuestro sitio web, la aplicación web, las apps para iOS y Android y el conector para clientes de IA; para qué los usamos; con quién los compartimos, y qué control tienes sobre ellos.",
       "sections": [
         {
@@ -2074,7 +2074,7 @@
         {
           "heading": "Información que recopilamos automáticamente",
           "body": [
-            "Analítica del sitio: usamos Google Analytics en las páginas públicas de continuu.it (inicio, blog, ayuda, legales) solo si lo permites en el aviso de cookies; nunca se carga dentro de la aplicación web. Registra las páginas que visitas (su dirección), cuánto tiempo pasas, tu tipo de navegador y dispositivo, y una ubicación aproximada que Google deduce de tu dirección IP. Usa cookies (ver «Cookies y almacenamiento local»). Las apps móviles no incluyen herramientas de analítica ni de reporte de fallos.",
+            "Analítica del sitio: usamos Google Analytics en las páginas públicas de continuu.it (inicio, blog, ayuda, legales) y en las pantallas de inicio de sesión, registro y bienvenida, solo si lo permites en el aviso de cookies; no se carga en el resto de la aplicación web. Ahí solo registra que se creó una cuenta y si fue con correo o con Google, para saber de qué canal llegan los registros; nunca tu correo ni tu nombre. Registra las páginas que visitas (su dirección), cuánto tiempo pasas, tu tipo de navegador y dispositivo, y una ubicación aproximada que Google deduce de tu dirección IP. Usa cookies (ver «Cookies y almacenamiento local»). Las apps móviles no incluyen herramientas de analítica ni de reporte de fallos.",
             "Conteo de actividad: por cada día registramos cuántas acciones realizaste y si vinieron de la web, de la app móvil o de un cliente de IA conectado. Guardamos solo el número, no lo que hiciste.",
             "Uso del asistente de IA: número de mensajes, tokens procesados y costo estimado por día, para aplicar los límites de tu plan.",
             "Datos técnicos: tu dirección IP se usa momentáneamente para limitar solicitudes abusivas y no se guarda en nuestra base de datos. Nuestros servidores conservan registros operativos que pueden incluir tu identificador de cuenta. La app móvil registra un token de notificaciones y un identificador aleatorio de tu instalación para poder enviarte notificaciones push.",
