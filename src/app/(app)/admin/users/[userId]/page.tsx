@@ -6,11 +6,16 @@ import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   ADMIN_SET_USER_IS_ADMIN,
+  ADMIN_SET_USER_BILLING_EXEMPT_UNTIL,
   ADMIN_SET_USER_IS_BILLING_EXEMPT,
   ADMIN_SET_USER_PLAN,
   ADMIN_USER_QUERY,
 } from "@/lib/graphql";
 import { toast } from "@/lib/toast";
+import {
+  SendUserEmailCard,
+  type DirectEmail,
+} from "@/components/admin/SendUserEmailCard";
 
 type Counts = {
   projects: number;
@@ -44,6 +49,7 @@ type NotificationPrefs = {
 type AdminUserDetail = {
   userId: string;
   email: string;
+  firstName: string;
   plan: string;
   isAdmin: boolean;
   isBillingExempt: boolean;
@@ -60,6 +66,10 @@ type AdminUserDetail = {
   counts: Counts;
   usageLast30d: UsagePoint[];
   notifications: NotificationPrefs | null;
+  billingExemptUntil: string | null;
+  emailLocale: string;
+  lifecycleEmailsEnabled: boolean;
+  directEmails: DirectEmail[];
 };
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -158,7 +168,12 @@ export default function AdminUserDetailPage() {
         >
           ← Volver a usuarios
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-text">{user.email}</h1>
+        <h1 className="mt-2 text-2xl font-semibold text-text">
+          {user.firstName || (
+            <span className="text-text-muted">Sin nombre</span>
+          )}
+        </h1>
+        <p className="text-base text-text">{user.email}</p>
         <p className="text-sm text-text-muted">{user.userId}</p>
       </div>
 
@@ -259,6 +274,15 @@ export default function AdminUserDetailPage() {
                 : "No — se le cobra normal"}
             </span>
           </label>
+          {user.isBillingExempt && (
+            <ExemptUntilField
+              key={user.billingExemptUntil ?? "none"}
+              userId={user.userId}
+              email={user.email}
+              until={user.billingExemptUntil}
+              onSaved={() => refetch()}
+            />
+          )}
         </DataCard>
 
         <DataCard label="Cuenta">
@@ -373,6 +397,117 @@ export default function AdminUserDetailPage() {
           </div>
         </section>
       )}
+
+      <SendUserEmailCard
+        userId={user.userId}
+        email={user.email}
+        emailLocale={user.emailLocale}
+        lifecycleEmailsEnabled={user.lifecycleEmailsEnabled}
+        history={user.directEmails}
+        onSent={() => refetch()}
+      />
+    </div>
+  );
+}
+
+// <input type="date"> works in local days; the exemption ends at the end of
+// the chosen day, local time.
+function toDateInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function endOfDayIso(date: string): string {
+  return new Date(`${date}T23:59:59`).toISOString();
+}
+
+function addMonths(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return toDateInput(d.toISOString());
+}
+
+function ExemptUntilField({
+  userId,
+  email,
+  until,
+  onSaved,
+}: {
+  userId: string;
+  email: string;
+  until: string | null;
+  onSaved: () => void;
+}) {
+  const [value, setValue] = useState(toDateInput(until));
+  const [save, { loading }] = useMutation(ADMIN_SET_USER_BILLING_EXEMPT_UNTIL, {
+    onCompleted: () => {
+      toast.success("Fecha de fin actualizada");
+      onSaved();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const saved = toDateInput(until);
+  const daysLeft = until
+    ? Math.ceil((new Date(until).getTime() - Date.now()) / 86_400_000)
+    : null;
+
+  const submit = (next: string) => {
+    const message = next
+      ? `La exención de ${email} vencerá el ${next}. Al vencer vuelve a Free si nadie le cobra. ¿Continuar?`
+      : `Quitar la fecha de fin? La exención de ${email} quedará indefinida.`;
+    if (!confirm(message)) return;
+    save({
+      variables: { userId, until: next ? endOfDayIso(next) : null },
+    });
+  };
+
+  return (
+    <div className="mt-3 space-y-2 border-t border-border pt-3 text-sm">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-text-muted">Vence</span>
+        <span className="text-text">
+          {until
+            ? `${formatDate(until)} (${daysLeft} d)`
+            : "Indefinida"}
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          type="date"
+          value={value}
+          min={toDateInput(new Date().toISOString())}
+          onChange={(e) => setValue(e.target.value)}
+          className="rounded border border-border bg-bg px-2 py-1 text-text outline-none focus:border-accent"
+        />
+        <button
+          type="button"
+          onClick={() => setValue(addMonths(3))}
+          className="rounded border border-border px-2 py-1 text-xs text-text-muted hover:text-text"
+        >
+          +3 meses
+        </button>
+        <button
+          type="button"
+          disabled={loading || value === saved || value === ""}
+          onClick={() => submit(value)}
+          className="rounded bg-accent px-3 py-1 text-xs font-medium text-bg disabled:opacity-50"
+        >
+          Guardar
+        </button>
+        {until && (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => submit("")}
+            className="text-xs text-text-muted hover:text-text"
+          >
+            Quitar fecha
+          </button>
+        )}
+      </div>
     </div>
   );
 }

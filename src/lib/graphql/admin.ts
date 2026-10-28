@@ -82,6 +82,7 @@ export const ADMIN_USER_QUERY = gql`
     adminUser(userId: $userId) {
       userId
       email
+      firstName
       plan
       isAdmin
       isBillingExempt
@@ -118,6 +119,18 @@ export const ADMIN_USER_QUERY = gql`
         dueRemindersEnabled
         sleepingAlertsEnabled
         isAdmin
+      }
+      billingExemptUntil
+      emailLocale
+      lifecycleEmailsEnabled
+      directEmails {
+        id
+        created
+        subject
+        body
+        locale
+        status
+        error
       }
     }
   }
@@ -156,6 +169,21 @@ export const ADMIN_SET_USER_IS_BILLING_EXEMPT = gql`
     ) {
       userId
       isBillingExempt
+    }
+  }
+`;
+
+export const ADMIN_SET_USER_BILLING_EXEMPT_UNTIL = gql`
+  mutation AdminSetUserBillingExemptUntil($userId: ID!, $until: DateTime) {
+    adminSetUserBillingExemptUntil(userId: $userId, until: $until)
+  }
+`;
+
+export const ADMIN_SEND_USER_EMAIL = gql`
+  mutation AdminSendUserEmail($userId: ID!, $subject: String!, $body: String!) {
+    adminSendUserEmail(userId: $userId, subject: $subject, body: $body) {
+      id
+      status
     }
   }
 `;
