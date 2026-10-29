@@ -2060,9 +2060,15 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "lastUpdated": "Last updated: October 28, 2026",
+      "lastUpdated": "Last updated: October 29, 2026",
       "intro": "This policy explains what data continuu.it collects when you use our website, the web app, the iOS and Android apps and the connector for AI clients; why we collect it; who we share it with; and what control you have over it.",
       "sections": [
+        {
+          "heading": "Who is responsible for your data",
+          "body": [
+            "The data controller responsible for your personal data is Alfredo Gutiérrez, an individual who operates continuu.it. For anything related to your data, including exercising your rights, write to hello@continuu.it."
+          ]
+        },
         {
           "heading": "Information you give us",
           "body": [
@@ -2191,7 +2197,7 @@
         {
           "heading": "Contact",
           "body": [
-            "If you have questions about this policy or how we handle your data, write to us at hello@continuu.it."
+            "If you have questions about this policy or how we handle your data, write to Alfredo Gutiérrez, the data controller, at hello@continuu.it."
           ]
         }
       ]
