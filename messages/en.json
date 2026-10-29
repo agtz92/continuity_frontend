@@ -1606,21 +1606,23 @@
     },
     "backup": {
       "title": "Backup & Restore",
-      "intro": "Export a JSON file with all your projects, tasks, ideas, and activity log. Save it somewhere safe (Google Drive, Dropbox, iCloud).",
+      "intro": "Export a JSON file with everything in your account: projects, tasks, routines, ideas, notes and activity log. Save it somewhere safe (Google Drive, Dropbox, iCloud).",
       "currentData": "Current data",
       "counts": "{projects} projects · {tasks} tasks · {ideas} ideas · {updates} updates",
       "lastBackup": "Last backup: {when}",
       "exportCta": "Export to JSON file",
+      "working": "Working…",
       "restoreHeader": "Restore from backup",
       "restoreIntro": "Select a previously exported JSON file. Choose how to handle existing data:",
       "importMerge": "Import & merge with current data",
       "importReplace": "Import & replace all data",
-      "replaceConfirm": "This will DELETE all current data and replace it with the backup. Continue?",
+      "replaceConfirm": "This will DELETE your current data of every kind the backup contains and replace it with the backup. If anything fails, nothing changes. Continue?",
       "toast": {
         "exported": "Backup exported",
         "invalidFile": "Invalid file. Expected a Continuity export.",
         "readError": "Could not read backup file: {message}",
-        "imported": "Imported {projects} projects, {tasks} tasks, {ideas} ideas, {notes} notes, {projectNotes} project notes."
+        "imported": "Restored {projects} projects, {tasks} tasks, {routines} routines, {ideas} ideas, {quickNotes} notes and {activity} log entries.",
+        "tooLarge": "The backup file is too large to restore (max 9 MB)."
       }
     }
   },

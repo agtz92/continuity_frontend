@@ -1,81 +1,76 @@
 "use client";
 
-import { useMutation } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import {
-  CREATE_PROJECT_NOTE,
   DASHBOARD_QUERY,
   MARK_BACKUP,
+  MY_DATA_EXPORT,
+  RESTORE_BACKUP,
 } from "@/lib/graphql";
 import { toast } from "@/lib/toast";
 import { daysSince } from "@/lib/date";
-import type {
-  Activity,
-  Idea,
-  Project,
-  ProjectNote,
-  Task,
-} from "@/lib/types";
-import { useProjectMutations } from "./useProjectMutations";
-import { useTaskMutations } from "./useTaskMutations";
-import { useIdeaMutations } from "./useIdeaMutations";
-import { useNoteMutations } from "./useNoteMutations";
 
-type Snapshot = {
-  projects: Project[];
-  tasks: Task[];
-  ideas: Idea[];
-  activities: Activity[];
-  projectNotes: ProjectNote[];
-};
+// Secciones que el servidor sabe restaurar. Del export completo solo se mandan
+// estas (sin conversaciones ni ajustes) para no subir de más.
+const RESTORABLE = [
+  "categories",
+  "projects",
+  "project_notes",
+  "tasks",
+  "task_blockers",
+  "routines",
+  "routine_occurrences",
+  "ideas",
+  "quick_notes",
+  "quick_note_sections",
+  "activity",
+];
 
-// Legacy snapshot shape (pre-unification): `updates` field with a flat list
-// of user-authored notes. We still accept these on import and restore them
-// as kind=NOTE activities; achievements aren't reconstructed.
-type LegacyUpdate = {
-  id: string;
-  projectId: string;
-  note: string;
-  date: string;
-};
+// Debajo del DATA_UPLOAD_MAX_MEMORY_SIZE del backend (10 MB).
+const MAX_UPLOAD_BYTES = 9 * 1024 * 1024;
 
+/**
+ * Respaldo = el mismo JSON de "Descargar mis datos" (`myDataExport`), que ya
+ * lleva todo lo del usuario. Restaurar es UNA mutation que el servidor aplica
+ * en una transacción: antes eran cientos de mutations desde el navegador que
+ * chocaban con el rate limit y podían dejar la cuenta a medias.
+ * Los respaldos viejos del cliente (camelCase) los convierte el backend.
+ */
 export function useBackup({
-  snapshot,
   lastBackup,
   refetch,
 }: {
-  /** Current dashboard data — used as the export source and for "replace" cleanup. */
-  snapshot: Snapshot;
   lastBackup: string | null;
   refetch: () => Promise<unknown>;
 }) {
   const t = useTranslations("modals.backup.toast");
+  const client = useApolloClient();
   const [markBackupM] = useMutation(MARK_BACKUP, {
     refetchQueries: [{ query: DASHBOARD_QUERY }],
   });
-  const projectMut = useProjectMutations();
-  const taskMut = useTaskMutations();
-  const ideaMut = useIdeaMutations();
-  const noteMut = useNoteMutations();
-  const [createNoteRaw] = useMutation(CREATE_PROJECT_NOTE);
+  const [restoreM] = useMutation(RESTORE_BACKUP);
 
   const daysSinceBackup = lastBackup ? daysSince(lastBackup) : null;
   const backupOverdue =
     !lastBackup || (daysSinceBackup !== null && daysSinceBackup >= 7);
 
   const exportData = async () => {
-    const payload = {
-      version: 2,
-      exportedAt: new Date().toISOString(),
-      ...snapshot,
-    };
-    const json = JSON.stringify(payload, null, 2);
+    let json: string;
+    try {
+      const { data } = await client.query<{ myDataExport: string }>({
+        query: MY_DATA_EXPORT,
+        fetchPolicy: "no-cache",
+      });
+      json = data.myDataExport;
+    } catch {
+      return; // errorLink ya mostró el error
+    }
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const date = new Date().toISOString().split("T")[0];
-    a.download = `continuity-backup-${date}.json`;
+    a.download = `continuity-backup-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -84,146 +79,54 @@ export function useBackup({
       await markBackupM();
       toast.success(t("exported"));
     } catch {
-      // markBackup failed but the file already downloaded — don't claim success
+      // markBackup falló pero el archivo ya se descargó — no presumir éxito
     }
-    refetch();
   };
 
   const importData = async (file: File, mode: "merge" | "replace") => {
-    let parsed: {
-      version?: number;
-      projects?: Project[];
-      tasks?: Task[];
-      ideas?: Idea[];
-      activities?: Activity[];
-      updates?: LegacyUpdate[]; // legacy v1 backups
-      projectNotes?: ProjectNote[];
-    };
+    let payload: string;
     try {
-      const text = await file.text();
-      parsed = JSON.parse(text);
+      const parsed: unknown = JSON.parse(await file.text());
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        toast.error(t("invalidFile"));
+        return;
+      }
+      const obj = parsed as Record<string, unknown>;
+      // Export del servidor: solo las secciones restaurables. Formato viejo: tal cual.
+      payload = JSON.stringify(
+        "exported_at" in obj
+          ? Object.fromEntries(RESTORABLE.filter((k) => k in obj).map((k) => [k, obj[k]]))
+          : obj
+      );
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error(t("readError", { message: msg }));
       return;
     }
-    if (!parsed.version || !Array.isArray(parsed.projects)) {
-      toast.error(t("invalidFile"));
+    if (new Blob([payload]).size > MAX_UPLOAD_BYTES) {
+      toast.error(t("tooLarge"));
       return;
     }
 
     try {
-      if (mode === "replace") {
-        await Promise.all(
-          snapshot.projects.map((p) =>
-            projectMut.raw.deleteProject({ variables: { id: p.id } })
-          )
-        );
-        await Promise.all(
-          snapshot.tasks.map((t) =>
-            taskMut.raw.deleteTask({ variables: { id: t.id } })
-          )
-        );
-        await Promise.all(
-          snapshot.ideas.map((i) =>
-            ideaMut.raw.deleteIdea({ variables: { id: i.id } })
-          )
-        );
-      }
-
-      // Recreate projects (server assigns new ids; map old → new for tasks/notes).
-      const idMap: Record<string, string> = {};
-      for (const p of parsed.projects as Project[]) {
-        const res = await projectMut.raw.createProject({
-          variables: {
-            data: {
-              name: p.name,
-              description: p.description || "",
-              why: p.why || "",
-              nextStep: p.nextStep || "",
-              status: p.status || "idea",
-              dueDate: p.dueDate ?? null,
-            },
-          },
-        });
-        const newId = res.data?.createProject?.id;
-        if (newId) idMap[p.id] = newId;
-      }
-      for (const t of (parsed.tasks || []) as Task[]) {
-        await taskMut.raw.createTask({
-          variables: {
-            data: {
-              title: t.title,
-              projectId: t.projectId ? idMap[t.projectId] || null : null,
-              dueDate: t.dueDate,
-              done: !!t.done,
-              effortHours: t.effortHours ?? null,
-            },
-          },
-        });
-      }
-      for (const i of (parsed.ideas || []) as Idea[]) {
-        await ideaMut.raw.createIdea({
-          variables: {
-            data: { title: i.title, description: i.description || "", why: i.why || "" },
-          },
-        });
-      }
-
-      // Note import: prefer v2 `activities` (only kind=note); fall back to v1
-      // legacy `updates`. We deliberately only restore notes — achievements
-      // (task_completed, project_created, …) are runtime observations, not
-      // user data.
-      let restoredNotes = 0;
-      const noteActivities = (parsed.activities || []).filter(
-        (a) => a.kind === "note"
-      );
-      for (const a of noteActivities) {
-        const newProjectId = a.projectId ? idMap[a.projectId] : null;
-        if (newProjectId) {
-          await noteMut.raw.addNote({
-            variables: { projectId: newProjectId, note: a.note },
-          });
-          restoredNotes += 1;
-        }
-      }
-      for (const u of parsed.updates || []) {
-        const newProjectId = idMap[u.projectId];
-        if (newProjectId) {
-          await noteMut.raw.addNote({
-            variables: { projectId: newProjectId, note: u.note },
-          });
-          restoredNotes += 1;
-        }
-      }
-
-      for (const n of (parsed.projectNotes || []) as ProjectNote[]) {
-        const newProjectId = idMap[n.projectId];
-        if (newProjectId) {
-          await createNoteRaw({
-            variables: {
-              data: {
-                projectId: newProjectId,
-                title: n.title || "",
-                body: n.body || "",
-              },
-            },
-          });
-        }
-      }
-      await refetch();
+      const { data } = await restoreM({ variables: { data: payload, mode } });
+      const r = data?.restoreBackup;
+      if (!r) return;
+      // Rutinas, Quick Notes y demás viven en otras queries: refrescar todo lo montado.
+      await Promise.all([refetch(), client.refetchQueries({ include: "active" })]);
       toast.success(
         t("imported", {
-          projects: parsed.projects?.length || 0,
-          tasks: parsed.tasks?.length || 0,
-          ideas: parsed.ideas?.length || 0,
-          notes: restoredNotes,
-          projectNotes: parsed.projectNotes?.length || 0,
+          projects: r.projects,
+          tasks: r.tasks,
+          routines: r.routines,
+          ideas: r.ideas,
+          quickNotes: r.quickNotes,
+          activity: r.activity,
         })
       );
     } catch {
-      // errorLink already toasted whichever mutation failed; refresh state.
-      refetch();
+      // errorLink ya mostró el error (archivo inválido, cupo del plan…).
+      // El servidor no escribió nada: la transacción se revirtió.
     }
   };
 

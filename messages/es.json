@@ -1606,21 +1606,23 @@
     },
     "backup": {
       "title": "Respaldo y restauración",
-      "intro": "Exporta un archivo JSON con todos tus proyectos, tareas, ideas y bitácora. Guárdalo en un lugar seguro (Google Drive, Dropbox, iCloud).",
+      "intro": "Exporta un archivo JSON con todo lo de tu cuenta: proyectos, tareas, rutinas, ideas, notas y bitácora. Guárdalo en un lugar seguro (Google Drive, Dropbox, iCloud).",
       "currentData": "Información actual",
       "counts": "{projects} proyectos · {tasks} tareas · {ideas} ideas · {updates} updates",
       "lastBackup": "Último respaldo: {when}",
       "exportCta": "Exportar a archivo JSON",
+      "working": "Procesando…",
       "restoreHeader": "Restaurar desde respaldo",
       "restoreIntro": "Selecciona un JSON exportado previamente. Elige cómo manejar la información actual:",
       "importMerge": "Importar y mezclar con la información actual",
       "importReplace": "Importar y reemplazar todo",
-      "replaceConfirm": "Esto BORRARÁ toda la información actual y la reemplazará con el respaldo. ¿Continuar?",
+      "replaceConfirm": "Esto BORRARÁ tu información actual de cada tipo que traiga el respaldo y la reemplazará con él. Si algo falla, no cambia nada. ¿Continuar?",
       "toast": {
         "exported": "Respaldo exportado",
         "invalidFile": "Archivo inválido. Se esperaba un export de Continuity.",
         "readError": "No se pudo leer el archivo de respaldo: {message}",
-        "imported": "Importados {projects} proyectos, {tasks} tareas, {ideas} ideas, {notes} notas, {projectNotes} notas de proyecto."
+        "imported": "Se restauraron {projects} proyectos, {tasks} tareas, {routines} rutinas, {ideas} ideas, {quickNotes} notas y {activity} entradas de bitácora.",
+        "tooLarge": "El archivo de respaldo es demasiado grande para restaurarlo (máx. 9 MB)."
       }
     }
   },

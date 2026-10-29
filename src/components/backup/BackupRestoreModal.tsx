@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Modal } from "../ui/Modal";
@@ -21,6 +21,17 @@ export function BackupRestoreModal({
   const t = useTranslations("modals.backup");
   const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Exportar y restaurar tardan unos segundos: sin esto se puede disparar dos veces.
+  const [busy, setBusy] = useState(false);
+  const run = async (fn: () => void | Promise<void>) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await fn();
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const triggerImport = (mode: "merge" | "replace") => {
     if (mode === "replace") {
@@ -58,10 +69,11 @@ export function BackupRestoreModal({
 
         <div>
           <button
-            onClick={() => onExport()}
-            className="w-full px-4 py-2.5 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center justify-center gap-2"
+            onClick={() => run(onExport)}
+            disabled={busy}
+            className="w-full disabled:opacity-50 px-4 py-2.5 bg-accent hover:opacity-90 text-bg rounded-lg font-medium text-sm flex items-center justify-center gap-2"
           >
-            <Download size={16} /> {t("exportCta")}
+            <Download size={16} /> {busy ? t("working") : t("exportCta")}
           </button>
         </div>
 
@@ -73,13 +85,15 @@ export function BackupRestoreModal({
           <div className="space-y-2">
             <button
               onClick={() => triggerImport("merge")}
-              className="w-full px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm flex items-center justify-center gap-2"
+              disabled={busy}
+              className="w-full disabled:opacity-50 px-4 py-2 bg-border hover:opacity-80 rounded-lg text-sm flex items-center justify-center gap-2"
             >
               <Upload size={14} /> {t("importMerge")}
             </button>
             <button
               onClick={() => triggerImport("replace")}
-              className="w-full px-4 py-2 bg-signal-a12 hover:bg-signal-a16 text-signal rounded-lg text-sm flex items-center justify-center gap-2"
+              disabled={busy}
+              className="w-full disabled:opacity-50 px-4 py-2 bg-signal-a12 hover:bg-signal-a16 text-signal rounded-lg text-sm flex items-center justify-center gap-2"
             >
               <Upload size={14} /> {t("importReplace")}
             </button>
@@ -92,8 +106,8 @@ export function BackupRestoreModal({
               const file = e.target.files?.[0];
               if (!file) return;
               const mode = (e.target.dataset.mode as "merge" | "replace") || "merge";
-              onImport(file, mode);
               e.target.value = "";
+              run(() => onImport(file, mode));
             }}
             className="hidden"
           />

@@ -146,8 +146,7 @@ export default function Dashboard() {
     () => Object.values(notesByProject).flat(),
     [notesByProject]
   );
-    const { exportData, importData } = useBackup({
-    snapshot: { projects, tasks, ideas, activities, projectNotes: allProjectNotes },
+  const { exportData, importData } = useBackup({
     lastBackup,
     refetch,
   });
