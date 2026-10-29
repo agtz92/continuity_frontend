@@ -34,7 +34,7 @@ const PRESETS: Preset[] = [
         subject: "¿Te regalo 3 meses de Studio?",
         body: `{{greeting}},
 
-Vi que creaste tu cuenta en continuu, pero todavía no has hecho ningún proyecto.
+Vi que creaste tu cuenta en continuu.it, pero todavía no has hecho ningún proyecto.
 
 ¿Te interesaría seguir usando la herramienta si te regalamos Studio por 3 meses? No tienes que ingresar ningún método de pago. Lo que queremos a cambio es tu feedback.
 
@@ -46,7 +46,7 @@ Alfredo`,
         subject: "3 months of Studio, on us?",
         body: `{{greeting}},
 
-I saw you created your continuu account but haven't made a project yet.
+I saw you created your continuu.it account but haven't made a project yet.
 
 Would you keep using it if we gave you Studio free for 3 months? No payment method needed. All we want in return is your feedback.
 
