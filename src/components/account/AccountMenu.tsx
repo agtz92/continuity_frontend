@@ -19,6 +19,7 @@ import {
   MessagesSquare,
   Palette,
   Plug,
+  ShieldCheck,
   Tags,
   User,
   type LucideIcon,
@@ -43,6 +44,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
   const t = useTranslations("accountMenu");
   const locale = useLocale();
   const resourcesHref = locale === "es" ? "/recursos" : "/resources";
+  const privacyHref = locale === "es" ? "/es/privacy" : "/privacy";
   const [email, setEmail] = useState<string | null>(null);
   const pathname = usePathname();
   const openedAtPath = useRef<string | null>(null);
@@ -229,6 +231,12 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               label={t("items.reportBug")}
               onClick={handleNavigate}
             />
+            <RowLink
+              href={privacyHref}
+              icon={ShieldCheck}
+              label={t("items.privacy")}
+              onClick={handleNavigate}
+            />
             <RowExternal
               href="https://www.reddit.com/r/Continuuit/"
               icon={MessageCircle}
@@ -236,8 +244,7 @@ export function AccountMenu({ open, onClose, workspace, onSignOut }: Props) {
               onAfterClick={onClose}
             />
             <RowExternal
-              // TODO: replace with the real Discord invite URL once the server exists
-              href="#"
+              href="https://discord.gg/RZR5zQUFc"
               icon={MessagesSquare}
               label={t("items.discord")}
               onAfterClick={onClose}
