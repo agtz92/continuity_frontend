@@ -9,10 +9,13 @@ import { FAB } from "../ui/FAB";
 import { Meta } from "../ui/Meta";
 import { PromoteIdeaModal } from "../ideas/PromoteIdeaModal";
 import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
+import { ScreenHeadline } from "../ui/ScreenHeadline";
 
 /** A partir de aquí la idea lleva demasiado en la bandeja para seguir siendo
  *  "reciente". Mismo umbral que el tramo templado del enfriamiento. */
 const COOLING_DAYS = 7;
+/** "Con más de un mes" en el titular, mismo corte que móvil. */
+const OLDER_DAYS = 30;
 
 export function IdeasView({
   ideas,
@@ -38,11 +41,20 @@ export function IdeasView({
   const tCommon = useTranslations("common");
   const [ideaSearch, setIdeaSearch] = useState("");
   const [promoting, setPromoting] = useState<Idea | null>(null);
+  const olderCount = ideas.filter(
+    (idea) => (daysSince(idea.created) ?? 0) > OLDER_DAYS
+  ).length;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
+      <div className="flex items-start justify-between mb-2 gap-3 flex-wrap">
+        <ScreenHeadline
+          title={t("title")}
+          primary={t("headline", { count: ideas.length })}
+          secondary={
+            olderCount > 0 ? t("olderHeadline", { count: olderCount }) : null
+          }
+        />
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search

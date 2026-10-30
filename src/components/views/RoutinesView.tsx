@@ -23,6 +23,7 @@ import {
   type OccurrenceMark,
 } from "@/lib/routineHistory";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { ScreenHeadline } from "../ui/ScreenHeadline";
 import { FAB } from "../ui/FAB";
 import { RoutineRow } from "../routines/RoutineRow";
 import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
@@ -249,6 +250,9 @@ export function RoutinesView({
   const firstUpcoming = firstRowPerRoutine(filteredUpcoming);
   const firstLater = firstRowPerRoutine(filteredLater);
 
+  /** Va tarde = ocurrencia pendiente de un día anterior a hoy. */
+  const lateCount = todayBucket.filter((it) => today > it.scheduledDate).length;
+
   const searching = q.length > 0;
   const todayOpen = searching || showToday;
   const completedOpen = searching || showCompleted;
@@ -258,8 +262,19 @@ export function RoutinesView({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
+      <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
+        <ScreenHeadline
+          title={t("title")}
+          primary={t("headlineDueToday", { count: todayBucket.length })}
+          secondary={
+            todayBucket.length === 0
+              ? null
+              : lateCount > 0
+                ? t("headlineLate", { count: lateCount })
+                : t("headlineNoneLate")
+          }
+          secondaryTone={lateCount > 0 ? "signal" : "muted"}
+        />
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search

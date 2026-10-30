@@ -34,7 +34,8 @@ import type {
   ProjectNote,
   Task,
 } from "@/lib/types";
-import { toLocalISO } from "@/lib/date";
+import { isOverdue, toLocalISO } from "@/lib/date";
+import { ScreenHeadline, joinHeadlineParts } from "@/components/ui/ScreenHeadline";
 import { type ProjectSortMode } from "@/lib/priority";
 import { FAB } from "@/components/ui/FAB";
 import {
@@ -316,13 +317,19 @@ export function ProjectsView({
     void onReorderProjects(arrayMove(ids, oldIndex, newIndex));
   };
 
-  /** Las dos cifras de la cabecera. "Vivos" = lo que sigue en juego. */
-  const aliveCount = useMemo(
+  /** Las cifras de la cabecera. "Vivos" = lo que sigue en juego. */
+  const aliveProjects = useMemo(
     () =>
       projects.filter((p) =>
         ["active", "idea", "stalled", "paused"].includes(p.status)
-      ).length,
+      ),
     [projects]
+  );
+  const aliveCount = aliveProjects.length;
+  /** Atrasado = vivo con fecha de entrega ya pasada. */
+  const lateCount = useMemo(
+    () => aliveProjects.filter((p) => isOverdue(p.dueDate)).length,
+    [aliveProjects]
   );
   const stuckCount = useMemo(
     () =>
@@ -341,22 +348,23 @@ export function ProjectsView({
 
   return (
     <div>
-      <div className="flex items-end justify-between mb-4 gap-3 flex-wrap">
+      <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
         {/* La cabecera lleva la cifra que importa, no el nombre de la pantalla:
-            "24 vivos. 5 detenidos." dice en qué estado está el trabajo antes de
-            leer una sola fila. El título queda para lectores de pantalla. */}
-        <h2 className="min-w-0">
-          <span className="sr-only">{t("title")}</span>
-          <span
-            aria-hidden="true"
-            className="font-display-app text-[28px] leading-[1.05] tracking-[-0.02em] text-text block"
-          >
-            {t("headlineAlive", { count: aliveCount })}{" "}
-            <span className={stuckCount > 0 ? "text-signal" : "text-text-4"}>
-              {t("headlineStuck", { count: stuckCount })}
-            </span>
-          </span>
-        </h2>
+            "24 vivos. / 5 detenidos · 2 atrasados." dice en qué estado está el
+            trabajo antes de leer una sola fila. */}
+        <ScreenHeadline
+          title={t("title")}
+          primary={t("headlineAlive", { count: aliveCount })}
+          secondary={
+            stuckCount + lateCount > 0
+              ? joinHeadlineParts([
+                  stuckCount > 0 && t("headlineStuck", { count: stuckCount }),
+                  lateCount > 0 && t("headlineLate", { count: lateCount }),
+                ])
+              : t("headlineOnTrack")
+          }
+          secondaryTone={stuckCount + lateCount > 0 ? "signal" : "muted"}
+        />
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search

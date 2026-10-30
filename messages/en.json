@@ -987,6 +987,11 @@
     "tasks": {
       "emptyTitle": "No open tasks",
       "title": "All Tasks",
+      "headlineOpen": "{count, plural, =0 {Nothing pending.} one {# open.} other {# open.}}",
+      "headlineOverdue": "{count, plural, one {# overdue} other {# overdue}}",
+      "headlineBlocked": "{count, plural, one {# blocked} other {# blocked}}",
+      "headlineDueToday": "{count} due today.",
+      "headlineNoneOverdue": "None overdue.",
       "search": "Search tasks or project...",
       "empty": "No tasks yet.",
       "addFirst": "Create first task",
@@ -1021,6 +1026,9 @@
     "routines": {
       "emptyTitle": "Nothing to keep up yet",
       "title": "Routines",
+      "headlineDueToday": "{count, plural, =0 {Nothing due today.} other {# due today.}}",
+      "headlineLate": "{count, plural, one {# late.} other {# late.}}",
+      "headlineNoneLate": "None late.",
       "search": "Search routines...",
       "empty": "No routines yet. Create one to track recurring or standalone activities.",
       "addFirst": "Create first routine",
@@ -1034,7 +1042,9 @@
     },
     "projects": {
       "headlineAlive": "{count, plural, one {# alive.} other {# alive.}}",
-      "headlineStuck": "{count, plural, =0 {None stuck.} one {# stuck.} other {# stuck.}}",
+      "headlineStuck": "{count, plural, one {# stuck} other {# stuck}}",
+      "headlineLate": "{count, plural, one {# late} other {# late}}",
+      "headlineOnTrack": "All on track.",
       "emptyTitle": "Nothing started yet",
       "group": {
         "loose": "Loose",
@@ -1187,6 +1197,8 @@
         "cta": "Promote"
       },
       "title": "Ideas Parking Lot",
+      "headline": "{count, plural, one {# idea.} other {# ideas.}}",
+      "olderHeadline": "{count} older than a month.",
       "search": "Search ideas...",
       "capture": "Capture",
       "captureAria": "Capture new idea",

@@ -987,6 +987,11 @@
     "tasks": {
       "emptyTitle": "No hay tareas abiertas",
       "title": "Todas las tareas",
+      "headlineOpen": "{count, plural, =0 {Nada pendiente.} one {# abierta.} other {# abiertas.}}",
+      "headlineOverdue": "{count, plural, one {# vencida} other {# vencidas}}",
+      "headlineBlocked": "{count, plural, one {# bloqueada} other {# bloqueadas}}",
+      "headlineDueToday": "{count} para hoy.",
+      "headlineNoneOverdue": "Ninguna vencida.",
       "search": "Buscar tareas o proyecto...",
       "empty": "Aún no hay tareas.",
       "addFirst": "Crear primera tarea",
@@ -1021,6 +1026,9 @@
     "routines": {
       "emptyTitle": "Nada que sostener todavía",
       "title": "Rutinas",
+      "headlineDueToday": "{count, plural, =0 {Nada para hoy.} other {# para hoy.}}",
+      "headlineLate": "{count, plural, one {# va tarde.} other {# van tarde.}}",
+      "headlineNoneLate": "Ninguna va tarde.",
       "search": "Buscar rutinas...",
       "empty": "Aún no hay rutinas. Crea una para registrar actividades recurrentes o sueltas.",
       "addFirst": "Crear primera rutina",
@@ -1034,7 +1042,9 @@
     },
     "projects": {
       "headlineAlive": "{count, plural, one {# vivo.} other {# vivos.}}",
-      "headlineStuck": "{count, plural, =0 {Ninguno detenido.} one {# detenido.} other {# detenidos.}}",
+      "headlineStuck": "{count, plural, one {# detenido} other {# detenidos}}",
+      "headlineLate": "{count, plural, one {# atrasado} other {# atrasados}}",
+      "headlineOnTrack": "Todo al día.",
       "emptyTitle": "Todavía no hay nada empezado",
       "group": {
         "loose": "Sueltos",
@@ -1187,6 +1197,8 @@
         "cta": "Promover"
       },
       "title": "Parking lot de ideas",
+      "headline": "{count, plural, one {# idea.} other {# ideas.}}",
+      "olderHeadline": "{count, plural, one {# con más de un mes.} other {# con más de un mes.}}",
       "search": "Buscar ideas...",
       "capture": "Capturar",
       "captureAria": "Capturar nueva idea",

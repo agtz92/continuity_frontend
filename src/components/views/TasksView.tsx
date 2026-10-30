@@ -23,6 +23,7 @@ import {
 import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { toast } from "@/lib/toast";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { ScreenHeadline, joinHeadlineParts } from "../ui/ScreenHeadline";
 import { FAB } from "../ui/FAB";
 import { TaskRow } from "../tasks/TaskRow";
 import { EmptyState, EmptyStateAction } from "../ui/EmptyState";
@@ -126,6 +127,18 @@ export function TasksView({
 
   const hasUnassigned = tasks.some((task) => !task.projectId);
 
+  /** Cifras del titular, sobre las abiertas sin filtros del usuario. */
+  const headline = useMemo(() => {
+    const open = tasks.filter((task) => !task.done);
+    return {
+      open: open.length,
+      overdue: open.filter((task) => isOverdue(task.dueDate)).length,
+      blocked: open.filter((task) => task.blockers.length > 0).length,
+      dueToday: open.filter((task) => isDueToday(task.dueDate)).length,
+    };
+  }, [tasks]);
+  const headlineHurts = headline.overdue + headline.blocked > 0;
+
   const activeFilterCount =
     taskFilter.projectIds.size +
     (taskFilter.showCompleted ? 0 : 1) +
@@ -133,8 +146,26 @@ export function TasksView({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
+      <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
+        <ScreenHeadline
+          title={t("title")}
+          primary={t("headlineOpen", { count: headline.open })}
+          secondary={
+            headline.open === 0
+              ? null
+              : headlineHurts
+                ? joinHeadlineParts([
+                    headline.overdue > 0 &&
+                      t("headlineOverdue", { count: headline.overdue }),
+                    headline.blocked > 0 &&
+                      t("headlineBlocked", { count: headline.blocked }),
+                  ])
+                : headline.dueToday > 0
+                  ? t("headlineDueToday", { count: headline.dueToday })
+                  : t("headlineNoneOverdue")
+          }
+          secondaryTone={headlineHurts ? "signal" : "muted"}
+        />
         <div className="flex items-center gap-2 flex-1 sm:max-w-md sm:ml-auto">
           <div className="relative flex-1">
             <Search
