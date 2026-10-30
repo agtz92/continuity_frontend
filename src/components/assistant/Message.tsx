@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
+import { InfinityIcon } from "lucide-react";
 import type { ChatMessage } from "@/hooks/useAssistant";
 import { ToolCallCard } from "./ToolCallCard";
 import { Markdown } from "@/components/markdown/Markdown";
@@ -34,7 +34,7 @@ export function Message({
   return (
     <div className="flex gap-2">
       <div className="shrink-0 w-7 h-7 rounded-full bg-accent text-bg flex items-center justify-center">
-        <Sparkles size={14} />
+        <InfinityIcon size={14} />
       </div>
       <div className="flex-1 min-w-0">
         {isEmpty ? (

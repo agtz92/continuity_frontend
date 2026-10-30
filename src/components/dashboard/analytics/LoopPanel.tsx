@@ -15,7 +15,7 @@ import {
   ArrowUp,
   Minus,
   MessageSquare,
-  Sparkles,
+  InfinityIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { LoopStats } from "@/lib/types";
@@ -64,7 +64,7 @@ export function LoopPanel({ loop }: { loop: LoopStats }) {
       <PanelCard
         title={t("title")}
         subtitle={t("subtitle")}
-        icon={<Sparkles size={16} className="text-text-3" />}
+        icon={<InfinityIcon size={16} className="text-text-3" />}
       >
         <div className="text-sm text-text-muted py-4">{t("empty")}</div>
       </PanelCard>
@@ -99,7 +99,7 @@ export function LoopPanel({ loop }: { loop: LoopStats }) {
     <PanelCard
       title={t("title")}
       subtitle={t("subtitle")}
-      icon={<Sparkles size={16} className="text-text-3" />}
+      icon={<InfinityIcon size={16} className="text-text-3" />}
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {tiles.map((tile) => (

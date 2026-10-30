@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Skull, Sparkles } from "lucide-react";
+import { Skull, InfinityIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { GRAVEYARD_INSIGHT_QUERY } from "@/lib/graphql";
 import type { GraveyardInsight, Project, Task } from "@/lib/types";
@@ -164,7 +164,7 @@ function GraveyardAutopsy({
   return (
     <section className="border-l-[3px] border-accent pl-4 py-1">
       <Meta variant="cintillo" tone="faint" className="flex items-center gap-1.5">
-        <Sparkles size={11} /> {t("autopsyLabel")}
+        <InfinityIcon size={11} /> {t("autopsyLabel")}
         {insight?.isStale ? ` · ${t("autopsyStale")}` : ""}
       </Meta>
 
@@ -199,7 +199,7 @@ function GraveyardAutopsy({
         onClick={() => onOpenAssistant(t("askLoopPrompt"))}
         className="mt-3 text-sm text-accent hover:text-accent-hi transition-colors duration-150 ease-out flex items-center gap-1.5"
       >
-        <Sparkles size={14} /> {t("askLoop")}
+        <InfinityIcon size={14} /> {t("askLoop")}
       </button>
     </section>
   );

@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { CheckCircle2, Clock, Edit2, Sparkles, TrendingUp, Undo2 } from "lucide-react";
+import { CheckCircle2, Clock, Edit2, Sunset, TrendingUp, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Project, Task } from "@/lib/types";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
@@ -55,7 +55,7 @@ export function DoneTodaySection({
       <CollapsibleSection
         open={showDoneToday}
         onToggle={() => setShowDoneToday((s) => !s)}
-        icon={<Sparkles size={18} className="text-accent" />}
+        icon={<Sunset size={18} className="text-accent" />}
         title={tDone("title")}
         rightSlot={
           <>

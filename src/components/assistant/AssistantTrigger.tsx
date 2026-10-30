@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { InfinityIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export function AssistantTrigger({ onClick }: { onClick: () => void }) {
@@ -14,7 +14,7 @@ export function AssistantTrigger({ onClick }: { onClick: () => void }) {
       aria-label={t("openTooltip")}
       className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border border-accent-a35 bg-accent-a12 text-accent hover:bg-accent-a22 transition-colors"
     >
-      <Sparkles size={12} />
+      <InfinityIcon size={12} />
       <span className="hidden sm:inline">{t("buttonLabel")}</span>
     </button>
   );

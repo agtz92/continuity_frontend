@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Send, Square, Sparkles, X, Plus, AlertCircle } from "lucide-react";
+import { Send, Square, InfinityIcon, X, Plus, AlertCircle } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MessageList } from "./MessageList";
@@ -145,7 +145,7 @@ export function AssistantPanel({
         <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2 min-w-0">
             <div className="shrink-0 w-8 h-8 rounded-md bg-accent text-bg flex items-center justify-center">
-              <Sparkles size={15} />
+              <InfinityIcon size={15} />
             </div>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-text flex items-center gap-1.5">
@@ -188,7 +188,7 @@ export function AssistantPanel({
         ) : messages.length === 0 ? (
           <div className="flex-1 overflow-y-auto px-4 py-8 flex flex-col items-center justify-start gap-4 text-center">
             <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center">
-              <Sparkles size={20} className="text-accent" />
+              <InfinityIcon size={20} className="text-accent" />
             </div>
             <div className="max-w-xs">
               <div className="text-sm font-semibold text-text mb-1">

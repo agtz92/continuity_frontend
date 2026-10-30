@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Sparkles } from "lucide-react";
+import { InfinityIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAssistantLauncher } from "@/components/assistant/useAssistantLauncher";
 
@@ -72,7 +72,7 @@ export function FAB({
                 {t("buttonLabel")}
               </span>
               <span className="w-12 h-12 rounded-full bg-accent text-bg flex items-center justify-center shadow-hard">
-                <Sparkles size={20} />
+                <InfinityIcon size={20} />
               </span>
             </button>
 

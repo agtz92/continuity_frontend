@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
+import { InfinityIcon } from "lucide-react";
 import type { StudioHint as StudioHintData } from "@/lib/assistantApi";
 
 /**
@@ -25,7 +25,7 @@ export function StudioHint({
   return (
     <div className="ml-9 border-l-2 border-accent-a35 py-1 pl-3">
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-accent">
-        <Sparkles size={11} aria-hidden />
+        <InfinityIcon size={11} aria-hidden />
         {hint.label}
       </div>
       <p className="mt-0.5 text-[13px] leading-snug text-text-muted">
