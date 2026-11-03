@@ -55,6 +55,7 @@ import { AssistantFab } from "./assistant/AssistantFab";
 import { AssistantLauncherProvider } from "./assistant/useAssistantLauncher";
 import { useAssistant } from "@/hooks/useAssistant";
 import { projectCapForPlan, countsTowardCap } from "@/lib/planQuotas";
+import { isClosedStatus } from "@/lib/projectStatus";
 import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { BottomTabBar } from "./dashboard/BottomTabBar";
@@ -335,11 +336,12 @@ export default function Dashboard() {
       notes: allProjectNotes.length,
       blocked: projects.filter(
         (p) =>
-          p.isBlocked ??
-          tasks.some(
-            (t) =>
-              t.projectId === p.id && !t.done && (t.blockers?.length ?? 0) > 0
-          )
+          !isClosedStatus(p.status) &&
+          (p.isBlocked ??
+            tasks.some(
+              (t) =>
+                t.projectId === p.id && !t.done && (t.blockers?.length ?? 0) > 0
+            ))
       ).length,
     }),
     [projects, tasks, routines, ideas, allProjectNotes]

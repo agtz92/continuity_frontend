@@ -13,6 +13,19 @@ export const DAILY_VIEW_PROJECT_STATUSES = [
   "launched",
 ] as const satisfies readonly ProjectStatus[];
 
+/**
+ * Estados cerrados: nunca cuentan como "atorados" aunque alguna tarea conserve
+ * un blocker. Espejo de `CLOSED_STATUSES` en backend `core/services/cooling.py`.
+ */
+export const CLOSED_PROJECT_STATUSES = [
+  "killed",
+  "archived",
+] as const satisfies readonly ProjectStatus[];
+
+export function isClosedStatus(status: ProjectStatus): boolean {
+  return (CLOSED_PROJECT_STATUSES as readonly ProjectStatus[]).includes(status);
+}
+
 export function isDailyViewStatus(status: ProjectStatus): boolean {
   return (DAILY_VIEW_PROJECT_STATUSES as readonly ProjectStatus[]).includes(
     status

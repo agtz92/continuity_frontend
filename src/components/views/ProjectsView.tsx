@@ -331,9 +331,11 @@ export function ProjectsView({
     () => aliveProjects.filter((p) => isOverdue(p.dueDate)).length,
     [aliveProjects]
   );
+  /** Atorado = vivo con alguna tarea bloqueada. Un proyecto killed que conserva
+   *  el blocker ya no está en juego y no debe contar. */
   const stuckCount = useMemo(
     () =>
-      projects.filter(
+      aliveProjects.filter(
         (p) =>
           p.isBlocked ??
           tasks.some(
@@ -343,7 +345,7 @@ export function ProjectsView({
               (tk.blockers?.length ?? 0) > 0
           )
       ).length,
-    [projects, tasks]
+    [aliveProjects, tasks]
   );
 
   return (
