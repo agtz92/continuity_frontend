@@ -1,6 +1,7 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
+import { SUPABASE_AUTH_COOKIE } from "./supabase-auth-key";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -15,4 +16,6 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
  * `/dashboard` would bounce straight back to `/login` because the cookie was
  * never written. That's the bug this file fixes.
  */
-export const supabase = createBrowserClient(url, anonKey);
+export const supabase = createBrowserClient(url, anonKey, {
+  cookieOptions: { name: SUPABASE_AUTH_COOKIE },
+});

@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { Session } from "@supabase/supabase-js";
+import { SUPABASE_AUTH_COOKIE } from "./supabase-auth-key";
 
 /**
  * Server-side Supabase client that reads the user's session from cookies.
@@ -23,6 +24,7 @@ function getSupabaseServer() {
   return async () => {
     const store = await cookies();
     return createServerClient(url, anonKey, {
+      cookieOptions: { name: SUPABASE_AUTH_COOKIE },
       cookies: {
         getAll() {
           return store.getAll();

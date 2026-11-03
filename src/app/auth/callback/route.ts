@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { SUPABASE_AUTH_COOKIE } from "@/lib/supabase-auth-key";
 
 /**
  * Supabase auth callback handler.
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
 
   const cookieStore = await cookies();
   const supabase = createServerClient(url, anonKey, {
+    cookieOptions: { name: SUPABASE_AUTH_COOKIE },
     cookies: {
       getAll() {
         return cookieStore.getAll();
