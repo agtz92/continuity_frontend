@@ -1265,6 +1265,7 @@
       "noMatch": "No log entries match \"{query}\"",
       "noneInFilter": "No items in this filter.",
       "deleteConfirm": "Delete this log entry?",
+      "loadOlder": "Load older entries",
       "editEntryAria": "Edit log entry",
       "deleteEntryAria": "Delete log entry",
       "filters": {

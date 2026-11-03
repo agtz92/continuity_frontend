@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useApolloClient, useQuery } from "@apollo/client";
 import { Edit2, Search, X } from "lucide-react";
+import { ACTIVITY_QUERY } from "@/lib/graphql";
 import { useLocale, useTranslations } from "next-intl";
 import type { Activity, ActivityKind, Project } from "@/lib/types";
 import { Meta } from "@/components/ui/Meta";
@@ -45,6 +47,9 @@ function matchesFilter(kind: ActivityKind, f: Filter): boolean {
   return true;
 }
 
+/** Entradas por página del historial (el backend topa en 500). */
+const PAGE = 200;
+
 type BucketKey = "today" | "yesterday" | "thisWeek" | "thisMonth" | "older";
 
 const BUCKET_ORDER: BucketKey[] = [
@@ -56,7 +61,7 @@ const BUCKET_ORDER: BucketKey[] = [
 ];
 
 export function LogView({
-  activities,
+  activities: recent,
   projects,
   onEditNote,
   onDeleteNote,
@@ -74,6 +79,55 @@ export function LogView({
   const locale = useLocale();
   const [logSearch, setLogSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+
+  // El dashboard solo trae los últimos 60 días de eventos (`activityDays`); el
+  // historial sale de aquí, por páginas. `recent` se sigue mezclando porque es
+  // lo que se refresca tras cada mutation de esta pestaña (el eco en vivo se
+  // ignora y esta query no está en su `refetchQueries`).
+  const client = useApolloClient();
+  const { data, refetch } = useQuery<{ activity: Activity[] }>(ACTIVITY_QUERY, {
+    variables: { limit: PAGE },
+    fetchPolicy: "cache-and-network",
+  });
+  const [older, setOlder] = useState<Activity[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+
+  const activities = useMemo(() => {
+    const byId = new Map<string, Activity>();
+    for (const list of [older, data?.activity ?? [], recent]) {
+      for (const a of list) byId.set(a.id, a);
+    }
+    return [...byId.values()];
+  }, [older, data, recent]);
+
+  const firstPageFull = (data?.activity.length ?? 0) >= PAGE;
+  const canLoadOlder = hasMore && (older.length > 0 || firstPageFull);
+
+  const loadOlder = async () => {
+    if (loadingOlder || activities.length === 0) return;
+    const oldest = activities.reduce((a, b) => (a.created < b.created ? a : b));
+    setLoadingOlder(true);
+    try {
+      const res = await client.query<{ activity: Activity[] }>({
+        query: ACTIVITY_QUERY,
+        variables: { limit: PAGE, until: oldest.created },
+        fetchPolicy: "network-only",
+      });
+      const page = res.data?.activity ?? [];
+      setOlder((prev) => [...prev, ...page]);
+      // `until` es inclusivo: la frontera vuelve repetida y la quita el Map.
+      setHasMore(page.length >= PAGE);
+    } finally {
+      setLoadingOlder(false);
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    await onDeleteNote(id);
+    setOlder((prev) => prev.filter((a) => a.id !== id));
+    void refetch();
+  };
 
   const bucketBoundaries = useMemo(() => {
     const today = todayLocalISODate();
@@ -237,7 +291,7 @@ export function LogView({
                           </button>
                           <button
                             onClick={() => {
-                              if (confirm(t("deleteConfirm"))) onDeleteNote(a.id);
+                              if (confirm(t("deleteConfirm"))) void deleteNote(a.id);
                             }}
                             className="text-text-4 hover:text-signal"
                             aria-label={t("deleteEntryAria")}
@@ -252,6 +306,18 @@ export function LogView({
               </section>
             );
           })}
+        </div>
+      )}
+
+      {canLoadOlder && (
+        <div className="mt-5 flex justify-center">
+          <button
+            onClick={() => void loadOlder()}
+            disabled={loadingOlder}
+            className="px-4 py-2 rounded-md text-sm border border-border text-text-muted hover:text-text disabled:opacity-50"
+          >
+            {t("loadOlder")}
+          </button>
         </div>
       )}
     </div>

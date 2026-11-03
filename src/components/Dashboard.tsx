@@ -10,6 +10,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { AlertCircle } from "lucide-react";
 import { useApolloClient } from "@apollo/client";
 
@@ -60,16 +61,27 @@ import { PullToRefresh } from "./ui/PullToRefresh";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { BottomTabBar } from "./dashboard/BottomTabBar";
 import { MoreSheet } from "./dashboard/MoreSheet";
-import { AnalyticsView } from "./dashboard/AnalyticsView";
 import { LogView } from "./views/LogView";
 import { IdeasView } from "./views/IdeasView";
 import { QuickNotesView } from "./views/QuickNotesView";
 import { TasksView } from "./views/TasksView";
 import { ProjectsView } from "./views/ProjectsView";
 import { RoutinesView } from "./views/RoutinesView";
-import { CalendarView } from "./views/CalendarView";
 import { TodayView } from "./views/TodayView";
 import type { DashboardView } from "@/lib/dashboardViews";
+
+// Fuera del bundle inicial de /dashboard: Analytics arrastra recharts y el
+// Calendario es la vista más grande, y casi nadie abre ninguna de las dos
+// primero. Se descargan al entrar a su vista (`dashboardRoutes.ts` explica por
+// qué no hay code-splitting por ruta).
+const AnalyticsView = dynamic(
+  () => import("./dashboard/AnalyticsView").then((m) => m.AnalyticsView),
+  { ssr: false }
+);
+const CalendarView = dynamic(
+  () => import("./views/CalendarView").then((m) => m.CalendarView),
+  { ssr: false }
+);
 import { Sidebar, type SidebarCounts } from "./layout/Sidebar";
 import { CommandPalette } from "./ui/CommandPalette";
 import { dashboardHref, parseDashboardRoute } from "@/lib/dashboardRoutes";

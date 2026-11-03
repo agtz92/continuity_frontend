@@ -1265,6 +1265,7 @@
       "noMatch": "No hay entradas que coincidan con \"{query}\"",
       "noneInFilter": "Sin entradas en este filtro.",
       "deleteConfirm": "¿Eliminar esta entrada?",
+      "loadOlder": "Cargar entradas anteriores",
       "editEntryAria": "Editar entrada",
       "deleteEntryAria": "Eliminar entrada",
       "filters": {

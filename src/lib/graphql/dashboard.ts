@@ -1,8 +1,16 @@
 import { gql } from "@apollo/client";
 
+// Ventana de actividad del dashboard: solo los eventos de los últimos N días
+// (las notas escritas viajan todas). Sin tope, cada refetch —tras cada
+// mutation, el polling y al volver a la pestaña— bajaba la historia completa.
+// Va fijo en el documento y no como variable para que la clave de caché sea la
+// misma en cada `refetchQueries` y `updateQuery`. La Bitácora pide el resto
+// con `ACTIVITY_QUERY`. Mismo valor que en `continuity-mobile`.
+export const DASHBOARD_ACTIVITY_DAYS = 60;
+
 export const DASHBOARD_QUERY = gql`
   query Dashboard {
-    dashboard {
+    dashboard(activityDays: ${DASHBOARD_ACTIVITY_DAYS}) {
       projects {
         id
         name
