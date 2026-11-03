@@ -19,21 +19,24 @@ const supabaseHost = (() => {
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: supabaseHost
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseHost,
-            pathname: "/storage/v1/object/public/**",
-          },
-        ]
-      : [
-          {
-            protocol: "https",
-            hostname: "*.supabase.co",
-            pathname: "/storage/v1/object/public/**",
-          },
-        ],
+    // `*.supabase.co` stays allowed even with the custom domain: URLs saved
+    // before the switch (CMS media, covers) still point at the project ref.
+    remotePatterns: [
+      ...(supabaseHost
+        ? [
+            {
+              protocol: "https",
+              hostname: supabaseHost,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
   },
 };
 
