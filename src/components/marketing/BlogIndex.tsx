@@ -196,6 +196,27 @@ export default async function BlogIndex({ locale }: { locale: Locale }) {
               )}
             </>
           )}
+
+          {/* Launchpadly directory badge. Plain <img>: external SVG, not worth a next/image remotePattern. */}
+          <div className="mt-20 flex justify-center">
+            <a
+              href="https://launchpadly.co/startup/continuuit?ref=badge"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-launchpadly-badge="continuuit"
+              data-launchpadly-badge-variant="listed-on"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://launchpadly.co/embed/badges/startup/continuuit.svg?variant=listed-on"
+                alt="Launchpadly Startup Directory"
+                width={260}
+                height={48}
+                loading="lazy"
+                style={{ display: "block", border: 0 }}
+              />
+            </a>
+          </div>
         </div>
       </main>
 
