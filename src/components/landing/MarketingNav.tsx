@@ -87,7 +87,7 @@ export default function MarketingNav({ beta = BETA_CLOSED }: { beta?: BetaProgra
           <Link href={marketingHref(locale, "/#features")} className="hover:text-ls-text-primary transition-colors">
             {t("features")}
           </Link>
-          <Link href={marketingHref(locale, "/#pricing")} className="hover:text-ls-text-primary transition-colors">
+          <Link href={marketingHref(locale, "/pricing")} className="hover:text-ls-text-primary transition-colors">
             {t("pricing")}
           </Link>
           <Link href={marketingHref(locale, "/blog")} className="hover:text-ls-text-primary transition-colors">

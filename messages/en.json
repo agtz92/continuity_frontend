@@ -1989,7 +1989,8 @@
             "Sleeping alerts and daily digest",
             "Email support within 48h"
           ],
-          "cta": "Try Pro free for 14 days"
+          "cta": "Get Pro",
+          "annualTotal": "$89.99 USD per year"
         },
         "studio": {
           "name": "Studio",
@@ -2007,11 +2008,173 @@
             "1:1 onboarding and early access to new features",
             "Priority support within 24h"
           ],
-          "cta": "Try Studio free for 14 days"
+          "cta": "Get Studio",
+          "annualTotal": "$149.99 USD per year"
         }
       },
       "betaBanner": "Beta users keep Studio free, for life. No catch. Just feedback.",
       "betaCta": "Apply for beta access"
+    },
+    "pricingPage": {
+      "metaTitle": "Pricing",
+      "metaDescription": "Free forever, Pro at $8.99 USD per month and Studio at $14.99 USD per month. Save 17% with annual billing. Same price on web, iOS and Android.",
+      "compare": {
+        "title": "Compare plans",
+        "subtitle": "All prices in USD. Same price on the web, the App Store and Google Play.",
+        "featureColumn": "Feature",
+        "priceLine": {
+          "free": "Free forever",
+          "pro": "$8.99/mo · $89.99/yr",
+          "studio": "$14.99/mo · $149.99/yr"
+        },
+        "groups": [
+          {
+            "title": "Your work",
+            "rows": [
+              {
+                "feature": "Active projects",
+                "free": "3",
+                "pro": "25",
+                "studio": "Unlimited"
+              },
+              {
+                "feature": "Open tasks",
+                "free": "50",
+                "pro": "200 per project",
+                "studio": "Unlimited"
+              },
+              {
+                "feature": "Active routines",
+                "free": "2",
+                "pro": "20",
+                "studio": "Unlimited"
+              },
+              {
+                "feature": "Ideas",
+                "free": "30",
+                "pro": "500",
+                "studio": "Unlimited"
+              },
+              {
+                "feature": "Categories",
+                "free": "3",
+                "pro": "15",
+                "studio": "Unlimited"
+              },
+              {
+                "feature": "Quick notes",
+                "free": "50",
+                "pro": "1,000",
+                "studio": "Unlimited"
+              },
+              {
+                "feature": "Today view, analytics and activity log",
+                "free": "✓",
+                "pro": "✓",
+                "studio": "✓"
+              },
+              {
+                "feature": "Push notifications",
+                "free": "✓",
+                "pro": "✓",
+                "studio": "✓"
+              }
+            ]
+          },
+          {
+            "title": "Loop and Claude",
+            "rows": [
+              {
+                "feature": "Loop, the assistant",
+                "free": "—",
+                "pro": "Query mode",
+                "studio": "Conversation"
+              },
+              {
+                "feature": "Loop creates and organises for you",
+                "free": "—",
+                "pro": "—",
+                "studio": "✓"
+              },
+              {
+                "feature": "Quick capture interpreted by AI",
+                "free": "—",
+                "pro": "—",
+                "studio": "✓"
+              },
+              {
+                "feature": "Claude connector",
+                "free": "Read",
+                "pro": "Read",
+                "studio": "Read and write"
+              }
+            ]
+          },
+          {
+            "title": "Integrations and support",
+            "rows": [
+              {
+                "feature": "Google Tasks + Calendar sync",
+                "free": "—",
+                "pro": "✓",
+                "studio": "✓"
+              },
+              {
+                "feature": "Sleeping alerts and daily digest",
+                "free": "—",
+                "pro": "✓",
+                "studio": "✓"
+              },
+              {
+                "feature": "1:1 onboarding and early access",
+                "free": "—",
+                "pro": "—",
+                "studio": "✓"
+              },
+              {
+                "feature": "Support",
+                "free": "Community",
+                "pro": "Email within 48h",
+                "studio": "Priority within 24h"
+              }
+            ]
+          }
+        ]
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": [
+          {
+            "q": "What currency am I charged in?",
+            "a": "US dollars (USD). Pro is $8.99 per month or $89.99 per year; Studio is $14.99 per month or $149.99 per year. Your bank may apply its own exchange rate."
+          },
+          {
+            "q": "How much do I save with annual billing?",
+            "a": "About 17%, nearly two months free. Annual Pro works out to $7.50 a month and annual Studio to $12.50 a month, charged once a year."
+          },
+          {
+            "q": "Does it cost the same on my phone?",
+            "a": "Yes. The price is the same on the web, the App Store and Google Play. Pay wherever is most convenient."
+          },
+          {
+            "q": "What happens if I cancel or downgrade?",
+            "a": "You keep your plan until the paid period ends, then move to Free. Nothing is deleted: if you have more than Free allows, only creating new items is blocked until you close or archive some."
+          },
+          {
+            "q": "What is the difference between Loop on Pro and on Studio?",
+            "a": "On Pro, Loop answers questions about your projects and tasks from a menu. On Studio you talk to Loop freely and it can create, move and organise your work for you."
+          },
+          {
+            "q": "Does the Free plan expire?",
+            "a": "No. Free is free forever and needs no credit card."
+          }
+        ]
+      },
+      "closing": {
+        "title": "Start free today.",
+        "body": "No credit card. Upgrade when your projects ask for it.",
+        "cta": "Sign up for free"
+      }
     },
     "finalCall": {
       "headlineLine1": "The graveyard of unfinished projects in your head is not your failure.",

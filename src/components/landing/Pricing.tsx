@@ -60,13 +60,18 @@ function PricingCard({
       </div>
 
       {/*
-        Per-tier saving. It used to be one line under the toggle, but the tiers
-        don't discount by the same amount — Pro saves 22% a year and Studio 17%
-        — so a single figure was wrong for one of them either way.
+        Per-tier saving plus the amount actually charged once a year. Prices
+        mirror `PRICE_*_AMOUNT_CENTS` in backend/continuity/settings.py
+        (Pro 8.99 / 89.99, Studio 14.99 / 149.99 USD); keep them in sync. The
+        saving stays per tier so a future price change can't make one shared
+        figure wrong for the other plan.
       */}
-      <div className="mt-1 h-5">
+      <div className="mt-1 min-h-5 text-xs">
         {isPaid && period === "annual" ? (
-          <span className="text-xs text-ls-ochre">{t("annualSaving")}</span>
+          <>
+            <span className="text-ls-ochre">{t("annualSaving")}</span>
+            <span className="text-ls-text-secondary"> · {t("annualTotal")}</span>
+          </>
         ) : null}
       </div>
 
@@ -149,7 +154,14 @@ function BillingToggle({
   );
 }
 
-export default function Pricing({ beta }: { beta: BetaProgram }) {
+export default function Pricing({
+  beta,
+  standalone = false,
+}: {
+  beta: BetaProgram;
+  /** On /pricing the headline is the page's h1 and must show on first paint. */
+  standalone?: boolean;
+}) {
   const t = useTranslations("landing.pricing");
   const [period, setPeriod] = useState<Period>("annual");
 
@@ -158,6 +170,8 @@ export default function Pricing({ beta }: { beta: BetaProgram }) {
       <div className="max-w-3xl mx-auto text-center mb-10">
         <AnimatedHeadline
           text={t("headline")}
+          as={standalone ? "h1" : "h2"}
+          reveal={standalone ? "load" : "scroll"}
           className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight font-light text-ls-text-primary"
         />
         <p className="ls-reveal mt-5 text-lg text-ls-ochre">

@@ -1989,7 +1989,8 @@
             "Sleeping alerts y digest diario",
             "Soporte por email en 48h"
           ],
-          "cta": "Probar Pro 14 días gratis"
+          "cta": "Empezar con Pro",
+          "annualTotal": "$89.99 USD al año"
         },
         "studio": {
           "name": "Studio",
@@ -2007,11 +2008,173 @@
             "Onboarding 1:1 y early access a features",
             "Soporte prioritario en menos de 24h"
           ],
-          "cta": "Probar Studio 14 días gratis"
+          "cta": "Empezar con Studio",
+          "annualTotal": "$149.99 USD al año"
         }
       },
       "betaBanner": "Los usuarios beta se quedan con Studio gratis, de por vida. Sin truco. Solo feedback.",
       "betaCta": "Solicitar acceso a la beta"
+    },
+    "pricingPage": {
+      "metaTitle": "Precios",
+      "metaDescription": "Free para siempre, Pro a $8.99 USD al mes y Studio a $14.99 USD al mes. Ahorra 17% con el plan anual. Mismo precio en web, iOS y Android.",
+      "compare": {
+        "title": "Compara los planes",
+        "subtitle": "Todos los precios en USD. Mismo precio en la web, en App Store y en Google Play.",
+        "featureColumn": "Función",
+        "priceLine": {
+          "free": "Gratis para siempre",
+          "pro": "$8.99/mes · $89.99/año",
+          "studio": "$14.99/mes · $149.99/año"
+        },
+        "groups": [
+          {
+            "title": "Tu trabajo",
+            "rows": [
+              {
+                "feature": "Proyectos activos",
+                "free": "3",
+                "pro": "25",
+                "studio": "Ilimitados"
+              },
+              {
+                "feature": "Tareas abiertas",
+                "free": "50",
+                "pro": "200 por proyecto",
+                "studio": "Ilimitadas"
+              },
+              {
+                "feature": "Rutinas activas",
+                "free": "2",
+                "pro": "20",
+                "studio": "Ilimitadas"
+              },
+              {
+                "feature": "Ideas",
+                "free": "30",
+                "pro": "500",
+                "studio": "Ilimitadas"
+              },
+              {
+                "feature": "Categorías",
+                "free": "3",
+                "pro": "15",
+                "studio": "Ilimitadas"
+              },
+              {
+                "feature": "Notas rápidas",
+                "free": "50",
+                "pro": "1 000",
+                "studio": "Ilimitadas"
+              },
+              {
+                "feature": "Today view, analíticas y bitácora",
+                "free": "✓",
+                "pro": "✓",
+                "studio": "✓"
+              },
+              {
+                "feature": "Notificaciones push",
+                "free": "✓",
+                "pro": "✓",
+                "studio": "✓"
+              }
+            ]
+          },
+          {
+            "title": "Loop y Claude",
+            "rows": [
+              {
+                "feature": "Loop, el asistente",
+                "free": "—",
+                "pro": "Modo consulta",
+                "studio": "Conversación"
+              },
+              {
+                "feature": "Loop crea y organiza por ti",
+                "free": "—",
+                "pro": "—",
+                "studio": "✓"
+              },
+              {
+                "feature": "Captura rápida interpretada con IA",
+                "free": "—",
+                "pro": "—",
+                "studio": "✓"
+              },
+              {
+                "feature": "Conector de Claude",
+                "free": "Lectura",
+                "pro": "Lectura",
+                "studio": "Lectura y escritura"
+              }
+            ]
+          },
+          {
+            "title": "Integraciones y soporte",
+            "rows": [
+              {
+                "feature": "Google Tasks + Calendar sync",
+                "free": "—",
+                "pro": "✓",
+                "studio": "✓"
+              },
+              {
+                "feature": "Sleeping alerts y digest diario",
+                "free": "—",
+                "pro": "✓",
+                "studio": "✓"
+              },
+              {
+                "feature": "Onboarding 1:1 y early access",
+                "free": "—",
+                "pro": "—",
+                "studio": "✓"
+              },
+              {
+                "feature": "Soporte",
+                "free": "Comunidad",
+                "pro": "Email en 48h",
+                "studio": "Prioritario en 24h"
+              }
+            ]
+          }
+        ]
+      },
+      "faq": {
+        "title": "Preguntas frecuentes",
+        "items": [
+          {
+            "q": "¿En qué moneda se cobra?",
+            "a": "En dólares estadounidenses (USD). Pro cuesta $8.99 al mes o $89.99 al año; Studio, $14.99 al mes o $149.99 al año. Tu banco puede aplicar su tipo de cambio."
+          },
+          {
+            "q": "¿Cuánto ahorro con el plan anual?",
+            "a": "Alrededor de 17%, casi dos meses gratis. Pro anual equivale a $7.50 al mes y Studio anual a $12.50 al mes, cobrados en un solo pago al año."
+          },
+          {
+            "q": "¿Cuesta lo mismo en el celular?",
+            "a": "Sí. El precio es el mismo en la web, en App Store y en Google Play. Puedes pagar donde te quede más cómodo."
+          },
+          {
+            "q": "¿Qué pasa si cancelo o bajo de plan?",
+            "a": "Conservas tu plan hasta que termine el periodo pagado y después pasas a Free. No se borra nada: si tienes más de lo que permite Free, solo se bloquea crear cosas nuevas hasta que cierres o archives algunas."
+          },
+          {
+            "q": "¿Cuál es la diferencia entre Loop en Pro y en Studio?",
+            "a": "En Pro, Loop responde consultas sobre tus proyectos y tareas desde un menú. En Studio conversas con Loop libremente y puede crear, mover y organizar tu trabajo por ti."
+          },
+          {
+            "q": "¿El plan Free caduca?",
+            "a": "No. Free es gratis para siempre y no pide tarjeta."
+          }
+        ]
+      },
+      "closing": {
+        "title": "Empieza gratis hoy.",
+        "body": "Sin tarjeta. Sube de plan cuando tus proyectos lo pidan.",
+        "cta": "Crear cuenta gratis"
+      }
     },
     "finalCall": {
       "headlineLine1": "El cementerio de proyectos a medias en tu cabeza no es tu fracaso.",
