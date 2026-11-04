@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
+import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import {
   ADMIN_SET_USER_IS_ADMIN,
   ADMIN_SET_USER_IS_BILLING_EXEMPT,
   ADMIN_SET_USER_PLAN,
   ADMIN_USERS_QUERY,
 } from "@/lib/graphql";
+import {
+  nextSortState,
+  sortRows,
+  toSortableTime,
+  type SortDir,
+  type SortState,
+  type SortValue,
+} from "@/lib/tableSort";
 import { toast } from "@/lib/toast";
 
 type AdminUserRow = {
@@ -46,6 +55,67 @@ const PLAN_OPTIONS = [
   { value: "admin", label: "Admin (staff)" },
 ];
 
+/**
+ * Columnas ordenables. `defaultDir` es la dirección del primer clic: ascendente
+ * para texto (A→Z) y descendente para números, fechas y casillas (lo más alto,
+ * lo más reciente y lo marcado primero, que es lo que uno busca al ordenar).
+ */
+const SORT_COLUMNS = [
+  { key: "email", label: "Email", defaultDir: "asc" },
+  { key: "plan", label: "Plan", defaultDir: "asc" },
+  { key: "admin", label: "Admin", defaultDir: "desc" },
+  { key: "exempt", label: "Exento", defaultDir: "desc" },
+  { key: "created", label: "Creado", defaultDir: "desc" },
+  { key: "lastActivity", label: "Última interacción", defaultDir: "desc" },
+  { key: "projects", label: "Proyectos", defaultDir: "desc" },
+  {
+    key: "tasks",
+    label: "Tareas (abiertas/hechas)",
+    defaultDir: "desc",
+    hint: "Ordena por tareas abiertas",
+  },
+  { key: "interactions", label: "Interacciones (30d)", defaultDir: "desc" },
+] as const satisfies readonly {
+  key: string;
+  label: string;
+  defaultDir: SortDir;
+  hint?: string;
+}[];
+
+type SortKey = (typeof SORT_COLUMNS)[number]["key"];
+
+/** Orden de los planes por "altura", no alfabético. */
+const PLAN_RANK: Record<string, number> = {
+  free: 0,
+  pro: 1,
+  studio: 2,
+  admin: 3,
+};
+
+/** Valor comparable de una fila para cada columna. */
+function userSortValue(u: AdminUserRow, key: SortKey): SortValue {
+  switch (key) {
+    case "email":
+      return u.email ? u.email.toLowerCase() : null;
+    case "plan":
+      return PLAN_RANK[(u.plan || "").toLowerCase()] ?? 99;
+    case "admin":
+      return u.isAdmin;
+    case "exempt":
+      return u.isBillingExempt;
+    case "created":
+      return toSortableTime(u.createdAt);
+    case "lastActivity":
+      return toSortableTime(u.lastActivity);
+    case "projects":
+      return u.counts.projects;
+    case "tasks":
+      return u.counts.tasksOpen;
+    case "interactions":
+      return u.interactions30d;
+  }
+}
+
 function formatDate(value: string | null): string {
   if (!value) return "—";
   try {
@@ -55,11 +125,59 @@ function formatDate(value: string | null): string {
   }
 }
 
+/** Encabezado clicable: muestra la flecha de la columna activa. */
+function SortableTh({
+  column,
+  sort,
+  onSort,
+  className = "",
+}: {
+  column: (typeof SORT_COLUMNS)[number];
+  sort: SortState<SortKey>;
+  onSort: (key: SortKey) => void;
+  className?: string;
+}) {
+  const active = sort?.key === column.key;
+  const dir = active ? sort.dir : null;
+  const Icon = dir === "asc" ? ArrowUp : dir === "desc" ? ArrowDown : ChevronsUpDown;
+  return (
+    <th
+      scope="col"
+      aria-sort={
+        active ? (dir === "asc" ? "ascending" : "descending") : "none"
+      }
+      className={`px-4 py-2.5 font-semibold ${className}`}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(column.key)}
+        title={
+          "hint" in column && column.hint
+            ? `${column.hint} · clic para cambiar el orden`
+            : `Ordenar por ${column.label}`
+        }
+        className="group inline-flex items-center gap-1 uppercase tracking-wide text-left hover:text-text"
+      >
+        <span>{column.label}</span>
+        <Icon
+          aria-hidden
+          className={`h-3.5 w-3.5 shrink-0 ${
+            active
+              ? "text-accent"
+              : "text-text-muted opacity-0 transition-opacity group-hover:opacity-70"
+          }`}
+        />
+      </button>
+    </th>
+  );
+}
+
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [emailContains, setEmailContains] = useState("");
   const [plan, setPlan] = useState<string>("");
   const [adminsOnly, setAdminsOnly] = useState(false);
+  const [sort, setSort] = useState<SortState<SortKey>>(null);
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const { data, loading, error, refetch } = useQuery<AdminUsersData>(
@@ -167,8 +285,20 @@ export default function AdminUsersPage() {
     }
   };
 
-  const rows = data?.adminUsers.users ?? [];
+  const serverRows = useMemo(
+    () => data?.adminUsers.users ?? [],
+    [data?.adminUsers.users]
+  );
+  const rows = useMemo(
+    () => sortRows(serverRows, sort, userSortValue),
+    [serverRows, sort]
+  );
   const hasNext = data?.adminUsers.hasNext ?? false;
+
+  const handleSort = (key: SortKey) => {
+    const column = SORT_COLUMNS.find((c) => c.key === key);
+    setSort((prev) => nextSortState(prev, key, column?.defaultDir ?? "asc"));
+  };
 
   return (
     <div className="space-y-6">
@@ -176,8 +306,8 @@ export default function AdminUsersPage() {
         <div>
           <h1 className="text-2xl font-semibold text-text">Usuarios</h1>
           <p className="mt-1 text-sm text-text-muted">
-            Cuentas registradas en Supabase. Filtros se aplican sobre la
-            página actual.
+            Cuentas registradas en Supabase. Filtros y orden se aplican sobre
+            la página actual.
           </p>
         </div>
         <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
@@ -236,6 +366,53 @@ export default function AdminUsersPage() {
 
       {/* Tarjetas (móvil) */}
       <div className="space-y-3 md:hidden">
+        {/* En móvil no hay encabezados que clicar: selector + dirección. */}
+        <div className="flex items-center gap-2">
+          <label className="flex min-w-0 flex-1 items-center gap-2 text-xs uppercase tracking-wide text-text-muted">
+            Ordenar
+            <select
+              value={sort?.key ?? ""}
+              onChange={(e) => {
+                const key = e.target.value as SortKey | "";
+                if (!key) {
+                  setSort(null);
+                  return;
+                }
+                const column = SORT_COLUMNS.find((c) => c.key === key);
+                setSort({ key, dir: column?.defaultDir ?? "asc" });
+              }}
+              className="min-w-0 flex-1 rounded border border-border bg-bg px-2 py-1.5 text-sm normal-case text-text outline-none focus:border-accent"
+            >
+              <option value="">Orden del servidor</option>
+              {SORT_COLUMNS.map((column) => (
+                <option key={column.key} value={column.key}>
+                  {column.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            disabled={!sort}
+            onClick={() =>
+              setSort((prev) =>
+                prev
+                  ? { ...prev, dir: prev.dir === "asc" ? "desc" : "asc" }
+                  : prev
+              )
+            }
+            aria-label={
+              sort?.dir === "asc" ? "Orden ascendente" : "Orden descendente"
+            }
+            className="flex shrink-0 items-center gap-1 rounded border border-border bg-surface px-3 py-1.5 text-sm text-text disabled:opacity-50"
+          >
+            {sort?.dir === "asc" ? (
+              <ArrowUp aria-hidden className="h-4 w-4" />
+            ) : (
+              <ArrowDown aria-hidden className="h-4 w-4" />
+            )}
+          </button>
+        </div>
         {loading && rows.length === 0 && (
           <div className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm text-text-muted">
             Cargando…
@@ -336,15 +513,14 @@ export default function AdminUsersPage() {
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-bg/60 text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>
-              <th className="px-4 py-2.5 font-semibold">Email</th>
-              <th className="px-4 py-2.5 font-semibold">Plan</th>
-              <th className="px-4 py-2.5 font-semibold">Admin</th>
-              <th className="px-4 py-2.5 font-semibold">Exento</th>
-              <th className="px-4 py-2.5 font-semibold">Creado</th>
-              <th className="px-4 py-2.5 font-semibold">Última interacción</th>
-              <th className="px-4 py-2.5 font-semibold">Proyectos</th>
-              <th className="px-4 py-2.5 font-semibold">Tareas (abiertas/hechas)</th>
-              <th className="px-4 py-2.5 font-semibold">Interacciones (30d)</th>
+              {SORT_COLUMNS.map((column) => (
+                <SortableTh
+                  key={column.key}
+                  column={column}
+                  sort={sort}
+                  onSort={handleSort}
+                />
+              ))}
               <th className="px-4 py-2.5 font-semibold"></th>
             </tr>
           </thead>
