@@ -3,12 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
-import {
-  AVATAR_STYLES,
-  avatarsByStyle,
-  getAvatarUrl,
-  type AvatarStyle,
-} from "@/lib/avatars";
+import { AVATAR_CATALOG, getAvatarUrl } from "@/lib/avatars";
 
 export function StepAvatar({
   name,
@@ -23,7 +18,6 @@ export function StepAvatar({
 }) {
   const t = useTranslations("onboarding");
   const tAvatars = useTranslations("avatars");
-  const grouped = avatarsByStyle();
   const [selected, setSelected] = useState<string | null>(null);
 
   const handleNext = async () => {
@@ -40,44 +34,34 @@ export function StepAvatar({
         <p className="text-text-muted text-sm mt-2">{t("avatar.sub")}</p>
       </div>
 
-      <div className="flex-1 space-y-6 max-h-[55vh] overflow-y-auto pr-1">
-        {AVATAR_STYLES.map((style: AvatarStyle) => {
-          const items = grouped[style];
-          if (items.length === 0) return null;
+      <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+        {AVATAR_CATALOG.map((a) => {
+          const isSelected = a.id === selected;
           return (
-            <section key={style}>
-              <h4 className="text-[11px] uppercase tracking-wider text-text-muted font-semibold mb-3">
-                {tAvatars(`styles.${style}`)}
-              </h4>
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-3">
-                {items.map((a) => {
-                  const isSelected = a.id === selected;
-                  return (
-                    <button
-                      key={a.id}
-                      type="button"
-                      onClick={() => setSelected(a.id)}
-                      className="flex flex-col items-center gap-1.5 group focus:outline-none"
-                      aria-label={tAvatars(`names.${a.nameKey}`)}
-                      aria-pressed={isSelected}
-                    >
-                      <img
-                        src={getAvatarUrl(a.id)}
-                        alt=""
-                        className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover transition-transform group-hover:scale-105 ${
-                          isSelected
-                            ? "ring-2 ring-accent ring-offset-2 ring-offset-bg"
-                            : "ring-1 ring-border"
-                        }`}
-                      />
-                      <span className="text-[11px] text-text-muted group-hover:text-text truncate max-w-full">
-                        {tAvatars(`names.${a.nameKey}`)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => setSelected(a.id)}
+              className="flex flex-col items-center gap-1.5 group focus:outline-none"
+              aria-label={tAvatars(`names.${a.nameKey}`)}
+              aria-pressed={isSelected}
+            >
+              <img
+                src={getAvatarUrl(a.id)}
+                alt=""
+                width={80}
+                height={80}
+                decoding="async"
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover transition-transform group-hover:scale-105 ${
+                  isSelected
+                    ? "ring-2 ring-accent ring-offset-2 ring-offset-bg"
+                    : "ring-1 ring-border"
+                }`}
+              />
+              <span className="text-[11px] text-text-muted group-hover:text-text truncate max-w-full">
+                {tAvatars(`names.${a.nameKey}`)}
+              </span>
+            </button>
           );
         })}
       </div>

@@ -1,43 +1,44 @@
-export const AVATAR_STYLES = ["3d", "anime", "8bit", "vector"] as const;
-export type AvatarStyle = (typeof AVATAR_STYLES)[number];
-
+/**
+ * Catálogo de avatares: los siete personajes de The Loop Society, solo en
+ * estilo vector. Las imágenes son miniaturas de 256 px empaquetadas en
+ * `public/avatars/vector/` (≈8 KB c/u): salen del mismo dominio y del caché
+ * de Vercel, sin pasar por Supabase Storage.
+ *
+ * Hasta 2026-11 hubo cuatro estilos (`3d`, `anime`, `8bit`, `vector`). Los ids
+ * viejos que sigan guardados (o que mande un build móvil antiguo) se traducen
+ * al mismo personaje en vector con `normalizeAvatarId`. Espejo en
+ * `continuity-mobile/src/lib/avatars.ts` y `backend/core/services/profiles.py`.
+ */
 export type Avatar = {
   id: string;
-  style: AvatarStyle;
   slug: string;
   nameKey: string;
 };
 
-const CHARACTERS: { slug: string; nameKey: string }[] = [
-  { slug: "momo", nameKey: "momo" },
-  { slug: "yuki", nameKey: "yuki" },
-  { slug: "tako", nameKey: "tako" },
-  { slug: "kuma", nameKey: "kuma" },
-  { slug: "hoshi", nameKey: "hoshi" },
-  { slug: "pip", nameKey: "pip" },
-  { slug: "tetsu", nameKey: "tetsu" },
-];
+const STYLE = "vector";
+const LEGACY_STYLES = ["3d", "anime", "8bit"];
 
-export const AVATAR_CATALOG: Avatar[] = AVATAR_STYLES.flatMap((style) =>
-  CHARACTERS.map((c) => ({
-    id: `${style}/${c.slug}`,
-    style,
-    slug: c.slug,
-    nameKey: c.nameKey,
-  })),
-);
+const SLUGS = ["momo", "yuki", "tako", "kuma", "hoshi", "pip", "tetsu"] as const;
+
+export const AVATAR_CATALOG: Avatar[] = SLUGS.map((slug) => ({
+  id: `${STYLE}/${slug}`,
+  slug,
+  nameKey: slug,
+}));
+
+/** Traduce un id viejo (`3d/momo`) a su equivalente vigente (`vector/momo`). */
+export function normalizeAvatarId(id: string | null | undefined): string | null {
+  if (!id) return null;
+  const [style, slug] = id.split("/");
+  if (LEGACY_STYLES.includes(style)) return `${STYLE}/${slug}`;
+  return id;
+}
 
 export function getAvatarUrl(id: string): string {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${id}.webp`;
+  return `/avatars/${normalizeAvatarId(id)}.webp`;
 }
 
 export function isValidAvatarId(id: string | null | undefined): id is string {
-  return !!id && AVATAR_CATALOG.some((a) => a.id === id);
-}
-
-export function avatarsByStyle(): Record<AvatarStyle, Avatar[]> {
-  const out = {} as Record<AvatarStyle, Avatar[]>;
-  for (const style of AVATAR_STYLES) out[style] = [];
-  for (const a of AVATAR_CATALOG) out[a.style].push(a);
-  return out;
+  const n = normalizeAvatarId(id);
+  return !!n && AVATAR_CATALOG.some((a) => a.id === n);
 }
