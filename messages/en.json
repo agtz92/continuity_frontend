@@ -615,6 +615,7 @@
         "importSuccess": "Imported {imported} tasks. {skipped} skipped (already imported).",
         "importSuccessWithProjects": "Imported {imported} tasks. Created project(s): {projects}.",
         "errorConnect": "Could not start Google sign-in: {error}",
+        "errorFinish": "Could not finish connecting Google: {error}",
         "errorImport": "Import failed: {error}"
       },
       "oauthConsent": {

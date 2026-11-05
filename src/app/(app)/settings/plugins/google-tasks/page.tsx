@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
@@ -9,6 +9,7 @@ import { ArrowLeft, ListTodo, ExternalLink } from "lucide-react";
 import { SettingsShell } from "@/components/settings/SettingsShell";
 import { toast } from "@/lib/toast";
 import {
+  COMPLETE_GOOGLE_OAUTH,
   DASHBOARD_QUERY,
   DISCONNECT_GOOGLE_TASKS,
   GOOGLE_TASKS_AUTH_URL,
@@ -60,13 +61,29 @@ export default function GoogleTasksPluginPage() {
 
   const [choices, setChoices] = useState<Record<string, MappingChoice>>({});
 
+  const [completeOAuth] = useMutation(COMPLETE_GOOGLE_OAUTH);
+  // Google codes are single-use: guard against React running the effect twice.
+  const finishing = useRef(false);
+
   useEffect(() => {
-    const status = searchParams.get("google_connected");
+    const code = searchParams.get("google_code");
+    const state = searchParams.get("google_state");
     const err = searchParams.get("google_error");
-    if (status) {
-      toast.success(t("connectedAs", { email: connection?.email ?? "Google" }));
-      connectionQuery.refetch();
+    if (code && state) {
+      if (finishing.current) return;
+      finishing.current = true;
+      // Drop the code from the address bar and history before anything else.
       router.replace("/settings/plugins/google-tasks");
+      completeOAuth({ variables: { code, state } })
+        .then(async () => {
+          const res = await connectionQuery.refetch();
+          const email = res.data?.googleTasksConnection?.email ?? "Google";
+          toast.success(t("connectedAs", { email }));
+        })
+        .catch((e: unknown) => {
+          const msg = e instanceof Error ? e.message : String(e);
+          toast.error(t("errorFinish", { error: msg }));
+        });
     } else if (err) {
       toast.error(t("errorConnect", { error: err }));
       router.replace("/settings/plugins/google-tasks");

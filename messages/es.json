@@ -615,6 +615,7 @@
         "importSuccess": "{imported} tareas importadas. {skipped} omitidas (ya importadas antes).",
         "importSuccessWithProjects": "{imported} tareas importadas. Proyecto(s) creado(s): {projects}.",
         "errorConnect": "No se pudo iniciar el inicio de sesión con Google: {error}",
+        "errorFinish": "No se pudo terminar de conectar Google: {error}",
         "errorImport": "La importación falló: {error}"
       },
       "oauthConsent": {

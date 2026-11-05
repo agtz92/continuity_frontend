@@ -18,6 +18,15 @@ export const GOOGLE_TASKS_AUTH_URL = gql`
 `;
 
 
+// The OAuth callback no longer stores tokens: it bounces `code` + `state`
+// back to the page, which finishes here, authenticated. The backend refuses
+// a state issued to a different user (stops shared-consent-link hijacking).
+export const COMPLETE_GOOGLE_OAUTH = gql`
+  mutation CompleteGoogleOAuth($code: String!, $state: String!) {
+    completeGoogleOauth(code: $code, state: $state)
+  }
+`;
+
 export const GOOGLE_TASK_LISTS_QUERY = gql`
   query GoogleTaskLists {
     googleTaskLists {
