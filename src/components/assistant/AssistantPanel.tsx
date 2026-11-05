@@ -2,9 +2,10 @@
 
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Send, Square, InfinityIcon, X, Plus, AlertCircle } from "lucide-react";
+import { Send, Square, InfinityIcon, X, Plus, AlertCircle, Mic } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useDictation } from "@/hooks/useDictation";
 import { MessageList } from "./MessageList";
 import { PlanBadge } from "./PlanBadge";
 import { UsageMeter } from "./UsageMeter";
@@ -47,6 +48,8 @@ export function AssistantPanel({
     newConversation,
   } = useAssistant();
   const [input, setInput] = useState("");
+  // Dictado: el navegador escribe en el campo; enviar sigue siendo del usuario.
+  const dictation = useDictation((text) => setInput(text.slice(0, MAX_INPUT_CHARS)));
   // On mobile the on-screen keyboard's Enter must insert a newline (there's no
   // Shift), so we only send via the button. On desktop, Enter sends and
   // Shift+Enter inserts a newline.
@@ -105,6 +108,7 @@ export function AssistantPanel({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (streaming || !input.trim()) return;
+    if (dictation.listening) dictation.cancel();
     const text = input;
     setInput("");
     await send(text);
@@ -267,8 +271,25 @@ export function AssistantPanel({
             placeholder={t("inputPlaceholder")}
             rows={2}
             disabled={streaming}
+            readOnly={dictation.listening}
             className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent-a35 resize-none disabled:opacity-60 disabled:cursor-not-allowed"
           />
+          {dictation.available && !streaming && (
+            <button
+              type="button"
+              onClick={() => (dictation.listening ? dictation.stop() : dictation.start(input))}
+              aria-pressed={dictation.listening}
+              aria-label={t(dictation.listening ? "dictation.stop" : "dictation.start")}
+              title={t(dictation.listening ? "dictation.stop" : "dictation.start")}
+              className={
+                dictation.listening
+                  ? "shrink-0 w-9 h-9 rounded-lg bg-accent text-bg flex items-center justify-center motion-safe:animate-pulse"
+                  : "shrink-0 w-9 h-9 rounded-lg bg-surface border border-border text-text-muted hover:text-text flex items-center justify-center"
+              }
+            >
+              <Mic size={14} />
+            </button>
+          )}
           {streaming ? (
             <button
               type="button"
