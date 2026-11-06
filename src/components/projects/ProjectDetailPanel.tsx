@@ -118,7 +118,11 @@ export function ProjectDetailPanel({
   const StatusIcon = statusConfig[p.status]?.icon;
 
   const TABS: { id: Tab; label: string; count: number }[] = [
-    { id: "logbook", label: tDetail("tabLogbook"), count: projectUpdates.length },
+    {
+      id: "logbook",
+      label: tDetail("tabLogbook"),
+      count: projectUpdates.length + (p.olderNoteCount ?? 0),
+    },
     { id: "tasks", label: tDetail("tabTasks"), count: totalTaskCount(p, projectTasks) },
     { id: "notes", label: tDetail("tabNotes"), count: notes.length },
   ];
@@ -261,7 +265,11 @@ export function ProjectDetailPanel({
             {tab === "logbook" && (
               <div className="space-y-4">
                 <UpdateComposer projectId={p.id} />
-                <ProjectLogbook updates={projectUpdates} />
+                <ProjectLogbook
+                  updates={projectUpdates}
+                  projectId={p.id}
+                  olderCount={p.olderNoteCount ?? 0}
+                />
               </div>
             )}
 

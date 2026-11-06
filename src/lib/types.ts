@@ -58,6 +58,8 @@ export interface Project {
   /** Completadas que el dashboard no trae por ser anteriores a su ventana
    *  (`DASHBOARD_DONE_TASK_DAYS`). Ver `lib/projectProgress.ts`. */
   olderDoneCount?: number;
+  /** Notas de bitácora anteriores a la ventana de activities (no vienen en el dashboard). */
+  olderNoteCount?: number;
   olderDoneEffortHours?: number;
 }
 

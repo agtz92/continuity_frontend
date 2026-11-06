@@ -74,6 +74,7 @@ export const CREATE_PROJECT = gql`
       # UPDATE_PROJECT el servidor no las calcula y pisaría el valor bueno.
       olderDoneCount
       olderDoneEffortHours
+      olderNoteCount
     }
   }
 `;

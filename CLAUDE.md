@@ -193,6 +193,12 @@ cuentes `tasks.filter(done)` a mano** o el progreso baja solo con el tiempo. Las
 completadas terminan en `<OlderCompletedTasks/>`, que pide las anteriores con
 `COMPLETED_TASKS_QUERY`. Reabrir una de ésas hace refetch completo (no está en la lista).
 
+**Notas de bitácora recortadas** (`allNotes: false` en `DASHBOARD_QUERY` y el delta): las notas
+(activities `kind=note`) viajan solo dentro de los 60 días de `DASHBOARD_ACTIVITY_DAYS`. Las
+anteriores llegan contadas en `project.olderNoteCount` y `ProjectLogbook` las pide con
+`useOlderProjectNotes` (`ACTIVITY_QUERY` por cursor `until`). Un conteo de updates por proyecto
+debe sumar `olderNoteCount`. Mismo esquema en el móvil (`ProjectActivity`).
+
 **Polls secundarios:** todo `pollInterval` lleva `skipPollAttempt: skipWhenHidden`
 (`NotificationStack` no lo tenía). `useAssistant()` se monta dos veces en el dashboard:
 `/usage` y `/actions` se comparten 10 s entre montajes (`usageOnce`/`actionsOnce`).

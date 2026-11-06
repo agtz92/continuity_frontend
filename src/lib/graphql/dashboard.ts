@@ -1,7 +1,9 @@
 import { gql } from "@apollo/client";
 
-// Ventana de actividad del dashboard: solo los eventos de los últimos N días
-// (las notas escritas viajan todas). Sin tope, cada refetch —tras cada
+// Ventana de actividad del dashboard: solo los eventos de los últimos N días,
+// notas de bitácora incluidas (`allNotes: false`; antes viajaban todas las de la
+// historia). Las notas anteriores llegan contadas por proyecto
+// (`olderNoteCount`) y el logbook las pide con `ACTIVITY_QUERY`. Sin tope, cada refetch —tras cada
 // mutation, el polling y al volver a la pestaña— bajaba la historia completa.
 // Va fijo en el documento y no como variable para que la clave de caché sea la
 // misma en cada `refetchQueries` y `updateQuery`. La Bitácora pide el resto
@@ -14,6 +16,10 @@ export const DASHBOARD_ACTIVITY_DAYS = 60;
 // Las anteriores llegan contadas por proyecto (`olderDoneCount`) y se listan con
 // `COMPLETED_TASKS_QUERY`. Mismo valor que en `continuity-mobile`.
 export const DASHBOARD_DONE_TASK_DAYS = 30;
+
+/** Inicio de la ventana de activities, para pedir las notas anteriores. */
+export const activityWindowStart = (now = Date.now()): string =>
+  new Date(now - DASHBOARD_ACTIVITY_DAYS * 86_400_000).toISOString();
 
 /** Inicio de la ventana de completadas, para pedir las anteriores. */
 export const doneWindowStart = (now = Date.now()): string =>
@@ -51,6 +57,7 @@ const DASHBOARD_PROJECT_FIELDS = `
   isBlocked
   olderDoneCount
   olderDoneEffortHours
+  olderNoteCount
 `;
 
 const DASHBOARD_ACTIVITY_FIELDS = `
@@ -71,6 +78,7 @@ export const DASHBOARD_QUERY = gql`
     dashboard(
       activityDays: ${DASHBOARD_ACTIVITY_DAYS}
       doneTaskDays: ${DASHBOARD_DONE_TASK_DAYS}
+      allNotes: false
     ) {
       projects {
         ${DASHBOARD_PROJECT_FIELDS}
@@ -160,7 +168,12 @@ export const DASHBOARD_QUERY = gql`
  */
 export const DASHBOARD_DELTA_QUERY = gql`
   query DashboardDelta($since: DateTime!) {
-    dashboardDelta(since: $since, doneTaskDays: ${DASHBOARD_DONE_TASK_DAYS}) {
+    dashboardDelta(
+      since: $since
+      doneTaskDays: ${DASHBOARD_DONE_TASK_DAYS}
+      activityDays: ${DASHBOARD_ACTIVITY_DAYS}
+      allNotes: false
+    ) {
       projects {
         ${DASHBOARD_PROJECT_FIELDS}
       }
