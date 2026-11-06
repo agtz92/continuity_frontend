@@ -125,13 +125,14 @@ export function useLiveInvalidation(
 /**
  * Bandera de encendido gradual (`NEXT_PUBLIC_LIVE_UPDATES`):
  * - `off`   → nadie (vuelta atrás sin quitar código).
- * - `admin` → solo cuentas admin (default: paso 3 del encendido).
- * - `all`   → todos (paso 4).
+ * - `admin` → solo cuentas admin (paso 3 del encendido).
+ * - `all`   → todos (default desde 2026-11-06, paso 4: sin señales cada
+ *   pestaña bajaba el dashboard completo cada 60 s; con ellas, cada 5 min).
  *
  * Devuelve el `userId` a escuchar, o `null` si para este usuario está apagado.
  */
 export function useLiveUpdatesTarget(): string | null {
-  const mode = process.env.NEXT_PUBLIC_LIVE_UPDATES ?? "admin";
+  const mode = process.env.NEXT_PUBLIC_LIVE_UPDATES ?? "all";
   const { data } = useQuery<{ me: { userId: string; isAdmin: boolean } | null }>(
     ME_QUERY,
     { skip: mode === "off", fetchPolicy: "cache-first" },
@@ -144,5 +145,5 @@ export function useLiveUpdatesTarget(): string | null {
 
 /** Igual que `useLiveUpdatesTarget`, para el canal `admin`. */
 export function liveAdminEnabled(): boolean {
-  return (process.env.NEXT_PUBLIC_LIVE_UPDATES ?? "admin") !== "off";
+  return (process.env.NEXT_PUBLIC_LIVE_UPDATES ?? "all") !== "off";
 }

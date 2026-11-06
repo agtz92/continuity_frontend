@@ -44,9 +44,10 @@ export function useRoutineMutations() {
     COMPLETE_ROUTINE_OCCURRENCE,
     insertAfter("routineOccurrences", "completeRoutineOccurrence")
   );
+  // Devuelve un booleano, no la ocurrencia: se saca de la caché por `id`.
   const [uncompleteOccurrenceM] = useMutation(
     UNCOMPLETE_ROUTINE_OCCURRENCE,
-    insertAfter("routineOccurrences", "completeRoutineOccurrence")
+    removeAfter("routineOccurrences")
   );
 
   const saveRoutine = async (r: RoutineFormInput): Promise<boolean> => {

@@ -46,8 +46,15 @@ export function useBackup({
 }) {
   const t = useTranslations("modals.backup.toast");
   const client = useApolloClient();
+  // Solo cambia `lastBackup`: se escribe en la caché, sin bajar el dashboard.
   const [markBackupM] = useMutation(MARK_BACKUP, {
-    refetchQueries: [{ query: DASHBOARD_QUERY }],
+    update(cache, result) {
+      if (result.errors?.length) return;
+      const at = (result.data as { markBackup?: string } | null)?.markBackup ?? new Date().toISOString();
+      cache.updateQuery({ query: DASHBOARD_QUERY }, (prev) =>
+        prev?.dashboard ? { ...prev, dashboard: { ...prev.dashboard, lastBackup: at } } : prev
+      );
+    },
   });
   const [restoreM] = useMutation(RESTORE_BACKUP);
 

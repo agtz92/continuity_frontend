@@ -113,15 +113,49 @@ function resolveMode(snap: UsageSnapshot): AssistantMode {
   return "none";
 }
 
+/**
+ * `useAssistant()` se monta dos veces en el dashboard (el panel y el modal de
+ * revivir): sin esto cada montaje pedía `/usage` (y `/actions`) por su lado.
+ * Comparte la petición en vuelo y la reutiliza unos segundos; tras un chat se
+ * pide fresca (`refreshUsage(true)`).
+ */
+const SHARED_TTL_MS = 10_000;
+let sharedUsage: { at: number; p: Promise<UsageSnapshot> } | null = null;
+let sharedActions: { at: number; p: ReturnType<typeof getActions> } | null = null;
+
+function usageOnce(fresh: boolean): Promise<UsageSnapshot> {
+  if (!fresh && sharedUsage && Date.now() - sharedUsage.at < SHARED_TTL_MS) {
+    return sharedUsage.p;
+  }
+  const p = getUsage();
+  sharedUsage = { at: Date.now(), p };
+  p.catch(() => {
+    if (sharedUsage?.p === p) sharedUsage = null;
+  });
+  return p;
+}
+
+function actionsOnce(): ReturnType<typeof getActions> {
+  if (sharedActions && Date.now() - sharedActions.at < SHARED_TTL_MS) {
+    return sharedActions.p;
+  }
+  const p = getActions();
+  sharedActions = { at: Date.now(), p };
+  p.catch(() => {
+    if (sharedActions?.p === p) sharedActions = null;
+  });
+  return p;
+}
+
 export function useAssistant() {
   const [state, setState] = useState<AssistantState>(INITIAL);
   const abortRef = useRef<AbortController | null>(null);
   const usedToolRef = useRef(false);
   const apollo = useApolloClient();
 
-  const refreshUsage = useCallback(async () => {
+  const refreshUsage = useCallback(async (fresh = true) => {
     try {
-      const snap = await getUsage();
+      const snap = await usageOnce(fresh);
       const mode = resolveMode(snap);
       setState((s) => ({ ...s, usage: snap, plan: snap.plan, mode }));
       return mode;
@@ -134,10 +168,10 @@ export function useAssistant() {
     // The catalogue only exists for `canned`, and asking for it in any
     // other mode is a guaranteed 403 — so resolve the mode first.
     (async () => {
-      const mode = await refreshUsage();
+      const mode = await refreshUsage(false);
       if (mode !== "canned") return;
       try {
-        const groups = await getActions();
+        const groups = await actionsOnce();
         setState((s) => ({ ...s, actions: groups }));
       } catch {
         /* the panel falls back to an empty catalogue */

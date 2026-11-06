@@ -34,8 +34,10 @@ export function queriesForTables(tables: Set<string>): "active" | DocumentNode[]
 
 /**
  * Tablas cuyo eco se puede ignorar si esta pestaña acaba de escribir: sus
- * mutaciones ya relanzan `DASHBOARD_QUERY` con `refetchQueries`, así que el
- * aviso que provoca la propia escritura pediría lo mismo otra vez.
+ * mutaciones ya se reflejan solas (caché + `dashboardDelta`, o el refetch
+ * completo de `fullRefetchAfter` en los casos con cascada; ver
+ * `lib/dashboardSync.ts`), así que el aviso que provoca la propia escritura
+ * pediría el dashboard entero otra vez.
  */
 const DASHBOARD_TABLES = new Set([
   "core_task",
@@ -49,7 +51,13 @@ const DASHBOARD_TABLES = new Set([
   "core_activity",
 ]);
 
-export const ECHO_WINDOW_MS = 1500;
+/**
+ * Cuánto después de una mutación propia un aviso se toma por eco. Con 1,5 s
+ * el aviso solía llegar tarde (latencia del canal + 400 ms de debounce) y
+ * cada palomeo terminaba en un dashboard completo. Igual que el móvil
+ * (`continuity-mobile/src/hooks/useLiveSync.ts`).
+ */
+export const ECHO_WINDOW_MS = 4000;
 
 export function isOwnEcho(
   tables: Set<string>,

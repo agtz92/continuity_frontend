@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import { AlertTriangle, Info, X, XCircle } from "lucide-react";
 import { NOTIFICATIONS_QUERY } from "@/lib/graphql";
+import { skipWhenHidden } from "@/hooks/useRefetchOnFocus";
 
 type Severity = "info" | "warn" | "error";
 
@@ -42,7 +43,12 @@ function saveDismissed(ids: Set<string>) {
 export function NotificationStack() {
   const { data } = useQuery<{ notifications: InAppNotification[] }>(
     NOTIFICATIONS_QUERY,
-    { fetchPolicy: "cache-and-network", pollInterval: 60_000 }
+    {
+      fetchPolicy: "cache-and-network",
+      pollInterval: 60_000,
+      // Sin esto seguía consultando con la pestaña oculta.
+      skipPollAttempt: skipWhenHidden,
+    }
   );
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 

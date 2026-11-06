@@ -12,6 +12,7 @@ import {
   DELETE_NOTE,
   DELETE_QUICK_NOTE,
   DELETE_TASK,
+  QUICK_NOTES_QUERY,
 } from "@/lib/graphql";
 import { useQuickNoteMutations } from "@/hooks/useQuickNoteMutations";
 import {
@@ -26,7 +27,6 @@ import type { CaptureKind } from "@/lib/quickParse";
 import { quickParse } from "@/lib/quickParse";
 import type { Project } from "@/lib/types";
 import {
-  fullRefetchAfter,
   removeAfter,
   scheduleDashboardDelta,
 } from "@/lib/dashboardSync";
@@ -123,7 +123,9 @@ export function useQuickCapture(projects: Project[]) {
     ADD_NOTE,
     captureMutationOptions("activities", "addNote")
   );
-  const [deleteTask] = useMutation(DELETE_TASK, fullRefetchAfter);
+  // Deshacer borra lo recién capturado: una tarea sin blockers ni nada que
+  // cuelgue de ella, así que basta sacarla de la caché (sin refetch completo).
+  const [deleteTask] = useMutation(DELETE_TASK, removeAfter("tasks"));
   const [deleteIdea] = useMutation(DELETE_IDEA, removeAfter("ideas"));
   const [deleteActivityNote] = useMutation(DELETE_NOTE, removeAfter("activities"));
   const [deleteQuickNote] = useMutation(DELETE_QUICK_NOTE);
@@ -243,7 +245,8 @@ export function useQuickCapture(projects: Project[]) {
           await deleteIdea({ variables: { id: saved.id } });
         } else if (saved.kind === "note") {
           await deleteQuickNote({ variables: { id: saved.id } });
-          await client.refetchQueries({ include: [DASHBOARD_QUERY] });
+          // Las quick notes no viven en el dashboard: solo su propia lista.
+          await client.refetchQueries({ include: [QUICK_NOTES_QUERY] });
         } else {
           await deleteActivityNote({ variables: { id: saved.id } });
         }

@@ -151,8 +151,10 @@ syncs o los jobs. Tres capas, de la más simple a la más fina:
   `notify_user_change` (migración `backend/core/migrations/0036_live_change_signals.py`)
   manda un broadcast al canal privado `user:<uuid>`; el hook escucha y relanza las
   queries activas (debounce 400 ms). Se enciende con **`NEXT_PUBLIC_LIVE_UPDATES`**:
-  `off` · `admin` (default) · `all`. Para apagarlo en producción basta cambiar la variable
-  en Vercel y redeploy; el polling sigue cubriendo.
+  `off` · `admin` · `all` (default desde 2026-11-06: sin señales, cada pestaña bajaba el
+  dashboard completo cada 60 s). Para apagarlo en producción basta cambiar la variable en
+  Vercel y redeploy; el polling sigue cubriendo. Si Vercel tiene la variable puesta en
+  `admin`, manda sobre el default del código.
 
 **Medianoche:** `useDayKey()` cambia al pasar el día y `Dashboard` lo usa como `key` de las
 vistas, porque varias calculan "hoy" dentro de `useMemo`. Si una vista nueva calcula
@@ -162,8 +164,9 @@ fechas relativas a hoy, ya queda cubierta por estar bajo ese `Fragment`.
 (`src/lib/liveTables.ts`) decide qué relanzar: Quick Notes y preferencias tienen su query
 propia; cualquier otra tabla, una reconexión o una tabla desconocida relanzan todo lo montado.
 Si una vista nueva lee una tabla mapeada a una query concreta, actualiza el mapa (tiene tests).
-El **eco** de una mutación de esta pestaña se ignora durante 1,5 s (`isOwnEcho` +
-`getLastLocalWrite` de `lib/apollo.ts`): su `refetchQueries` ya pidió el dashboard.
+El **eco** de una mutación de esta pestaña se ignora durante 4 s (`isOwnEcho` +
+`getLastLocalWrite` de `lib/apollo.ts`): la mutación ya se reflejó (caché + delta, o su
+refetch completo). Con 1,5 s el aviso llegaba tarde y cada palomeo bajaba el dashboard.
 
 **Indicador:** `src/components/layout/FreshnessIndicator.tsx`, al pie de la barra lateral
 ("En vivo" / "Actualizado hace N min", i18n `freshness.*`). Lee `useLiveStatus()` y la hora del
@@ -189,6 +192,11 @@ proyecto se calcula con `lib/projectProgress.ts` (suma `olderDoneCount` del serv
 cuentes `tasks.filter(done)` a mano** o el progreso baja solo con el tiempo. Las listas de
 completadas terminan en `<OlderCompletedTasks/>`, que pide las anteriores con
 `COMPLETED_TASKS_QUERY`. Reabrir una de ésas hace refetch completo (no está en la lista).
+
+**Polls secundarios:** todo `pollInterval` lleva `skipPollAttempt: skipWhenHidden`
+(`NotificationStack` no lo tenía). `useAssistant()` se monta dos veces en el dashboard:
+`/usage` y `/actions` se comparten 10 s entre montajes (`usageOnce`/`actionsOnce`).
+Al cerrar sesión `providers.tsx` hace `apolloClient.clearStore()`.
 
 **Optimistas:** completar una tarea (`toggleTask` en `useTaskMutations`) responde al instante
 con `optimisticResponse`; el `refetchQueries` sigue corriendo detrás.
