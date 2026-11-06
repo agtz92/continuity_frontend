@@ -183,6 +183,13 @@ categoría), blockers, fechas aparcadas y promover idea; completar una tarea que
 también. **Una mutación de creación nueva** debe devolver todos los campos que selecciona
 `DASHBOARD_QUERY` para su lista, o la query queda incompleta.
 
+**Completadas recortadas** (`DASHBOARD_DONE_TASK_DAYS = 30` en `lib/graphql/dashboard.ts`, igual
+que el móvil): el dashboard trae las abiertas y las completadas de 30 días. El progreso de un
+proyecto se calcula con `lib/projectProgress.ts` (suma `olderDoneCount` del servidor); **no
+cuentes `tasks.filter(done)` a mano** o el progreso baja solo con el tiempo. Las listas de
+completadas terminan en `<OlderCompletedTasks/>`, que pide las anteriores con
+`COMPLETED_TASKS_QUERY`. Reabrir una de ésas hace refetch completo (no está en la lista).
+
 **Optimistas:** completar una tarea (`toggleTask` en `useTaskMutations`) responde al instante
 con `optimisticResponse`; el `refetchQueries` sigue corriendo detrás.
 

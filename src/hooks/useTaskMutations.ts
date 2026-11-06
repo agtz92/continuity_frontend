@@ -14,6 +14,7 @@ import {
   blocksOtherTasks,
   fullRefetchAfter,
   insertAfter,
+  isTaskInDashboard,
   scheduleDashboardDelta,
   syncAfter,
 } from "@/lib/dashboardSync";
@@ -69,7 +70,9 @@ export function useTaskMutations() {
       const done = !t.done;
       // Completarla borra en el servidor los blockers donde ella bloquea a
       // otras: eso la caché no lo sabe, así que ahí sí va el dashboard entero.
-      const cascades = done && blocksOtherTasks(t.id);
+      // Y una completada anterior a la ventana no está en la lista del
+      // dashboard: al reabrirla tiene que volver a ella.
+      const cascades = (done && blocksOtherTasks(t.id)) || !isTaskInDashboard(t.id);
       await toggleTaskM({
         variables: { id: t.id },
         optimisticResponse: {

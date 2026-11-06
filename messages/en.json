@@ -2498,5 +2498,12 @@
     "justNow": "just now",
     "minutesAgo": "{minutes, plural, one {# min ago} other {# min ago}}",
     "tooltip": "Last data received at {time}"
+  },
+  "completedHistory": {
+    "showCount": "{count, plural, one {Show # earlier completed task} other {Show # earlier completed tasks}}",
+    "show": "Show earlier completed tasks",
+    "loadMore": "Load more",
+    "loading": "Loading…",
+    "error": "Couldn't load them. Retry"
   }
 }

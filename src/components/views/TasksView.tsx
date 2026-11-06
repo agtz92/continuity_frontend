@@ -32,6 +32,7 @@ import {
   TasksFilterSheet,
   type TaskFilterDraft,
 } from "./TasksFilterSheet";
+import { OlderCompletedTasks } from "@/components/tasks/OlderCompletedTasks";
 
 type TaskRange = "today" | "week" | "all";
 
@@ -285,6 +286,10 @@ export function TasksView({
               )
             : upcomingAll;
 
+        // Completadas fuera de la ventana del dashboard (solo las de proyectos:
+        // las sueltas no tienen contador, pero el botón las trae igual).
+        const olderDoneTotal = projects.reduce((n, p) => n + (p.olderDoneCount ?? 0), 0);
+
         const doneBucket = filteredTasks
           .filter((task) => task.done)
           .sort((a, b) => {
@@ -428,7 +433,7 @@ export function TasksView({
               </CollapsibleSection>
             )}
 
-            {showDone && doneBucket.length > 0 && (
+            {showDone && (doneBucket.length > 0 || (!searching && olderDoneTotal > 0)) && (
               <CollapsibleSection
                 variant="card"
                 open={doneOpen}
@@ -443,6 +448,26 @@ export function TasksView({
               >
                 <div className="space-y-2">
                   {doneBucket.map((task) => renderRow(task))}
+                  {/* Las anteriores a la ventana del dashboard, bajo demanda.
+                      El servidor no aplica la búsqueda: con texto se omiten. */}
+                  {!searching && (
+                    <OlderCompletedTasks
+                      excludeIds={new Set(doneBucket.map((x) => x.id))}
+                      renderItem={(task, onReopened) => (
+                        <TaskRow
+                          key={task.id}
+                          task={task}
+                          project={projects.find((p) => p.id === task.projectId)}
+                          onToggle={(x) => {
+                            void Promise.resolve(onToggleTask(x)).then(onReopened);
+                          }}
+                          onDelete={onDeleteTask}
+                          onEdit={onEditTask}
+                          onMoveToday={moveTaskToToday}
+                        />
+                      )}
+                    />
+                  )}
                 </div>
               </CollapsibleSection>
             )}

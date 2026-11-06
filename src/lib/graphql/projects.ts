@@ -70,6 +70,10 @@ export const CREATE_PROJECT = gql`
       cooling
       blockedSince
       isBlocked
+      # Recién creado: no tiene completadas viejas. Solo en CREATE; en
+      # UPDATE_PROJECT el servidor no las calcula y pisaría el valor bueno.
+      olderDoneCount
+      olderDoneEffortHours
     }
   }
 `;

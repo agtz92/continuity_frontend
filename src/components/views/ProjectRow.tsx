@@ -39,6 +39,8 @@ import { ProjectSection } from "@/components/projects/ProjectSection";
 import { ShowMoreList } from "@/components/ui/ShowMoreList";
 import { ProjectTaskRow } from "../projects/ProjectTaskRow";
 import { byManualOrder } from "@/lib/taskOrder";
+import { doneTaskCount, totalTaskCount } from "@/lib/projectProgress";
+import { OlderCompletedTasks } from "@/components/tasks/OlderCompletedTasks";
 
 interface ProjectRowProps {
   project: Project;
@@ -98,8 +100,8 @@ export function ProjectRow({
   const locale = useLocale();
 
   const projectTasks = tasks.filter((t) => t.projectId === p.id);
-  const done = projectTasks.filter((t) => t.done).length;
-  const total = projectTasks.length;
+  const done = doneTaskCount(p, projectTasks);
+  const total = totalTaskCount(p, projectTasks);
   const todayCount = projectTasks.filter(
     (t) => !t.done && isDueToday(t.dueDate)
   ).length;
@@ -353,7 +355,7 @@ export function ProjectRow({
             >
               <Plus size={12} /> {tCard("addTask")}
             </button>
-            {projectTasks.length === 0 ? (
+            {projectTasks.length === 0 && !p.olderDoneCount ? (
               <div className="text-sm text-text-muted italic">
                 {tCard("noTasks")}
               </div>
@@ -397,6 +399,23 @@ export function ProjectRow({
                       />
                     )}
                     itemKey={(task) => task.id}
+                  />
+                  <OlderCompletedTasks
+                    projectId={p.id}
+                    count={p.olderDoneCount ?? 0}
+                    excludeIds={new Set(doneTasks.map((x) => x.id))}
+                    renderItem={(task, onReopened) => (
+                      <ProjectTaskRow
+                        key={task.id}
+                        task={task}
+                        interactive
+                        onToggleTask={(x) => {
+                          void Promise.resolve(onToggleTask(x)).then(onReopened);
+                        }}
+                        onEditTask={onEditTask}
+                        onDeleteTask={onDeleteTask}
+                      />
+                    )}
                   />
                 </div>
               );

@@ -34,6 +34,8 @@ import {
   PrioritySelect,
   StatusSelect,
 } from "./detailSelects";
+import { OlderCompletedTasks } from "@/components/tasks/OlderCompletedTasks";
+import { totalTaskCount } from "@/lib/projectProgress";
 
 type Tab = "logbook" | "tasks" | "notes";
 
@@ -117,7 +119,7 @@ export function ProjectDetailPanel({
 
   const TABS: { id: Tab; label: string; count: number }[] = [
     { id: "logbook", label: tDetail("tabLogbook"), count: projectUpdates.length },
-    { id: "tasks", label: tDetail("tabTasks"), count: projectTasks.length },
+    { id: "tasks", label: tDetail("tabTasks"), count: totalTaskCount(p, projectTasks) },
     { id: "notes", label: tDetail("tabNotes"), count: notes.length },
   ];
 
@@ -271,7 +273,7 @@ export function ProjectDetailPanel({
                 >
                   <Plus size={12} /> {tCard("addTask")}
                 </button>
-                {projectTasks.length === 0 ? (
+                {projectTasks.length === 0 && !p.olderDoneCount ? (
                   <Meta tone="faint">{tCard("noTasks")}</Meta>
                 ) : (
                   <>
@@ -298,6 +300,22 @@ export function ProjectDetailPanel({
                         />
                       )}
                       itemKey={(task) => task.id}
+                    />
+                    <OlderCompletedTasks
+                      projectId={p.id}
+                      count={p.olderDoneCount ?? 0}
+                      excludeIds={new Set(doneTasks.map((x) => x.id))}
+                      renderItem={(task, onReopened) => (
+                        <ProjectTaskRow
+                          key={task.id}
+                          task={task}
+                          onToggleTask={(x) => {
+                            void Promise.resolve(onToggleTask(x)).then(onReopened);
+                          }}
+                          onEditTask={onEditTask}
+                          onDeleteTask={onDeleteTask}
+                        />
+                      )}
                     />
                     </div>
                   </>

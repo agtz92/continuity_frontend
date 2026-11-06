@@ -7,6 +7,7 @@ import { daysSince } from "@/lib/date";
 import { projectCooling, projectDays } from "@/lib/cooling";
 import { Meta } from "../ui/Meta";
 import { ProgressTicks } from "../ui/ProgressTicks";
+import { doneTaskCount, totalTaskCount } from "@/lib/projectProgress";
 
 /**
  * La columna de estado del proyecto: progreso, días sin tocar, días de vida.
@@ -28,7 +29,8 @@ export function ProjectStatusRail({
 }) {
   const t = useTranslations("views.projects.rail");
 
-  const done = tasks.filter((task) => task.done).length;
+  const done = doneTaskCount(p, tasks);
+  const total = totalTaskCount(p, tasks);
   const blocked = tasks.filter(
     (task) => !task.done && (task.blockers?.length ?? 0) > 0
   ).length;
@@ -38,12 +40,12 @@ export function ProjectStatusRail({
 
   return (
     <aside className="space-y-4">
-      {tasks.length > 0 && (
+      {total > 0 && (
         <div>
           <Meta variant="cintillo" tone="faint" className="block mb-1.5">
             {t("progress")}
           </Meta>
-          <ProgressTicks done={done} total={tasks.length} blocked={blocked} />
+          <ProgressTicks done={done} total={total} blocked={blocked} />
         </div>
       )}
 

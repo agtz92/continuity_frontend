@@ -2498,5 +2498,12 @@
     "justNow": "hace un momento",
     "minutesAgo": "{minutes, plural, one {hace # min} other {hace # min}}",
     "tooltip": "Último dato recibido a las {time}"
+  },
+  "completedHistory": {
+    "showCount": "{count, plural, one {Ver # completada anterior} other {Ver # completadas anteriores}}",
+    "show": "Ver completadas anteriores",
+    "loadMore": "Cargar más",
+    "loading": "Cargando…",
+    "error": "No se pudieron cargar. Reintentar"
   }
 }

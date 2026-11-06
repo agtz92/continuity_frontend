@@ -55,6 +55,10 @@ export interface Project {
   /** "Atorado": tiene al menos una tarea abierta con blocker. NO es un estado
    *  del modelo, se deriva (REDISENO_PLAN.md §8, DP-03). */
   isBlocked?: boolean;
+  /** Completadas que el dashboard no trae por ser anteriores a su ventana
+   *  (`DASHBOARD_DONE_TASK_DAYS`). Ver `lib/projectProgress.ts`. */
+  olderDoneCount?: number;
+  olderDoneEffortHours?: number;
 }
 
 export interface GraveyardInsight {

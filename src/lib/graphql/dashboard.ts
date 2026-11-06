@@ -8,6 +8,17 @@ import { gql } from "@apollo/client";
 // con `ACTIVITY_QUERY`. Mismo valor que en `continuity-mobile`.
 export const DASHBOARD_ACTIVITY_DAYS = 60;
 
+// Ventana de tareas completadas: las abiertas viajan todas, las completadas solo
+// las de los últimos N días. Las completadas no tienen tope en ningún plan y
+// nunca se borran: sin ventana, el dashboard crecía con cada tarea palomeada.
+// Las anteriores llegan contadas por proyecto (`olderDoneCount`) y se listan con
+// `COMPLETED_TASKS_QUERY`. Mismo valor que en `continuity-mobile`.
+export const DASHBOARD_DONE_TASK_DAYS = 30;
+
+/** Inicio de la ventana de completadas, para pedir las anteriores. */
+export const doneWindowStart = (now = Date.now()): string =>
+  new Date(now - DASHBOARD_DONE_TASK_DAYS * 86_400_000).toISOString();
+
 // Selección de proyecto y de activity del dashboard. `DASHBOARD_DELTA_QUERY` usa
 // las mismas: lo que trae se escribe en la lista cacheada del dashboard y un
 // campo de menos dejaría la query incompleta.
@@ -38,6 +49,8 @@ const DASHBOARD_PROJECT_FIELDS = `
   cooling
   blockedSince
   isBlocked
+  olderDoneCount
+  olderDoneEffortHours
 `;
 
 const DASHBOARD_ACTIVITY_FIELDS = `
@@ -55,7 +68,10 @@ const DASHBOARD_ACTIVITY_FIELDS = `
 
 export const DASHBOARD_QUERY = gql`
   query Dashboard {
-    dashboard(activityDays: ${DASHBOARD_ACTIVITY_DAYS}) {
+    dashboard(
+      activityDays: ${DASHBOARD_ACTIVITY_DAYS}
+      doneTaskDays: ${DASHBOARD_DONE_TASK_DAYS}
+    ) {
       projects {
         ${DASHBOARD_PROJECT_FIELDS}
       }
@@ -144,7 +160,7 @@ export const DASHBOARD_QUERY = gql`
  */
 export const DASHBOARD_DELTA_QUERY = gql`
   query DashboardDelta($since: DateTime!) {
-    dashboardDelta(since: $since) {
+    dashboardDelta(since: $since, doneTaskDays: ${DASHBOARD_DONE_TASK_DAYS}) {
       projects {
         ${DASHBOARD_PROJECT_FIELDS}
       }

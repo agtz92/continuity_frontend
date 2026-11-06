@@ -6,6 +6,7 @@ import type { Category, Project, Task } from "@/lib/types";
 import { categoryColorClass } from "@/lib/types";
 import { priorityDotClass } from "@/lib/priority";
 import { daysSince, isDueToday, isOverdue } from "@/lib/date";
+import { doneTaskCount, totalTaskCount } from "@/lib/projectProgress";
 
 /**
  * Compact card used in Today's "Active Projects" and "Launched · still has tasks" grids.
@@ -33,8 +34,8 @@ export function ProjectCardCompact({
 }) {
   const t = useTranslations("projectCard");
   const tPriority = useTranslations("priority");
-  const done = projectTasks.filter((t) => t.done).length;
-  const total = projectTasks.length;
+  const done = doneTaskCount(p, projectTasks);
+  const total = totalTaskCount(p, projectTasks);
   const todayCount = projectTasks.filter(
     (t) => !t.done && isDueToday(t.dueDate)
   ).length;
