@@ -3,7 +3,6 @@
 import { useMutation } from "@apollo/client";
 import {
   CREATE_PROJECT,
-  DASHBOARD_QUERY,
   DELETE_PROJECT,
   DISMISS_PARKED_DUE_DATES,
   REORDER_PROJECTS,
@@ -13,14 +12,14 @@ import {
 import { choiceDialog, confirmDialog } from "@/lib/confirm";
 import type { Priority } from "@/lib/types";
 
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+import { fullRefetchAfter, insertAfter, syncAfter } from "@/lib/dashboardSync";
 
 export function useProjectMutations() {
-  const [createProject] = useMutation(CREATE_PROJECT, refetchAfter);
-  const [updateProject] = useMutation(UPDATE_PROJECT, refetchAfter);
-  const [deleteProject] = useMutation(DELETE_PROJECT, refetchAfter);
-  const [restoreParked] = useMutation(RESTORE_PARKED_DUE_DATES, refetchAfter);
-  const [dismissParked] = useMutation(DISMISS_PARKED_DUE_DATES, refetchAfter);
+  const [createProject] = useMutation(CREATE_PROJECT, insertAfter("projects", "createProject"));
+  const [updateProject] = useMutation(UPDATE_PROJECT, syncAfter);
+  const [deleteProject] = useMutation(DELETE_PROJECT, fullRefetchAfter);
+  const [restoreParked] = useMutation(RESTORE_PARKED_DUE_DATES, fullRefetchAfter);
+  const [dismissParked] = useMutation(DISMISS_PARKED_DUE_DATES, fullRefetchAfter);
   // No refetch: the mutation returns {id, position} per project, which Apollo
   // merges straight into the normalized cache (Project:<id>), so the dashboard
   // list re-renders with the new order without a round-trip.

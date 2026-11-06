@@ -25,20 +25,22 @@ import { insertIntoDashboard, type DashboardList } from "@/lib/captureCache";
 import type { CaptureKind } from "@/lib/quickParse";
 import { quickParse } from "@/lib/quickParse";
 import type { Project } from "@/lib/types";
-
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+import {
+  fullRefetchAfter,
+  removeAfter,
+  scheduleDashboardDelta,
+} from "@/lib/dashboardSync";
 
 /**
  * Opciones de una mutación de captura: escribe el objeto creado en la caché
- * **ya**, y además refetchea para reconciliar lo que el servidor deriva.
- *
- * El refetch solo no bastaba: `DASHBOARD_QUERY` trae la app entera (para la
- * cuenta más grande, ~1,3 s de servidor) y hasta que volvía, lo que acababas de
- * capturar no aparecía en ningún sitio. Ver `lib/captureCache.ts`.
+ * **ya**, y agenda el delta (`lib/dashboardSync.ts`) para reconciliar lo que el
+ * servidor deriva, en vez de volver a bajar `DASHBOARD_QUERY` entero (para la
+ * cuenta más grande, ~1,3 s de servidor). Ver `lib/captureCache.ts`.
  */
 function captureMutationOptions(list: DashboardList, field: string) {
   return {
-    ...refetchAfter,
+    // Lo derivado (proyecto tocado, activity registrada) llega con el delta.
+    onCompleted: () => scheduleDashboardDelta(),
     update(
       cache: ApolloCache<unknown>,
       result: { data?: Record<string, unknown> | null }
@@ -121,9 +123,9 @@ export function useQuickCapture(projects: Project[]) {
     ADD_NOTE,
     captureMutationOptions("activities", "addNote")
   );
-  const [deleteTask] = useMutation(DELETE_TASK, refetchAfter);
-  const [deleteIdea] = useMutation(DELETE_IDEA, refetchAfter);
-  const [deleteActivityNote] = useMutation(DELETE_NOTE, refetchAfter);
+  const [deleteTask] = useMutation(DELETE_TASK, fullRefetchAfter);
+  const [deleteIdea] = useMutation(DELETE_IDEA, removeAfter("ideas"));
+  const [deleteActivityNote] = useMutation(DELETE_NOTE, removeAfter("activities"));
   const [deleteQuickNote] = useMutation(DELETE_QUICK_NOTE);
   const { createNote, addSection } = useQuickNoteMutations();
 

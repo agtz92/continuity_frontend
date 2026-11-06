@@ -3,18 +3,17 @@
 import { useMutation } from "@apollo/client";
 import {
   CREATE_CATEGORY,
-  DASHBOARD_QUERY,
   DELETE_CATEGORY,
   UPDATE_CATEGORY,
 } from "@/lib/graphql";
 import type { Category } from "@/lib/types";
 
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+import { fullRefetchAfter, insertAfter, syncAfter } from "@/lib/dashboardSync";
 
 export function useCategoryMutations() {
-  const [createCategoryM] = useMutation(CREATE_CATEGORY, refetchAfter);
-  const [updateCategoryM] = useMutation(UPDATE_CATEGORY, refetchAfter);
-  const [deleteCategoryM] = useMutation(DELETE_CATEGORY, refetchAfter);
+  const [createCategoryM] = useMutation(CREATE_CATEGORY, insertAfter("categories", "createCategory"));
+  const [updateCategoryM] = useMutation(UPDATE_CATEGORY, syncAfter);
+  const [deleteCategoryM] = useMutation(DELETE_CATEGORY, fullRefetchAfter);
 
   const createCategory = async (input: {
     name: string;

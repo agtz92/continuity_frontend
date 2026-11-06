@@ -10,14 +10,24 @@ import {
   UPDATE_TASK,
 } from "@/lib/graphql";
 import type { Task } from "@/lib/types";
+import {
+  blocksOtherTasks,
+  fullRefetchAfter,
+  insertAfter,
+  scheduleDashboardDelta,
+  syncAfter,
+} from "@/lib/dashboardSync";
+import { apolloClient } from "@/lib/apollo";
 
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+// Sin refetch del dashboard completo tras cada toque: ver `lib/dashboardSync.ts`.
 
 export function useTaskMutations() {
-  const [createTask] = useMutation(CREATE_TASK, refetchAfter);
-  const [updateTask] = useMutation(UPDATE_TASK, refetchAfter);
-  const [toggleTaskM] = useMutation(TOGGLE_TASK, refetchAfter);
-  const [deleteTaskM] = useMutation(DELETE_TASK, refetchAfter);
+  const [createTask] = useMutation(CREATE_TASK, insertAfter("tasks", "createTask"));
+  const [updateTask] = useMutation(UPDATE_TASK, syncAfter);
+  // El delta/refetch lo decide `toggleTask` según si la tarea bloquea a otras.
+  const [toggleTaskM] = useMutation(TOGGLE_TASK);
+  // Borrar una tarea borra los blockers que apuntaban a ella: refetch completo.
+  const [deleteTaskM] = useMutation(DELETE_TASK, fullRefetchAfter);
   // Sin refetch: la respuesta trae id+position y Apollo la funde en la caché.
   const [reorderProjectTasksM] = useMutation(REORDER_PROJECT_TASKS);
 
@@ -57,6 +67,9 @@ export function useTaskMutations() {
       // Optimista: la palomita aparece al tocar, sin esperar al backend (Render
       // free tarda). Si falla, Apollo descarta la capa optimista y vuelve.
       const done = !t.done;
+      // Completarla borra en el servidor los blockers donde ella bloquea a
+      // otras: eso la caché no lo sabe, así que ahí sí va el dashboard entero.
+      const cascades = done && blocksOtherTasks(t.id);
       await toggleTaskM({
         variables: { id: t.id },
         optimisticResponse: {
@@ -78,6 +91,11 @@ export function useTaskMutations() {
           },
         },
       });
+      if (cascades) {
+        void apolloClient.refetchQueries({ include: [DASHBOARD_QUERY] });
+      } else {
+        scheduleDashboardDelta();
+      }
     } catch {
       /* errorLink already toasted */
     }

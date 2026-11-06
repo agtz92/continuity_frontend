@@ -63,6 +63,13 @@ export const CREATE_PROJECT = gql`
       killedAiReflection
       stalledAt
       position
+      # Derivados: se piden para escribir el proyecto nuevo completo en la
+      # lista del dashboard (lib/dashboardSync.ts). En uno recién creado el
+      # servidor los calcula bien; en UPDATE_PROJECT no (no sabe si está atorado).
+      daysSinceTouch
+      cooling
+      blockedSince
+      isBlocked
     }
   }
 `;

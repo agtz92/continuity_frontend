@@ -55,7 +55,19 @@ const authLink = setContext(async (_, { headers }) => {
 export const createErrorLink = (deps: {
   onAuthFailure: () => void;
 }): ApolloLink =>
-  onError(({ graphQLErrors, networkError }) => {
+  onError(({ graphQLErrors, networkError, operation }) => {
+    // `silent`: lecturas de fondo con su propio plan B (el delta de
+    // `lib/dashboardSync.ts` cae al refetch completo). Solo importa la sesión.
+    if (operation?.getContext().silent) {
+      const status = (networkError as { statusCode?: number } | null)?.statusCode;
+      const unauth =
+        status === 401 ||
+        graphQLErrors?.some(
+          (e) => (e.extensions as { code?: string } | undefined)?.code === "UNAUTHENTICATED"
+        );
+      if (unauth) deps.onAuthFailure();
+      return;
+    }
     // All user-facing copy is localized: the link emits i18n keys (resolved by
     // the Toaster at render time), never raw English. `DB_UNAVAILABLE` and a
     // stale-connection hiccup (a tab left open for days, surfacing as "server
@@ -102,7 +114,7 @@ export const createErrorLink = (deps: {
 /**
  * Momento de la última mutación que terminó en esta pestaña. Las señales en
  * vivo lo usan para ignorar su propio eco (`isOwnEcho` en `lib/liveTables.ts`):
- * la mutación ya relanzó el dashboard con `refetchQueries`.
+ * la mutación ya se fundió en la caché y agendó su delta (`lib/dashboardSync.ts`).
  */
 let lastLocalWrite = 0;
 export const getLastLocalWrite = () => lastLocalWrite;

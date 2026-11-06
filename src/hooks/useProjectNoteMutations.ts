@@ -3,23 +3,22 @@
 import { useMutation } from "@apollo/client";
 import {
   CREATE_PROJECT_NOTE,
-  DASHBOARD_QUERY,
   DELETE_PROJECT_NOTE,
   UPDATE_PROJECT_NOTE,
 } from "@/lib/graphql";
 
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+import { insertAfter, removeAfter, syncAfter } from "@/lib/dashboardSync";
 
 export function useProjectNoteMutations() {
   const [createNote, { loading: creating }] = useMutation(
     CREATE_PROJECT_NOTE,
-    refetchAfter
+    insertAfter("projectNotes", "createProjectNote")
   );
   const [updateNote, { loading: updating }] = useMutation(
     UPDATE_PROJECT_NOTE,
-    refetchAfter
+    syncAfter
   );
-  const [deleteNote] = useMutation(DELETE_PROJECT_NOTE, refetchAfter);
+  const [deleteNote] = useMutation(DELETE_PROJECT_NOTE, removeAfter("projectNotes"));
 
   /** Create a new note. Returns true if it succeeded. */
   const create = async (input: {

@@ -5,14 +5,18 @@ import {
   ARCHIVE_ROUTINE,
   COMPLETE_ROUTINE_OCCURRENCE,
   CREATE_ROUTINE,
-  DASHBOARD_QUERY,
   DELETE_ROUTINE,
   UNCOMPLETE_ROUTINE_OCCURRENCE,
   UPDATE_ROUTINE,
 } from "@/lib/graphql";
 import type { IntervalUnit, RecurrenceType } from "@/lib/types";
 
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+import {
+  fullRefetchAfter,
+  insertAfter,
+  removeAfter,
+  syncAfter,
+} from "@/lib/dashboardSync";
 
 export interface RoutineFormInput {
   id?: string;
@@ -32,17 +36,17 @@ export interface RoutineFormInput {
 }
 
 export function useRoutineMutations() {
-  const [createRoutine] = useMutation(CREATE_ROUTINE, refetchAfter);
-  const [updateRoutine] = useMutation(UPDATE_ROUTINE, refetchAfter);
-  const [archiveRoutineM] = useMutation(ARCHIVE_ROUTINE, refetchAfter);
-  const [deleteRoutineM] = useMutation(DELETE_ROUTINE, refetchAfter);
+  const [createRoutine] = useMutation(CREATE_ROUTINE, insertAfter("routines", "createRoutine"));
+  const [updateRoutine] = useMutation(UPDATE_ROUTINE, syncAfter);
+  const [archiveRoutineM] = useMutation(ARCHIVE_ROUTINE, syncAfter);
+  const [deleteRoutineM] = useMutation(DELETE_ROUTINE, fullRefetchAfter);
   const [completeOccurrenceM] = useMutation(
     COMPLETE_ROUTINE_OCCURRENCE,
-    refetchAfter
+    insertAfter("routineOccurrences", "completeRoutineOccurrence")
   );
   const [uncompleteOccurrenceM] = useMutation(
     UNCOMPLETE_ROUTINE_OCCURRENCE,
-    refetchAfter
+    insertAfter("routineOccurrences", "completeRoutineOccurrence")
   );
 
   const saveRoutine = async (r: RoutineFormInput): Promise<boolean> => {

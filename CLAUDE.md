@@ -173,8 +173,27 @@ El **eco** de una mutación de esta pestaña se ignora durante 1,5 s (`isOwnEcho
 `notify_admin_change` de la migración backend `core/0037`) y relanza las queries activas, salvo
 en los editores del CMS. Con el canal activo, el polling del admin baja a 5 min.
 
+**Después de escribir: caché + delta, no el dashboard entero** (`src/lib/dashboardSync.ts`).
+Los hooks de mutaciones ya **no** llevan `refetchQueries: [DASHBOARD_QUERY]`: lo creado entra a
+su lista (`insertAfter`), lo borrado sale (`removeAfter`), las ediciones las funde Apollo por id
+(`syncAfter`), y lo que deriva el servidor (campos de proyecto, activities) llega con
+`dashboardDelta`, agrupado con debounce de 700 ms. Si el delta falla, refetch completo. Siguen
+con refetch completo (`fullRefetchAfter`) los borrados con cascada (proyecto, tarea, rutina,
+categoría), blockers, fechas aparcadas y promover idea; completar una tarea que bloquea a otras
+también. **Una mutación de creación nueva** debe devolver todos los campos que selecciona
+`DASHBOARD_QUERY` para su lista, o la query queda incompleta.
+
 **Optimistas:** completar una tarea (`toggleTask` en `useTaskMutations`) responde al instante
 con `optimisticResponse`; el `refetchQueries` sigue corriendo detrás.
+
+## Content-Security-Policy
+
+`next.config.mjs` arma la CSP (y `X-Frame-Options`, `nosniff`, `Referrer-Policy`) para todas
+las rutas. **Un tercero nuevo (script, API, iframe) hay que agregarlo ahí** o falla en
+silencio con un error de CSP en la consola. Ya incluye Supabase, el backend (de
+`NEXT_PUBLIC_GRAPHQL_URL`/`NEXT_PUBLIC_PUBLIC_GRAPHQL_URL`), Google Analytics,
+RevenueCat/Stripe y los embeds de YouTube/Vimeo. Interruptor sin tocar código (requiere
+redeploy): env var `CSP_MODE` en Vercel = `enforce` (default) · `report` · `off`.
 
 ## Package manager
 

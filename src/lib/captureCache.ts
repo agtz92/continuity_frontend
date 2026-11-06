@@ -21,7 +21,15 @@
  */
 
 /** Las listas del dashboard donde puede aterrizar una captura. */
-export type DashboardList = "tasks" | "ideas" | "activities";
+export type DashboardList =
+  | "projects"
+  | "tasks"
+  | "ideas"
+  | "activities"
+  | "categories"
+  | "projectNotes"
+  | "routines"
+  | "routineOccurrences";
 
 interface Entity {
   id: string;

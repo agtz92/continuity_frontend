@@ -3,19 +3,23 @@
 import { useMutation } from "@apollo/client";
 import {
   CREATE_IDEA,
-  DASHBOARD_QUERY,
   DELETE_IDEA,
   PROMOTE_IDEA,
   UPDATE_IDEA,
 } from "@/lib/graphql";
 
-const refetchAfter = { refetchQueries: [{ query: DASHBOARD_QUERY }] };
+import {
+  fullRefetchAfter,
+  insertAfter,
+  removeAfter,
+  syncAfter,
+} from "@/lib/dashboardSync";
 
 export function useIdeaMutations() {
-  const [createIdea] = useMutation(CREATE_IDEA, refetchAfter);
-  const [updateIdeaM] = useMutation(UPDATE_IDEA, refetchAfter);
-  const [deleteIdeaM] = useMutation(DELETE_IDEA, refetchAfter);
-  const [promoteIdeaM] = useMutation(PROMOTE_IDEA, refetchAfter);
+  const [createIdea] = useMutation(CREATE_IDEA, insertAfter("ideas", "createIdea"));
+  const [updateIdeaM] = useMutation(UPDATE_IDEA, syncAfter);
+  const [deleteIdeaM] = useMutation(DELETE_IDEA, removeAfter("ideas"));
+  const [promoteIdeaM] = useMutation(PROMOTE_IDEA, fullRefetchAfter);
 
   const saveIdea = async (i: {
     id?: string;
