@@ -6,11 +6,12 @@ import MarketingNav from "@/components/landing/MarketingNav";
 import MarketingFooter from "@/components/landing/MarketingFooter";
 
 /**
- * Shared legal page (privacy + terms), static per locale.
- *   en: /privacy, /terms   ·   es: /es/privacy, /es/terms
+ * Shared legal page (privacy + terms + support), static per locale.
+ *   en: /privacy, /terms, /support   ·   es: /es/privacy, /es/terms, /es/support
+ * /support is the App Store "Support URL"; it adds a mailto CTA under the intro.
  */
 
-export type LegalKind = "privacy" | "terms";
+export type LegalKind = "privacy" | "terms" | "support";
 
 type LegalSection = { heading: string; body: string[] };
 
@@ -61,6 +62,14 @@ export default function LegalPage({
             <p className="mt-6 text-base sm:text-lg text-ls-text-secondary leading-relaxed">
               {t("intro")}
             </p>
+            {kind === "support" && (
+              <a
+                href={`mailto:${t("email")}`}
+                className="mt-8 inline-flex items-center rounded-full bg-ls-ochre px-6 py-3 text-sm font-medium text-ls-navy hover:opacity-90 transition-opacity"
+              >
+                {t("contactCta")} · {t("email")}
+              </a>
+            )}
           </header>
 
           <div className="space-y-12">

@@ -99,6 +99,14 @@ export default function MarketingFooter() {
               </li>
               <li>
                 <Link
+                  href={marketingHref(locale, "/support")}
+                  className="text-ls-text-primary hover:text-ls-ochre transition-colors"
+                >
+                  {t("companyLinks.support")}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href={marketingHref(locale, "/privacy")}
                   className="text-ls-text-primary hover:text-ls-ochre transition-colors"
                 >

@@ -53,6 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/support`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/welcome`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     // Spanish marketing (/es prefix; resources keep /recursos)
     { url: `${base}/es`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
@@ -61,6 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/es/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/es/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/es/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/es/support`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/es/welcome`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     // Auth (shared, English-only)
     { url: `${base}/login`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },

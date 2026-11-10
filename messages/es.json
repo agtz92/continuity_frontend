@@ -2211,6 +2211,7 @@
       "companyLinks": {
         "about": "Sobre nosotros",
         "contact": "hello@continuu.it",
+        "support": "Soporte",
         "privacy": "Privacidad",
         "terms": "Términos del servicio",
         "cookies": "Preferencias de cookies"
@@ -2472,6 +2473,35 @@
           "heading": "Contacto",
           "body": [
             "Si tienes preguntas sobre estos términos, escríbenos a hello@continuu.it."
+          ]
+        }
+      ]
+    },
+    "support": {
+      "title": "Soporte",
+      "lastUpdated": "Última actualización: 10 de noviembre de 2026",
+      "intro": "¿Necesitas ayuda con continuu.it en la web, iOS o Android? Escríbenos y te contestará una persona de verdad, normalmente en menos de dos días hábiles.",
+      "email": "hello@continuu.it",
+      "contactCta": "Escribir a soporte",
+      "sections": [
+        {
+          "heading": "Contacto",
+          "body": [
+            "Escribe a hello@continuu.it. Incluye el correo con el que inicias sesión y, si algo falló, el dispositivo, la versión de la app y qué estabas haciendo. Las capturas de pantalla ayudan mucho."
+          ]
+        },
+        {
+          "heading": "Suscripciones y cobros",
+          "body": [
+            "Si te suscribiste desde la app de iOS, Apple gestiona el cobro: adminístrala o cancélala en Ajustes del iPhone › Apple ID › Suscripciones. Para recuperar una compra en otro dispositivo, abre la pantalla de planes en la app y toca Restaurar compras.",
+            "Si te suscribiste en la web, adminístrala en Ajustes › Facturación en continuu.it. Para reembolsos de compras en App Store usa reportaproblem.apple.com; para compras en la web, escríbenos."
+          ]
+        },
+        {
+          "heading": "Tu cuenta y tus datos",
+          "body": [
+            "Puedes eliminar tu cuenta y todos sus datos desde la app (Más › Perfil) o desde la web (Ajustes › Perfil). La eliminación es permanente.",
+            "Nuestra política de privacidad en continuu.it/es/privacy explica qué datos recopilamos y cómo ejercer tus derechos."
           ]
         }
       ]

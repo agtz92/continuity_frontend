@@ -2211,6 +2211,7 @@
       "companyLinks": {
         "about": "About",
         "contact": "hello@continuu.it",
+        "support": "Support",
         "privacy": "Privacy",
         "terms": "Terms of service",
         "cookies": "Cookie preferences"
@@ -2472,6 +2473,35 @@
           "heading": "Contact",
           "body": [
             "If you have questions about these terms, write to us at hello@continuu.it."
+          ]
+        }
+      ]
+    },
+    "support": {
+      "title": "Support",
+      "lastUpdated": "Last updated: November 10, 2026",
+      "intro": "Need a hand with continuu.it on the web, iOS or Android? Write to us and a real person will answer, usually within two business days.",
+      "email": "hello@continuu.it",
+      "contactCta": "Email support",
+      "sections": [
+        {
+          "heading": "Contact",
+          "body": [
+            "Email hello@continuu.it. Include the email you sign in with and, if something broke, the device, the app version and what you were doing. Screenshots help a lot."
+          ]
+        },
+        {
+          "heading": "Subscriptions and billing",
+          "body": [
+            "If you subscribed in the iOS app, Apple handles the charge: manage or cancel it in your iPhone's Settings › Apple ID › Subscriptions. To recover a purchase on a new device, open the plans screen in the app and tap Restore purchases.",
+            "If you subscribed on the web, manage it in Settings › Billing at continuu.it. For refunds of App Store purchases, use reportaproblem.apple.com; for web purchases, write to us."
+          ]
+        },
+        {
+          "heading": "Your account and data",
+          "body": [
+            "You can delete your account and all its data from the app (More › Profile) or the web (Settings › Profile). Deletion is permanent.",
+            "Our privacy policy at continuu.it/privacy explains what we collect and how to exercise your rights."
           ]
         }
       ]
