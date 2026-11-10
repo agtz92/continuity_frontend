@@ -4,12 +4,7 @@ import { useEffect, useRef } from "react";
 import { useQuery } from "@apollo/client";
 import { NOTIFICATION_SETTINGS_QUERY } from "@/lib/graphql";
 import { THEME_COOKIE, normalizeTheme, type Theme } from "@/theme/config";
-
-function readCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[1]) : null;
-}
+import { readCookie } from "@/lib/cookies";
 
 function applyThemeAttribute(theme: Theme) {
   if (typeof document === "undefined") return;
