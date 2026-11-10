@@ -83,8 +83,11 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
   const t = useTranslations("onboarding");
   const router = useRouter();
 
-  const { data, loading } = useQuery<OnboardingStateData>(ONBOARDING_STATE_QUERY, {
-    fetchPolicy: "network-only",
+  // cache-and-network, not network-only: DashboardGate just fetched this same
+  // query to decide to send us here, so paint from that cache immediately and
+  // refresh behind it instead of a second blocking round-trip + spinner.
+  const { data } = useQuery<OnboardingStateData>(ONBOARDING_STATE_QUERY, {
+    fetchPolicy: "cache-and-network",
   });
 
   const [setStep] = useMutation(SET_ONBOARDING_STEP, {
@@ -179,7 +182,7 @@ export function OnboardingFlow({ replay }: { replay: boolean }) {
     [initialFirstName, oauthName],
   );
 
-  if (loading || !state || redirecting) {
+  if (!state || redirecting) {
     return (
       <div className="flex-1 grid place-items-center text-text-muted">
         <Loader2 size={20} className="animate-spin" />

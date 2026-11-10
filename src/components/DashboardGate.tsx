@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
+import { useLocale } from "next-intl";
+import { Loader2 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import {
+  NOTIFICATION_SETTINGS_QUERY,
   ONBOARDING_STATE_QUERY,
   UPDATE_NOTIFICATION_SETTINGS,
 } from "@/lib/graphql";
@@ -34,7 +37,20 @@ export default function DashboardGate({
 }) {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(initialSession);
-  const [updateSettings] = useMutation(UPDATE_NOTIFICATION_SETTINGS);
+  const activeLocale = useLocale();
+  // Write the response back into NOTIFICATION_SETTINGS_QUERY (no `id`, so
+  // Apollo can't normalize it). Without this, useLocaleSync in the dashboard
+  // would read the stale server default and flip the language back.
+  const [updateSettings] = useMutation(UPDATE_NOTIFICATION_SETTINGS, {
+    update: (cache, { data }) => {
+      if (data?.updateNotificationSettings) {
+        cache.writeQuery({
+          query: NOTIFICATION_SETTINGS_QUERY,
+          data: { notificationSettings: data.updateNotificationSettings },
+        });
+      }
+    },
+  });
   const { data: onboardingProbe } = useQuery<OnboardingProbe>(
     ONBOARDING_STATE_QUERY,
     { fetchPolicy: "cache-and-network", skip: !session },
@@ -47,6 +63,29 @@ export default function DashboardGate({
     });
     return () => sub.subscription.unsubscribe();
   }, [router]);
+
+  // Warm the onboarding route while the probe is in flight, so the bounce
+  // below doesn't add a second cold server round-trip for brand-new users.
+  useEffect(() => {
+    router.prefetch("/onboarding");
+  }, [router]);
+
+  // A brand-new account is provisioned server-side with locale "en", but the
+  // UI it just signed up in (and the onboarding it's about to see) uses the
+  // cookie / Accept-Language locale. Adopt what the user is actually seeing,
+  // once, while the account is untouched (`pending`) — otherwise onboarding
+  // shows one language and the dashboard flips to the other right after.
+  const localeAdoptedRef = useRef(false);
+  useEffect(() => {
+    if (!session || !onboardingProbe || localeAdoptedRef.current) return;
+    if (onboardingProbe.onboardingState.status !== "pending") return;
+    localeAdoptedRef.current = true;
+    updateSettings({ variables: { data: { locale: activeLocale } } }).catch(
+      () => {
+        localeAdoptedRef.current = false;
+      },
+    );
+  }, [session, onboardingProbe, activeLocale, updateSettings]);
 
   // First-time users who haven't completed setup get bounced into the
   // onboarding flow. `completed` / `skipped` both pass through — the
@@ -95,10 +134,18 @@ export default function DashboardGate({
   // dashboard. Without this gate, first-time users see a Dashboard mount
   // (which also mounts the tour) for one frame before the effect above
   // redirects to /onboarding.
-  if (!onboardingProbe) return null;
+  // A spinner (not a blank page): for a brand-new account this first probe is
+  // the backend's first touch, which provisions the profile and seeds example
+  // content, so it's the slowest request of the whole signup.
+  const spinner = (
+    <div className="min-h-screen grid place-items-center bg-bg text-text-muted">
+      <Loader2 size={20} className="animate-spin" />
+    </div>
+  );
+  if (!onboardingProbe) return spinner;
   const onboardingStatus = onboardingProbe.onboardingState.status;
   if (onboardingStatus === "pending" || onboardingStatus === "in_progress") {
-    return null;
+    return spinner;
   }
 
   return (
