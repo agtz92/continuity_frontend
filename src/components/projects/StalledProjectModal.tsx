@@ -33,7 +33,9 @@ export function StalledProjectModal({
   const t = useTranslations("views.closure.stalled");
   const [choice, setChoice] = useState<StalledChoice | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const days = daysSince(project.stalledAt ?? project.lastActivity) ?? 0;
+  // Días SIN TOCAR el proyecto: se mide desde la última actividad, no desde
+  // `stalledAt` (que es cuando el cron lo marcó y casi siempre daría 0).
+  const days = daysSince(project.lastActivity ?? project.stalledAt) ?? 0;
 
   const handleSubmit = async () => {
     if (!choice || submitting) return;
