@@ -43,7 +43,6 @@ type NotificationPrefs = {
   dailyDigestEnabled: boolean;
   dueRemindersEnabled: boolean;
   sleepingAlertsEnabled: boolean;
-  isAdmin: boolean;
 };
 
 type AdminUserDetail = {

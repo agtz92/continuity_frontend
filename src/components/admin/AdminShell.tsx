@@ -11,6 +11,7 @@ import { ME_QUERY, ADMIN_BUG_REPORTS_UNREAD_COUNT } from "@/lib/graphql";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { liveAdminEnabled, useLiveChannel } from "@/hooks/useLiveInvalidation";
 import { AdminThemeToggle } from "./AdminThemeToggle";
+import { AdminMfaGate } from "./AdminMfaGate";
 
 type MeData = {
   me: {
@@ -61,6 +62,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // null = checking. The backend rejects admin fields without aal2
+  // (MFA_REQUIRED), so nothing admin mounts until the session has it.
+  const [mfaVerified, setMfaVerified] = useState<boolean | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -95,10 +99,25 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     fetchPolicy: "cache-and-network",
   });
 
+  const isAdminUser = data?.me?.isAdmin === true;
+
+  useEffect(() => {
+    if (!session || !isAdminUser) return;
+    let cancelled = false;
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data: aal }) => {
+      if (!cancelled) setMfaVerified(aal?.currentLevel === "aal2");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [session, isAdminUser]);
+
+  const adminReady = isAdminUser && mfaVerified === true;
+
   const { data: unreadData } = useQuery<{ adminBugReportsUnreadCount: number }>(
     ADMIN_BUG_REPORTS_UNREAD_COUNT,
     {
-      skip: !session || data?.me?.isAdmin !== true,
+      skip: !session || !adminReady,
       fetchPolicy: "cache-and-network",
       pollInterval: 60000,
     }
@@ -112,13 +131,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // de otra persona les pisaría lo que se está escribiendo.
   const client = useApolloClient();
   const inEditor = /\/content\/(posts|pages|resources)\/[^/]+/.test(pathname ?? "");
-  const isAdminUser = data?.me?.isAdmin === true;
   // Con el canal `admin` en vivo (trigger `notify_admin_change`, migración
   // core 0037) el polling queda como respaldo de 5 min.
-  const adminLive = isAdminUser && liveAdminEnabled();
+  const adminLive = adminReady && liveAdminEnabled();
   useRefetchOnFocus(() => client.refetchQueries({ include: "active" }), {
     pollMs: adminLive ? 300_000 : 60_000,
-    enabled: !inEditor,
+    enabled: !inEditor && adminReady,
   });
   useLiveChannel(adminLive && !inEditor ? "admin" : null, () =>
     client.refetchQueries({ include: "active" })
@@ -137,6 +155,23 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const isAdmin = data?.me?.isAdmin === true;
   if (error || !isAdmin) {
     return <AdminForbidden />;
+  }
+
+  if (mfaVerified === null) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center text-text-muted">
+        Cargando…
+      </div>
+    );
+  }
+
+  if (!mfaVerified) {
+    return (
+      <AdminMfaGate
+        email={session.user.email ?? ""}
+        onVerified={() => setMfaVerified(true)}
+      />
+    );
   }
 
   const navContent = (

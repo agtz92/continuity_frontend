@@ -88,7 +88,6 @@ export const NOTIFICATION_SETTINGS_QUERY = gql`
       dueReminderHour
       manualEnabled
       lifecycleEmailsEnabled
-      isAdmin
     }
   }
 `;
@@ -111,7 +110,6 @@ export const UPDATE_NOTIFICATION_SETTINGS = gql`
       dueReminderHour
       manualEnabled
       lifecycleEmailsEnabled
-      isAdmin
     }
   }
 `;

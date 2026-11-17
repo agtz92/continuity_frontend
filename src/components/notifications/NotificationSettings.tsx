@@ -24,7 +24,6 @@ type Settings = {
   dueReminderHour: number;
   manualEnabled: boolean;
   lifecycleEmailsEnabled: boolean;
-  isAdmin: boolean;
 };
 
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
