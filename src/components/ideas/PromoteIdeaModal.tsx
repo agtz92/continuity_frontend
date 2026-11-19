@@ -1,5 +1,7 @@
 "use client";
 
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
+
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -137,23 +139,12 @@ export function PromoteIdeaModal({
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <Meta variant="cintillo" tone="muted">
               {t("category")}
             </Meta>
-            <select
-              value={categoryId ?? ""}
-              onChange={(e) => setCategoryId(e.target.value || null)}
-              className="bg-bg border border-border rounded-md px-2 py-1.5 text-sm outline-none focus:border-accent"
-            >
-              <option value="">{t("noCategory")}</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+            <CategoryPicker variant="field" value={categoryId} categories={categories} onChange={setCategoryId} />
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <Meta variant="cintillo" tone="muted">

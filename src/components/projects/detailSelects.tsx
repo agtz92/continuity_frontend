@@ -1,10 +1,12 @@
 "use client";
 
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
+
 import { Calendar, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { Category, Priority, ProjectStatus } from "@/lib/types";
-import { PRIORITIES, categoryColorClass } from "@/lib/types";
+import { PRIORITIES } from "@/lib/types";
 import { priorityDotClass } from "@/lib/priority";
 import { statusConfig } from "@/lib/status";
 
@@ -171,42 +173,12 @@ export function CategorySelect({
   value,
   categories,
   onChange,
-  categoryById,
-  tProjectModal,
 }: {
   value: string | null;
   categories: Category[];
   onChange: (next: string | null) => void;
-  categoryById: Record<string, Category>;
-  tProjectModal: ReturnType<typeof useTranslations>;
+  categoryById?: Record<string, Category>;
+  tProjectModal?: ReturnType<typeof useTranslations>;
 }) {
-  const current = value ? categoryById[value] : null;
-  const cls = current ? categoryColorClass(current.color).chip : "";
-
-  return (
-    <label
-      className={`relative text-xs px-2 py-0.5 rounded border cursor-pointer hover:opacity-80 ${
-        current
-          ? cls
-          : "bg-surface border-border text-text-muted border-dashed"
-      }`}
-    >
-      <span>{current ? current.name : tProjectModal("noCategory")}</span>
-      <select
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value || null)}
-        className="absolute inset-0 opacity-0 cursor-pointer"
-        aria-label={tProjectModal("category")}
-      >
-        <option value="" className="bg-surface text-text">
-          {tProjectModal("noCategory")}
-        </option>
-        {categories.map((c) => (
-          <option key={c.id} value={c.id} className="bg-surface text-text">
-            {c.name}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
+  return <CategoryPicker value={value} categories={categories} onChange={onChange} />;
 }

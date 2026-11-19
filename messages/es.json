@@ -2542,5 +2542,14 @@
     "loadMore": "Cargar más",
     "loading": "Cargando…",
     "error": "No se pudieron cargar. Reintentar"
+  },
+  "categoryPicker": {
+    "label": "Categoría",
+    "none": "Sin categoría",
+    "search": "Buscar o crear…",
+    "create": "Crear «{name}»",
+    "creating": "Creando…",
+    "empty": "Sin categorías.",
+    "createError": "No se pudo crear. Crear categorías requiere plan Pro."
   }
 }

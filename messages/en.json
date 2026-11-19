@@ -2542,5 +2542,14 @@
     "loadMore": "Load more",
     "loading": "Loading…",
     "error": "Couldn't load them. Retry"
+  },
+  "categoryPicker": {
+    "label": "Category",
+    "none": "No category",
+    "search": "Search or create…",
+    "create": "Create “{name}”",
+    "creating": "Creating…",
+    "empty": "No categories.",
+    "createError": "Could not create it. Creating categories requires Pro."
   }
 }

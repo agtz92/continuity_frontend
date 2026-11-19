@@ -1,5 +1,7 @@
 "use client";
 
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
+
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -207,18 +209,7 @@ export function ProjectModal({
         <Field label={t("category")}>
           {!creatingCategory ? (
             <div className="flex gap-2">
-              <select
-                value={categoryId ?? ""}
-                onChange={(e) => setCategoryId(e.target.value || null)}
-                className="flex-1 bg-border border border-border rounded-lg px-3 py-2 text-sm"
-              >
-                <option value="">{t("noCategory")}</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <CategoryPicker variant="field" className="flex-1" value={categoryId} categories={categories} onChange={setCategoryId} />
               <button
                 type="button"
                 onClick={() => setCreatingCategory(true)}

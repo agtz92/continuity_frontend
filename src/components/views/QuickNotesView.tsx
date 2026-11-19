@@ -1,5 +1,7 @@
 "use client";
 
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
+
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -380,21 +382,10 @@ function NoteEditor({
 
       {/* Meta row: category + project */}
       <div className="flex flex-wrap gap-3 mb-4">
-        <label className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 text-xs">
           <span className="uppercase tracking-wider text-text-muted">{t("category")}</span>
-          <select
-            value={note.categoryId ?? ""}
-            onChange={(e) => saveMeta({ categoryId: e.target.value || null })}
-            className="bg-bg border border-border rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
-          >
-            <option value="">{t("noCategory")}</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+          <CategoryPicker value={note.categoryId} categories={categories} onChange={(categoryId) => saveMeta({ categoryId })} />
+        </div>
         <label className="flex items-center gap-2 text-xs">
           <span className="uppercase tracking-wider text-text-muted">{t("project")}</span>
           <select
