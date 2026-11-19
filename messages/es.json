@@ -189,9 +189,9 @@
       "stalled": "Estancados",
       "thisWeek": "Esta semana",
       "weekTooltip": "Activo {count} de 7 días esta semana",
-      "gtdTooltip": "Recorre tus pendientes en GTD: ContinuuCity",
+      "gtdTooltip": "Recorre tus pendientes en GSD: ContinuuCity",
       "gtdName": "ContinuuCity 🌴",
-      "gtdTag": "GTD"
+      "gtdTag": "GSD"
     }
   },
   "commandPalette": {

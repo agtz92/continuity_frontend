@@ -189,9 +189,9 @@
       "stalled": "Stalled",
       "thisWeek": "This week",
       "weekTooltip": "Active on {count} of 7 days this week",
-      "gtdTooltip": "Drive through your tasks in GTD: ContinuuCity",
+      "gtdTooltip": "Drive through your tasks in GSD: ContinuuCity",
       "gtdName": "ContinuuCity 🌴",
-      "gtdTag": "GTD"
+      "gtdTag": "GSD"
     }
   },
   "commandPalette": {

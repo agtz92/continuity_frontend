@@ -28,7 +28,7 @@ export function DashboardHeader({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <p className="text-text-muted text-sm">{formattedDate}</p>
         <div className="flex gap-2 text-xs items-center flex-wrap">
-          {/* Temporal: acceso al juego GTD: ContinuuCity (estilo neón ochentero). Pasa el locale de la cuenta. */}
+          {/* Temporal: acceso al juego GSD: ContinuuCity (estilo neón ochentero). Pasa el locale de la cuenta. */}
           <a
             href={`https://gtd.continuu.it/?lang=${locale}&connect=1`}
             target="_blank"
