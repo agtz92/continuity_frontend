@@ -30,7 +30,7 @@ export function DashboardHeader({
         <div className="flex gap-2 text-xs items-center flex-wrap">
           {/* Temporal: acceso al juego GSD: ContinuuCity (estilo neón ochentero). Pasa el locale de la cuenta. */}
           <a
-            href={`https://gtd.continuu.it/?lang=${locale}&connect=1`}
+            href={`https://gsd.continuu.it/?lang=${locale}&connect=1`}
             target="_blank"
             rel="noopener"
             title={t("gtdTooltip")}
