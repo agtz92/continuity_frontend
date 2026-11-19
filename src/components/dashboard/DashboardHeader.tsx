@@ -28,6 +28,19 @@ export function DashboardHeader({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <p className="text-text-muted text-sm">{formattedDate}</p>
         <div className="flex gap-2 text-xs items-center flex-wrap">
+          {/* Temporal: acceso al juego GTD: ContinuuCity (estilo neón ochentero). Pasa el locale de la cuenta. */}
+          <a
+            href={`https://gtd.continuu.it/?lang=${locale}&connect=1`}
+            target="_blank"
+            rel="noopener"
+            title={t("gtdTooltip")}
+            className="group relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg -skew-x-6 bg-gradient-to-r from-[#ff3d9a] via-[#ff6a5a] to-[#ff8a3d] border border-[#ffb3d9] shadow-[0_0_14px_rgba(255,61,154,0.6)] hover:shadow-[0_0_22px_rgba(255,61,154,0.9)] hover:-translate-y-0.5 transition-all"
+          >
+            <span className="block skew-x-6 font-black italic uppercase tracking-wider text-[11px] sm:text-sm text-white [text-shadow:0_0_6px_#fff,0_2px_0_#1a0b2e] whitespace-nowrap">
+              <span className="text-[#1a0b2e] bg-[#ffe14f] px-1.5 py-0.5 rounded mr-1 not-italic [text-shadow:none]">{t("gtdTag")}</span>
+              <span className="text-[#00e5ff] [text-shadow:0_0_6px_#00e5ff]">:</span> {t("gtdName")}
+            </span>
+          </a>
           {hasData && (
             <div
               className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-surface rounded-lg border border-border leading-tight flex items-center gap-2"

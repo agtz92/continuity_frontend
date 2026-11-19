@@ -7,6 +7,20 @@ import { Sparkles, Eye, Pencil, Lock } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { assistantBaseUrl } from "@/lib/assistantApi";
 
+// First-party apps on our own domain: the user is already signed in to
+// continuu.it, so approve without showing the consent screen. The code can
+// only ever be delivered to these exact origins (and still needs the PKCE
+// verifier held by the page that started the flow).
+const FIRST_PARTY_ORIGINS = ["https://gtd.continuu.it"];
+
+const isFirstParty = (uri: string) => {
+  try {
+    return FIRST_PARTY_ORIGINS.includes(new URL(uri).origin);
+  } catch {
+    return false;
+  }
+};
+
 type Status =
   | "checking"
   | "ready"
@@ -90,6 +104,12 @@ export default function OAuthConsentPage() {
     }
   };
 
+  const firstParty = isFirstParty(redirectUri);
+  useEffect(() => {
+    if (status === "ready" && firstParty) allow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, firstParty]);
+
   const cancel = () => {
     const sep = redirectUri.includes("?") ? "&" : "?";
     window.location.href = `${redirectUri}${sep}error=access_denied&state=${encodeURIComponent(state)}`;
@@ -110,7 +130,7 @@ export default function OAuthConsentPage() {
           <h1 className="text-lg font-semibold">{t("title", { app: appName })}</h1>
         </div>
 
-        {status === "checking" && (
+        {(status === "checking" || (firstParty && (status === "ready" || status === "connecting"))) && (
           <p className="mt-5 text-sm text-text-muted">{t("loading")}</p>
         )}
 
@@ -131,7 +151,7 @@ export default function OAuthConsentPage() {
           </div>
         )}
 
-        {(status === "ready" || status === "connecting" || status === "error") && (
+        {(status === "ready" || status === "connecting" || status === "error") && !(firstParty && status !== "error") && (
           <div className="mt-5 space-y-5">
             <p className="text-sm text-text-muted">{t("body", { app: appName })}</p>
             <ul className="space-y-2.5">
