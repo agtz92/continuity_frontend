@@ -11,7 +11,7 @@ import { assistantBaseUrl } from "@/lib/assistantApi";
 // continuu.it, so approve without showing the consent screen. The code can
 // only ever be delivered to these exact origins (and still needs the PKCE
 // verifier held by the page that started the flow).
-const FIRST_PARTY_ORIGINS = ["https://gtd.continuu.it"];
+const FIRST_PARTY_ORIGINS = ["https://gsd.continuu.it", "https://gtd.continuu.it"];
 
 const isFirstParty = (uri: string) => {
   try {
